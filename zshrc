@@ -1,6 +1,6 @@
 # load custom executable functions
 for function in ~/.zsh/functions/*; do
-    source $functions
+    source $function
 done
 
 _load_configs() {
