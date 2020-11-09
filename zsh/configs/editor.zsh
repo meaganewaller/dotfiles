@@ -1,2 +1,2 @@
-export VISUAL='/Applications/Visual Studio Code.app/Contents/MacOS/Electron' -w
+export VISUAL="code -w"
 export EDITOR=$VISUAL
