@@ -1,0 +1,114 @@
+[init]
+    defaultBranch = main
+    templatedir = ~/.git_template
+[push]
+    default = current
+[color]
+    pager = true
+	ui = auto
+	status = auto
+	diff = auto
+	branch = auto
+	showBranch = auto
+	interactive = auto
+	grep = auto
+[color "status"]
+	header = black bold
+	branch = cyan
+	nobranch = red
+	unmerged = red
+	untracked = cyan
+	added = cyan
+	changed = red
+[color "diff"]
+	meta = red bold
+	frag = black bold
+	func = blue
+	old = red strike
+	new = cyan
+	commit = blue
+	whitespace = red
+	context = normal
+[color "branch"]
+	current = cyan
+	local = blue
+	remote = magenta
+	upstream = magenta
+	plain = normal
+[color "decorate"]
+	branch = blue
+	remoteBranch = magenta
+	tag = magenta
+	stash = cyan
+	HEAD = blue
+[color "interactive"]
+	prompt = red
+	header = red bold
+	error = red
+	help = black bold
+[color "grep"]
+	context = normal
+	filename = blue
+	function = blue
+	selected = normal
+	separator = red bold
+	linenumber = normal
+[alias]
+    aa = add --all
+    ap = add --patch
+    branches = for-each-ref --sort=-committerdate --format=\"%(color:blue)%(authordate:relative)\t%(color:red)%(authorname)\t%(color:white)%(color:bold)%(refname:short)\" refs/remotes
+    ci = commit -v
+    co = checkout
+    pf = push --force-with-lease
+    st = status -s
+    ff = merge --ff-only
+    fa = fetch --all
+    ds = diff --stat=160,120
+    dh1 = diff HEAD~1
+    unstage = reset HEAD
+    apply-gitignore = !git ls-files -ci --exclude-standard -z | xargs -0 git rm --cached
+    cm = commit -m
+    ca = commit --amend -m
+    amend = commit --amend --no-edit
+    fix = amend
+    cb = checkout -b
+    cp = cherry-pick
+    df = diff
+    dc = diff --cached
+    history = log --follow
+    tl = tag -l
+    bl = branch -a
+    rl = remote -v
+    head = !git r -1
+    h = !git head
+    r = !GIT_NO_PAGER=1 git l -30
+    ra = !git r --all
+    la = !git l --all
+    hp = "!. ~/.git/githelpers && show_git_head"
+    l = "!. ~/.git/githelpers && pretty_git_log"
+    pull = pull --rebase
+    rekt = reset --hard HEAD
+    web = instaweb --httpd=webrick
+[pull]
+	ff = only
+	rebase = true
+[push]
+	# `git push` will push the current branch to its tracking branch
+	# the usual default is to push all branches
+	default = tracking
+[merge]
+    ff = only
+[commit]
+    template = ~/.gitmessage
+[fetch]
+    prune = true
+[rebase]
+    autosquash = true
+[include]
+    path = ~/.gitconfig.local
+[diff]
+    colorMoved = zebra
+[core]
+    excludesfile = ~/.gitignore
+    autocrlf = input
+    pager = diff-so-fancy | less --tabs=2 -RFX

@@ -1,0 +1,2 @@
+export VISUAL="code -w"
+export EDITOR=$VISUAL
