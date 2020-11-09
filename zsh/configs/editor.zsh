@@ -1,2 +1,2 @@
-export VISUAL="code -w"
+export VISUAL=vim
 export EDITOR=$VISUAL
