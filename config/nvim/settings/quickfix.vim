@@ -1,0 +1,1 @@
+autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
