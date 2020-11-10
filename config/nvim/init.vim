@@ -292,6 +292,7 @@ Plug 'grassdog/tagman.vim'
 Plug 'tobyS/pdv'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'ervandew/supertab'
+Plug 'wakatime/vim-wakatime'
 
 " ========== Look =============
 Plug 'chrisbra/color_highlight'
