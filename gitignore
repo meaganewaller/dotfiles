@@ -76,3 +76,4 @@ docker/*.secret
 node_modules/
 
 .local.vimrc
+.vscode

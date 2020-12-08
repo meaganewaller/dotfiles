@@ -55,3 +55,5 @@ alias dc='docker-compose'
 alias docker-cleanup='docker ps -a | grep Exit | cut -d ' ' -f 2 | xargs docker rm'
 
 alias screenfetch='screenfetch-c'
+
+alias ber='nocorrect bundle exec rspec '

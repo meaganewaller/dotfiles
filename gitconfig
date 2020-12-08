@@ -115,3 +115,5 @@
 [user]
 	name = Meagan Waller
 	email = meaganewaller@gmail.com
+[i18n]
+	logOutputEncoding = ISO-8859-1
