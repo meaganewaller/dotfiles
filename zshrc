@@ -38,3 +38,7 @@ eval "$(rbenv init -)"
 # Local Config
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 [[ -f ~/.aliases ]] && source ~/.aliases
+
+function mcd() {
+  mkdir -p "$1" && cd "$1";
+}
