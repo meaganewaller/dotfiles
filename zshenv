@@ -12,3 +12,5 @@ if which rbenv &> /dev/null; then
     # enable shims and auto-completion
     eval "$(rbenv init -)"
 fi
+
+if [ -e /Users/meagan.waller/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/meagan.waller/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

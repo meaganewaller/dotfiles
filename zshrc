@@ -42,3 +42,9 @@ eval "$(rbenv init -)"
 function mcd() {
   mkdir -p "$1" && cd "$1";
 }
+
+eval "$(direnv hook zsh)"
+
+eval "$(nodenv init -)"
+
+. $HOME/.nix-profile/etc/profile.d/nix.sh

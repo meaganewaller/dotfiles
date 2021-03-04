@@ -28,3 +28,7 @@ npm-debug.log
 
 # VS Code Files
 ember.d.ts
+
+.direnv
+.envrc
+.node-version

@@ -104,16 +104,18 @@
     prune = true
 [rebase]
     autosquash = true
-[include]
-    path = ~/.gitconfig.local
 [diff]
     colorMoved = zebra
 [core]
-    excludesfile = ~/.gitignore
+	excludesfile = /Users/meagan.waller/.gitignore_global
     autocrlf = input
     pager = diff-so-fancy | less --tabs=2 -RFX
+	exludesfile = /Users/meagan.waller/.gitignore_global
 [user]
 	name = Meagan Waller
 	email = meaganewaller@gmail.com
 [i18n]
 	logOutputEncoding = ISO-8859-1
+[include]
+    path = ~/.gitconfig.local
+
