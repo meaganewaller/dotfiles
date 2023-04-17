@@ -1,0 +1,14 @@
+- link:
+    ~/.gitmessage:
+        force: true
+        path: tools/vcs/git/message
+    ~/.gitconfig:
+        path: tools/vcs/git/config
+    ~/.gitignore_global:
+        path: tools/vcs/git/ignore
+    ~/.gitconfig.local:
+        path: tools/vcs/git/config.local
+    ~/.config/git:
+        glob: true
+        path: tools/vcs/git/*
+        exclude: [ tools/vcs/git/README.md ]

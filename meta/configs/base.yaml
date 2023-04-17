@@ -1,0 +1,53 @@
+- shell:
+    - description:
+        command: >-
+            ~/.dots/commands/dotbanner;
+
+- defaults:
+    link:
+      force: true
+      relink: true
+
+- clean:
+    ~/:
+      force: true
+    ~/share/applications:
+        force: true
+    ~/.local/bin:
+      force: true
+    ~/.config:
+      recursive: true
+    ~/.local/share/fonts:
+        force: false
+
+
+- create:
+    - $HOME/dev
+    - $HOME/code
+    - $HOME/forks
+    - $HOME/clones
+    - $HOME/workspace
+    - $HOME/garden
+    - $HOME/sandbox
+    - $HOME/.bin
+    - $HOME/.config
+    - $HOME/.cache
+    - ~/.local/state
+    - ~/.local/share/packages
+    - ~/.local/share/src
+    - ~/.ssh
+
+- shell:
+    # - description: Decrypting repo..
+    #   quiet: true
+    #   command: >-
+    #     ~/.dotfiles/core/scripts/transdec;
+
+    - description: Remove useless files from HOME dir
+      command: >-
+          rm -rf "$HOME/.bash_history" "$HOME/.python_history" "$HOME/.lesshst"
+
+    - description: Installing submodules...
+      quiet: true
+      command: >-
+          git submodule update --init --recursive
