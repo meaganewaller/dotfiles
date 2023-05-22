@@ -1,88 +1,55 @@
---      __  ________________    ________  ___
---     /  |/  / ____/ ____/ |  / /  _/  |/  /
---    / /|_/ / __/ / / __ | | / // // /|_/ /
---   / /  / / /___/ /_/ / | |/ // // /  / /
---  /_/  /_/_____/\____/  |___/___/_/  /_/
---
---  Author: https://github.com/meaganewaller
---  GitHub: https://github.com/meaganewaller/.dotfiles/editors/nvim
---  Last Updated: 2023-05-11
-
-local vim = vim
-
-if vim.loader then
-  vim.loader.enable()
+-- bootstrap lazy package manager
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath
+  })
 end
+vim.opt.rtp:prepend(lazypath)
 
-vim.g.enabled_plugin = {
-  breadcrumb = false,
-  mappings = false,
-  autocmds = false,
-  megline = false,
-  megcolumn = false,
-  lsp = false,
-  term = false,
-  repls = false,
-  cursorline = false,
-  colorcolumn = false,
-  windows = false,
-  numbers = false,
-  quickfix = false,
-  folds = false,
-  env = false,
-  tmux = false,
-  dim = false,
-  vscode = false,
-  winbar = false,
-}
+-- set leader to space
+-- this needs to occur before initializing lazy
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 
-for plugin, _ in pairs(vim.g.enabled_plugin) do
-  if not vim.tbl_contains({ "autocmds", "mappings", "quickfix" }, plugin) and vim.g.started_by_firenvim then
-    vim.g.enabled_plugin[plugin] = false
-  end
-end
+_G.mw = {}
 
-vim.g.colorscheme = "catppuccin"
-vim.g.default_colorcolumn = "81"
-vim.g.mapleader = ","
-vim.g.maplocalleader = " "
-vim.g.notifier_enabled = true
-vim.g.debug_enabled = false
-vim.g.picker = "telescope"
-vim.g.tree = "neo-tree"
+require("meg")
 
-_G.meg = meg
-  or {
-    ui = {},
-    fn = {},
-    fzf = {},
-    dirs = {},
-    mappings = {},
-    term = {},
-    lsp = {},
-    icons = require("meg.icons"),
-    ts_ignored_langs = { "svg", "json", "heex", "jsonc" },
-    notify = vim.notify,
-  }
-
-require("meg.globals")
-require("meg.debug")
-require("meg.options")
-require("meg.plugins")
-require("meg.mappings")
-require("meg.event")
-
-meg.pcall("theme failed to load because", function(colorscheme)
-  local theme = fmt("meg.lush_theme.%s", colorscheme)
-  local ok, lush_theme = pcall(require, theme)
-  if ok then
-    vim.g.colors_name = colorscheme
-    package.loaded[theme] = nil
-
-    require("lush")(lush_theme)
-  else
-    vim.cmd.colorscheme(colorscheme)
-  end
-
-  meg.colors = require("meg.lush_theme.colors")
-end, vim.g.colorscheme)
+-- require("lazy").setup("meg.plugins", {
+--   debug = false,
+--   defaults = { lazy = true },
+--   checker = { enabled = false },
+--   diff = {
+--     cmd = "terminal_git",
+--   },
+--   rtp = {
+--     disabled_plugins = {
+--       "gzip",
+--       "zip",
+--       "zipPlugin",
+--       "tar",
+--       "tarPlugin",
+--       "getscript",
+--       "getscriptPlugin",
+--       "vimball",
+--       "vimballPlugin",
+--       "2html_plugin",
+--       "logipat",
+--       "rrhelper",
+--       "spellfile_plugin",
+--       "matchit",
+--       "tutor_mode_plugin",
+--       "remote_plugins",
+--       "shada_plugin",
+--       "filetype",
+--       "spellfile",
+--       "tohtml",
+--     },
+--   },
+-- })
