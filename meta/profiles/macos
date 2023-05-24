@@ -1,4 +1,5 @@
 base
+asdf
 macos
 
 ssh
@@ -9,7 +10,6 @@ bin
 fish
 neovim
 
-macos-ui
 kitty
 lazygit
 mackup
@@ -24,4 +24,4 @@ starship
 vivid
 yabai
 zk
-zsh
+#zsh

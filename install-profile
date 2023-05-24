@@ -53,7 +53,7 @@ printLineBanner() {
 
 exitIfProfileNotFound=false
 for profile in ${@}; do
-    profileFilepath="${BASE_DIR}/${META_DIR}/${PROFILES_DIR}/${profile}"
+  profileFilepath="${BASE_DIR}/${META_DIR}/${PROFILES_DIR}/${profile}"
 
   if [[ ! -e $profileFilepath ]]; then
     echo -e "Dotbot profile \\033[1;31m$profileFilepath \\033[0mNOT found"
@@ -79,7 +79,7 @@ for profile in ${@}; do
     # obtained from https://stackoverflow.com/a/8197412/3053548
   done < <(grep -v '^#' "${META_DIR}/${PROFILES_DIR}/$profile")
 
-  for i in `seq 2`; do printLineBanner; done
+  for i in $(seq 2); do printLineBanner; done
   echo -e "\nRunning profile \e[1;34m$profile\e[0m\n"
 
   # Run profile configs

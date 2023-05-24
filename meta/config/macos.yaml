@@ -1,5 +1,0 @@
-- link:
-    ~/.applescript: os/macos/applescript
-    ~/Library/LaunchAgents/meagan.cloud-backup.plist: os/macos/LaunchAgents/meagan.cloud-backup.plist
-    ~/Library/LaunchAgents/meagan.color-mode-notify.plist: os/macos/LaunchAgents/meagan.color-mode-notify.plist
-    ~/.color_mode: os/macos/color_mode
