@@ -7,6 +7,7 @@ sketchybar --add item volume right \
   update_freq=5 \
   icon.color=$IRIS \
   icon.padding_left=10 \
+  icon.font="$ICON_FONT:Bold:18.0"
   label.color=$IRIS \
   label.padding_right=10 \
   background.color=$OVERLAY \

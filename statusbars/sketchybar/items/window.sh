@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
+source "$HOME/.config/sketchybar/icons.sh"
+source "$HOME/.config/sketchybar/colors.sh"
+source "$HOME/.config/sketchybar/vars.sh"
+
 WINDOW_SCRIPT='sketchybar --set $NAME label="$INFO"'
 
 system_yabai=(
@@ -17,6 +21,7 @@ window=(
   icon.drawing=off
   background.padding_left=0
   label.color="$LABEL_COLOR"
+  label.font="$DEFAULT_LABEL_FONT"
   associated_display=active
 )
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export ICON_FONT="FiraCode Nerd Font"
-export LABEL_FONT="BigBlue_Terminal_437TT Nerd Font"
+export ICON_FONT="FiraCode Nerd Font Mono"
+export LABEL_FONT="BigBlueTermPlus Nerd Font"
 export DEFAULT_ICON_FONT="$ICON_FONT:Regular:14.0"
-export DEFAULT_LABEL_FONT="$LABEL_FONT:Nerd Font Mono:14.0"
+export DEFAULT_LABEL_FONT="$LABEL_FONT:Regular:14.0"
 export PADDINGS=3
 export SEGMENT_SPACING=13
 export SHADOW=on
