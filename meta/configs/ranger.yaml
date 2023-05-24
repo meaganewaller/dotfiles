@@ -1,0 +1,4 @@
+- link:
+    ~/.config/ranger:
+      glob: true
+      path: "cli/utils/ranger/*"
