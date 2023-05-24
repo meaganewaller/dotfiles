@@ -1,0 +1,562 @@
+{:profiles
+ {:megbot {:default true
+           :alone 80
+           :held 50
+           :delay 0
+           :sim 30}}
+ :templates {:alfred "osascript -e 'tell application id \"com.runningwithcrayons.Alfred\" to run trigger \"%s\" in workflow \"%s\" with argument \"%s\"'"
+             :km "osascript -e 'tell application \"Keyboard Maestro Engine\" to do script \"%s\"'"
+             :rc "open -g raycast://extensions/%s/%s/%s" ; author/ext-name/command-name
+             :open "open \"%s\""
+             }
+ :simlayers {
+             :2-mode {:key :2}
+             :3-mode {:key :3}
+             :4-mode {:key :4}
+             :tab-mode {:key :tab}
+             :q-mode {:key :q}
+             :w-mode {:key :w}
+             :e-mode {:key :e}
+             :r-mode {:key :r}
+             :t-mode {:key :t}
+             :i-mode {:key :i}
+             :o-mode {:key :o}
+             :caps-mode {:key :caps_lock}
+             :a-mode {:key :a}
+             :s-mode {:key :s}
+             :d-mode {:key :d}
+             :f-mode {:key :f}
+             :g-mode {:key :g}
+             :semicolon-mode {:key :semicolon}
+             :tilde-mode {:key :grave_accent_and_tilde}
+             :z-mode {:key :z}
+             :x-mode {:key :x}
+             :c-mode {:key :c}
+             :v-mode {:key :v}
+             :b-mode {:key :b}
+             :n-mode {:key :n}
+             :m-mode {:key :m}
+             :comma-mode {:key :comma}
+             :dot-mode {:key :period}
+             :spacebar-mode {:key :spacebar}
+             :go-mode {:key :period :condi ["in-go" 1]}
+             :js-mode {:key :period :condi ["in-js" 1]}
+             :swift-mode {:key :period :condi ["in-swift" 1]}
+             :rust-mode {:key :period :condi ["in-rust" 1]}
+             :py-mode {:key :period :condi ["in-python" 1]}
+             :elixir-mode {:key :period :condi ["in-elixir" 1]}
+             ; :ruby-mode {:key :period :condi ["in-ruby" 1]}
+             }
+ :main [
+        { :des "colonkey (shift)"
+         :rules [:semicolon-mode
+                 [:1 :!T1]
+                 [:2 :!T2]
+                 [:3 :!T3]
+                 [:4 :!T4]
+                 [:5 :!T5]
+                 [:q :!Sq]
+                 [:w :!Sw]
+                 [:e :!Se]
+                 [:r :!Sr]
+                 [:t :!St]
+                 [:y :!Sy]
+                 [:u :!Su]
+                 [:i :!Si]
+                 [:o :!So]
+                 [:p :!Sp]
+                 [:a :!Sa]
+                 [:s :!Ss]
+                 [:d :!Sd]
+                 [:f :!Sf]
+                 [:g :!Sg]
+                 [:h :!Sh]
+                 [:j :!Sj]
+                 [:k :!Sk]
+                 [:l :!Sl]
+                 [:grave_accent_and_tilde [:!Sgrave_accent_and_tilde]] ; -> ~
+                 [:z :!Sz]
+                 [:x :!Sx]
+                 [:c :!Sc]
+                 [:v :!Sv]
+                 [:b :!Sb]
+                 [:n :!Sn]
+                 [:m :!Sm]]}
+        {:des "swap : and ;"
+         :rules [[:#Psemicolon :!Ssemicolon]
+                 [:!Ssemicolon :semicolon]]}
+        {:des "left cmd -> cmd+tab"
+         :rules [[:left_command :left_command nil {:alone :!Ctab}]]}
+        ;{:des "right cmd -> Alfred"
+        ; :rules [[:right_command :right_command nil {:alone :!CTOSspacebar}]]}
+        ;{:des "§ -> Karabiner on/off"
+        ; :rules [[:non_us_backslash [:km "Karabiner on/off"]]]}
+        {:des "jsim"
+         :rules [[[:j :k] [:alfred "search google" "net.deanishe.alfred-searchio"]]
+                 ;[[:j :semicolon] [:alfred "search tabs" "net.deanishe.alfred.safari"]]
+                 [[:j :semicolon] :!COST9] ; ScriptKit
+                 [[:j :l] :!CTOSspacebar]]} ; Alfred
+        {:des "ksim"
+         :rules [[[:k :l] [:alfred "search dash" "com.kapeli.dash.workflow"]]
+                 [[:k :m] [:alfred "search youtube" "net.deanishe.alfred-searchio"]]]}
+        {:des "2key (move + alfred)"
+         :rules [:2-mode
+                 [:j :!Cdown_arrow]
+                 [:k :!Cup_arrow]
+                 [:l :!Cright_arrow]
+                 [:h :!Cleft_arrow]
+                 [:semicolon :!Oup_arrow]
+                 [:quote :!Odown_arrow]
+                 [:spacebar :!COSu]]}
+        {:des "3key (open files + projects)"
+         :rules [:3-mode
+                 [:c [:rc "raycast", "raycast", "confetti"]]
+                 ; [:o [:km "edit: GitHub Bio"]]
+                 ; [:j [:km "edit: Fish aliases"]]
+                 ; [:k [:km "edit: Fish functions"]]
+                 ; [:semicolon [:km "proj: Knowledge"]]
+                 ; [:quote [:km "wiki: Summary"]]
+                 ; [:n [:km "proj: Dotfiles"]]
+                 ; [:m [:km "proj: Blog"]]]}
+                 ; [:comma [:km "edit: Now"]]
+                 ; [:period [:km "edit: GitHub Bio"]] ; TODO:
+                 ; [:spacebar :!CSOp]]} ; Selection -> Reddit
+                 ]}
+        {:des "4key (open curated lists)"
+         :rules [:4-mode
+                 ; [:r [:km "edit: Web Searches"]]
+                 ; [:t [:km "list: Newsletters"]]
+                 ; [:o [:km "list: Blogs"]]
+                 ; [:p [:km "list: Podcasts"]]
+                 ; [:k [:km "list: Alfred workflows"]]
+                 ; [:l [:km "list: Command line tools"]]
+                 ; [:n [:km "list: Events"]]]}
+                 ]}
+        {:des "Tabkey (websites)"
+         :rules [:tab-mode
+                 [:o [:km "Lowercase and dash separate text"]]
+                 ; [:j [:km "w: meaganwaller.com"]]
+                 ; [:k [:km "w: GitHub"]]
+                 ; [:l [:km "w: Repl.it"]]
+                 ; [:period [:km "w: CodeSandbox"]]]}
+                 ]}
+        {:des "qkey (cmd + shift)"
+         :rules [:q-mode
+                 [:3 :!CS3]
+                 [:4 :!CS4]
+                 [:5 :!CS5]
+                 [:6 :!CS6]
+                 [:7 :!CS7]
+                 [:8 :!CS8]
+                 [:9 :!CS9]
+                 [:0 :!CS0]
+                 [:w :!CSw]
+                 [:e :!CSe]
+                 [:r :!CSr]
+                 [:t :!CSt]
+                 [:y :!CSy]
+                 [:u :!CSu]
+                 [:i :!CSi]
+                 [:o :!CSo]
+                 [:p :!CSp]
+                 [:open_bracket :!CSopen_bracket]
+                 [:close_bracket :!CSclose_bracket]
+                 [:a :!CSa]
+                 [:s :!CSs]
+                 [:d :!CSd]
+                 [:f :!CSf]
+                 [:g :!CSg]
+                 [:h :!CSh]
+                 [:j :!CSj]
+                 [:k :!CSk]
+                 [:l :!CSl]
+                 [:semicolon :!CSsemicolon]
+                 [:quote :!CSquote]
+                 [:z :!CSz]
+                 [:x :!CSx]
+                 [:c :!CSc]
+                 [:v :!CSv]
+                 [:b :!CSb]
+                 [:n :!CSn]
+                 [:m :!CSm]
+                 [:comma :!CScomma]
+                 [:period :!CSperiod]
+                 [:slash :!CSslash]]}
+        {:des "wkey (apps)"
+         :rules [:w-mode
+                 ; [:q [:km "open: GraphQL"]]
+                 [:e [:km "open: Fantastical"]]
+                 [:r [:km "open: Notion"]]
+                 [:t [:km "open: Activity Monitor"]]
+                 ;[:i [:km "open: Instruments"]]
+                 ;[:i [:km "open: Obsidian"]]
+                 ;[:i [:km "open: Dropcode"]]
+                 ; [:i [:km "open: SnippetsLab"]]
+                 [:o [:km "open: Keyboard Maestro"]]
+                 [:p [:km "open: Postgres"]]
+                 [:caps_lock [:km "open: Finder"]]
+                 [:a [:km "open: Obsidian"]]
+                 ;[:d [:km "open: Postico"]]
+                 ; [:d [:km "open: TablePlus"]]
+                 ; [:f [:km "open: 2Do"]]
+                 ; [:g [:km "open: Height"]]
+                 ; [:h [:km "open: Zen"]]
+                 ;[:g [:km "open: Linear"]]
+                 ;[:h [:km "open: Safari Technology Preview"]]
+                 ;[:h [:km "open: Android Emulator"]]
+                 ; [:j [:km "open: Warp"]]
+                 ; [:k [:km "open: Safari"]]
+                 ; [:l [:km "open: VS Code"]]
+                 ; [:semicolon [:km "open: Xcode"]]
+                 ; [:quote [:km "open: Console"]]
+                 [:c [:km "open: Spotify"]]
+                 ;[:v [:km "open: HTTPie"]]
+                 ; [:v [:km "open: Paw"]]
+                 ; [:b [:km "open: BetterTouchTool"]]
+                 ; [:n [:km "open: Sublime Text"]]
+                 ; [:m [:km "open: Sublime Merge"]]
+                 [:comma [:km "open: Proxyman"]]
+                 ; [:period [:km "open: Cypress"]]
+                 ;;  [:spacebar :!CT7]]} ; Start Google search with selection
+                 ;[:spacebar [:km "open: Learn Anything"]]]}
+                 ;[:spacebar [:km "Explain with ChatGPT"]]]}
+                 ; [:spacebar [:km "open: Zen"]]]}
+                 ]}
+        {:des "ekey (cmd)"
+         :rules [:e-mode
+                 [:q :!Cq]
+                 [:w :!Cw]
+                 [:r :!Cr]
+                 [:t :!Ct]
+                 [:u :!Cu]
+                 [:i :!Ci]
+                 [:p :!Cp]
+                 [:open_bracket :!Copen_bracket]
+                 [:close_bracket :!Cclose_bracket]
+                 [:semicolon :!Csemicolon]
+                 [:quote :!Cquote]
+                 [:comma :!Ccomma]
+                 [:period :!Cperiod]
+                 [:slash :!Cslash]
+                 [:a :!Ca]
+                 [:b :!Cb]
+                 [:c :!Cc]
+                 [:d :!Cd]
+                 [:f :!Cf]
+                 [:g :!Cg]
+                 [:h :!Ch]
+                 [:j :!Cj]
+                 [:k :!Ck]
+                 [:l :!Cl]
+                 [:m :!Cm]
+                 [:n :!Cn]
+                 [:o :!Co]
+                 [:s :!Cs]
+                 [:v :!Cv]
+                 [:x :!Cx]
+                 [:y :!Cy]
+                 [:z :!Cz]
+                 [:1 :!C1]
+                 [:2 :!C2]
+                 [:3 :!C3]
+                 [:4 :!C4]
+                 [:5 :!C5]
+                 [:6 :!C6]
+                 [:7 :!C7]
+                 [:8 :!C8]
+                 [:9 :!C9]
+                 [:0 :!C0]
+                 [:spacebar :!CSO7]]} ; Selection -> Google Lucky
+        {:des "rkey (apps)"
+         :rules [:r-mode
+                 ; [:tab [:km "open: Transmission"]]
+                 ; [:q [:km "open: IINA"]]
+                 [:w [:km "open: 1Password"]]
+                 ;[:e [:km "open: Keynote"]]
+                 ;[:e [:km "open: Day One"]]
+                 ;[:i [:km "open: Flume"]]
+                 ; [:i [:km "open: Feedback Assistant"]]
+                 [:o [:km "open: Developer"]]
+                 ;[:caps_lock [:km "open: Preview"]]
+                 [:a [:km "open: Alfred Preferences"]]
+                 [:j [:km "open: Dictionary"]]
+                 [:k [:km "open: Preview"]]
+                 ; [:l [:km "open: NetNewsWire"]]
+                 ;[:l [:km "open: Books"]]
+                 ;[:l [:km "open: Reflect"]]
+                 ;[:k [:km "open: PDF Expert"]]
+                 ;[:l [:km "open: Reeder"]]
+                 [:b [:km "Edit keyboard shortcuts"]]
+                 ; [:n [:km "open: ScreenFlow"]]
+                 ; [:m [:km "open: OBS"]]
+                 ; [:comma [:km "open: Arq"]]
+                 ; [:period [:km "open: Final Cut Pro"]]
+                 ;[:spacebar :!COSx]]} ; Selection -> Reddit
+                 [:spacebar :!CTOSg]]} ; Loom recording
+        {:des "tkey (palettes + websites)"
+         :rules [:t-mode
+                 ;[:0 [:km "w: regex101"]]
+                 ;[:e [:km "w: Facebook"]]
+                 ;[:u [:km "w: Medium"]]
+                 ;[:i [:km "w: Arxiv"]]
+                 ;[:o [:km "w: Stack Overflow"]]
+                 ;[:p [:km "w: Dropbox"]]
+                 ;[:a [:km "w: Amazon"]]
+                 ;[:h [:km "w: Twitch"]]
+                 ;[:k [:km "Get link (Safari Technology Preview)"]]
+                 ;[:j :!COSo] ; Safari URL -> Twitter
+                 ;[:j :!COSo] ; Safari URL -> Google
+                 ;[:k :!COSo] ; Safari URL -> HN
+                 ;[:l :!COSo] ; Safari URL -> Lobsters
+                 ;[:semicolon [:km "w: Netlify"]]
+                 ;[:z [:km "w: MDN"]]
+                 ;[:b [:km "w: Observable"]]
+                 ;[:m [:km "w: Meetup"]]
+                 ;[:comma [:km "w: Google Drive"]]
+                 ;[:period [:km "w: IFTTT"]]
+                 ;[:spacebar :!COSr]]} ; Selection -> Google Translate
+                 [:spacebar :!CTOSi]]} ; Loom cancel record
+        {:des "ikey (symbols)"
+         :rules [:i-mode
+                 [:1 :!S1]
+                 [:2 :!S2]
+                 [:3 :!Sequal_sign]
+                 [:4 :!S8]
+                 [:5 :!S5]
+                 [:q :!Sopen_bracket]
+                 [:w :!S9]
+                 [:e :!S3]
+                 [:r :!Squote]
+                 [:t :quote]
+                 [:o :open_bracket] ; [
+                 [:p :close_bracket] ; ]
+                 [:open_bracket :!Sclose_bracket] ; }
+                 [:caps_lock [:km "Match symbols"]]
+                 [:a :slash]
+                 [:s :!Shyphen]
+                 [:d :backslash]
+                 [:f :hyphen]
+                 [:g :!S4]
+                 [:j :equal_sign]
+                 [:l [:hyphen :!Speriod :spacebar]] ; -> arrow (->)
+                 [:semicolon :semicolon]
+                 [:grave_accent_and_tilde :!Sgrave_accent_and_tilde] ; -> //
+                 [:z :!Sslash]
+                 [:x :!Sbackslash]
+                 [:c :!S7]
+                 [:v :!Scomma]
+                 [:b [:slash :slash :spacebar]]]} ; -> //
+        {:des "okey (alfred)"
+         :rules [:o-mode
+                 [:1 :!C1]
+                 [:2 :!C2]
+                 [:3 :!C3]
+                 [:4 :!C4]
+                 [:5 :!C5]
+                 [:6 :!C6]
+                 [:q [:alfred "search downloads" "recentdownloads.ddjfreedom"]]
+                 [:w :!CObackslash] ; 1Password search
+                 ;[:e [:km "Make 2Do task"]]
+                 [:e :!CTOS9]
+                 ; [:e [:km "Make 2Do task"]]
+                 ; [:r [:km "Make 2Do task with note as current URL"]]
+                 ; [:t [:km "Make 2Do task with Safari title as name + note as current URL"]]
+                 [:i [:alfred "search alfred" "nikivi.utilities" "?"]]
+                 [:caps_lock [:alfred "search desktop" "com.vitorgalvao.alfred.directories"]]
+                 [:a [:alfred "search files" "nikivi.manage.notes"]] ; TODO: add blog, drafts
+                 ;[:s [:alfred "search code" "nikivi.manage.notes"]]
+                 [:d [:alfred "search repos" "net.deanishe.alfred-git-repos"]]
+                 [:f [:alfred "search folders" "nikivi.search.folders"]]
+                 [:g :!COS9] ; Raycast
+                 ;[:g [:km "2Do with current url as note (github)"]]
+                 [:j [:alfred "run" "iansinnott.keyboardmaestro"]]
+                 [:k [:alfred "search menu bar" "com.tedwise.menubarsearch"]]
+                 [:grave_accent_and_tilde [:alfred "search processes" "com.vitorgalvao.alfred.processcontrol"]]
+                 [:x [:alfred "search workflows" "org.jeef.workflowdirectory"]]
+                 [:c [:alfred "search emoji" "com.github.jsumners.alfred-emoji"]]
+                 [:v [:alfred "search clones" "com.vitorgalvao.alfred.directories"]]
+                 [:b [:km "Add 2Do with current url as note (github)"]]
+                 [:n [:alfred "search lists" "nikivi.learn.anything"]]
+                 [:m [:alfred "search lists" "nikivi.awesome.lists"]]
+                 ;[:spacebar [:alfred "search PDFs" "nikivi.search.files"]]]}
+                 ;[:spacebar [:km "open: MacGPT"]]]}
+                 [:spacebar [:km "open: ChatGPT"]]]}
+;[:spacebar [:km "open: Ask"]]]}
+{:des "capskey (things + trello)"
+ :rules [:caps-mode
+         ; [:1 [:alfred "Screenshot -> Imgur" "com.vitorgalvao.alfred.webscreenshot"]]
+         [:2 :!TO2] ; Screenshot -> Clipboard
+         [:3 :!TO3] ; Screenshot -> Annotate
+         [:4 :!TO9] ; Picture of screen -> Clipboard
+         [:5 :!TO0] ; Picture of screen -> ~/Desktop
+         ; [:w [:km "wiki: My workflow"]]
+         ; [:e [:km "edit: Private notes"]]
+         ; [:r [:km "wiki: Rules"]]
+         ; [:t [:km "wiki: Processes"]]
+         ; [:u [:km "Open 2Do Buy"]]
+         ; [:i [:km "Open 2Do Fix"]]
+         ; [:o [:km "Open 2Do Tools"]]
+         ; [:p [:km "Open 2Do Repeat"]]
+         ; [:open_bracket [:km "w: Goodreads (currently reading)"]]
+         ; [:close_bracket [:km "w: Goodreads (next)"]]
+         ; [:s [:km "Open 2Do Wiki"]]
+         ; [:d [:open "notion://nikitavoloboev/Ideas-0b5a4e8a88f34fe29a1f33dad02e5332"]]
+         ; [:f [:km "Search 2Do"]]
+         ; [:g [:km "Open 2Do Life"]]
+         ; [:h [:open "notion://nikitavoloboev/Learn-05c0eac7be904e0da89cd8a3bf7ab509"]]
+         ; [:j [:km "Open 2Do Today"]]
+         ; [:k [:km "Open 2Do GitHub"]]
+         ; [:l [:km "Open 2Do Later"]]
+         ; [:semicolon [:km "Open 2Do Starred"]]
+         ;[:quote [:km "Open 2Do Other"]] ; TODO: remove once its empty
+         ; [:c [:km "Look back"]]
+         ; [:v [:km "wiki: Goals"]]
+         ; [:b [:open "notion://nikitavoloboev/Papers-Courses-8f00c7c500d5460490a5800c5d5db431"]]
+         ; [:n [:km "Open 2Do Clean"]]
+         ; [:m [:km "Open 2Do Work"]]
+         ; [:comma [:km "Open 2Do LA"]]
+         ; [:period [:km "Open 2Do Recent"]]
+         ]}
+{:des "akey (ctrl)"
+ :rules [:a-mode
+         [:2 :!T2]
+         [:3 :!T3]
+         [:4 :!T4]
+         [:5 :!T5]
+         [:6 :!T6]
+         [:7 :!T7]
+         [:8 :!T8]
+         [:9 :!T9]
+         [:0 :!T0]
+         [:q :!Tq]
+         [:w :!Tw]
+         [:e :!Te]
+         [:r :!Tr]
+         [:t :!Tt]
+         [:i :!Ti]
+         [:o :!To]
+         [:y :!Ty]
+         [:u :!Tu]
+         [:p :!Tp]
+         [:open_bracket :!Topen_bracket]
+         [:close_bracket :!Tclose_bracket]
+         [:s :!Ts]
+         [:d :!Td]
+         [:f :!Tf]
+         [:g :!Tg]
+         [:h :!Th]
+         [:j :!Tj]
+         [:k :!Tk]
+         [:l :!Tl]
+         [:semicolon :!Tsemicolon]
+         [:quote :!Tquote]
+         [:z :!Tz]
+         [:x :!Tx]
+         [:c :!Tc]
+         [:v :!Tv]
+         [:b :!Tb]
+         [:n :!Tn]
+         [:m :!Tm]
+         [:comma :!Tcomma]
+         [:period :!Tperiod]
+         [:slash :!Tslash]
+         [:spacebar :!CT9]]} ; Selection -> Google
+{:des "skey (essential)"
+ :rules [:s-mode
+         [:w [:!Oleft_arrow :!OSright_arrow]] ; Highlight word
+         [:e :tab]
+         [:r :!Stab]
+         [:t :!Sreturn_or_enter]
+         [:u :!COp] ; Selection -> HasteBin link
+         [:i :!CTperiod] ; Contexts search active windows
+         [:o :!Cx] ; Cut
+         ;[:open_bracket :!Oleft_arrow]
+         [:open_bracket [:km "Lowercase selected text"]]
+         [:close_bracket [:km "Uppercase selected text"]]
+         [:a :!Cc] ; Copy
+         [:d :delete_or_backspace]
+         [:f :return_or_enter]
+         [:g :!Ctab]
+         [:##h :left_arrow]
+         [:##j :down_arrow]
+         [:##k :up_arrow]
+         [:##l :right_arrow]
+         [:semicolon :!CTO0] ; Search Alfred Snippets
+         [:quote [:!Cleft_arrow :!CSright_arrow]] ; Highlight current line
+         [:c :!Cdelete_or_backspace]
+         [:v :left_shift]
+         [:##b :!Cleft_arrow]
+         [:n :!Cv] ; Paste
+         [:##m :!Cright_arrow]
+         [:period :!COS0]]} ; Selection -> Alfred Snippets TODO:
+{:des "dkey (mouse)"
+ :rules [:d-mode
+         [:i :!Ckeypad_hyphen] ; Zoom out
+         [:o :!Ckeypad_plus] ; Zoom in
+         [:a [:!Cc :!Ctab]] ; Copy & activate previous app
+         [:j {:mkey {:vwheel 60}}] ; Scroll down
+         [:k {:mkey {:vwheel -60}}] ; Scroll up
+         [:l [:km "Google clipboard"]]
+         ;[:l [:km "Google selected word"]]
+         [:semicolon [:km "Google Searchio selected word"]]
+         [:quote [:km "Select line and google"]]
+         [:z {:pkey :button2}] ; Right click
+         [:v {:pkey :button1}] ; Left click
+         [:b {:pkey :button3}] ; Middle click
+         [:n [:km "Open URL in clipboard in Safari"]]
+         [:m [:km "Google Lucky selected word"]]
+         [:comma :!TO8] ; Show Launchpad
+         [:period :!CTO3] ; Mission control
+         [:spacebar :!CT8]]} ; Selection -> Dictionary (wiki)
+{:des "fkey (essential)"
+ :rules [:f-mode
+         [:1 [:km "View Sip"]]
+         [:2 [:km "Go to test macro"]]
+         [:3 [:km "New global macro"]] ; TODO: create global macro from Test (clear test, focus on naming new macro)
+         [:tab [:km "Test"]]
+         ;[:q [:km "open: Photos"]]
+         ;[:w [:km "open: Simulator / Xcode"]]
+         ;[:q [:km "edit: 1st Safari tab"]]
+         ;[:q [:km "open: Electron"]]
+         ;[:q [:km "open: Safari Technology Preview"]]
+         [:q [:km "open: Chrome Canary"]]
+         ;[:q [:km "open: Chrome"]]
+         ;[:q [:km "open: Zeplin"]]
+         [:w [:km "Save link"]]
+         [:e :!CO8] ; Alfred clipboard history search
+         [:r [:km "Centre mouse to active app"]]
+         [:i :!Treturn_or_enter]
+         [:o :!Oreturn_or_enter]
+         [:p :!CTOc] ; Sleep
+         [:open_bracket :!CT5] ; Turn display on/off
+         [:caps_lock :!CTOu] ; Sip color picker
+         [:a [:km "open: Figma"]]
+         ;[:a [:km "open: Chrome Canary"]]
+         [:s [:km "edit: 2nd Warp tab"]]
+         ;[:s [:km "open: Excalidraw"]]
+         [:d [:km "Save link (top)"]]
+         [:h [:km "Make markdown link from selection {link}"]]
+         [:j [:km "edit: 1st Warp tab"]]
+         [:k :return_or_enter]
+         [:l :!Creturn_or_enter]
+         [:semicolon [:km "open: MindNode"]]
+         ;[:semicolon [:km "open: Obsidian"]]
+         [:quote [:km "Goku Run"]]
+         [:z :!Ospacebar] ; Switch language (Russian <-> English)
+         [:n :!Freturn_or_enter]
+         [:m :!Sreturn_or_enter]
+         [:comma  [:km "Add safari link to selected markdown text"]]
+         [:period [:km "edit: Karabiner"]]
+         [:slash :!CTO4] ; Alfred file action
+         ;[:spacebar :!CTq]]} ; Selection -> Web Searches
+         [:spacebar [:km "open: Excalidraw"]]]}
+{:des "gkey (actions)"
+ :rules [:g-mode
+         [:q :!CT3] ; Search bartender menu items
+         [:w :!CSgrave_accent_and_tilde] ; Switch between active windows (go up)
+         [:caps_lock [:km "Go to KM group of current app from picklist"]]
+         [:a [:km "Go to KM group of current app"]]
+         [:s [:km "Dismiss notifications"]]
+         [:h :!CSOa] ; Move window left
+         [:j :!Cgrave_accent_and_tilde]]}; Switch between active windows  (go down)
+         ]}
