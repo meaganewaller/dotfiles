@@ -1,0 +1,7 @@
+- shell:
+    - description: Setting raycast scripts to executable
+      quiet: true
+      command: |
+            find launchers/raycast/scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
+            find launchers/raycast/commands/ -type f -iname "*.applescript" -exec chmod +x {} \;
+# vim: set filetype=yaml ts=4 sw=4 tw=0 et :
