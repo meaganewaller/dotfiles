@@ -1,0 +1,297 @@
+#!/usr/bin/env sh
+
+# Unload the macOS WindowManager process
+launchctl unload -F /System/Library/LaunchAgents/com.apple.WindowManager.plist > /dev/null 2>&1 &
+
+# See: https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)#macos-big-sur---automatically-load-scripting-addition-on-startup
+sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
+yabai -m signal --add event=display_added action="sleep 1 && $HOME/.config/yabai/scripts/create_spaces.sh"
+yabai -m signal --add event=display_removed action="sleep 1 && $HOME/.config/yabai/scripts/create_spaces.sh"
+yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
+yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
+
+$HOME/.config/yabai/scripts/create_spaces.sh
+
+yabai -m config external_bar all:39:0 \
+  window_border on \
+  mouse_follows_focus off \
+  focus_follows_mouse autoraise \
+  window_placement second_child \
+  window_topmost off \
+  window_shadow float \
+  window_opacity_duration 0.15 \
+  window_opacity on \
+  window_opacity_on_hover on \
+  active_window_opacity 1.0 \
+  normal_window_opacity 0.95 \
+  window_border_width 2 \
+  window_border_radius 11 \
+  window_animation_duration 0.15 \
+  active_window_border_color 0xffe17989   \
+  normal_window_border_color 0xffb29aea   \
+  insert_feedback_color      0xff9dd274   \
+  split_ratio                0.50         \
+  auto_balance               off          \
+  mouse_modifier             fn           \
+  mouse_action1              move         \
+  mouse_action2              resize       \
+  mouse_drop_action          swap         \
+  top_padding 20 \
+  bottom_padding 10 \
+  left_padding 20  \
+  right_padding 20 \
+  window_gap 8
+
+
+# Exclude problematic apps from being managed:
+yabai -m rule --add app="^(LuLu|Vimac|Calculator|Software Update|Dictionary|VLC|System Preferences|System Settings|zoom.us|Photo Booth|Archive Utility|Python|LibreOffice|App Store|Steam|Alfred|Activity Monitor)$" manage=off
+yabai -m rule --add label="Finder" app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off
+yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
+yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
+yabai -m rule --add label="Select file to save to" app="^Inkscape$" title="Select file to save to" manage=off
+
+yabai -m config layout bsp
+
+# yabai -m config focus_follows_mouse autoraise
+
+echo "yabai configuration loaded.."
+
+
+
+
+
+
+
+
+# yabai -m space 1 --label web
+# yabai -m space 2 --label code
+# yabai -m space 3 --label mail
+# yabai -m space 4 --label docs
+# yabai -m space 5 --label gtd
+# yabai -m space 6 --label media
+# yabai -m space 7 --label social
+# yabai -m space 8 --label tools
+# yabai -m space 9 --label misc
+#
+# yabai -m rule --add app="^Mail$" space=mail
+# yabai -m rule --add app="^Safari$" space=web
+# yabai -m rule --add app="^Spotify$" space=media
+# yabai -m rule --add app="^Music$" space=media
+# yabai -m rule --add app="^(Calculator|System Preferences|Archive Utility)$" manage=off
+# yabai -m rule --add app="^Discord$" space=social grid=1:1:0:0:1:1 manage=off
+# yabai -m rule --add app="^Notes$" space=docs
+# yabai -m rule --add app="^mpv$" manage=off border=off sticky=on layer=above opacity=1.0 grid=8:8:6:0:2:2
+#
+# # signals
+# yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
+# yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
+#
+# # specific space settings
+# yabai -m config --space mail  layout stack
+# yabai -m config --space misc layout float
+#
+# yabai -m config \
+#   external_bar                off:41:0     \
+#   mouse_follows_focus         on           \
+#   focus_follows_mouse         autoraise    \
+#   window_placement            second_child \
+#   window_topmost              off          \
+#   window_shadow               off          \
+#   window_animation_duration   0.25         \
+#   window_opacity_duration     0.25         \
+#   active_window_opacity       0.90         \
+#   normal_window_opacity       0.50         \
+#   window_opacity              on           \
+#   insert_feedback_color       0xaad75f5f   \
+#   active_window_border_color  0xBF775759   \
+#   normal_window_border_color  0x7f353535   \
+#   window_border_width         4            \
+#   window_border_radius        12           \
+#   window_border_blur          on           \
+#   window_border_hidpi         on           \
+#   window_border               on           \
+#   split_ratio                 0.50         \
+#   split_type                  auto         \
+#   auto_balance                off          \
+#   top_padding                 10           \
+#   left_padding                10           \
+#   right_padding               10           \
+#   bottom_padding              10           \
+#   window_gap                  10           \
+#   layout                      bsp          \
+#   mouse_modifier              fn           \
+#   mouse_action1               move         \
+#   mouse_action2               resize       \
+#   mouse_drop_action           swap
+#
+# echo "yabai configuration loaded.."
+#
+#
+#
+#
+#
+# # # Forward events to sketchybar
+# # yabai -m signal --add event=window_focused action="sketchybar -m --trigger window_focus &> /dev/null"
+# # yabai -m signal --add event=window_title_changed action="sketchybar -m --trigger title_changed &> /dev/null"
+# # yabai -m signal --add event=window_created action="sketchybar -m --trigger window_created &> /dev/null"
+# # yabai -m signal --add event=window_destroyed action="sketchybar -m --trigger window_destroyed &> /dev/null"
+# # yabai -m signal --add event=mission_control_exit action="sketchybar -m --trigger mission_control_exit &> /dev/null"
+# #
+# #
+# # # source ~/.config/yabai/scripts/init.sh
+# #
+# # # ==========
+# # # = Spaces =
+# # # ==========
+# # yabai -m space 1 --label web
+# # yabai -m space 2 --label code
+# # yabai -m space 3 --label chat
+# # yabai -m space 4 --label mail
+# # yabai -m space 5 --label gtd
+# # yabai -m space 6 --label tools
+# # yabai -m space 7 --label docs
+# # yabai -m space 8 --label media
+# #
+# # yabai -m config --space mail left_padding 210
+# # yabai -m config --space mail right_padding 210
+# #
+# # # =========
+# # # = Rules =
+# # # =========
+# #
+# # # Unmanaged applications
+# # yabai -m rule --add label="FaceTime" app="FaceTime" title=".*" manage=off
+# # yabai -m rule --add label="Raycast Settings" app="Raycast" title=".*" manage=off
+# # yabai -m rule --add label="System Settings" app="^System Settings$" title=".*" manage=off sticky=on
+# #
+# # yabai -m rule --add label="1Password" app="1Password" manage=off
+# # yabai -m rule --add label="Activity Monitor" app="^Activity Monitor$" manage=off
+# # yabai -m rule --add label="AirMessage" app="AirMessage" manage=off
+# # yabai -m rule --add label="AltTab" app="AltTab" manage=off
+# # yabai -m rule --add label="App Store" app="^App Store$" manage=off
+# # yabai -m rule --add label="Avira" app="Avira*" manage=off
+# # yabai -m rule --add label="Bartender" app="Bartender" manage=off sticky=on
+# # yabai -m rule --add label="Calculator" app="^Calculator$" manage=off sticky=on
+# # yabai -m rule --add label="Cryptomator" app="^Cryptomator" manage=off
+# # yabai -m rule --add label="Dictionary" app="^Dictionary$" manage=off
+# # yabai -m rule --add label="Ivanti" app="Ivanti*" manage=off
+# # yabai -m rule --add label="Maccy" app="^Maccy$" manage=off
+# # yabai -m rule --add label="mpv" app="^mpv$" manage=off
+# # yabai -m rule --add label="Stream" app="^Steam$" manage=off
+# # yabai -m rule --add label="SwiftBar" app="^SwiftBar$" manage=off
+# # yabai -m rule --add label="Xcodes" app="^Xcodes$" manage=off
+# # yabai -m rule --add label="KeyboardCleanTool" app="^KeyboardCleanTool$" manage=off
+# #
+# # yabai -m rule --add label="Messages" app="Messages" space=chat
+# # yabai -m rule --add label="Discord" app="Discord" space=chat
+# # yabai -m rule --add label="Slack" app="Slack" space=chat
+# # yabai -m rule --add label="Signal" app="Signal" space=chat
+# #
+# # yabai -m rule --add label="Thunderbird" app="Thunderbird" space=mail
+# # yabai -m rule --add label="Mail" app="Mail" space=mail
+# # yabai -m rule --add label="Outlook" app="Outlook" space=mail
+# # yabai -m rule --add label="Canary" app="^Canary Mail$" space=mail
+# #
+# # yabai -m rule --add label="Calendar" app="^Calendar$" manage=off title="^$"
+# # yabai -m rule --add label="Finder" app="^Finder$" manage=off title="(Co(py|nnect)|Move|Info|Settings)"
+# # yabai -m rule --add label="Safari" app="^Safari$" manage=off title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$"
+# # yabai -m rule --add label="Visual Studio" app="^Visual Studio$" manage=off title="^(Preferences|Find in Files)$"
+# #
+# # # show scratchpads and popups on top
+# # yabai -m rule --add title="^scratchpad" manage=off sticky=on layer=above grid=4:4:1:1:2:2
+# # yabai -m rule --add title="^popup" manage=off layer=above grid=6:6:1:1:4:4
+# #
+# # # ===========
+# # # = Signals =
+# # # ===========
+# #
+# # # Initialize the temp folder when adding or removing displays
+# # yabai -m signal --add event=display_added action="~/.config/yabai/scripts/init.sh"
+# # yabai -m signal --add event=display_removed action="~/.config/yabai/scripts/init.sh"
+# #
+# # yabai -m signal --add event=window_minimized action='yabai -m window --focus recent'
+# # yabai -m signal --add event=window_focused action="sketchybar --trigger window_mode_change &> /dev/null"
+# # yabai -m signal --add event=window_moved action="sketchybar --trigger window_mode_change &> /dev/null"
+# # yabai -m signal --add event=window_resized action="sketchybar --trigger window_mode_change &> /dev/null"
+# # yabai -m signal --add event=display_added action="sketchybar --trigger display_number_changed &> /dev/null"
+# # yabai -m signal --add event=display_removed action="sketchybar --trigger display_number_changed &> /dev/null"
+# # yabai -m signal --add event=display_moved action="sketchybar --trigger display_number_changed &> /dev/null"
+# #
+# # yabai -m config debug_output on
+# #
+# # echo "yabai configuration loaded.."
+# #
+# # #
+# # #
+# # #
+# # #
+# # #
+# # # yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+# # # yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
+# # # yabai -m signal --add event=display_added action="sleep 2 && $HOME/.config/yabai/scripts/create_spaces.sh"
+# # # yabai -m signal --add event=display_removed action="sleep 1 && $HOME/.config/yabai/scripts/create_spaces.sh"
+# # # yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
+# # # yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
+# # #
+# # # $HOME/.config/yabai/scripts/create_spaces.sh
+# # #
+# # # # ===========
+# # # # = Configs =
+# # # # ===========
+# # #
+# # # # General
+# # # yabai -m config layout bsp
+# # # yabai -m config split_type auto
+# # # yabai -m config split_ratio 0.50
+# # # yabai -m config auto_balance off
+# # # yabai -m config insert_feedback_color 0xaad75f5f
+# # #
+# # # # Window
+# # # yabai -m config window_origin_display default
+# # # yabai -m config window_placement second_child
+# # # yabai -m config window_topmost off
+# # # yabai -m config window_shadow float
+# # # yabai -m config window_zoom_persist off
+# # # yabai -m config window_opacity off
+# # # yabai -m config window_opacity_duration 0.0
+# # # yabai -m config active_window_opacity 1.0
+# # # yabai -m config normal_window_opacity 0.90
+# # # yabai -m config window_animation_duration 0.0
+# # #
+# # # # Window border
+# # # yabai -m config window_border_blur off
+# # # yabai -m config window_border_hidpi on
+# # # yabai -m config window_border off
+# # # yabai -m config window_border_width 3
+# # # yabai -m config window_border_radius 12
+# # # yabai -m config active_window_border_color 0xffffbb7d
+# # # yabai -m config normal_window_border_color 0xff353c54
+# # #
+# # # # Mouse
+# # # yabai -m config mouse_follows_focus off
+# # # yabai -m config focus_follows_mouse off
+# # # yabai -m config mouse_modifier ctrl
+# # # yabai -m config mouse_action1 move
+# # # yabai -m config mouse_action2 resize
+# # # yabai -m config mouse_drop_action swap
+# # #
+# # # # Paddings
+# # # yabai -m config top_padding 20
+# # # yabai -m config bottom_padding 20
+# # # yabai -m config left_padding 20
+# # # yabai -m config right_padding 20
+# # # yabai -m config window_gap 10
+# # # sketchybar_height=$(sketchybar --query bar | jq '.height')
+# # # yabai -m config external_bar all:"${sketchybar_height}":0
+# # #
+# # #
+# # # yabai -m config space --toggle padding 10
+# # #
+# # # # start up sketchybar
+# # # brew services restart sketchybar
+# # #
+# # # echo "yabai configuration loaded.."
