@@ -1,0 +1,33 @@
+clojure 1.11.1.1208 system
+deno 1.30.3 system
+elixir main-otp-25
+erlang 25.2.2 system
+golang 1.20 system
+groovy 4.0.9 system
+haskell 9.2.4 system
+java adoptopenjdk-openj9-11.0.11+9.openj9-0.26.0
+julia 1.8.5 system
+kotlin 1.8.10 system
+lazygit 0.35
+lua 5.4.4 system
+luajit 2.0.5--2.4.4
+neovim nightly
+nodejs lts
+ocaml 5.0.0 system
+perl 5.32.0
+php 8.2.2 system
+pnpm 7.30.0
+postgres 15.2
+pre-commit 2.20.0
+python 3.11.3
+racket 8.8 system
+rclone 1.61.1 system
+ruby 3.2.2
+rust 1.67.1 system
+scala 3.2.2 system
+shellcheck 0.8.0
+stylua 0.14.2
+yarn 1.22.19
+zig 0.10.1 system
+direnv 2.32.2
+
