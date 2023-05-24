@@ -1,0 +1,23 @@
+- link:
+    ~/.config/zsh:
+      create: true
+      glob: true
+      path: shells/zsh/*
+      exclude: [ shells/zsh/README.md, shells/zsh/zshenv, shell/zsh/zprofile, shell/zsh/zshrc  ]
+    ~/.zshenv: shells/zsh/zshenv
+    ~/.zprofile: shells/zsh/zprofile
+    ~/.config/zsh/.zshrc: shells/zsh/zshrc
+
+- shell:
+    - description: Attempting post-install commands..
+      quiet: true
+      command: >-
+          echo "Attempting to source helpers.zsh..";
+          source $HOME/.config/zsh/lib/helpers.zsh;
+
+          log "Attempting to install all git submodules..";
+          git submodule update --init --recursive
+
+          log "Attempting to set zsh as default shell..";
+          [[ $(echo $SHELL) == $(which zsh) ]] && log_warn "$(which zsh) already set as the default shell; skipping." || sudo chsh -s `which zsh` `whoami`;
+# vim:set filetype=yaml ts=4 sw=4 tw=0 et :
