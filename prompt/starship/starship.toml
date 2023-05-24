@@ -1,0 +1,249 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """╭╴$all """
+right_format = """$time $cmd_duration"""
+add_newline = true
+command_timeout = 10_000
+palette = 'rose-pine-moon'
+
+aws.disabled = true
+c.disabled = true
+cmake.disabled = true
+haskell.disabled = true
+python.disabled = true
+rust.disabled = true
+perl.disabled = true
+package.disabled = true
+lua.disabled = true
+nodejs.disabled = true
+java.disabled = true
+golang.disabled = true
+conda.disabled = true
+container.disabled = true
+gcloud.disabled = true
+localip.disabled = true
+php.disabled = true
+vagrant.disabled = true
+git_metrics.disabled = true
+
+[palettes.rose-pine]
+base = "#191724"
+surface = "#1f1d2e"
+overlay = "#26233a"
+muted = "#6e6a86"
+subtle = "#908caa"
+text = "#e0def4"
+love = "#eb6f92"
+gold = "#f6c177"
+rose = "#ebbcba"
+pine = "#31748f"
+foam = "#9ccfd8"
+iris = "#c4a7e7"
+highlight_low = "#21202e"
+highlight_med = "#403d5d"
+highlight_high = "#524f67"
+
+[palettes.rose-pine-moon]
+base = "#232136"
+surface = "#2a273f"
+overlay = "#393552"
+muted = "#6e6a86"
+subtle = "#908caa"
+text = "#e0def4"
+love_lighter = "#EE81A0"
+love = "#eb6f92"
+gold = "#f6c177"
+rose = "#ea9a97"
+pine = "#3e8fb0"
+foam = "#9ccfd8"
+iris = "#c4a7e7"
+highlight_low = "#2a283e"
+highlight_med = "#44415a"
+highlight_high = "#56526e"
+
+[palettes.rose-pine-dawn]
+base = "#faf4ed"
+surface = "#fffaf3"
+overlay = "#f2e9e1"
+muted = "#9893a5"
+subtle = "#797593"
+text = "#575279"
+love = "#b4637a"
+gold = "#ea9d34"
+rose = "#d7827e"
+pine = "#286983"
+foam = "#56949f"
+iris = "#907aa9"
+highlight_low = "#f4ede8"
+highlight_med = "#dfdad9"
+highlight_high = "#cecacd"
+
+[palettes.rainbow]
+red = "#F77976"
+orange = "#FFAB00"
+yellow = "#FDF148"
+green  = "#A0E426"
+blue = "#52E3E1"
+indigo = "#AEA9FE"
+violet = "#D6B1FC"
+dark_red = "#FF5C90"
+dark_orange = "#FF964B"
+dark_yellow = "#FFEC5C"
+dark_green = "#4F871A"
+dark_blue = "#318AD8"
+dark_indigo = "#645AFD"
+dark_violet = "#AE62F9"
+lavendar = "#D883FF"
+dark_lavendar = "#9336FD"
+pink = "#FFC8DD"
+dark_pink = "#F050AE"
+darkest_pink = "#B00544"
+baby_blue = "#BDE0FE"
+
+[ruby]
+symbol = " "
+format = "[](fg:love bg:none)[$symbol](fg:text bg:love)[](bg:love_lighter fg:love)[ $version]($style)[](fg:love_lighter bg:none) "
+style = "fg:text bg:love_lighter"
+
+[character]
+format = "\n╰╴$symbol "
+success_symbol = "[](iris bold)"
+error_symbol = "[](love)"
+vicmd_symbol = "[](gold)"
+
+[username]
+format = "[ $user]($style) "
+style_root = "bold foam"
+style_user = "bold pine"
+disabled = true
+
+[hostname]
+ssh_only = true
+format = "[](fg:foam bg:none)[$ssh_symbol](fg:pine bg:foam)[](fg:foam bg:foam)[ $hostname]($style)[](fg:foam bg:none) "
+style = "fg:bold pine bg:foam"
+ssh_symbol = " "
+trim_at = "-"
+disabled = false
+
+[git_branch]
+symbol = ""
+# symbol = "🌱 "
+truncation_length = 4
+truncation_symbol = ""
+format = "[](fg:foam bg:none)[$symbol](fg:pine bg:foam)[](fg:foam bg:foam)[$branch]($style)[](fg:foam bg:none) "
+style = "fg:pine bg:foam"
+
+[git_commit]
+tag_symbol = " "
+tag_disabled = false
+format = "[ $hash$tag]($style) "
+
+[git_status]
+# format = "([ $all_status$ahead_behind]($style) )"
+format = "[](fg:iris bg:none)[$all_status$ahead_behind]($style)[ ](fg:iris bg:none)"
+conflicted = "="
+ahead =	"⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = ""
+untracked = "?${count}"
+stashed = ""
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "${count}"
+style = "bg:iris fg:text"
+# style = "bold yellow"
+ignore_submodules = true
+# format="[](fg:#4da0ff bg:none)[$all_status$ahead_behind](fg:#282c34 bg:#4da0ff)[](fg:#4da0ff bg:none)"
+# conflicted = " 🐗 "
+# ahead = " 🐇${count} "
+# behind = " 🐢${count} "
+# diverged = " 🔱 🐇${ahead_count} 🐢${behind_count} "
+# untracked = " 🦅${count} "
+# stashed = " 🐫 "
+# modified = " 🐾${count} "
+# staged = " 🐴${count} "
+# renamed = " 🦋${count} "
+# deleted = " 🐚${count} "
+
+[git_state]
+merge = " MERGING"
+cherry_pick = "🍒 PICKING"
+style = "bold love"
+
+[directory]
+read_only = " "
+format = "[](fg:text bg:none)[](fg:pine bg:text)[](fg:text bg:text)[ $path]($style)[](fg:text bg:none) "
+style = "fg:pine bg:text"
+truncation_length = 3
+truncate_to_repo=false
+
+[directory.substitutions]
+"~" = " ~"
+" ~/Documents" = " ~/Documents"
+" ~/Downloads" = " ~/Downloads"
+" ~/Desktop"   = " ~/Desktop"
+" ~/Music"     = " ~/Music"
+" ~/Pictures"  = " ~/Pictures"
+" ~/Library"   = " ~/Library"
+" ~/Dropbox"   = " ~/Dropbox"
+" ~/code"      = " ~/code"
+" ~/dev"       = " ~/dev"
+" ~/workspace" = " ~/workspace"
+" ~/.dotfiles" = " ~/.dotfiles"
+
+[docker_context]
+symbol = " "
+
+[time]
+disabled = false
+format="[](fg:love_lighter bg:none)[💖](fg:love_lighter bg:love_lighter)[](fg:love_lighter bg:love_lighter)[ $time]($style)[](fg:love_lighter bg:none)"
+time_format = "%l:%m%p" #change to %R to only have HH:MM
+style="fg:#E2285C bg:love_lighter"
+
+# #     望
+[battery]
+full_symbol = " "
+charging_symbol = " "
+discharging_symbol = " "
+
+[[battery.display]]
+threshold = 101
+style = "bold foam"
+
+[[battery.display]]
+threshold = 50
+style = "bold gold"
+
+[[battery.display]]
+threshold = 30
+style = "bold love"
+
+[cmd_duration]
+min_time = 1
+# duration & style
+format = "[]($style)[[神](bg:muted fg:subtle bold)$duration](bg:muted fg:subtle)[ ]($style)"
+disabled = false
+style = "bg:none fg:muted"
+
+[os.symbols]
+Alpine = " "
+Arch = " "
+CentOS = " "
+Debian = " "
+Fedora = " "
+FreeBSD = " "
+Gentoo = " "
+Linux = " "
+Macos = " "
+Mint = " "
+NixOS = " "
+OpenBSD = " "
+openSUSE = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+Ubuntu = " "
+Unknown = " "
+Windows = " "
