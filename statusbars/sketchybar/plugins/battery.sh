@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 
+source "$HOME/.config/sketchybar/icons.sh"
 source "$HOME/.config/sketchybar/colors.sh"
+source "$HOMe/.config/sketchybar/vars.sh"
 
 render_bar_item() {
 	sketchybar --set "${NAME}"
 
 	if [[ ${CHARGING} != "" ]]; then
 		case ${BATT_PERCENT} in
-		100) ICON="" COLOR="$FOAM" ;;
-		9[0-9]) ICON="" COLOR="$FOAM" ;;
-		8[0-9]) ICON="" COLOR="$FOAM" ;;
-		7[0-9]) ICON="" COLOR="$FOAM" ;;
-		6[0-9]) ICON="" COLOR="$GOLD" ;;
-		5[0-9]) ICON="" COLOR="$GOLD" ;;
-		4[0-9]) ICON="" COLOR="$ROSE" ;;
-		3[0-9]) ICON="" COLOR="$ROSE" ;;
-		2[0-9]) ICON="" COLOR="$LOVE" ;;
-		1[0-9]) ICON="" COLOR="$LOVE" ;;
-		*) ICON="" COLOR="$LOVE" ;;
+		100) ICON="􀛨  " COLOR="$FOAM" ;;
+		9[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
+		8[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
+		7[0-9]) ICON="􀺸  " COLOR="$FOAM" ;;
+		6[0-9]) ICON="􀺸  " COLOR="$GOLD" ;;
+		5[0-9]) ICON="􀺶  " COLOR="$GOLD" ;;
+		4[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
+		3[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
+		2[0-9]) ICON="􀛩  " COLOR="$LOVE" ;;
+		1[0-9]) ICON="􀛪  " COLOR="$LOVE" ;;
+		*) ICON="􀢋  " COLOR="$LOVE" ;;
 		esac
 
 		sketchybar --set "${NAME}" icon="${ICON}" icon.color="${COLOR}"
@@ -28,17 +30,17 @@ render_bar_item() {
 	fi
 
 	case ${BATT_PERCENT} in
-	100) ICON="" COLOR="$FOAM" ;;
-	9[0-9]) ICON="" COLOR="$FOAM" ;;
-	8[0-9]) ICON="" COLOR="$FOAM" ;;
-	7[0-9]) ICON="" COLOR="$FOAM" ;;
-	6[0-9]) ICON="" COLOR="$GOLD" ;;
-	5[0-9]) ICON="" COLOR="$GOLD" ;;
-	4[0-9]) ICON="" COLOR="$ROSE" ;;
-	3[0-9]) ICON="" COLOR="$ROSE" ;;
-	2[0-9]) ICON="" COLOR="$LOVE" ;;
-	1[0-9]) ICON="" COLOR="$LOVE" ;;
-	*) ICON="" COLOR="$LOVE" ;;
+    100) ICON="􀛨  " COLOR="$FOAM" ;;
+    9[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
+    8[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
+    7[0-9]) ICON="􀺸  " COLOR="$FOAM" ;;
+    6[0-9]) ICON="􀺸  " COLOR="$GOLD" ;;
+    5[0-9]) ICON="􀺶  " COLOR="$GOLD" ;;
+    4[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
+    3[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
+    2[0-9]) ICON="􀛩  " COLOR="$LOVE" ;;
+    1[0-9]) ICON="􀛪  " COLOR="$LOVE" ;;
+	*) ICON="􀛪  " COLOR="$LOVE" ;;
 	esac
 
 	sketchybar --set "${NAME}" icon="${ICON}" icon.color="${COLOR}"

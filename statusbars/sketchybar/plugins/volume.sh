@@ -3,7 +3,7 @@ VOLUME=$(osascript -e "output volume of (get volume settings)")
 MUTED=$(osascript -e "output muted of (get volume settings)")
 
 if [[ $MUTED != "false" ]]; then
-  ICON="ﱝ"
+  ICON=""
   VOLUME=0
 else
   case ${VOLUME} in

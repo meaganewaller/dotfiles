@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+source "$HOME/.config/sketchybar/colors.sh"
+source "$HOME/.config/sketcybar/icons.sh"
 source "$HOME/.config/sketchybar/vars.sh"
 
 battery_details=(

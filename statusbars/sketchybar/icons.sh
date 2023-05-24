@@ -46,9 +46,9 @@ export MUSIC_SHUFFLE=􀊝
 export MUSIC_REPEAT=􀊞
 
 # Battery Icons
-BATTERY_100=􀛨
-BATTERY_75=􀺸
-BATTERY_50=􀺶
-BATTERY_25=􀛩
-BATTERY_0=􀛪
-BATTERY_CHARGING=􀢋
+BATTERY_100="􀛨  "
+BATTERY_75="􀺸  "
+BATTERY_50="􀺶  "
+BATTERY_25="􀛩  "
+BATTERY_0="􀛪  "
+BATTERY_CHARGING="􀢋  "
