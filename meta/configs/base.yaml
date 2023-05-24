@@ -1,25 +1,5 @@
-- shell:
-    - description:
-        command: >-
-            ~/.dots/commands/dotbanner;
-
-- defaults:
-    link:
-      force: true
-      relink: true
-
 - clean:
     ~/:
-      force: true
-    ~/share/applications:
-        force: true
-    ~/.local/bin:
-      force: true
-    ~/.config:
-      recursive: true
-    ~/.local/share/fonts:
-        force: false
-
 
 - create:
     - $HOME/dev
@@ -36,6 +16,10 @@
     - ~/.local/share/packages
     - ~/.local/share/src
     - ~/.ssh
+
+- defaults:
+    link:
+        relink: true
 
 - shell:
     # - description: Decrypting repo..
