@@ -1,0 +1,6 @@
+{
+  "Print table (safe)": {
+    "prefix": ["pp"],
+    "body": ["require('pl.pretty').dump($0)"]
+  }
+}
