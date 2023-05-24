@@ -1,0 +1,5 @@
+- link:
+    ~/.config/snippets:
+        glob: true
+        path: languages/snippets/*
+        exclude: [languages/snippets/README.md]
