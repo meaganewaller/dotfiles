@@ -1,0 +1,8 @@
+- link:
+    ~/.config/hammerspoon:
+        path: tools/misc/hammerspoon/*
+        glob: true
+        exclude: [ tools/misc/hammerspoon/README.md ]
+    ~/.config/hammerspoon/.secrets.json:
+        path: tools/misc/hammerspoon/.secrets.json
+
