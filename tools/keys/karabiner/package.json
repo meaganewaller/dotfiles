@@ -1,0 +1,17 @@
+{
+  "name": "karabiner",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Meagan Waller <meagan@meaganwaller.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "deno rules.ts",
+    "watch": "nodemon --exec yarn build -e ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.2",
+    "tsm": "^2.3.0"
+  }
+}
