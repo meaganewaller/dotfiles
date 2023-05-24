@@ -1,0 +1,17 @@
+- shell:
+    - description: Making scripts executable...
+      quiet: true
+      command: >-
+          chmod +x bin/**/*;
+
+- link:
+    ~/.local/bin:
+        glob: true
+        path: bin
+        exclude: [ bin/**/*.md]
+- link:
+    ~/bin:
+        glob: true
+        path: bin
+        exclude: [bin/**/*.md]
+# vim: set filetype=yaml ts=4 sw=4 tw=0 et :

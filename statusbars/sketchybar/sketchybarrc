@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+#  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
+#  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
+#  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
+# Last Updated: 2023-05-23
+
+source "$HOME/.config/sketchybar/colors.sh"
+source "$HOME/.config/sketchybar/icons.sh"
+source "$HOME/.config/sketchybar/vars.sh"
+source "$HOME/.config/sketchybar/helper/helper.sh"
+
+export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+export ITEM_DIR="$HOME/.config/sketchybar/items"
+export EVENT_DIR="$HOME/.config/sketchybar/events"
+export DISPLAY_COUNT="$(yabai -m query --displays | jq -r 'length')"
+
+# Unload the macOS on screen indicator overlay for volume change
+launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
+
+bar_config=(
+  blur_radius=20
+  color=$BAR_COLOR
+  corner_radius=25
+  height=35
+  margin=10
+  notch_width=0
+  padding_left=18
+  padding_right=10
+  position=top
+  shadow=$SHADOW
+  sticky=on
+  topmost=off
+  y_offset=10
+)
+
+icon_defaults=(
+  icon.color="$ICON_COLOR"
+  icon.font="$DEFAULT_ICON_FONT"
+  icon.padding_left="$PADDINGS"
+  icon.padding_right="$PADDINGS"
+)
+
+label_defaults=(
+  label.color="$LABEL_COLOR"
+  label.font="$DEFAULT_LABEL_FONT"
+  label.padding_left="$PADDINGS"
+  label.padding_right="$PADDINGS"
+)
+
+background_defaults=(
+  background.corner_radius=9
+  background.height=30
+  background.padding_left="$PADDINGS"
+  background.padding_right="$PADDINGS"
+)
+
+popup_defaults=(
+  popup.height=30
+  popup.horizontal=false
+  popup.background.border_color="$POPUP_BORDER_COLOR"
+  popup.background.border_width="$POPUP_BORDER_WIDTH"
+  popup.background.color="$POPUP_BACKGROUND_COLOR"
+  popup.background.corner_radius="$POPUP_CORNER_RADIUS"
+  popup.background.shadow.drawing=on
+)
+
+# Setting up the general bar appearance and default values
+sketchybar --bar "${bar_config[@]}" \
+  --default \
+  updates=when_shown \
+  "${icon_defaults[@]}" \
+  "${label_defaults[@]}" \
+  "${background_defaults[@]}" \
+  "${popup_defaults[@]}"
+
+############## DISPLAY 1 ###############
+source "$ITEM_DIR/lock.sh"
+
+source "$ITEM_DIR/apple.sh"
+source "$ITEM_DIR/spaces.sh"
+source "$ITEM_DIR/skhd.sh"
+source "$ITEM_DIR/window.sh"
+source "$ITEM_DIR/theme.sh"
+
+source "$ITEM_DIR/music.sh"
+
+source "$ITEM_DIR/clock.sh"
+source "$ITEM_DIR/date.sh"
+source "$ITEM_DIR/mic.sh"
+source "$ITEM_DIR/control_center.sh"
+source "$ITEM_DIR/volume.sh"
+
+###################### FINALIZE ###################
+sketchybar -m --update
+
+echo "sketchybar configuration loaded.."
+
+exit 0
+
+# source "$ITEM_DIR/lock.sh"
+#
+# source "$ITEM_DIR/apple.sh"
+# source "$ITEM_DIR/spaces.sh"
+# source "$ITEM_DIR/skhd.sh"
+# source "$ITEM_DIR/window.sh"
+#
+# source "$ITEM_DIR/music.sh"
+#
+# source "$ITEM_DIR/date.sh"
+# source "$ITEM_DIR/control_center.sh"
+# source "$ITEM_DIR/weather.sh"
+# # source "$ITEM_DIR/stats.sh"
+#
+# sketchybar --update
+# echo "sketchybar configuation loaded.."

@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+
+source "$HOME/.local/bin/get-colorscheme"
+
+# Color Palette
+export BASE=0xff$COLOR_BASE
+export SURFACE=0xff$COLOR_SURFACE
+export OVERLAY=0xff$COLOR_OVERLAY
+export MUTED=0xff$COLOR_MUTED
+export SUBTLE=0xff$COLOR_SUBTLE
+export TEXT=0xFF$COLOR_TEXT
+export LOVE=0xFF$COLOR_LOVE
+export GOLD=0xFF$COLOR_GOLD
+export ROSE=0xff$COLOR_ROSE
+export PINE=0xFF$COLOR_PINE
+export FOAM=0xFF$COLOR_FOAM
+export IRIS=0xFF$COLOR_IRIS
+export HIGHLIGHT_LOW=0xFF$COLOR_HIGHLIGHT_LOW
+export HIGHLIGHT_MED=0xFF$COLOR_HIGHLIGHT_MED
+export HIGHLIGHT_HIGH=0xFF$COLOR_HIGHLIGHT_HIGH
+export TRANSPARENT=0x00000000
+
+# General bar colors
+export BAR_COLOR=$BASE
+export BAR_BORDER_COLOR=$BASE
+export ICON_COLOR=$TEXT
+export LABEL_COLOR=$TEXT
+export POPUP_BACKGROUND_COLOR=$SURFACE
+export POPUP_BORDER_COLOR=$HIGHLIGHT_LOW
+export SHADOW_COLOR=$BASE
+export SPACE_BACKGROUND=$MUTED
+export CLOCK_BACKGROUND=$IRIS
+export CLOCK_COLOR=$BASE
+export SEGMENT_BACKGROUND_COLOR=$OVERLAY # The background color for segments
+export SEGMENT_BACKGROUND_HIGHLIGHT_COLOR=$SEGMENT_BACKGROUND_COLOR # The background highlight color for segments (borders, etc)
+export CONTRAST_COLOR=$SUBTLE
+
+# Item specific special colors
+export SPOTIFY_GREEN=0xFF1DB954
