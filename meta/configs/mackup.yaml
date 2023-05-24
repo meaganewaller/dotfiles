@@ -1,0 +1,5 @@
+- link:
+    ~/.mackup/my-files.cfg:
+        path: mackup/.mackup/my-files.cfg
+    ~/.mackup.cfg:
+        path: mackup/.mackup.cfg
