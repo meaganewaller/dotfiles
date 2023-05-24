@@ -23,6 +23,7 @@ local modules = {
 	{ dir = "meg/autocmds", priority = 80, config = "autocmds", eager = true },
 	{ dir = "meg/options", priority = 80, config = "options", eager = true },
 	{ dir = "meg/lsp", priority = 80, config = "lsp" },
+	{ "wakatime/vim-wakatime", event = "VeryLazy" },
 	{
 		"tenxsoydev/nx.nvim",
 		priority = 100,
