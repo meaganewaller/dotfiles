@@ -1,0 +1,4 @@
+- link:
+    ~/.config/ripgrep/rc:
+        path: cli/utils/ripgrep/rc
+# vim: set filetype=yaml ts=4 sw=4 tw=0 et :
