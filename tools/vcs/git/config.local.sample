@@ -1,0 +1,4 @@
+# Put any local configuration here
+# [user]
+#   email =
+# vim: ft=gitconfig:

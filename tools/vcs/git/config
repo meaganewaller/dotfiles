@@ -1,0 +1,25 @@
+# vim: ft=gitconfig
+[include]
+  path = ~/.config/git/conf/alias.conf
+  path = ~/.config/git/conf/user.conf
+  path = ~/.config/git/conf/core.conf
+  path = ~/.config/git/conf/url.conf
+  path = ~/.config/git/conf/os.conf
+  path = ~/.gitconfig.local
+
+[commit]
+  gpgsign = true
+  template = ~/.config/git/template
+[gpg]
+  format = ssh
+[push]
+  autoSetupRemote = true
+	default = simple
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+[user]
+	name = Meagan Waller
+  username = meaganewaller
+[diff]
+	submodule = log
+
