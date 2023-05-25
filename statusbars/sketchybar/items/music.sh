@@ -8,4 +8,4 @@ sketchybar \
   click_script="$PLUGIN_DIR/music_click" \
   label.padding_right=10 \
   --subscribe music music_changed \
-  --subsscribe music song_update
+  --subscribe music song_update
