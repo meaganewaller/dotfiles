@@ -183,7 +183,11 @@ local modules = {
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
+			"marilari88/neotest-vitest",
 			"olimorris/neotest-rspec",
+			"zidhuss/neotest-minitest",
+			"haydenmeade/neotest-jest",
+			"thenbe/neotest-playwright",
 		},
 		config = "plugins.neotest",
 	},
