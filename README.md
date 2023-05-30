@@ -41,7 +41,7 @@
 <a href="">
 <picture>
     <source media="(prefers-color-scheme: dark)" alt="Screenshot of my desktop" align="right" width="400px" srcset=""/>
-     <img alt="Screenshot of my desktop" align="right" width="400px" src=""/>
+     <img alt="Screenshot of my desktop" align="right" width="400px" src="assets/dotfiles.png"/>
 </picture>
 </a>
 
