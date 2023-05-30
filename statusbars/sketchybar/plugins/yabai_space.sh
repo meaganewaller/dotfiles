@@ -1,20 +1,23 @@
 #!/usr/bin/env sh
 
 update() {
-  # This is called for all other events
-  WINDOW=$(yabai -m query --windows --window)
-  case "$(echo "$WINDOW" | jq -rc '.["is-floating"]')" in
-    "false")
-      sketchybar --set "$NAME" icon="􀤳"
+  WINDOW=$(yabai -m query --spaces --space)
+  case "$(echo "$WINDOW" | jq -rc '.type')" in
+    "bsp")
+      icon="􀛧 "
       ;;
-    "true")
-      sketchybar --set "$NAME" icon="􀶣"
+    "stack")
+      icon="􀏮"
+      ;;
+    "float")
+      icon="􀚅"
       ;;
   esac
+  sketchybar --set "$NAME" icon=$icon
 }
 
 mouse_clicked() {
-  yabai -m window --toggle float
+  yabai -m space --layout stack
   update
 }
 

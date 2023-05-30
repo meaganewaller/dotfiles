@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-source "$HOME/.config/sketchybar/colors.sh"
 source "$HOME/.config/sketchybar/icons.sh"
 source "$HOME/.config/sketchybar/vars.sh" # Loads all defined icons
 
@@ -7,35 +6,23 @@ PREV_COUNT=$(sketchybar --query brew | jq -r .popup.items | grep ".package*" -c)
 
 render_bar_item() {
 	case "$COUNT" in
-	[3-5][0-9])
-		COLOR=$ROSE
-		;;
-	[1-2][0-9])
-		COLOR=$GOLD
-		;;
-	[1-9])
-		COLOR=$TEXT
-		;;
 	0)
-		COLOR=$FOAM
 		COUNT=􀆅
 		;;
 	esac
 
-	sketchybar --set "$NAME" label="$COUNT" icon.color="$COLOR"
+	sketchybar --set "$NAME" label="$COUNT"
 }
 
 add_outdated_header() {
 	brew_header=(
 		label="$(echo -e 'Outdated Brews')"
-		label.font="$FONT:14.0"
+		label.font="$LABEL_FONT:Regular:14.0"
 		label.align=left
 		icon.drawing=off
 		click_script="sketchybar --set $NAME popup.drawing=off"
 	)
-
 	sketchybar --set brew.details "${brew_header[@]}"
-
 }
 
 render_popup() {
@@ -68,7 +55,6 @@ render_popup() {
 
 update() {
 	brew update
-	COLOR=$LOVE
 	OUTDATED=$(brew outdated)
 	COUNT=$(echo -n "$OUTDATED" | grep -c '^')
 
@@ -86,7 +72,6 @@ popup() {
 	else
 		sketchybar --set "$NAME" popup.drawing=off
 	fi
-
 }
 
 case "$SENDER" in

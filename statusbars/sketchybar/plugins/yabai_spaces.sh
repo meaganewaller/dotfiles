@@ -9,32 +9,35 @@ COUNT=0
 
 icon() {
   case $1 in
-    web)
-      echo "􀼺"
+    main)
+      echo "􀋃 "
       ;;
     code)
-      echo "􀤙"
+      echo "􀪏 "
       ;;
-    productivity)
-      echo "􀈎"
+    chat)
+      echo "􀘲  "
       ;;
-    communication)
-      echo "􀌳"
+    mail)
+      echo "􀈠 "
       ;;
-    reference)
-      echo "􀓕"
+    gtd)
+      echo "􀷾 "
       ;;
-    utility)
-      echo "􀙗"
+    doc)
+      echo "􀦇 "
       ;;
     media)
-      echo "􀽎"
+      echo "􀊄 "
       ;;
-    misc)
-      echo "􀺽"
+    tool)
+      echo "􀤉 "
+      ;;
+    scratch)
+      echo "􀤑 "
       ;;
     *)
-      echo "􀕵"
+      echo "􀀁"
       ;;
   esac
 }
@@ -43,12 +46,11 @@ for display in $DISPLAYS; do
   SPACES=$(yabai -m query --spaces --display "$display" | jq -rc '.[] | [.index, .windows[0], .label] | @sh')
 
   args+=(--clone spaces_"${display}".label space_label_template after
-    --set spaces_"${display}".label label=spc
-    label.width=52
-    label.align=center
-    associated_display="${display}"
-    position=left
-    drawing=on)
+    --set spaces_"${display}".label label.width=10
+                                    label.align=center
+                                    associated_display="${display}"
+                                    position=left
+                                    drawing=on)
 
   # Read the current spaces from the yabai query
   while read -r index window yabai_name visible; do
@@ -73,7 +75,7 @@ for display in $DISPLAYS; do
       drawing=on)
   done <<<"$SPACES"
 
-  args+=(--add bracket spaces_"${display}" spaces_"${display}".label "$NAMES")
+  args+=(--add bracket spaces_"${display}" spaces_"${display}".background.color="${TRANSPARENT}" spaces_"${display}".label "$NAMES")
   # Reorder them and stick them onto sketchybar
   args+=(--reorder "$NAMES")
   sketchybar -m ${args[@]} &>/dev/null

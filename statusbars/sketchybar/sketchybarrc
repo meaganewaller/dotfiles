@@ -1,10 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
-# Last Updated: 2023-05-23
+# Last Updated: 2023-05-29
 
-source "$HOME/.config/sketchybar/colors.sh"
+export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+export ITEM_DIR="$HOME/.config/sketchybar/items"
+
 source "$HOME/.config/sketchybar/icons.sh"
 source "$HOME/.config/sketchybar/vars.sh"
 source "$HOME/.config/sketchybar/helper/helper.sh"
@@ -13,103 +15,137 @@ export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
 export EVENT_DIR="$HOME/.config/sketchybar/events"
 export DISPLAY_COUNT="$(yabai -m query --displays | jq -r 'length')"
+RIGHT="right"
+LEFT="left"
 
 # Unload the macOS on screen indicator overlay for volume change
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
 
 bar_config=(
-  blur_radius=20
-  color=$BAR_COLOR
-  corner_radius=25
+  position=top
   height=35
   margin=10
-  notch_width=0
-  padding_left=18
-  padding_right=10
-  position=top
-  shadow=$SHADOW
-  sticky=on
-  topmost=off
   y_offset=10
+  corner_radius=25
+  border_width=1
+  blur_radius=20
+  padding_left=10
+  padding_right=10
+  notch_width=0
+  notch_offset=0
+  display=all
+  hidden=off
+  topmost=off
+  sticky=off
+  font_smoothing=false
+  shadow.drawing=$SHADOW
 )
 
 icon_defaults=(
-  icon.color="$ICON_COLOR"
-  icon.font="$DEFAULT_ICON_FONT"
-  icon.padding_left="$PADDINGS"
-  icon.padding_right="$PADDINGS"
+  icon.drawing=on
+  icon.highlight=off
+  icon.padding_left=$PADDINGS
+  icon.padding_right=$PADDINGS
+  icon.y_offset=0
+  icon.font="$ICON_FONT:Bold:15.0"
+  icon.align="center"
+  icon.shadow.drawing=off
+  icon.background.drawing=off
+  icon.background.height=$SEGMENT_HEIGHT
 )
 
 label_defaults=(
-  label.color="$LABEL_COLOR"
-  label.font="$DEFAULT_LABEL_FONT"
-  label.padding_left="$PADDINGS"
-  label.padding_right="$PADDINGS"
+  label.drawing=on
+  label.highlight=off
+  label.padding_right=$PADDINGS
+  label.padding_left=$PADDINGS
+  label.y_offset=0
+  label.font.family="$LABEL_FONT"
+  label.font.style="Regular"
+  label.font.size=13.0
+  label.align="left"
+  label.shadow.drawing=off
 )
 
 background_defaults=(
-  background.corner_radius=9
-  background.height=30
-  background.padding_left="$PADDINGS"
-  background.padding_right="$PADDINGS"
+  drawing=on
+  background.border_width=$SEGMENT_BORDER_WIDTH
+  background.height=$SEGMENT_HEIGHT
+  background.corner_radius=$CORNER_RADIUS
+  background.padding_left=$PADDINGS
+  background.padding_right=$PADDINGS
+  background.y_offset=0
+  background.clip=0.0
+  background.shadow.drawing=off
 )
 
 popup_defaults=(
-  popup.height=30
+  popup.height=35
   popup.horizontal=false
-  popup.background.border_color="$POPUP_BORDER_COLOR"
+  popup.blur_radius=20
+  popup.y_offset=0
+  popup.background.drawing=on
   popup.background.border_width="$POPUP_BORDER_WIDTH"
-  popup.background.color="$POPUP_BACKGROUND_COLOR"
   popup.background.corner_radius="$POPUP_CORNER_RADIUS"
-  popup.background.shadow.drawing=on
+  popup.background.shadow.drawing=$SHADOW
 )
 
+sketchybar --bar "${bar_config[@]}"
+sketchybar --add event float_change
+
 # Setting up the general bar appearance and default values
-sketchybar --bar "${bar_config[@]}" \
-  --default \
+sketchybar --default \
+  drawing=on \
   updates=when_shown \
   "${icon_defaults[@]}" \
   "${label_defaults[@]}" \
   "${background_defaults[@]}" \
   "${popup_defaults[@]}"
 
-############## DISPLAY 1 ###############
-source "$ITEM_DIR/lock.sh"
+label_template=(
+  icon.drawing=off
+  label.font="$LABEL_FONT:Regular:12.0"
+  label.padding_right=5
+  label.background.height=$SEGMENT_HEIGHT
+  click_script="$PLUGIN_DIR/toggle_bracket.sh"
+  background.padding_left=$SEGMENT_SPACING
+  background.padding_right=0
+  drawing=off
+)
 
+sep_template=(
+  icon=" "
+  drawing=off
+)
+
+sketchybar --add item label_template left \
+  --set label_template "${label_template[@]}" \
+  --add item sep_template left \
+  --set sep_template "${sep_template[@]}"
+
+############## BAR SETUP ###############
+# Hidden by default
+# source "$ITEM_DIR/lock.sh"
+
+# Left
 source "$ITEM_DIR/apple.sh"
+source "$ITEM_DIR/window_manager.sh"
 source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/skhd.sh"
-source "$ITEM_DIR/window.sh"
-source "$ITEM_DIR/theme.sh"
+source "$ITEM_DIR/front_app.sh"
 
+# Center
 source "$ITEM_DIR/music.sh"
 
-source "$ITEM_DIR/clock.sh"
-source "$ITEM_DIR/date.sh"
-source "$ITEM_DIR/mic.sh"
+# Right
+source "$ITEM_DIR/calendar.sh"
+source "$ITEM_DIR/package.sh"
+source "$ITEM_DIR/cpu.sh"
 source "$ITEM_DIR/control_center.sh"
-source "$ITEM_DIR/volume.sh"
-
+source "$ITEM_DIR/meeting.sh"
+source "$ITEM_DIR/theme.sh"
 ###################### FINALIZE ###################
 sketchybar -m --update
 
 echo "sketchybar configuration loaded.."
 
-exit 0
-
-# source "$ITEM_DIR/lock.sh"
-#
-# source "$ITEM_DIR/apple.sh"
-# source "$ITEM_DIR/spaces.sh"
-# source "$ITEM_DIR/skhd.sh"
-# source "$ITEM_DIR/window.sh"
-#
-# source "$ITEM_DIR/music.sh"
-#
-# source "$ITEM_DIR/date.sh"
-# source "$ITEM_DIR/control_center.sh"
-# source "$ITEM_DIR/weather.sh"
-# # source "$ITEM_DIR/stats.sh"
-#
-# sketchybar --update
-# echo "sketchybar configuation loaded.."
+#exit 0

@@ -29,9 +29,9 @@ update() {
       if [ $CASE = 0 ]; then
         CASE="-"
       fi
-      sketchybar --set $NAME drawing=on icon="􀪷" label="$LEFT $RIGHT $CASE"
+      sketchybar --set $NAME drawing=on icon="􀪷 " label="$LEFT $RIGHT $CASE"
     else
-      sketchybar --set $NAME drawing=on icon="􀑈" label="$DEVICE"
+      sketchybar --set $NAME drawing=on icon="􀑈 " label="$DEVICE"
   fi
 }
 
