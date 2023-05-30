@@ -152,7 +152,7 @@ These are the one true way[^1].
 
 [^1]: Subject to change at any time a shiny new tool catches my eye.
 
-## 🌻 <samp> KEY BINDINGS </samp>
+## 🌻 <samp> KEY BINDINGS</samp>
 I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F19. Using hammerspoon I set my hyper key to F18, this allows me to still have access to all modifiers (ctrl, alt, cmd, shift)[^2].
 
 | Key | Action |
