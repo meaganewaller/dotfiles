@@ -77,6 +77,13 @@ My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and
 
 I use <a href="https://github.com/anishathalye/dotbot">dotbot</a> to bootstrap my dotfiles. This allows me to keep a versioned directory of all my config files that are symlinked into place via a command. This lets me share my files with you.
 
+### 🧪🔬<samp> EXPERIMENTAL & NOT GUARANTEED</samp> 💁‍♀️
+
+I update this constantly with poor git habits. There are no guarantees of stability, working on any machine but my own (and sometimes, tbh not even my own), or a "productive" "enjoyable" "experience".
+
+> It's probably best that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you. 
+
+
 ### <samp>INSTALLING</samp>
 
 ### :blossom: ‎ <samp>INSTALLATION (<a href="./REPOLOGY.md">DEPENDENCIES</a>)</samp>
@@ -94,7 +101,6 @@ _Update an existing installation:_
 
 ```sh
 💲 make -C ~/.dotfiles up
-
 ```
 
 <details>
@@ -102,13 +108,13 @@ _Update an existing installation:_
 
 
 ```sh
-💲cd ~/.dotfiles && make macos
-💲make -C ~/.dotfiles macos
+💲 cd ~/.dotfiles && make macos
+💲 make -C ~/.dotfiles macos
 ```
 
 ```sh
-💲cd ~/.dotfiles && make help
-💲make -C ~/.dotfiles help
+💲 cd ~/.dotfiles && make help
+💲 make -C ~/.dotfiles help
 ```
 </details>
 
@@ -117,22 +123,15 @@ _Update an existing installation:_
 
 
 ```sh
-💲cd ~/.dotfiles && make arch
-💲make -C ~/.dotfiles arch
+💲 cd ~/.dotfiles && make arch
+💲 make -C ~/.dotfiles arch
 ```
 
 ```sh
-💲cd ~/.dotfiles && make help
-💲make -C ~/.dotfiles help
+💲 cd ~/.dotfiles && make help
+💲 make -C ~/.dotfiles help
 ```
 </details>
-
-### 🧪🔬<samp> EXPERIMENTAL & NOT GUARANTEED</samp> 💁‍♀️
-
-I update this constantly with poor git habits. There are no guarantees of stability, working on any machine but my own (and sometimes, tbh not even my own), or a "productive" "enjoyable" "experience".
-
-> It's probably best that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you. 
-
 
 ## <samp>✨TOOLS & RESOURCES</samp>
 These are the one true way[^1].
@@ -141,12 +140,14 @@ These are the one true way[^1].
 - [neovim](https://neovim.io/)
 - [fish](https://fishshell.com/)
 - [asdf](https://asdf-vm.com/)
+- [sketchybar](https://github.com/FelixKratz/SketchyBar)
+- [skhd](https://github.com/koekeishiya/skhd)
 - [homebrew](https://brew.sh/)
 - [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode)
 - [ibm plex](https://www.ibm.com/plex/)
+- [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
 - [hammerspoon](https://www.hammerspoon.org/)
 - [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
-
 
 
 [^1]: Subject to change at any time a shiny new tool catches my eye.
