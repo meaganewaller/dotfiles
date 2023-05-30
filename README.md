@@ -4,7 +4,7 @@
 
 <pre align="center">
 ╔════════════════ °❀•°✮°•❀° ═════════════════╗<br>
-✧･ﾟ:* <a href="#-setup">Setup</a> ✧ <a href="#-keybinds">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a> *:･ﾟ✧ <br>
+✧･ﾟ:* <a href="#-setup">Setup</a> ✧ <a href="#--key-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a> *:･ﾟ✧ <br>
 ╚════════════════ °❀•°✮°•❀° ═════════════════╝
 </pre>
 
