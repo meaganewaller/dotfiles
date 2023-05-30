@@ -21,15 +21,10 @@ get_mode() {
 }
 
 set_kitty() {
-  if [ "${1}" -eq "light" ]; then
-    mode="dawn"
-  else
-    mode="moon"
-  fi
   for instance in /tmp/kitty*; do
     (/usr/local/bin/kitty @ --to unix:"${instance}" set-colors \
       --all --configured \
-      ~/.config/kitty/colorschemes/themes/rosepine-"${mode}".conf &)
+      "${HOME}"/.config/kitty/colorschemes/themes/rose-pine-"${1}".conf &)
   done
 }
 
