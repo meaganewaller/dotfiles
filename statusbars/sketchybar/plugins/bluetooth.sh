@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-source "$HOME/.config/sketchybar/colors.sh"
-source "$HOME/.config/sketchybar/icons.sh"
-source "$HOME/.config/sketchybar/vars.sh" # Loads all defined icons
-
 render_bar_item() {
 	if [ "$PAIRED" = "" ]; then
 		args+=(--set "$NAME" label.drawing=off)
@@ -15,7 +11,7 @@ render_bar_item() {
 add_paired_header() {
 	bluetooth_details=(
 		label="$(echo -e 'Paired Devices')"
-		label.font="$FONT:14.0"
+		label.font="$LABEL_FONT:Regular:14.0"
 		label.align=left
 		icon.drawing=off
 		click_script="sketchybar --set $NAME popup.drawing=off"

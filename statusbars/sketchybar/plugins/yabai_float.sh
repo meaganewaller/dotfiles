@@ -5,10 +5,10 @@ update() {
   WINDOW=$(yabai -m query --windows --window)
   case "$(echo "$WINDOW" | jq -rc '.["is-floating"]')" in
     "false")
-      sketchybar --set "$NAME" icon="􀤳"
+      sketchybar --set "$NAME" icon="􀤳 "
       ;;
     "true")
-      sketchybar --set "$NAME" icon="􀶣"
+      sketchybar --set "$NAME" icon="􀶣 "
       ;;
   esac
 }

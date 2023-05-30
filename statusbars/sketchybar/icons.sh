@@ -3,13 +3,13 @@
 # General Icons
 export LOADING=􀖇
 export APPLE=􀣺
-export PREFERENCES=􀺽
-export ACTIVITY=􀒓
-export LOCK=􀒳
-export LOGOUT=
-export POWER=
-export REBOOT=
-export SLEEP=⏾
+export PREFERENCES="􀣌 "
+export ACTIVITY="􀊫 "
+export LOCK="􀎡 "
+export LOGOUT="󰿅 "
+export POWER="􀋦 "
+export REBOOT="􀅈 "
+export SLEEP="􀥦 "
 export BELL=􀋚
 export BELL_DOT=􀝗
 
@@ -27,6 +27,9 @@ export GIT_DISCUSSION=􀒤
 export GIT_PULL_REQUEST=􀙡
 export GIT_COMMIT=􀡚
 export GIT_INDICATOR=
+export CROSS=
+export CHECK=
+export GITHUB=
 
 # Yabai Icons
 export YABAI_STACK=􀏭

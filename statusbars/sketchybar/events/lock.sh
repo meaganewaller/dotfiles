@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
 
-sketchybar 	--add event 				lock   "com.apple.screenIsLocked"   					    \
-  --add event 				unlock "com.apple.screenIsUnlocked" 					    \
-  \
-  --add item         	animator left                									    \
-  --set animator     	drawing=off                  									    \
-  updates=on                   									    \
-  script="$PLUGIN_DIR/wake.sh"         \
-  --subscribe        	animator lock unlock
+sketchybar --add event lock "com.apple.screenIsLocked"
+sketchybar --add event unlock "com.apple.screenIsUnlocked"
+sketchybar --add item animator left
+sketchybar --set animator drawing=off
+sketchybar --set animator updates=on
+sketchybar --set animator script="$PLUGIN_DIR/wake.sh"
+sketchybar --subscribe animator lock unlock

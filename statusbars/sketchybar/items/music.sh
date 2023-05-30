@@ -1,11 +1,14 @@
-sketchybar -m --add event music_changed com.apple.Music.playerInfo
-sketchybar -m --add event song_update com.apple.iTunes.playerInfo
+MUSIC_EVENT="com.apple.Music.playerInfo"
+
+music=(
+  script="$PLUGIN_DIR/music.sh"
+  click_script="$PLUGIN_DIR/music_click"
+  label.padding_right=10
+  associated_space=1
+)
 
 sketchybar \
+  --add event music_changed $MUSIC_EVENT \
   --add item music center \
-  --set music \
-  script="$PLUGIN_DIR/music.sh" \
-  click_script="$PLUGIN_DIR/music_click" \
-  label.padding_right=10 \
-  --subscribe music music_changed \
-  --subscribe music song_update
+  --set music "${music[@]}" \
+  --subscribe music music_changed

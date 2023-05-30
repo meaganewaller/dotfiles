@@ -1,35 +1,29 @@
 #!/bin/sh
 
-source "$HOME/.config/sketchybar/colors.sh"
-source "$HOME/.config/sketchybar/icons.sh"
-
 window_state() {
+  source "$HOME/.config/sketchybar/icons.sh"
+
   WINDOW=$(yabai -m query --windows --window)
   CURRENT=$(echo "$WINDOW" | jq '.["stack-index"]')
 
   args=()
   if [[ $CURRENT -gt 0 ]]; then
     LAST=$(yabai -m query --windows --window stack.last | jq '.["stack-index"]')
-    args+=(--set $NAME icon=$YABAI_STACK icon.color=$LOVE label.drawing=on label=$(printf "[%s/%s]" "$CURRENT" "$LAST"))
-    yabai -m config active_window_border_color $LOVE > /dev/null 2>&1 &
+    args+=(--set $NAME icon=$YABAI_STACK label.drawing=on label=$(printf "[%s/%s]" "$CURRENT" "$LAST"))
   else
     args+=(--set $NAME label.drawing=off)
     case "$(echo "$WINDOW" | jq '.["is-floating"]')" in
       "false")
         if [ "$(echo "$WINDOW" | jq '.["has-fullscreen-zoom"]')" = "true" ]; then
-          args+=(--set $NAME icon=$YABAI_FULLSCREEN_ZOOM icon.color=$FOAM)
-          yabai -m config active_window_border_color $FOAM > /dev/null 2>&1 &
+          args+=(--set $NAME icon=$YABAI_FULLSCREEN_ZOOM)
         elif [ "$(echo "$WINDOW" | jq '.["has-parent-zoom"]')" = "true" ]; then
-          args+=(--set $NAME icon=$YABAI_PARENT_ZOOM icon.color=$PINE)
-          yabai -m config active_window_border_color $PINE > /dev/null 2>&1 &
+          args+=(--set $NAME icon=$YABAI_PARENT_ZOOM)
         else
-          args+=(--set $NAME icon=$YABAI_GRID icon.color=$GOLD)
-          yabai -m config active_window_border_color $TEXT > /dev/null 2>&1 &
+          args+=(--set $NAME icon=$YABAI_GRID)
         fi
         ;;
       "true")
-        args+=(--set $NAME icon=$YABAI_FLOAT icon.color=$IRIS)
-        yabai -m config active_window_border_color $IRIS > /dev/null 2>&1 &
+        args+=(--set $NAME icon=$YABAI_FLOAT)
         ;;
     esac
   fi

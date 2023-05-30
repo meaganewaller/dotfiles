@@ -2,7 +2,6 @@
 
 bluetooth_alias=(
 	icon.drawing=off
-	alias.color="$FOAM"
 	background.padding_right=0
 	align=right
 	click_script="$PLUGIN_DIR/bluetooth_click.sh"
@@ -18,12 +17,11 @@ bluetooth_details=(
 )
 
 sketchybar --add alias  "Control Center,Bluetooth" right                                    \
-  --rename     "Control Center,Bluetooth" bluetooth.alias                          \
-  --set        bluetooth.alias  "${bluetooth_alias[@]}"                            \
-  --subscribe  bluetooth.alias  mouse.entered                                      \
-  mouse.exited                                       \
-  mouse.exited.global                                \
-  \
-  --add       item              bluetooth.details popup.bluetooth.alias           \
-  --set       bluetooth.details "${bluetooth_details[@]}"                         \
-  click_script="sketchybar --set bluetooth.alias popup.drawing=off"
+           --rename     "Control Center,Bluetooth" bluetooth.alias                          \
+           --set        bluetooth.alias  "${bluetooth_alias[@]}"                            \
+           --subscribe  bluetooth.alias  mouse.entered                                      \
+                                         mouse.exited                                       \
+                                         mouse.exited.global                                \
+           --add       item              bluetooth.details popup.bluetooth.alias            \
+           --set       bluetooth.details "${bluetooth_details[@]}"                          \
+                                         click_script="sketchybar --set bluetooth.alias popup.drawing=off"

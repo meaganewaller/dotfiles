@@ -1,28 +1,27 @@
 #!/usr/bin/env bash
 
 source "$HOME/.config/sketchybar/icons.sh"
-source "$HOME/.config/sketchybar/colors.sh"
-source "$HOMe/.config/sketchybar/vars.sh"
+source "$HOME/.config/sketchybar/vars.sh"
 
 render_bar_item() {
 	sketchybar --set "${NAME}"
 
 	if [[ ${CHARGING} != "" ]]; then
 		case ${BATT_PERCENT} in
-		100) ICON="􀛨  " COLOR="$FOAM" ;;
-		9[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
-		8[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
-		7[0-9]) ICON="􀺸  " COLOR="$FOAM" ;;
-		6[0-9]) ICON="􀺸  " COLOR="$GOLD" ;;
-		5[0-9]) ICON="􀺶  " COLOR="$GOLD" ;;
-		4[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
-		3[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
-		2[0-9]) ICON="􀛩  " COLOR="$LOVE" ;;
-		1[0-9]) ICON="􀛪  " COLOR="$LOVE" ;;
-		*) ICON="􀢋  " COLOR="$LOVE" ;;
+		100) ICON="􀛨  "     ;;
+		9[0-9]) ICON="􀛨  "  ;;
+		8[0-9]) ICON="􀛨  "  ;;
+		7[0-9]) ICON="􀺸  "  ;;
+		6[0-9]) ICON="􀺸  "  ;;
+		5[0-9]) ICON="􀺶  "  ;;
+		4[0-9]) ICON="􀺶  "  ;;
+		3[0-9]) ICON="􀺶  "  ;;
+		2[0-9]) ICON="􀛩  "  ;;
+		1[0-9]) ICON="􀛪  "  ;;
+		*) ICON="􀢋  " ;;
 		esac
 
-		sketchybar --set "${NAME}" icon="${ICON}" icon.color="${COLOR}"
+		sketchybar --set "${NAME}" icon="${ICON}"
 		sketchybar --set "${NAME}" label="${BATT_PERCENT}%"
 
 		low_battery_label
@@ -30,20 +29,20 @@ render_bar_item() {
 	fi
 
 	case ${BATT_PERCENT} in
-    100) ICON="􀛨  " COLOR="$FOAM" ;;
-    9[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
-    8[0-9]) ICON="􀛨  " COLOR="$FOAM" ;;
-    7[0-9]) ICON="􀺸  " COLOR="$FOAM" ;;
-    6[0-9]) ICON="􀺸  " COLOR="$GOLD" ;;
-    5[0-9]) ICON="􀺶  " COLOR="$GOLD" ;;
-    4[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
-    3[0-9]) ICON="􀺶  " COLOR="$ROSE" ;;
-    2[0-9]) ICON="􀛩  " COLOR="$LOVE" ;;
-    1[0-9]) ICON="􀛪  " COLOR="$LOVE" ;;
-	*) ICON="􀛪  " COLOR="$LOVE" ;;
+    100) ICON="􀛨  "     ;;
+    9[0-9]) ICON="􀛨  "  ;;
+    8[0-9]) ICON="􀛨  "  ;;
+    7[0-9]) ICON="􀺸  "  ;;
+    6[0-9]) ICON="􀺸  "  ;;
+    5[0-9]) ICON="􀺶  "  ;;
+    4[0-9]) ICON="􀺶  "  ;;
+    3[0-9]) ICON="􀺶  "  ;;
+    2[0-9]) ICON="􀛩  "  ;;
+    1[0-9]) ICON="􀛪  "  ;;
+	*) ICON="􀛪  " ;;
 	esac
 
-	sketchybar --set "${NAME}" icon="${ICON}" icon.color="${COLOR}"
+	sketchybar --set "${NAME}" icon="${ICON}"
 
 	low_battery_label
 }
