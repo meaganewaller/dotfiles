@@ -9,7 +9,7 @@
       quiet: true
       command: >-
             echo "Attempting to set sketchybar scripts to executable";
-            chmod +x ~/.config/sketchybar/**/*;
+            chmod +x ~/.config/sketchybar/**/*.sh;
 
             echo "Restarting sketchybar";
             brew services restart sketchybar;

@@ -1,0 +1,19 @@
+#!/usr/bin/env zsh
+#
+case $1 in
+  launch-or-focus)
+    obsidian_info=$(yabai -m query --windows | jq '.[] | select(."app" == "Obsidian")')
+    window_id=$(echo "$obsidian_info" | jq '.id | tonumber')
+    has_focus=$(echo "$obsidian_info" | jq '."has-focus"')
+
+    if [[ -n $window_id ]]; then
+      if [[ "$has_focus" = "true" ]]; then
+        skhd -k "cmd - h"
+      else
+        yabai -m window --focus "$window_id"
+      fi
+    else
+      open -a "obsidian"
+    fi
+    ;;
+esac
