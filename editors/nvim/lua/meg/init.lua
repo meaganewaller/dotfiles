@@ -178,16 +178,21 @@ local modules = {
 
 	-- Task runner -------------------------------------------------------------------
 	{ "stevearc/overseer.nvim", config = "plugins.overseer" },
+	"vim-test/vim-test",
 	{
 		"nvim-neotest/neotest",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter",
+			"nvim-neotest/neotest-go",
+			"nvim-neotest/neotest-python",
+			"nvim-neotest/neotest-plenary",
+			"haydenmeade/neotest-jest",
 			"marilari88/neotest-vitest",
 			"olimorris/neotest-rspec",
 			"zidhuss/neotest-minitest",
-			"haydenmeade/neotest-jest",
 			"thenbe/neotest-playwright",
+			"nvim-neotest/neotest-vim-test",
 		},
 		config = "plugins.neotest",
 	},
@@ -295,6 +300,7 @@ local modules = {
 	{ "tpope/vim-rhubarb", ft = "ruby" },
 
 	-- Colorschemes
+	{ "decaycs/decay.nvim", name = "decay" },
 	{ "rose-pine/neovim", name = "rose-pine" },
 	"dracula/vim",
 	"folke/tokyonight.nvim",
@@ -304,7 +310,6 @@ local modules = {
 	"flazz/vim-colorschemes",
 	"NLKNguyen/papercolor-theme",
 	"navarasu/onedark.nvim",
-	-- additional colorschemes
 	"marko-cerovac/material.nvim",
 	"EdenEast/nightfox.nvim",
 	"projekt0n/github-nvim-theme",

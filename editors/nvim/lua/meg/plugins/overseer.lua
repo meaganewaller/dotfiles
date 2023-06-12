@@ -17,16 +17,25 @@ nx.cmd({
 
 nx.map({
 	{
-		"<Leader>o",
-		function()
-			local overseer = require("overseer")
-			local tasks = overseer.list_tasks({ recent_first = true })
-			if vim.tbl_isempty(tasks) then
-				vim.notify("No tasks found", vim.log.levels.WARN)
-			else
-				overseer.run_action(tasks[1], "restart")
-			end
-		end,
-		desc = "Run the last Overseer task",
+		"<LocalLeader>oC",
+		"<cmd>OverseerClose<cr>",
+		desc = "Close",
 	},
+	{
+		"<LocalLeader>oa",
+		"<cmd>OverseerTaskAction<cr>",
+		desc = "Task Action",
+	},
+	{
+		"<LocalLeader>ob",
+		"<cmd>OverseerBuild<cr>",
+		desc = "Build",
+	},
+	{ "<LocalLeader>ol", "<cmd>OverseerLoadBundle<cr>", desc = "OverseerLoadBundle" },
+	{ "<LocalLeader>oo", "<cmd>OverseerOpen!<cr>", desc = "OverseerOpen" },
+	{ "<LocalLeader>oq", "<cmd>OverseerQuickAction<cr>", desc = "OverseerQuickAction" },
+	{ "<LocalLeader>or", "<cmd>OverseerRun<cr>", desc = "OverseerRun" },
+	{ "<LocalLeader>os", "<cmd>OverseerSaveBundle<cr>", desc = "OverseerSaveBundle" },
+	{ "<LocalLeader>ot", "<cmd>OverseerToggle!<cr>", desc = "OverseerToggle" },
+	{ "<LocalLeader>oc", "<cmd>OverseerRunCmd<cr>", desc = "OverseerRunCmd" },
 })
