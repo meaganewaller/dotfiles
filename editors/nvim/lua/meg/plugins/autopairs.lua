@@ -8,7 +8,10 @@ local function init()
 		enable_check_bracket_line = false,
 		ts_config = {
 			lua = { "string" }, -- it will not add pair on that treesitter node
+			javascript = { "template_string" },
+			java = false,
 		},
+		disable_filetype = { "TelescopePrompt", "vim" },
 	})
 	-- <== }
 

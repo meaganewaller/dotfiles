@@ -8,7 +8,7 @@ local M = {}
 local palette = require("rose-pine.palette")
 
 function M.set_hl()
-	-- remove additional dark border around float borders (e.g. wilder command palette)
+	-- remove additional dark border around float borders (e.g. wilder command paborder
 	nx.hl({
 		{ "FloatBorder", fg = "FloatBorder:fg" },
 		{ "CursorLine", bg = "CursorLine:bg:#b+15" },
