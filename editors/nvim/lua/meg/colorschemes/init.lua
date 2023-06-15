@@ -1,4 +1,4 @@
-local default_colorscheme = "rose-pine"
+local default_colorscheme = mw.theme
 
 pcall(require("meg.colorschemes." .. default_colorscheme))
 

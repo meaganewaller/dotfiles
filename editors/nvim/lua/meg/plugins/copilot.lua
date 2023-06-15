@@ -1,5 +1,6 @@
 local function init()
 	require("copilot").setup({
+		ft_disable = { "go", "dap-repl" },
 		suggestion = { enabled = false },
 		panel = { enabled = false },
 	})

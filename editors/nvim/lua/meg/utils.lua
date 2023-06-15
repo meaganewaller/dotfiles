@@ -51,14 +51,14 @@ function M.truc_path(input_path)
         else
           -- middle position
           path = path
-          .. "/"
-          .. (
-          (
-          config.shorten
-          and string.sub(file[#file - (config.max_dirs - (dirs - 1))], 1, 2)
-          .. config.trunc_symbol
-          ) or file[#file - (config.max_dirs - (dirs - 1))]
-          )
+              .. "/"
+              .. (
+                (
+                  config.shorten
+                  and string.sub(file[#file - (config.max_dirs - (dirs - 1))], 1, 2)
+                  .. config.trunc_symbol
+                ) or file[#file - (config.max_dirs - (dirs - 1))]
+              )
         end
       end
     else

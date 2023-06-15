@@ -1,0 +1,131 @@
+local telescope = require("telescope")
+local builtin = require("telescope.builtin")
+local b = mw.ui.borders.default
+local bn = mw.ui.borders.none
+local M = {}
+
+M.window_size = {
+  width = {
+    tiny = {
+      0.3,
+      min = 40,
+      max = 60,
+    },
+    small = {
+      0.6,
+      min = 90,
+      max = 110,
+    },
+    medium = {
+      0.6,
+      min = 100,
+      max = 130,
+    },
+    large = 0.9,
+  },
+  height = {
+    tiny = {
+      0.3,
+      min = 20,
+      max = 40,
+    },
+    small = {
+      0.5,
+      min = 20,
+      max = 40,
+    },
+    medium = {
+      0.8,
+      min = 40,
+      max = 50,
+    },
+    large = 0.9,
+  },
+}
+local ws = M.window_size
+
+M.borderchars = {
+  prompt  = { b.t,   b.r,   b.b,   b.l,   b.tl,  b.tr,  b.br,  b.bl  },
+  results = { b.t,   b.r,   bn.b,  b.l,   b.tl,  b.tr,  b.r,   b.l   },
+  preview = { b.t,   b.r,   bn.b,  b.l,   b.tl,  b.tr,  b.r,   b.l   },
+}
+
+function M.frecency()
+  telescope.extensions.frecency.frecency({
+    prompt_title = "Frecent Files",
+  })
+end
+
+function M.oldFiles()
+  builtin.oldfiles({
+    prompt_title = "Recent Files",
+  })
+end
+
+function M.notify()
+  telescope.extensions.notify.notify({
+    results_title = "Results",
+    prompt_title = "Notifications",
+    layout_strategy = "vertical",
+    layout_config = {
+      prompt_position = "bottom",
+    },
+    borderchars = M.borderchars,
+  })
+end
+
+function M.possession()
+  telescope.extensions.possession.list({
+    previewer = false,
+    layout_strategy = "vertical",
+    layout_config = {
+      width = ws.width.tiny,
+      height = ws.height.tiny,
+    },
+  })
+end
+
+function M.luasnip()
+  telescope.extensions.luasnip.luasnip({
+    layout_config = {
+      preview_width = 0.3,
+      width = ws.width.large,
+      height = ws.height.large,
+    },
+  })
+end
+
+function M.file_browser()
+  telescope.extensions.file_browser.file_browser({
+    path = "%:p:h",
+  })
+end
+
+local lsp_layout = {
+  jump_type = "never",
+  layout_strategy = "vertical",
+  show_line = false,
+  fname_width = 100,
+  layout_config = {
+    prompt_position = "bottom",
+  },
+  borderchars = M.borderchars,
+}
+
+function M.lsp_references()
+  builtin.lsp_references(lsp_layout)
+end
+
+function M.lsp_definitions()
+  builtin.lsp_definitions(lsp_layout)
+end
+
+function M.lsp_type_definitions()
+  builtin.lsp_type_definitions(lsp_layout)
+end
+
+function M.lsp_implementations()
+  builtin.lsp_implementations(lsp_layout)
+end
+
+return M
