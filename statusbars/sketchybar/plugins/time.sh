@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-sketchybar -m --set $NAME label="$(date '+%l:%M')"
+sketchybar -m --set calendar.time label="$(date '+%l:%M')"

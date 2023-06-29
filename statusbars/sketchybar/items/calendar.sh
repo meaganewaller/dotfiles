@@ -20,10 +20,10 @@ date=(
 )
 
 sketchybar --add item calendar.time right \
-           --set calendar.time "${clock[@]}" \
-           --clone calendar.date label_template \
-           --set calendar.date "${date[@]}" \
+           --set      calendar.time "${clock[@]}" \
+           --clone    calendar.date label_template \
+           --set      calendar.date "${date[@]}" \
            --add bracket calendar \
-            calendar.time \
-            calendar.date \
+                         calendar.time \
+                         calendar.date \
             --set calendar background.drawing=on
