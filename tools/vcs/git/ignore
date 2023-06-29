@@ -158,3 +158,4 @@ __pycache__
 config/definitions.rb
 private-keys-*
 random_seed
+public/uploads/
