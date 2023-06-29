@@ -1,2 +1,3 @@
 - link:
     ~/.config/lazygit/config.yml: tools/vcs/lazygit/config.yml
+    ~/.config/lazygit/state.yml: tools/vcs/lazygit/state.yml
