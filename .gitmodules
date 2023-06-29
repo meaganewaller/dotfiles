@@ -5,3 +5,6 @@
 [submodule "editors/nvim"]
 	path = editors/nvim
 	url = git@github.com:meaganewaller/nvim.git
+[submodule "terminals/kitty"]
+	path = terminals/kitty
+	url = git@github.com:meaganewaller/kitty.git
