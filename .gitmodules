@@ -2,3 +2,6 @@
 	path = dotbot
 	url = git@github.com:anishathalye/dotbot.git
   ignore = dirty
+[submodule "editors/nvim"]
+	path = editors/nvim
+	url = git@github.com:meaganewaller/nvim.git
