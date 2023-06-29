@@ -10,7 +10,7 @@ if command -sq paru
 end
 
 abbr nf neofetch
-abbr lg lazygit
+# abbr lg lazygit
 abbr cl clear
 abbr yt yt-dlp
 abbr vim nv
