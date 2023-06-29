@@ -7,85 +7,17 @@ CONFIG_SUFFIX=".yaml"
 
 META_DIR="meta"
 CONFIG_DIR="configs"
-PROFILES_DIR="profiles"
 
 DOTBOT_DIR="dotbot"
 DOTBOT_BIN="bin/dotbot"
-DOTBOT_PLUGIN_DIR="dotbot-plugins"
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "${BASE_DIR}"
-git submodule update --init --recursive
+git submodule update --init --recursive --remote
 
-sudoSuffix="-sudo"
-exitIfConfigNotFound=false # used as a flag to exit IF a config file is NOT found
-for config in ${@}; do
-  config=${config%"$sudoSuffix"}
-  configFilepath="${BASE_DIR}/${META_DIR}/${CONFIG_DIR}/${config}${CONFIG_SUFFIX}"
-  if [[ ! -e $configFilepath ]]; then
-    echo -e "Dotbot config \\033[1;31m$configFilepath \\033[0mDOESN'T exists"
+"${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${META_DIR}/${BASE_CONFIG}${CONFIG_SUFFIX}"
 
-    exitIfConfigNotFound=true
-  fi
+for config in "${@}"; do
+  "${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${META_DIR}/${CONFIG_DIR}/${config}${CONFIG_SUFFIX}"
 done
-
-# exit if a config filepath is NOT found
-if [[ $exitIfConfigNotFound == true ]]; then
-  echo -e "\nexiting"
-  exit 1
-fi
-
-# cleanup variables
-unset sudoSuffix
-unset exitIfConfigNotFound
-
-for config in ${@}; do
-  # create temporary file
-  configFile="$(mktemp)"
-  suffix="-sudo"
-  echo -e "$(<"${BASE_DIR}/${META_DIR}/${BASE_CONFIG}${CONFIG_SUFFIX}")\n$(<"${BASE_DIR}/${META_DIR}/${CONFIG_DIR}/${config%"$suffix"}${CONFIG_SUFFIX}")" >"$configFile"
-
-  cmd=("${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "$configFile")
-
-  # print a line depending on the terminal width
-  # get terminal width: https://unix.stackexchange.com/a/425158
-  # print a line of   : https://stackoverflow.com/a/17030976/3053548
-  printf '%0.s=' $(seq 1 $(stty size | awk '{print $2}'))
-  printf '%0.s=' $(seq 1 $(stty size | awk '{print $2}'))
-  echo -e "\nConfigure $config\n"
-
-  if [[ $config == *"sudo"* ]]; then
-    # - pass tools/zsh/zshenv file when running in sudo to load ENV
-    #   - Why?
-    #     - some of the dotbot configs are using using sudo and XDG envs defined in ./tools/zsh/zshenv
-    # - set HOME to current home user path
-    #   - Why?
-    #     - when running in sudo, the XDG env tools/zsh/zshenv are not not loaded
-    #
-    # - passing ENV in sudo https://unix.stackexchange.com/a/396528
-    # - setting BASH_ENV https://unix.stackexchange.com/a/429235
-    # - setting env HOME : assuming dotfiles repo is in the Home folder
-    #   - requires full directory path
-    # cmd=(sudo env HOME="$(echo $HOME)" BASH_ENV="./tools/zsh/zshenv" "${cmd[@]}")
-
-    cmd=(sudo "${cmd[@]}")
-  fi
-
-  "${cmd[@]}"
-  rm -f "$configFile"
-done
-
-cd "${BASE_DIR}"
-
-echo "Restart your terminal..."
-#GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git submodule update --init --recursive "${META_DIR}/${DOTBOT_DIR}"
-#GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git submodule update --init --recursive "${META_DIR}/${DOTBOT_PLUGIN_DIR}/dotbot-brewfile"
-
-#"${BASE_DIR}/${META_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" --plugin-dir ${BASE_DIR}/${META_DIR}/${DOTBOT_PLUGIN_DIR}/dotbot-brewfile -c "${META_DIR}/${BASE_CONFIG}${CONFIG_SUFFIX}"
-#
-#for config in ${@}; do
-#  "${BASE_DIR}/${META_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" --plugin-dir ${BASE_DIR}/${META_DIR}/${DOTBOT_PLUGIN_DIR}/dotbot-brewfile -c "${META_DIR}/${CONFIG_DIR}/${config}${CONFIG_SUFFIX}"
-#done
-#
-#echo "Restart your terminal..."

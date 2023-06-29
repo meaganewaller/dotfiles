@@ -1,93 +1,30 @@
 #!/usr/bin/env bash
-
-# install-profile
-# used for running group of installation scripts as a profile located in
-# ./meta/profiles directory.
-# Ex: install script for MacOS, arch
-# Usage: ./install-profile <profile ...>
-# ./install-profile mac
-# ./install-profile arch
-# ------------------------------------------------------------------------------------------------ #
-# #
-# files in ./meta/profiles/ folder are plain text files that have config filename(no file extenstion).
-# Ex:
-# ./meta/profiles/macos contains
-# nvim
-# tmux
-# homebrew
-#
-#
-# ------------------------------------------------------------------------------------------------ #
-#
-# NOTE: to run a config in sudo, then add '-sudo' as a suffix of the config to run.
-# Ex: ./meta/profiles/debian contains
-# apt-sudo
-#
-# ------------------------------------------------------------------------------------------------ #
-#
-# to ignore a line in a profile, add '#' at the beginning of that line
-# Ex: ./meta/profiles/macos contains
-# nvim
-# tmux
-# homebrew
-# # astronvim
-#
-# This will ignore 'astronvim' config
-#
-# ------------------------------------------------------------------------------------------------ #
-
 set -e
+
+BASE_CONFIG="base"
+CONFIG_SUFFIX=".yaml"
 
 META_DIR="meta"
 CONFIG_DIR="configs"
 PROFILES_DIR="profiles"
 
+DOTBOT_DIR="dotbot"
+DOTBOT_BIN="bin/dotbot"
+
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "${BASE_DIR}"
-git submodule update --init --recursive
+git submodule update --init --recursive --remote
 
-printLineBanner() {
-  printf '\e[1;34m%0.s#\e[0m' $(seq 1 $(stty size | awk '{print $2}'))
-}
+while IFS= read -r config; do
+  CONFIGS+= " ${config}"
+done < "${META_DIR}/${PROFILES_DIR}/$1"
 
-exitIfProfileNotFound=false
-for profile in ${@}; do
-  profileFilepath="${BASE_DIR}/${META_DIR}/${PROFILES_DIR}/${profile}"
+shift
 
-  if [[ ! -e $profileFilepath ]]; then
-    echo -e "Dotbot profile \\033[1;31m$profileFilepath \\033[0mNOT found"
+"${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${META_DIR}/${BASE_CONFIG}${CONFIG_SUFFIX}"
 
-    exitIfProfileNotFound=true
-  fi
-done
-
-# exit if a profile filepath is NOT found
-if [[ $exitIfProfileNotFound == true ]]; then
-  echo -e "\nexiting"
-  exit 1
-fi
-
-# cleanup variables
-unset exitIfProfileNotFound
-
-for profile in ${@}; do
-  while IFS= read -r config; do
-    CONFIGS+=" ${config}"
-
-    # read lines that DON'T start with #
-    # obtained from https://stackoverflow.com/a/8197412/3053548
-  done < <(grep -v '^#' "${META_DIR}/${PROFILES_DIR}/$profile")
-
-  for i in $(seq 2); do printLineBanner; done
-  echo -e "\nRunning profile \e[1;34m$profile\e[0m\n"
-
-  # Run profile configs
-  source ./install-standalone ${CONFIGS}
-
-  # Cleanup variables
-  unset CONFIGS
-done
-
-cd "${BASE_DIR}"
-echo "Restart your terminal.."
+for config in "${CONFIGS} ${@};" do
+  echo -e "\nConfigure $config"
+  "${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${CONFIG_DIR}/${config}${CONFIG_SUFFIX}"
+end
