@@ -1,0 +1,91 @@
+# Taskwarrior program configuration file.
+# For more documentation, see http://taskwarrior.org or try 'man task', 'man task-color',
+# 'man task-sync' or 'man taskrc'
+
+# Use the command 'task show' to see all defaults and overrides
+
+include /usr/local/share/doc/task/rc/dark-256.theme
+include ~/.taskrc.local
+
+data.location         = ~/.task
+default.project       = Inbox
+defaultwidth          = 120
+search.case.sensitive = 0
+
+# Reports {
+
+## In Progress
+report.triage.description=List all task that have to be triaged
+report.triage.columns=id,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description,urgency
+report.triage.labels=ID,Age,Deps,P,Project,Tag,Recur,S,Due,Until,Description,Urg
+report.triage.filter=project:Inbox
+report.triage.sort=urgency-
+
+# }
+
+# Contexts {
+
+context.readings                = project:Readings
+context.readings.read           = project:Readings
+context.readings.write          = project:Readings
+
+context.inbox                   = project:Inbox
+context.inbox.read              = project:Inbox
+context.inbox.write             = project:Inbox
+
+context.work           = project:Work
+context.work.read      = project:Work
+context.work.write     = project:Work
+
+context.personal       = project:Personal
+context.personal.read  = project:Personal
+context.personal.write = project:Personal
+
+# }
+
+# UDAs {
+
+# bugwarrior UDAs
+uda.jiraissuetype.type=string
+uda.jiraissuetype.label=Issue Type
+uda.jirasummary.type=string
+uda.jirasummary.label=Jira Summary
+uda.jiraurl.type=string
+uda.jiraurl.label=Jira URL
+uda.jiradescription.type=string
+uda.jiradescription.label=Jira Description
+uda.jiraid.type=string
+uda.jiraid.label=Jira Issue ID
+uda.jiraestimate.type=numeric
+uda.jiraestimate.label=Estimate
+uda.jirafixversion.type=string
+uda.jirafixversion.label=Fix Version
+uda.jiracreatedts.type=date
+uda.jiracreatedts.label=Created At
+uda.jirastatus.type=string
+uda.jirastatus.label=Jira Status
+uda.jirasubtasks.type=string
+uda.jirasubtasks.label=Jira Subtasks
+
+# inthe.am UDAs
+uda.intheamoriginalemailid.type=string
+uda.intheamoriginalemailid.label=inthe.am e-mail id
+uda.intheamoriginalemailsubject.type=string
+uda.intheamoriginalemailsubject.label=inthe.am e-mail Subject
+uda.intheammergedfrom.type=string
+uda.intheammergedfrom.label=inthe.am merged from task
+uda.intheamduplicateof.type=string
+uda.intheamduplicateof.label=inthe.am duplicated of
+
+# custom worklow UDAs
+uda.state.type=string
+uda.state.label=Task state
+uda.state.values=new,planned,in-progress,done
+# }
+
+# Priorities {
+urgency.user.tag.problem.coefficient=4.5
+urgency.user.tag.later.coefficient=-6.0
+urgency.user.tag.review.coefficient=6
+
+# }

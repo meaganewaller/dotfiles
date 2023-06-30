@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# function to echo green text
+function gecho() {
+    echo "$(tput setaf 2)$1$(tput sgr0)"
+}
+
+gecho 'Updating Homebrew'
+brew update
+
+gecho 'Upgrading outdated formulae'
+brew upgrade --formula
+
+if [ "$(uname)" == "Darwin" ]; then
+    gecho 'Upgrading outdated casks'
+    brew upgrade --cask
+fi
+
+gecho 'Installing missing packages'
+brew bundle check --file=~/Brewfile || brew bundle --file=~/Brewfile
+
+gecho 'Cleanup brew cached downloads'
+brew cleanup

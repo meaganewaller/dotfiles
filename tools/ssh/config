@@ -1,0 +1,36 @@
+Include /Users/meagan/.colima/ssh_config
+Include config.d/local
+
+ControlMaster   no
+ControlPath     /tmp/ssh_mux_%h_%p_%r
+ControlPersist  1h
+AddKeysToAgent  yes
+
+Host github.com
+  User git
+  Hostname github.com
+  PreferredAuthentications publickey
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host *
+  Protocol 2
+  TCPKeepAlive yes
+  ServerAliveInterval 20
+  ServerAliveCountMax 10
+  ControlMaster auto
+  ControlPath /tmp/ssh_%r@%h:%p.socket
+  ControlPersist yes
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_ed25519
+  Compression yes
+  AddKeysToAgent yes
+  IgnoreUnknown UseKeychain
+  UseKeychain yes
+
+Host *
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+
+Host meaganwaller.com
+  HostName meaganwaller.com
+  User meaganwaller

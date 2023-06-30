@@ -1,0 +1,25 @@
+rofi.modi: drun,run,ssh,window
+rofi.font: 'Roboto Mono' 14, FontAwesome 14
+
+rofi.fullscreen: false
+rofi.padding: 400
+rofi.line-padding: 15
+rofi.line-margin: 0
+
+rofi.theme: ~/.config/rofi/srcery_rofi.rasi
+
+! "Separator style (none, dash, solid)"
+rofi.separator-style: solid
+
+! "Scrolling method. (0: Page, 1: Centered)"
+rofi.scroll-method: 1
+!rofi.hide-scrollbar: false
+
+! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)"
+rofi.window-format: {w} 	{t}
+
+rofi.ssh-command: {terminal} -e '{ssh-client} {host}'
+rofi.parse-known-hosts: false
+
+! "Set the matching algorithm. (normal, regex, glob, fuzzy)"
+!rofi.matching: normal

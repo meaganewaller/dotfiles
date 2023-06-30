@@ -1,4 +1,39 @@
-[submodule "dotbot"]
-	path = dotbot
+[submodule "meta/dotbot"]
+	path = meta/dotbot
 	url = git@github.com:anishathalye/dotbot.git
-  ignore = dirty
+	ignore = dirty
+[submodule "meta/dotbot_plugins/dotbot-apt"]
+	path = meta/dotbot_plugins/dotbot-apt
+	url = git@github.com:bryant1410/dotbot-apt
+	ignore = dirty
+[submodule "meta/dotbot_plugins/dotbot-brew"]
+	path = meta/dotbot_plugins/dotbot-brew
+	url = https://github.com/d12frosted/dotbot-brew.git
+	ignore = dirty
+[submodule "meta/dotbot_plugins/dotbot-git"]
+	path = meta/dotbot_plugins/dotbot-git
+	url = https://github.com/DrDynamic/dotbot-git.git
+	ignore = dirty
+[submodule "meta/dotbot_plugins/dotbot-sudo"]
+	path = meta/dotbot_plugins/dotbot-sudo
+	url = https://github.com/DrDynamic/dotbot-sudo.git
+	ignore = dirty
+[submodule "meta/dotbot_plugins/dotbot-brewfile"]
+	path = meta/dotbot_plugins/dotbot-brewfile
+	url = https://github.com/sobolevn/dotbot-brewfile.git
+	ignore = dirty
+[submodule "meta/plugins/dotbot-asdf"]
+	path = meta/plugins/dotbot-asdf
+	url = https://github.com/sobolevn/dotbot-asdf.git
+	ignore = dirty
+[submodule "meta/plugins/dotbot-ghq"]
+	path = meta/plugins/dotbot-ghq
+	url = https://github.com/klane/dotbot-ghq.git
+	ignore = dirty
+[submodule "meta/plugins/dotbot-vscode"]
+	path = meta/plugins/dotbot-vscode
+	url = https://github.com/hujianxin/dotbot-vscode.git
+	ignore = dirty
+[submodule "terminals/tmux/tpm"]
+	path = terminals/tmux/tpm
+	url = https://github.com/tmux-plugins/tpm

@@ -1,0 +1,8 @@
+--git https://github.com/greshake/i3status-rust i3status-rs --locked
+--git https://github.com/hrkfdn/ncspot --features="share_clipboard,pulseaudio_backend,mpris,notify,cursive/pancurses-backend,cover" --locked
+--git https://github.com/frederick888/git-credential-keepassxc --features notification,strict-caller --locked
+git-delta
+tealdeer
+stylua
+du-dust
+tokei

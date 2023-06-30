@@ -1,0 +1,15 @@
+awscli
+bin
+fd
+fzf
+git
+gnupg
+golang
+neovim
+python
+ripgrep
+shellcheck
+ssh
+terraform
+tmux
+zsh

@@ -1,4 +1,2 @@
 - link:
-    ~/.local/bin:
-        glob: true
-        path: bin/**/*
+    ~/.local/bin: bin

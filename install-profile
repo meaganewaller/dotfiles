@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
+
 set -e
 
-BASE_CONFIG="base"
-CONFIG_SUFFIX=".yaml"
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+ENV="$BASE_DIR/install.env"
 
-META_DIR="meta"
-CONFIG_DIR="configs"
-PROFILES_DIR="profiles"
+[[ -f $ENV ]] || (echo "$ENV: not found" && exit 1)
 
-DOTBOT_DIR="dotbot"
-DOTBOT_BIN="bin/dotbot"
+# shellcheck source=/dev/null
+. "$ENV"
 
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROFILE="$META_DIR/$PROFILES_DIR/$1"
 
-cd "${BASE_DIR}"
-git submodule update --init --recursive --remote
+[[ -f "$PROFILE" ]] || (echo "$PROFILE: not found" && exit 1)
+
+updateSubmodules
+updateAsdfPlugins
+
+echo -e "\nApplying profile $(basename "$PROFILE")..."
 
 while IFS= read -r config; do
-  CONFIGS+= " ${config}"
-done < "${META_DIR}/${PROFILES_DIR}/$1"
+    CONFIGS+=" $config"
+done < "$PROFILE"
 
 shift
 
-"${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${META_DIR}/${BASE_CONFIG}${CONFIG_SUFFIX}"
-
-for config in "${CONFIGS} ${@};" do
-  echo -e "\nConfigure $config"
-  "${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${CONFIG_DIR}/${config}${CONFIG_SUFFIX}"
-end
+for config in $CONFIGS "${@}"; do
+  applyConfig "$config"
+done
