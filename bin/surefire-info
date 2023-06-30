@@ -1,0 +1,11 @@
+#!/usr/bin/env fish
+
+[ (count $argv) -eq 1 ]; and set base "$argv[1]"; or set base "."
+
+[ (fd -u surefire-reports -p -e txt "$base" | wc -l) -ne 0 ]; \
+  or begin; echo "Not surefire reports found in '$base'"; and exit 1; end
+
+fd -u surefire-reports -p -e txt | while read report
+  grep "Failures:" $report
+end | sed -E -e s'/^.*\ run:\ ([0-9]*),.*Failures:\ ([0-9]*),.*Errors:\ ([0-9]*),.*Skipped:\ ([0-9]*),.*/\1 \2 \3 \4/g' \
+    | awk '{r+=$1; f+=$2; e+=$3; s+=$4} END {printf("run: %d, Failures: %d, Errors: %d, Skipped: %d\n", r, f, e, s)}'

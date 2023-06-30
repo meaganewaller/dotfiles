@@ -1,5 +1,5 @@
 - link:
     ~/.config/starship:
-        path: prompt/starship/*
+        path: shells/starship/*
         glob: true
-        exclude: [prompt/starship/README.md]
+        exclude: [shells/starship/README.md]

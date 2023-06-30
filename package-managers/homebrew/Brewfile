@@ -1,0 +1,155 @@
+# taps
+tap 'homebrew/cask' if OS.mac?
+tap 'homebrew/cask-fonts' if OS.mac?
+tap 'mas-cli/tap' if OS.mac?
+
+# dupes
+brew 'coreutils'
+brew 'curl'
+brew 'diffutils'
+brew 'findutils'
+brew 'gawk'
+brew 'gnu-sed'
+brew 'gnu-which'
+brew 'grep'
+brew 'make'
+brew 'rsync'
+brew 'wget'
+
+# utilities
+brew 'bat'
+brew 'exa'
+brew 'fasd'
+brew 'fd'
+brew 'fselect'
+brew 'fzf'
+brew 'htop'
+brew 'hyperfine'
+brew 'rename'
+brew 'ripgrep'
+brew 'sd'
+brew 'speedtest-cli'
+brew 'thefuck'
+brew 'tmux'
+brew 'tmuxinator'
+brew 'tokei'
+brew 'watchexec'
+
+# mac utilities
+brew 'mas-cli/tap/mas' if OS.mac?
+brew 'osxutils' if OS.mac?
+brew 'pinentry-mac' if OS.mac?
+brew 'trash' if OS.mac?
+
+mas 'DaisyDisk', id: 411643860 if OS.mac?
+mas 'Gestimer', id: 990588172 if OS.mac?
+mas 'iStat Menus', id: 1319778037 if OS.mac?
+mas 'Magnet', id: 441258766 if OS.mac?
+
+# information utilities
+brew 'howdoi'
+brew 'tldr'
+brew 'wtf'
+
+# shells
+brew 'bash'
+brew 'fish'
+brew 'nushell'
+brew 'zsh'
+brew 'antibody'
+brew 'starship'
+
+# utilities
+brew 'direnv'
+brew 'gnupg'
+brew 'openssh'
+
+# git
+brew 'bfg'
+brew 'git'
+brew 'gitup'
+brew 'git-delta'
+brew 'git-lfs'
+brew 'gh'
+brew 'ghq'
+brew 'lazygit'
+brew 'legit'
+brew 'pre-commit'
+
+# programming tools
+brew 'asdf'
+brew 'bats-core'
+brew 'gradle'
+brew 'shellcheck'
+
+# python tools
+brew 'black'
+brew 'flake8'
+brew 'mkdocs'
+brew 'mypy'
+brew 'pipenv'
+
+# support casks
+cask 'xquartz'
+
+# editors
+cask 'jetbrains-toolbox'
+cask 'rstudio'
+cask 'sublime-text'
+cask 'visual-studio-code'
+
+# images
+brew 'imagemagick'
+cask 'gimp'
+cask 'icons8'
+cask 'inkscape'
+
+# database
+cask 'db-browser-for-sqlite'
+cask 'dbeaver-community'
+cask 'neo4j'
+brew 'pgcli'
+cask 'postgres'
+cask 'postico'
+cask 'tableplus'
+
+# games
+cask 'battle-net'
+cask 'epic-games'
+cask 'steam'
+cask 'twitch'
+
+# casks
+cask 'adobe-acrobat-reader'
+cask 'authy'
+cask 'boostnote'
+cask 'cakebrew'
+cask 'cheatsheet'
+cask 'clickup'
+cask 'dash'
+cask 'discord'
+cask 'docker'
+cask 'dropbox'
+cask 'evernote'
+cask 'flux'
+cask 'font-fira-code'
+cask 'font-firacode-nerd-font'
+cask 'fork'
+cask 'gitkraken'
+cask 'google-chrome'
+cask 'hyper'
+cask 'iterm2'
+cask 'keepingyouawake'
+cask 'mactex'
+cask 'mark-text'
+cask 'meteorologist'
+cask 'microsoft-teams'
+cask 'miniconda'
+cask 'notion'
+cask 'obsidian'
+cask 'signal'
+cask 'slack'
+cask 'spotify'
+cask 'ticktick'
+cask 'whatsapp'
+cask 'zoom'

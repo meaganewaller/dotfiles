@@ -1,0 +1,12 @@
+- defaults:
+    link:
+        create: true
+        relink: true
+        force: true
+
+- link:
+    ~/.config/user-dirs.dir: misc/custom-dirs/config
+
+- shell:
+    - [xdg-user-dirs-update]
+    - [for line in $(cat ~/.config/user-dirs.dir); do export $line; done]

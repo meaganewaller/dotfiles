@@ -1,9 +1,9 @@
 - link:
+    ~/.gitattributes: tools/vcs/git/attributes
+    ~/.gitconfig: tools/vcs/git/config
     ~/.gitmessage:
         force: true
         path: tools/vcs/git/message
-    ~/.gitconfig:
-        path: tools/vcs/git/config
     ~/.gitignore_global:
         path: tools/vcs/git/ignore
     ~/.gitconfig.local:
@@ -12,3 +12,9 @@
         glob: true
         path: tools/vcs/git/*
         exclude: [ tools/vcs/git/README.md ]
+
+- asdf:
+    - plugin: git
+      global: latest
+      versions:
+        - latest

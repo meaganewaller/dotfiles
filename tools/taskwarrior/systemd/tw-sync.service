@@ -1,0 +1,9 @@
+[Unit]
+Description=tw-sync
+
+[Service]
+ExecStart="%h/.local/bin/sync-tw"
+Type=oneshot
+
+[Install]
+WantedBy=default.target

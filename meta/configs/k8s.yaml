@@ -1,0 +1,21 @@
+- asdf:
+  - plugin: kubectl
+    global: latest
+    versions:
+      - latest
+  - plugin: helm
+    global: latest
+    versions:
+      - latest
+  - plugin: kustomize
+    global: latest
+    versions:
+      - latest
+  - plugin: krew
+    global: latest
+    versions:
+      - latest
+  - plugin: stern
+    global: latest
+    versions:
+      - latest
