@@ -62,7 +62,10 @@ def convert(session):
                 # print(f"title {w['title']}")
                 # skip dump "/usr/bin/kitty +hold command" or "/usr/bin/kitty +kitten ssh ..."
                 # also skip "/usr/bin/kitten __hold_till_enter__ ...."
-                if os.path.basename(w['foreground_processes'][0]['cmdline'][0]) in ["kitty", "kitten"]:
+                if os.path.basename(w["foreground_processes"][0]["cmdline"][0]) in [
+                    "kitty",
+                    "kitten",
+                ]:
                     continue
                 # print(f"launch {env_to_str(w['env'])} {fg_proc_to_str(w['foreground_processes'])}")
                 print(f"launch {fg_proc_to_str(w['foreground_processes'])}")

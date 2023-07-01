@@ -19,4 +19,3 @@ local settings = {
 return {
   settings = settings,
 }
-

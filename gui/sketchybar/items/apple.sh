@@ -105,4 +105,3 @@ sketchybar --add item apple.logo left \
            --set apple.lock "${apple_lock[@]}" \
            --add item apple.logout popup.apple.logo \
            --set apple.logout "${apple_logout[@]}"
-

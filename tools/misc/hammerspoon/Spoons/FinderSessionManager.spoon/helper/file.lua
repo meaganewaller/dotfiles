@@ -37,7 +37,7 @@ function file.name(path) return path:match("^.+/(.+)$") end
 --- Function
 --- Gets the full path to a parent folder containing a given file.
 --- i.e. images/file.txt will return images/
---- 
+---
 --- Parameters:
 ---  * path - string of the full path.
 ---
@@ -74,13 +74,13 @@ end
 
 
 --- Scores a path as being a subfolder to a given parent folder.
--- Assesses whether the folder pointed to by path is a descendant of the parent 
+-- Assesses whether the folder pointed to by path is a descendant of the parent
 -- folder, and provides a score depending on how deep the child folder is.
 -- @param path string: the potential child folder.
 -- @param parentFolder string: the potential parent folder.
--- @return int: the score. Returns -1 if the path is not a subdirectory of the 
--- parentFolder, 0 if the path is exactly the parent folder, or a positive 
--- integer which represents the number of descendant folders of parentFolder 
+-- @return int: the score. Returns -1 if the path is not a subdirectory of the
+-- parentFolder, 0 if the path is exactly the parent folder, or a positive
+-- integer which represents the number of descendant folders of parentFolder
 -- are parent folders to path.
 function file.scoreSubfolder(path, parentFolder)
     -- Remove the first instance of the subpath

@@ -45,4 +45,3 @@ clean:
 doc:
 	@echo "$(MYNAME) library:"
 	@fgrep '/**' $(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort | column
-

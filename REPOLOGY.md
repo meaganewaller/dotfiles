@@ -1,6 +1,6 @@
 # Dependencies
 
-The summary of dependencies. 
+The summary of dependencies.
 
 ## Essentials
 

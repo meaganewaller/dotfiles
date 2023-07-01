@@ -373,7 +373,7 @@ function move -d "GitNow: Switch from current branch to another but stashing unc
         end
     end
 
-    # Move to prev branch either via the --prev option or the "-" shorthand char 
+    # Move to prev branch either via the --prev option or the "-" shorthand char
     if begin test -n "$v_prev"; or [ "$args" = "-" ]; end
         if begin test -z "$g_current_branch"; or [ "$g_current_branch" = (__gitnow_current_branch_name) ]; end
             echo "Previous branch not found or the same as current one. Nothing to do."

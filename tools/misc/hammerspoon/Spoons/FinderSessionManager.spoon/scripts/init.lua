@@ -1,7 +1,7 @@
 -- === init.lua ===
 -- Author: Jonathan Delgado
 --
--- Unifies and handles running specific types of external scripts, i.e. JXA, 
+-- Unifies and handles running specific types of external scripts, i.e. JXA,
 -- shell, Applescript, etc.
 --
 -- Module object

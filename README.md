@@ -1,14 +1,11 @@
 <div align="justify">
 <div align="center">
 
-
 <pre align="center">
 ╔════════════════ °❀•°✮°•❀° ═════════════════╗<br>
-✧･ﾟ:* <a href="#-setup">Setup</a> ✧ <a href="#--key-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a> *:･ﾟ✧ <br>
+✧･ﾟ:*<a href="#-setup">Setup</a> ✧ <a href="#--key-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a>*:･ﾟ✧ <br>
 ╚════════════════ °❀•°✮°•❀° ═════════════════╝
 </pre>
-
-
 
 <!-- <p align="center"> -->
 <!-- <a href="#setup"><img width="150px" style="padding: 0 10px;" src="assets/setup.png"></a> -->
@@ -17,12 +14,11 @@
 <!-- <a href="https://github.com/meaganewaller/dotfiles/wiki/Keybinds"><img width="150px" style="padding: 0 10px;" src="assets/keybinds.png"></a> -->
 <!-- </p> -->
 
-
 <pre align="center">
 ┌┬┐┬ ┬┌─┐┬─┐┌─┐┌─┐  ┌┐┌┌─┐  ┌─┐┬  ┌─┐┌─┐┌─┐  ┬  ┬┬┌─┌─┐
- │ ├─┤├┤ ├┬┘├┤ └─┐  ││││ │  ├─┘│  ├─┤│  ├┤   │  │├┴┐├┤ 
+ │ ├─┤├┤ ├┬┘├┤ └─┐  ││││ │  ├─┘│  ├─┤│  ├┤   │  │├┴┐├┤
  ┴ ┴ ┴└─┘┴└─└─┘└─┘  ┘└┘└─┘  ┴  ┴─┘┴ ┴└─┘└─┘  ┴─┘┴┴ ┴└─┘
-° ˛ ° ˚* _Π_____*☽*˚ ˛
+° ˛ ° ˚*_Π_____*☽*˚ ˛
 ✩ ˚˛˚*   /______/__＼。✩˚ ˚˛
 ˚ ˛˚˛˚｜ 田田｜門｜ ˚ ˚
 ´´ ̛ ̛ ´´ ´´ ´´ ̛ ̛ ´´ ´´ ´´ ̛ ̛ ´´ ´´
@@ -45,21 +41,22 @@
 </picture>
 </a>
 
-My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and** performance are prioritized. 
+My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and** performance are prioritized.
 
-#### Quick details about my setup:
+#### Quick details about my setup
 
 #### macOS
- * **Operating System**: [macOS Monterey](https://www.apple.com/by/macos/monterey/)
- * **Automation Tool**: [hammerspoon](https://github.com/Hammerspoon/hammerspoon) ([config](/tools/misc/hammerspoon))
- * **Window Manager**: [yabai](https://github.com/koekeishiya/yabai) ([config](/wm/yabai))
- * **Terminal Emulator**: [kitty](https://sw.kovidgoyal.net/kitty/) ([config](/terminals/kitty))
- * **Shell**: [fish](https://fishshell.com/) ([config](/shells/fish))
- * **Editor**: [neovim](http://neovim.io/) ([config](/editors/nvim))
- * **Browser**: [Brave](https://brave.com/)
- * **App Launcher**: [Raycast](https://raycast.com) ([config](/launchers/raycast))
- * **Keyboard Customizer**: [Karabiner](https://karabiner-elements.pqrs.org/) ([config](/tools/keys/karabiner))
- * **Menubar**: [Sketchybar](https://felixkratz.github.io/SketchyBar/config/bar) ([config](/statusbars/sketchybar))
+
+* **Operating System**: [macOS Monterey](https://www.apple.com/by/macos/monterey/)
+* **Automation Tool**: [hammerspoon](https://github.com/Hammerspoon/hammerspoon) ([config](/tools/misc/hammerspoon))
+* **Window Manager**: [yabai](https://github.com/koekeishiya/yabai) ([config](/wm/yabai))
+* **Terminal Emulator**: [kitty](https://sw.kovidgoyal.net/kitty/) ([config](/terminals/kitty))
+* **Shell**: [fish](https://fishshell.com/) ([config](/shells/fish))
+* **Editor**: [neovim](http://neovim.io/) ([config](/editors/nvim))
+* **Browser**: [Brave](https://brave.com/)
+* **App Launcher**: [Raycast](https://raycast.com) ([config](/launchers/raycast))
+* **Keyboard Customizer**: [Karabiner](https://karabiner-elements.pqrs.org/) ([config](/tools/keys/karabiner))
+* **Menubar**: [Sketchybar](https://felixkratz.github.io/SketchyBar/config/bar) ([config](/statusbars/sketchybar))
 
 <h1>
   <a href="#---------1">
@@ -81,8 +78,7 @@ I use <a href="https://github.com/anishathalye/dotbot">dotbot</a> to bootstrap m
 
 I update this constantly with poor git habits. There are no guarantees of stability, working on any machine but my own (and sometimes, tbh not even my own), or a "productive" "enjoyable" "experience".
 
-> It's probably best that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you. 
-
+> It's probably best that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you.
 
 ### <samp>INSTALLING</samp>
 
@@ -106,7 +102,6 @@ _Update an existing installation:_
 <details>
 <summary><samp><b>macOS distros</b></samp></summary>
 
-
 ```sh
 💲 cd ~/.dotfiles && make macos
 💲 make -C ~/.dotfiles macos
@@ -116,11 +111,11 @@ _Update an existing installation:_
 💲 cd ~/.dotfiles && make help
 💲 make -C ~/.dotfiles help
 ```
+
 </details>
 
 <details>
 <summary><samp><b>arch linux distros</b></samp></summary>
-
 
 ```sh
 💲 cd ~/.dotfiles && make arch
@@ -131,28 +126,30 @@ _Update an existing installation:_
 💲 cd ~/.dotfiles && make help
 💲 make -C ~/.dotfiles help
 ```
+
 </details>
 
 ## <samp>✨TOOLS & RESOURCES</samp>
+
 These are the one true way[^1].
 
-- [kitty](https://github.com/kovidgoyal/kitty)
-- [neovim](https://neovim.io/)
-- [fish](https://fishshell.com/)
-- [asdf](https://asdf-vm.com/)
-- [sketchybar](https://github.com/FelixKratz/SketchyBar)
-- [skhd](https://github.com/koekeishiya/skhd)
-- [homebrew](https://brew.sh/)
-- [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode)
-- [ibm plex](https://www.ibm.com/plex/)
-- [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
-- [hammerspoon](https://www.hammerspoon.org/)
-- [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
-
+* [kitty](https://github.com/kovidgoyal/kitty)
+* [neovim](https://neovim.io/)
+* [fish](https://fishshell.com/)
+* [asdf](https://asdf-vm.com/)
+* [sketchybar](https://github.com/FelixKratz/SketchyBar)
+* [skhd](https://github.com/koekeishiya/skhd)
+* [homebrew](https://brew.sh/)
+* [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode)
+* [ibm plex](https://www.ibm.com/plex/)
+* [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
+* [hammerspoon](https://www.hammerspoon.org/)
+* [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
 
 [^1]: Subject to change at any time a shiny new tool catches my eye.
 
 ## 🌻 <samp> KEY BINDINGS</samp>
+
 I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F19. Using hammerspoon I set my hyper key to F18, this allows me to still have access to all modifiers (ctrl, alt, cmd, shift)[^2].
 
 | Key | Action |
@@ -162,9 +159,8 @@ I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F
 | <kbd>F19</kbd> + <kbd>⯅</kbd>                                                                                                                            | Move window focus to up-side                      |
 | <kbd>F19</kbd> + <kbd>⯆</kbd>                                                                                                                            | Move window focus to down-side                    |
 
-
-
 [^2]: Evan Travers' [blog post about a Better Hyper Key](https://evantravers.com/articles/2020/06/08/hammerspoon-a-better-better-hyper-key/) is the inspiration behind this.
+
 ## Credits
 
 </div>

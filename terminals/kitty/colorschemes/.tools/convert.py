@@ -19,7 +19,7 @@ with open(filename, "r") as configuration_file:
 loader = FileSystemLoader(".")
 env = Environment(loader=loader)
 
-env.filters['removeAlpha'] = removeAlpha
+env.filters["removeAlpha"] = removeAlpha
 env.trim_blocks = True
 
 template = env.get_template("template.conf.j2")

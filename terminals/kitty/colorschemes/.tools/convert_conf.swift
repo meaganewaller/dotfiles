@@ -26,7 +26,7 @@ func generate_conf_line(field: String, key: String, dictionary: NSDictionary){
 
 func process(filename: String) {
     let plist = NSDictionary(contentsOfFile: filename)!
-    
+
     generate_conf_line(field: "background", key: "BackgroundColor", dictionary: plist)
     generate_conf_line(field: "foreground", key: "TextColor", dictionary: plist)
     generate_conf_line(field: "cursor", key: "CursorColor", dictionary: plist)

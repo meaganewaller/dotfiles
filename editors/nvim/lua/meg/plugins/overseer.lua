@@ -14,4 +14,3 @@ overseer.setup({
   },
   templates = { "java_build" },
 })
-

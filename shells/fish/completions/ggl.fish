@@ -44,4 +44,3 @@ function __complete_ggl_lang
     printf '%s\t%s\n' '=zh' 'Chinese'
 end
 complete -c ggl -s l -xa '(__complete_ggl_lang)' -d 'Language Option'
-

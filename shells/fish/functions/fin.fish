@@ -12,7 +12,7 @@ function fin --description "ggl wrapper for frontend developers"
     set -l co (set_color $_ggl_color_other)
     set -l cn (set_color normal)
     set -l tb (set_color -o)
-    
+
     # url list
     set -l list_cmd
 
@@ -24,7 +24,7 @@ function fin --description "ggl wrapper for frontend developers"
     set -l site_name_stackoverflow "stackoverflow.com"
         set -l query_stackoverflow "stackoverflow.com/search?q="
         set -a list_cmd "stackoverflow"
-    
+
     ### git, github
     set -l site_name_git "git-scm.com"
         set -l docs_query_git "git-scm.com/search/results?search="
@@ -35,8 +35,8 @@ function fin --description "ggl wrapper for frontend developers"
         set -a list_cmd "github"
     set -l site_name_gh "cli.github.com"
         set -l docs_gh "cli.github.com/manual/"
-        set -a list_cmd "gh"        
-    
+        set -a list_cmd "gh"
+
     ### mdn
     set -l site_name_mdn "developer.mozilla.org"
         set -l query_mdn "developer.mozilla.org/search?q="
@@ -130,7 +130,7 @@ function fin --description "ggl wrapper for frontend developers"
     set -l site_name_bem "en.bem.info"
         set -l docs_bem "en.bem.info/methodology/quick-start/"
         set -a list_cmd "bem"
-    
+
     ### css framework
     set -l site_name_tailwindcss "tailwindcss.com"
         set -l docs_tailwindcss "tailwindcss.com/docs"
@@ -253,7 +253,7 @@ function fin --description "ggl wrapper for frontend developers"
 
                 if test "$site_flag" = "true"
                     eval ggl $argv[2..-1] --site=$$indirect
-                else 
+                else
                     set param (string join "" "https://" $$indirect)
                     eval ggl $argv[2..-1] --url=$param
                 end
@@ -262,7 +262,7 @@ function fin --description "ggl wrapper for frontend developers"
                 set --local indirect
                 if set -q docs_$argv[1]
                     set indirect docs_$argv[1]
-                else 
+                else
                     set indirect site_name_$argv[1]
                 end
 
@@ -273,12 +273,12 @@ function fin --description "ggl wrapper for frontend developers"
                 else
                     eval ggl --noq --url=$base_url
                 end
-            end 
+            end
         else if test "$argv[1]" = "ggl" || test "$argv[1]" = "g"
             eval ggl $argv[2..-1] --site=$$param_site
         else if test -n "$ts"
             ggl $argv
-        else 
+        else
             __fin_help
             return 1
         end
@@ -318,7 +318,7 @@ function __fin_help
     echo 'Subcommands:'
     echo '      [base]             g(ggl) help ls'
     echo '      [basic]            youtube stackoverflow'
-    echo '      [MDN]              mdn' 
+    echo '      [MDN]              mdn'
     echo '      [shell]            fish'
     echo '      [terminal]         tmux iterm2'
     echo '      [editor]           vscode neovim'
@@ -336,4 +336,3 @@ function __fin_help
     echo '      [other]            codepen'
     set_color normal
 end
-

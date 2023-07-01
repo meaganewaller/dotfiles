@@ -46,4 +46,3 @@ end
 
 local icons = mw.ui.icons.indentLine
 setup(indent_blankline, icons)
-

@@ -95,8 +95,8 @@ end
 
 --- Gets the cwd of each finder window.
 -- Gets a focused window and manipulates tabs in order to get their order.
--- @return dict: key of focus gives the focused path as a string, and key of 
--- paths gives a list of path strings for each window in order of tab 
+-- @return dict: key of focus gives the focused path as a string, and key of
+-- paths gives a list of path strings for each window in order of tab
 -- appearance.
 function finder.getPaths()
     local codeString = jxaStrings.base .. jxaStrings.fn.pathFromWindow .. [[
@@ -133,7 +133,7 @@ end
 
 
 -- Helper function, converts list of path strings to a single string
--- Used for formatting code strings that will be parsed and will iterate 
+-- Used for formatting code strings that will be parsed and will iterate
 -- through a list of paths
 local function convertPathsListToPathString(paths)
     local numPaths = #paths

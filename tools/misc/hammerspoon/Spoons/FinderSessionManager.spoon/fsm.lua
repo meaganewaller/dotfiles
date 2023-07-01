@@ -164,7 +164,7 @@ function fsm.renameActive(name)
 
     -- Update settings ----------
     -- Store information under new name
-    local oldName = fsm.active.name 
+    local oldName = fsm.active.name
     print('Renaming Session: ' .. oldName .. ' -> ' .. name)
     alert('Renaming Session: ' .. oldName .. ' -> ' .. name)
     fsm.active.name = name -- rename active
@@ -295,7 +295,7 @@ local function identifyPathsToOpen(session)
         -- print('Inspecting path: ' .. path)
 
         local pinCase = pinLegend[path]
-        if pinCase == false then 
+        if pinCase == false then
             -- This path is pinned but we haven't accounted for it
             pinLegend[path] = true
         else
@@ -316,7 +316,7 @@ local function identifyPathsToOpen(session)
                     if lowestScore < 0 and score >= 0 then
                         lowestScore = score
                         stateOfBest = state
-                    elseif score >= 0 and score <= lowestScore then 
+                    elseif score >= 0 and score <= lowestScore then
                         lowestScore = score
                         stateOfBest = state
                     end
@@ -359,7 +359,7 @@ function fsm.open(name)
         -- home directory.
         print('Session has no associated paths... defaulting to Home.')
         alert('Session has no paths... defaulting to Home.')
-        
+
         local home = os.getenv('HOME')
         paths = { home }
         focus = home
@@ -455,7 +455,7 @@ local function chosen(choice)
         if choice.uuid == '__new__' then
             fsm.newSession()
         end
-    else 
+    else
         fsm.open(choice.text)
     end
 end
@@ -645,8 +645,8 @@ function fsm.menu.removePins()
         return {
             title=title,
             disabled=true
-        }   
-    end 
+        }
+    end
 
     -- Valid active session with pins
     local pinsTable = {}
@@ -670,8 +670,8 @@ function fsm.menu.removePinnedFolders()
         return {
             title=title,
             disabled=true
-        }   
-    end 
+        }
+    end
 
     -- Valid active session with pins
     local pinnedFolders = {}
@@ -697,7 +697,7 @@ function fsm.menu.renameActive()
 
 
     -- Function for parsing the input
-    local function renameActivePrompt() 
+    local function renameActivePrompt()
         local cancelButtonLabel = 'Cancel'
         -- Name input ----------
         local buttonLabel, name = hs.dialog.textPrompt(
@@ -713,7 +713,7 @@ function fsm.menu.renameActive()
 
         -- Name submitted
         fsm.renameActive(name)
-    end 
+    end
 
 
     return { title=title, fn=renameActivePrompt }
@@ -726,7 +726,7 @@ function fsm.menu.editActiveDescription()
 
 
     -- Function for parsing the input
-    local function editActiveDescriptionPrompt() 
+    local function editActiveDescriptionPrompt()
         local cancelButtonLabel = 'Cancel'
         -- Name input ----------
         local subtitle
@@ -750,7 +750,7 @@ function fsm.menu.editActiveDescription()
 
         -- Name submitted
         fsm.editActiveDescription(name)
-    end 
+    end
 
 
     return { title=title, fn=editActiveDescriptionPrompt }
@@ -775,7 +775,7 @@ function fsm.menu.setSessionIcon()
             helper.file.delete(oldPath)
         end
 
-        -- Save the image 
+        -- Save the image
         local imageName = res.images.save(path)
         local image = res.images.load(imageName)
 
@@ -813,7 +813,7 @@ function fsm.menu.setSessionDefault()
         print(message)
     end
 
-    
+
     return { title=title, fn=setActiveSessionAsDefault }
 end
 
