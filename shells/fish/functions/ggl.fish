@@ -15,7 +15,7 @@ function ggl --description "A simple search plugin for keywords on Google"
         'z/zenn' 'q/qiita' \
         -- $argv
     or return 1
-    
+
     set --local version_plugin "v1.7.12"
     set --local version_ggl "v1.8.0"
     ## color
@@ -61,7 +61,7 @@ function ggl --description "A simple search plugin for keywords on Google"
         ## for Japanese users
         set -q _flag_zenn; and set baseURL "https://zenn.dev/search?q="; and set site "Zenn"
         set -q _flag_qiita; and set baseURL "https://qiita.com/search?q="; and set site "Qiita"
-        ## other URL options 
+        ## other URL options
         if set -q _flag_url
             set baseURL (string trim -lc '=' $_flag_url)
             set site $baseURL
@@ -71,7 +71,7 @@ function ggl --description "A simple search plugin for keywords on Google"
             set --local port (string trim -lc '=' $_flag_local)
             set baseURL (string join "" "http://localhost:" $port "/")
             set site (string join "" 'localhost:' $port)
-        else 
+        else
             set baseURL "http://localhost:3000/"
             set site 'localhost:3000'
         end
@@ -79,7 +79,7 @@ function ggl --description "A simple search plugin for keywords on Google"
             set within (string trim -lc '=' $_flag_site)
             set _flag_site (string join "" "as_sitesearch=" $within)
         end
-        
+
         ## google search options: parameter handling
         if set -q _flag_lang
             switch "$_flag_lang"
@@ -120,14 +120,14 @@ function ggl --description "A simple search plugin for keywords on Google"
         set -q _flag_image; and set _flag_image "tbm=isch"
         set -q _flag_nonperson; and set _flag_nonperson "pws=0"
         set -q _flag_range; and set range (string trim -lc '=' $_flag_range); and set _flag_range (string join ':' "tbs=qdr" $range)
-        
+
         if set -q _flag_exclude
             for s in (seq 1 (count $_flag_exclude))
                 set -a exlist (string trim -lc '=' $_flag_exclude[$s])
             end
             set exclude (string join '+-' (string escape --style=url $exlist))
-        end 
-        
+        end
+
         set -q _flag_perfect; and set _flag_perfect "%22" # exact match with escaped double quotes
         and set encoding (string join "" $_flag_perfect $encoding $_flag_perfect)
 
@@ -136,7 +136,7 @@ function ggl --description "A simple search plugin for keywords on Google"
         set -q _flag_exclude; and set encoding (string join '+-' $encoding $exclude)
 
         ## final output URL
-        set searchURL (string join "&" (string join "" $baseURL $encoding) $_flag_lang $_flag_image $_flag_nonperson $_flag_range $_flag_site) 
+        set searchURL (string join "&" (string join "" $baseURL $encoding) $_flag_lang $_flag_image $_flag_nonperson $_flag_range $_flag_site)
         if set -q _flag_additional
             for i in (seq 1 (count $_flag_additional))
                 set searchURL (string join "&" $searchURL (string trim -lc '=' $_flag_additional[$i]))
@@ -154,9 +154,9 @@ function ggl --description "A simple search plugin for keywords on Google"
         else if set -q _flag_Chrome; set browser "Google Chrome"
         else if set -q _flag_Safari; set browser "Safari"
         else if set -q _flag_Firefox; set browser "Firefox"
-        else if set -q _flag_Brave; set browser "Brave" 
+        else if set -q _flag_Brave; set browser "Brave"
         else if set -q _flag_browser; and set browser (string trim -lc '=' $_flag_browser)
-        end        
+        end
 
         ## testing for URL generation
         if set -q _flag_test
@@ -194,9 +194,9 @@ function ggl --description "A simple search plugin for keywords on Google"
         if command -q open
             if test -n "$browser"
                 command open -a "$browser" "$searchURL"
-            else 
+            else
                 command open "$searchURL"
-            end 
+            end
             not set -q _flag_quiet; and echo $comment
         else
             if type -q xdg-open
@@ -212,7 +212,7 @@ function ggl --description "A simple search plugin for keywords on Google"
                 echo $cc"Please Install cygutils for Windows Cygwin."$cn
             end
         end
-    else 
+    else
         not test -n "$keyword"; and echo "Execute this command with keywords."
         return 1
     end
@@ -233,8 +233,8 @@ function __ggl_interactive
     set --local option_flag
     set --local flag_loop_exit 'false'
     set --local mode
-    
-    set --local flag_image          '1:Image   | ' 
+
+    set --local flag_image          '1:Image   | '
     set --local flag_exact          '2:Exact   | '
     set --local flag_nonpersonal    '3:Non-personal        | '
     set --local flag_exclude        '4:Exclude | '
@@ -276,7 +276,7 @@ function __ggl_interactive
                     [ $options[1] ]; and set option_flag (string join "" " -" (string join " -" $options))
                     set mode "seq"
                     set_color $_ggl_color_other
-                    echo '>>> Sequential Search Mode' 
+                    echo '>>> Sequential Search Mode'
                     echo 'Type "EXIT" (or Ctrl+C) to exit, '
                     echo 'Type "BACK" to change mode, or "CHECK" to see the current options'
                     set_color normal
@@ -306,13 +306,13 @@ function __ggl_interactive
                                 echo $cc "Site       :" $cn "$site"
                             else
                                 echo $cc "Site       :" $cn "Google"
-                            end 
+                            end
                             if test -n "$opt_browser"
                                 echo $cc "Browser    :" $cn "$opt_browser"
-                            else 
+                            else
                                 echo $cc "Browser    :" $cn "Default browser"
                             end
-                        else 
+                        else
                             eval ggl --quiet $newkeyword $option_flag
                         end
                     end
@@ -335,10 +335,10 @@ function __ggl_interactive
                         echo $cc "Site       :" $cn "$site"
                     else
                         echo $cc "Site       :" $cn "Google"
-                    end 
+                    end
                     if test -n "$opt_browser"
                         echo $cc "Browser    :" $cn "$opt_browser"
-                    else 
+                    else
                         echo $cc "Browser    :" $cn "Default browser"
                     end
                 case o O option
@@ -401,7 +401,7 @@ function __ggl_interactive
                                         case v V Vivaldi
                                             set -a options 'V'
                                             break
-                                        case b B Brave 
+                                        case b B Brave
                                             set -a options 'B'
                                             break
                                         case o O Other
@@ -420,7 +420,7 @@ function __ggl_interactive
                                 while true
                                     read -P "Site [l:localhost | g:github | y:youtube | s:stackoverflow | e:exit]: " opt_site
                                     switch "$opt_site"
-                                        case l local localhost 
+                                        case l local localhost
                                             set site "Local host"
                                             set -a options 'L'
                                             break
@@ -442,10 +442,10 @@ function __ggl_interactive
                                         case '*'
                                             echo 'Type valid option character'
                                     end
-                                end 
+                                end
                             case 9
                                 set -l options ""
-                                set flag_image          '1:Image   | ' 
+                                set flag_image          '1:Image   | '
                                 set flag_exact          '2:Exact   | '
                                 set flag_nonpersonal    '3:Non-personal        | '
                                 set flag_exclude        '4:Exclude | '
@@ -453,14 +453,14 @@ function __ggl_interactive
                                 set flag_time           '6:Time    | '
                                 set flag_browser        '7:Browser | '
                                 set flag_site           '8:Site    | '
-                                
-                                set opt_image 
-                                set opt_exact 
-                                set opt_nonpersonal 
-                                set opt_exclude 
-                                set opt_lang 
-                                set opt_time 
-                                set opt_browser 
+
+                                set opt_image
+                                set opt_exact
+                                set opt_nonpersonal
+                                set opt_exclude
+                                set opt_lang
+                                set opt_time
+                                set opt_browser
                                 set opt_site
                         end
                     end
@@ -477,7 +477,7 @@ end
 
 function __ggl_debug
     set --local ts
-    ## test cases 
+    ## test cases
     set -a ts "ggl -t how to use fish shell"
     set -a ts "ggl -tei cat cute photo"
     set -a ts "ggl fish plugin -g --test"
@@ -563,4 +563,3 @@ function __ggl_help
     set_color normal
     echo 'For more infomation, see "https://github.com/yo-goto/ggl.fish"'
 end
-

@@ -1,0 +1,11 @@
+authorized_keys
+control/
+config.d/local/
+
+id_rsa
+id_rsa.pub
+
+id_ecdsa
+id_ecdsa.pub
+
+known_hosts

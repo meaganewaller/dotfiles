@@ -1,27 +1,76 @@
 # vim: ft=gitconfig
-[include]
-  path = ~/.config/git/conf/alias.conf
-  path = ~/.config/git/conf/user.conf
-  path = ~/.config/git/conf/core.conf
-  path = ~/.config/git/conf/url.conf
-  path = ~/.config/git/conf/os.conf
-  path = ~/.gitconfig.local
-
+; [include]
+  ; path = ~/.config/git/conf/alias.conf
+  ; path = ~/.config/git/conf/user.conf
+  ; path = ~/.config/git/conf/core.conf
+  ; path = ~/.config/git/conf/url.conf
+  ; path = ~/.config/git/conf/os.conf
+  ; path = ~/.gitconfig.local
+[user]
+  name = Meagan Waller
+  email = meagan@meaganwaller.com
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFNP94jVBN332XG5smSZ/o3AsAIaQu8UI5yaKEffiqJ2
+[init]
+  defaultBranch = main
+[core]
+  pager = delta
+  fsmonitor = true
+  untrackedcache = true
+  autocrlf = false
+  editor = 'nvim'
+  eol = lf
+  excludesfile = ~/.gitignore_global
 [commit]
   gpgsign = true
-  template = ~/.config/git/template
-[gpg]
-  format = ssh
-[push]
-  autoSetupRemote = true
-	default = simple
 [gpg "ssh"]
   program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-[user]
-	name = Meagan Waller
-  username = meaganewaller
-[diff]
-	submodule = log
-
-[submodule]
-	recurse = true
+[alias]
+  branch-clean = !git branch | grep -v "main" | ifne xargs git branch -D && git remote prune origin
+  branches = !legit branches
+  check = !pre-commit run --all-files
+  get = !ghq get $1 && cd $(ghq root)/$(ghq list | grep $1) && git yaw
+  graph = log --graph --oneline
+  publish = !legit publish
+  resign = !git rebase --exec 'git commit --amend --no-edit -n -S' -i $1
+  switch = !legit switch
+  sync = !legit sync
+  tag-poetry = !poetry version | cut -d' ' -f2 | xargs -I {} git tag -a v{} -m 'Release {}' -s
+  undo = !legit undo
+  unpublish = !legit unpublish
+  up = !gitup
+  yaw = !fish -c gityaw
+[color]
+  ui = true
+[color "diff-highlight"]
+  oldNormal = red bold
+  oldHighlight = red bold 52
+  newNormal = green bold
+  newHighlight = green bold 22
+[color "diff"]
+  meta = 11
+  frag = blue bold
+  commit = yellow bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
+[gqg]
+  root = ~/.repos
+[push]
+  followTags = true
+[pull]
+  rebase = true
+[fetch]
+  prune = true
+[checkout]
+  defaultRemote = origin
+[protocol]
+  version = 2
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+[diff "lfs"]
+  textconv = cat
+[gpg]
+	format = ssh

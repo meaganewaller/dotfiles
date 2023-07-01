@@ -3,9 +3,30 @@ import os
 import sys
 
 theme_keys = [
-    "cursor", "foreground", "background", "background_opacity", "dynamic_background_opacity", "dim_opacity",
-    "selection_foreground", "selection_background", "color0", "color8", "color1", "color9", "color2", "color10",
-    "color3", "color11", "color4", "color12", "color5", "color13", "color6", "color14", "color7", "color15"
+    "cursor",
+    "foreground",
+    "background",
+    "background_opacity",
+    "dynamic_background_opacity",
+    "dim_opacity",
+    "selection_foreground",
+    "selection_background",
+    "color0",
+    "color8",
+    "color1",
+    "color9",
+    "color2",
+    "color10",
+    "color3",
+    "color11",
+    "color4",
+    "color12",
+    "color5",
+    "color13",
+    "color6",
+    "color14",
+    "color7",
+    "color15",
 ]
 
 
@@ -19,9 +40,11 @@ def is_valid(line):
     :return: true if is valid, false otherwise
     :rtype: bool
     """
-    return (not line.lstrip().startswith("#")  # is not a comment
-            and len(line.strip()) != 0  # is not empty
-            and line.split(maxsplit=1)[0] in theme_keys)  # key is a valid one
+    return (
+        not line.lstrip().startswith("#")  # is not a comment
+        and len(line.strip()) != 0  # is not empty
+        and line.split(maxsplit=1)[0] in theme_keys
+    )  # key is a valid one
 
 
 def extract_configuration_pair(line):
@@ -48,18 +71,20 @@ def read_configuration(filename):
     """
     with open(filename, "r") as fp:
         lines = fp.readlines()
-        theme_config = dict([extract_configuration_pair(line) for line in lines if is_valid(line)])
+        theme_config = dict(
+            [extract_configuration_pair(line) for line in lines if is_valid(line)]
+        )
     return theme_config
 
 
 def fg(color, text):
-    rgb = tuple(int(color[i + 1:i + 3], 16) for i in (0, 2, 4))
-    return ('\x1b[38;2;%s;%s;%sm' % rgb + text + '\x1b[0m')
+    rgb = tuple(int(color[i + 1 : i + 3], 16) for i in (0, 2, 4))
+    return "\x1b[38;2;%s;%s;%sm" % rgb + text + "\x1b[0m"
 
 
 def bg(color, text):
-    rgb = tuple(int(color[i + 1:i + 3], 16) for i in (0, 2, 4))
-    return ('\x1b[48;2;%s;%s;%sm' % rgb + text + '\x1b[0m')
+    rgb = tuple(int(color[i + 1 : i + 3], 16) for i in (0, 2, 4))
+    return "\x1b[48;2;%s;%s;%sm" % rgb + text + "\x1b[0m"
 
 
 def print_preview(filename, configuration):
@@ -75,7 +100,7 @@ def print_preview(filename, configuration):
     print(bg(background, fg(foreground, theme)), end="")
     print(bg(background, "  "), end="")
 
-    c='a'
+    c = "a"
     for i in range(0, 16):
         color = configuration["color%d" % i]
         print(bg(background, fg(color, c)), end="")
@@ -86,7 +111,7 @@ def print_preview(filename, configuration):
     selection_background = configuration["selection_background"]
     selection_foreground = configuration["selection_foreground"]
 
-    c='A'
+    c = "A"
     for i in range(0, 16):
         print(bg(selection_background, fg(selection_foreground, c)), end="")
         c = chr(ord(c) + 1)

@@ -26,7 +26,7 @@ install:
   # - sudo luarocks make $ROCKSPEC CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
   - luarocks make $ROCKSPEC CFLAGS="-O3 -fPIC -Wall -Wextra --coverage" LIBFLAG="-shared --coverage"
 
-script: 
+script:
   - lua test.lua
   - lua test_pm.lua
   - lua test_compat.lua

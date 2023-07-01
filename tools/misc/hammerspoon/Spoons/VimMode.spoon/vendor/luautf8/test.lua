@@ -6,7 +6,7 @@ local function get_codes(s)
    return table.concat({utf8.byte(s, 1, -1)}, ' ')
 end
 
-local t = { 20985, 20984, 26364, 25171, 23567, 24618, 20861 } 
+local t = { 20985, 20984, 26364, 25171, 23567, 24618, 20861 }
 -- test escape & len
 assert(get_codes(E"%123%xabc%x{ABC}%d%u{456}") == '123 2748 2748 100 456')
 
@@ -224,4 +224,3 @@ end
 print "OK"
 
 -- cc: run='lua -- $input'
-

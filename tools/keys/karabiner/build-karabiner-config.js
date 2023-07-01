@@ -37,7 +37,7 @@ function main() {
 		done
 	`);
 
-  
+
 	// built new karabiner.json out of single jsons
 	const customRules = [];
 	app.doShellScript(`ls "${customRulesJSONlocation}" | grep ".json"`)

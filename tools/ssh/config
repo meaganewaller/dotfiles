@@ -11,7 +11,6 @@ Host github.com
   Hostname github.com
   PreferredAuthentications publickey
   AddKeysToAgent yes
-  IdentityFile ~/.ssh/id_ed25519
 
 Host *
   Protocol 2
@@ -27,10 +26,15 @@ Host *
   AddKeysToAgent yes
   IgnoreUnknown UseKeychain
   UseKeychain yes
-
-Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
 Host meaganwaller.com
   HostName meaganwaller.com
   User meaganwaller
+
+host *
+  forwardAgent yes
+  serverAliveCountMax 5
+  serverAliveInterval 15
+  strictHostKeychecking no
+  TCPKeepAlive yes

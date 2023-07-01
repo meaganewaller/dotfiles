@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: gitsubmodule
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "00:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 99
+    assignees:
+      - meaganewaller
+    labels:
+      - dependencies
+      - submodules
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "00:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 99
+    assignees:
+      - meaganewaller
+    labels:
+      - dependencies
+      - actions

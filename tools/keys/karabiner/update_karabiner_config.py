@@ -18,13 +18,13 @@ from pathlib import Path
 from apple_scripts import apple_script_shell_command, OPEN_NEW_BRAVE_TAB_APPLE_SCRIPT
 from key_map import get_key
 from conditions import (
-        IF_DEVICE_IS_APPLE_INTERNAL_KEYBOARD,
-        # IF_DEVICE_IS_EXTERNAL_MOUSE,
-        IF_FRONT_APPLICATION_IS_BRAVE
+    IF_DEVICE_IS_APPLE_INTERNAL_KEYBOARD,
+    # IF_DEVICE_IS_EXTERNAL_MOUSE,
+    IF_FRONT_APPLICATION_IS_BRAVE,
 )
 
 
-KARABINER_CONFIG_PATH = Path.home() / '.config/karabiner/karabiner.json'
+KARABINER_CONFIG_PATH = Path.home() / ".config/karabiner/karabiner.json"
 
 # Simple modifications are mappings from one keyt o another. This should be a
 # list of (from_key, to_key) tuples. See "./key_map.py" for key names.
@@ -83,74 +83,83 @@ SIMPLE_MODIFICATIONS = [
 # For more complex manipulators, you can specify them directly without using
 # the tuple format described above. The tuple format is just for convenience.
 COMPLEX_MODIFICATIONS = [
-        {
-            'description': 'Caps lock to ctrl with modifiers, esc when alone',
-            'manipulators': [
-                ('caps_lock', 'any', )
-                ( 'u', 'l_cmd', 'any', 'left', 'alt' ),
-                ( 'i', 'l_cmd r_shift', 'any', 'up', 'shift' ),
-                ( 'i', 'l_cmd l_shift', 'any', 'up', 'cmd shift' ),
-                ( 'i', 'l_cmd', 'any', 'up', '' ),
-                ( 'i', 'l_alt', 'any', 'up', 'cmd' ),
-                ('o', 'l_cmd', 'any', 'right', 'alt'),
-                ('h', 'l_cmd', 'any', 'left', 'cmd'),
-                ('j', 'l_cmd', 'any', 'left', ''),
-                ('k', 'l_cmd r_shift', 'any', 'down', 'shift'),
-                ('k', 'l_cmd l_shift', 'any', 'down', 'cmd shift'),
-                ('k', 'l_cmd', 'any', 'down', ''),
-                ('k', 'l_alt', 'any', 'down', 'cmd'),
-                ('l', 'l_cmd', 'any', 'right', ''),
-                ("'", 'l_cmd', 'any', 'right', 'cmd'),
-            ],
-        },
-        {
-            'description': 'Browser Hotkeys',
-            'manipulators': [
-                # Open a new Brave tab
-                ('esc', 'l_cmd', 'any', apple_script_shell_command(OPEN_NEW_BRAVE_TAB_APPLE_SCRIPT)),
-                # Cmd + 1 -> Show JS console (View -> Developer -> JavaScript Console)
-                ('1', 'l_cmd', 'any', 'j', 'cmd alt', IF_FRONT_APPLICATION_IS_BRAVE),
-                # Cmd + i -> Show developer tools (View > Developer > Developer Tools).
-                ('i', 'r_cmd', 'any', 'i', 'cmd alt', IF_FRONT_APPLICATION_IS_BRAVE),
-                # Alt + f -> Toggle full sreen mode (View > Enter/Exit Full Screen).
-                ('f', 'l_alt', 'any', 'f', 'cmd ctrl', IF_FRONT_APPLICATION_IS_BRAVE),
-            ],
-        },
-        {
-            'description': 'Keypad Keys -> Arrow Keys',
-            'manipulators': [
-                ('keypad_0', '', 'any', 'space'),
-                ('keypad_4', '', 'any', 'left'),
-                ('keypad_5', '', 'any', 'down'),
-                ('keypad_6', '', 'any', 'right'),
-                ('keypad_8', '', 'any', 'up'),
-            ],
-        },
+    {
+        "description": "Caps lock to ctrl with modifiers, esc when alone",
+        "manipulators": [
+            (
+                "caps_lock",
+                "any",
+            )("u", "l_cmd", "any", "left", "alt"),
+            ("i", "l_cmd r_shift", "any", "up", "shift"),
+            ("i", "l_cmd l_shift", "any", "up", "cmd shift"),
+            ("i", "l_cmd", "any", "up", ""),
+            ("i", "l_alt", "any", "up", "cmd"),
+            ("o", "l_cmd", "any", "right", "alt"),
+            ("h", "l_cmd", "any", "left", "cmd"),
+            ("j", "l_cmd", "any", "left", ""),
+            ("k", "l_cmd r_shift", "any", "down", "shift"),
+            ("k", "l_cmd l_shift", "any", "down", "cmd shift"),
+            ("k", "l_cmd", "any", "down", ""),
+            ("k", "l_alt", "any", "down", "cmd"),
+            ("l", "l_cmd", "any", "right", ""),
+            ("'", "l_cmd", "any", "right", "cmd"),
+        ],
+    },
+    {
+        "description": "Browser Hotkeys",
+        "manipulators": [
+            # Open a new Brave tab
+            (
+                "esc",
+                "l_cmd",
+                "any",
+                apple_script_shell_command(OPEN_NEW_BRAVE_TAB_APPLE_SCRIPT),
+            ),
+            # Cmd + 1 -> Show JS console (View -> Developer -> JavaScript Console)
+            ("1", "l_cmd", "any", "j", "cmd alt", IF_FRONT_APPLICATION_IS_BRAVE),
+            # Cmd + i -> Show developer tools (View > Developer > Developer Tools).
+            ("i", "r_cmd", "any", "i", "cmd alt", IF_FRONT_APPLICATION_IS_BRAVE),
+            # Alt + f -> Toggle full sreen mode (View > Enter/Exit Full Screen).
+            ("f", "l_alt", "any", "f", "cmd ctrl", IF_FRONT_APPLICATION_IS_BRAVE),
+        ],
+    },
+    {
+        "description": "Keypad Keys -> Arrow Keys",
+        "manipulators": [
+            ("keypad_0", "", "any", "space"),
+            ("keypad_4", "", "any", "left"),
+            ("keypad_5", "", "any", "down"),
+            ("keypad_6", "", "any", "right"),
+            ("keypad_8", "", "any", "up"),
+        ],
+    },
 ]
 
 # Function keys modifications can be used to remap f1 - f12 to any other keys.
 # This should be a list of ('f[number]', to_key) tuples
 FUNCTION_KEYS_MODIFICATIONS = [
-        ('f1', 'f1'),
-        ('f2', 'f2'),
-        ('f3', 'f3'),
-        ('f4', 'f4'),
-        ('f5', 'f5'),
-        ('f6', 'f6'),
-        ('f7', 'f7'),
-        ('f8', 'f8'),
-        ('f9', 'f9'),
-        ('f10', 'f10'),
-        ('f11', 'f11'),
-        ('f12', 'f12'),
+    ("f1", "f1"),
+    ("f2", "f2"),
+    ("f3", "f3"),
+    ("f4", "f4"),
+    ("f5", "f5"),
+    ("f6", "f6"),
+    ("f7", "f7"),
+    ("f8", "f8"),
+    ("f9", "f9"),
+    ("f10", "f10"),
+    ("f11", "f11"),
+    ("f12", "f12"),
 ]
+
 
 def convert_modification_tuple(modification_tuple):
     from_key_code, to_key_code = modification_tuple
     return {
-        'from': get_key(from_key_code),
-        'to': [get_key(to_key_code)],
+        "from": get_key(from_key_code),
+        "to": [get_key(to_key_code)],
     }
+
 
 def convert_manipulator_tuple(manipulator):
     if len(manipulator) == 4:
@@ -174,12 +183,12 @@ def convert_manipulator_tuple(manipulator):
 
     assert from_keys and isinstance(from_keys, str), (
         f'`from_keys` was set to "{from_keys}". '
-        '`from_keys` must be a string of one or more key names '
+        "`from_keys` must be a string of one or more key names "
         '(see "key_map.py" for key names).',
     )
     assert not from_modifiers_mandatory or isinstance(from_modifiers_mandatory, str), (
         f'`from_modifiers_mandatory` was set to "{from_modifiers_mandatory}". '
-        '`from_modifiers_mandatory` must be a string of zero or more modifier key names '
+        "`from_modifiers_mandatory` must be a string of zero or more modifier key names "
         '(see "key_map.py" for modifier key names).',
     )
     assert not from_modifiers_optional or isinstance(from_modifiers_optional, str), (
@@ -194,9 +203,9 @@ def convert_manipulator_tuple(manipulator):
         and (isinstance(to_obj[0], str) or isinstance(to_obj[0], dict))
     ), (
         f'`to_obj` was set to "{to_obj}". '
-        '`to_obj` must be a string of zero or more key names '
+        "`to_obj` must be a string of zero or more key names "
         'separated by commas (see "key_map.py" for key names), '
-        'or a `manipulator.to[0]` dict, or a `manipulator.to` list of dicts, or None.'
+        "or a `manipulator.to[0]` dict, or a `manipulator.to` list of dicts, or None."
     )
     assert (
         not to_modifiers
@@ -205,61 +214,65 @@ def convert_manipulator_tuple(manipulator):
         and isinstance(to_modifiers[0], str)
     ), (
         f'`to_modifiers` was set to "{to_modifiers}". '
-        '`to_modifiers` must be a string of zero or more modifier key names '
+        "`to_modifiers` must be a string of zero or more modifier key names "
         'separated by commas (see "key_map.py" for modifier key names), or None.',
     )
-    assert not conditions or isinstance(conditions, list) and isinstance(conditions[0], dict), (
+    assert (
+        not conditions
+        or isinstance(conditions, list)
+        and isinstance(conditions[0], dict)
+    ), (
         f'`conditions` was set to "{conditions}". '
-        '`conditions` must be a list of `manipulator.conditions '
-        '(see: https://karabiner-elements.pqrs.org/docs/json/'
-        'complex-modifications-manipulator-definition/conditions/), or None.',
+        "`conditions` must be a list of `manipulator.conditions "
+        "(see: https://karabiner-elements.pqrs.org/docs/json/"
+        "complex-modifications-manipulator-definition/conditions/), or None.",
     )
     assert not to_config or isinstance(to_config, dict), (
         f'`to_config` was set to "{to_config}". '
-        '`to_config` must be a string of zero or more modifier key names '
+        "`to_config` must be a string of zero or more modifier key names "
         '(see "key_map.py" for modifier key names), or None',
     )
 
     result = {
-        'type': 'basic',
+        "type": "basic",
     }
 
     if conditions:
-        result['conditions'] = conditions
+        result["conditions"] = conditions
 
     from_keys_list = [get_key(key) for key in from_keys.split()]
     if len(from_keys_list) > 1:
-        result['from'] = {'simultaneous': from_keys_list}
+        result["from"] = {"simultaneous": from_keys_list}
     else:
-        result['from'] = from_keys_list[0].copy()
+        result["from"] = from_keys_list[0].copy()
 
     if from_modifiers_mandatory or from_modifiers_optional:
-        result['from']['modifiers'] = {}
+        result["from"]["modifiers"] = {}
         if from_modifiers_mandatory:
-            result['from']['modifiers']['mandatory'] = [
-                get_key(key)['key_code'] for key in from_modifiers_mandatory.split()
+            result["from"]["modifiers"]["mandatory"] = [
+                get_key(key)["key_code"] for key in from_modifiers_mandatory.split()
             ]
         if from_modifiers_optional:
-            result['from']['modifiers']['optional'] = [
-                get_key(key)['key_code'] for key in from_modifiers_optional.split()
+            result["from"]["modifiers"]["optional"] = [
+                get_key(key)["key_code"] for key in from_modifiers_optional.split()
             ]
 
     if isinstance(to_obj, str):
-        if to_obj == '':
-            result['to'] = [{}]
+        if to_obj == "":
+            result["to"] = [{}]
         else:
-            result['to'] = [get_key(to_obj)]
+            result["to"] = [get_key(to_obj)]
 
     elif isinstance(to_obj, dict):
-        result['to'] = [to_obj.copy()]
+        result["to"] = [to_obj.copy()]
 
     elif isinstance(to_obj, list):
-        result['to'] = []
+        result["to"] = []
         for to_item in to_obj:
             if isinstance(to_item, dict):
-                result['to'].append(to_item.copy())
+                result["to"].append(to_item.copy())
             else:
-                result['to'].append(get_key(to_item))
+                result["to"].append(get_key(to_item))
 
     if to_modifiers:
         if isinstance(to_modifiers, str):
@@ -268,49 +281,51 @@ def convert_manipulator_tuple(manipulator):
         for i, to_modifiers_item in enumerate(to_modifiers):
             if to_modifiers_item:
                 assert (
-                    len(result['to']) > i
-                ), 'The list of `to_modifiers` must not be longer than the list of `to_keys`.'
+                    len(result["to"]) > i
+                ), "The list of `to_modifiers` must not be longer than the list of `to_keys`."
 
-                result['to'][i]['modifiers'] = [
-                    get_key(key)['key_code'] for key in to_modifiers_item.split()
+                result["to"][i]["modifiers"] = [
+                    get_key(key)["key_code"] for key in to_modifiers_item.split()
                 ]
 
     if to_config:
-        result['to'][-1].update(to_config)
+        result["to"][-1].update(to_config)
 
     return result
 
 
 def convert_complex_modification_rule(rule):
     result = rule.copy()
-    result['manipulators'] = [
-        convert_manipulator_tuple(manipulator) if isinstance(manipulator, tuple) else manipulator
-        for manipulator in rule['manipulators']
+    result["manipulators"] = [
+        convert_manipulator_tuple(manipulator)
+        if isinstance(manipulator, tuple)
+        else manipulator
+        for manipulator in rule["manipulators"]
     ]
     return result
 
 
 def update_karabiner_config():
-    with open(KARABINER_CONFIG_PATH, 'r') as f:
+    with open(KARABINER_CONFIG_PATH, "r") as f:
         karabiner_config = json.load(f)
 
-    karabiner_config['profiles'][0]['simple_modifications'] = [
-        convert_modification_tuple(modification) for modification in SIMPLE_MODIFICATIONS
+    karabiner_config["profiles"][0]["simple_modifications"] = [
+        convert_modification_tuple(modification)
+        for modification in SIMPLE_MODIFICATIONS
     ]
 
-    karabiner_config['profiles'][0]['complex_modifications']['rules'] = [
+    karabiner_config["profiles"][0]["complex_modifications"]["rules"] = [
         convert_complex_modification_rule(rule) for rule in COMPLEX_MODIFICATIONS
     ]
 
-    karabiner_config['profiles'][0]['fn_function_keys'] = [
-        convert_modification_tuple(modification) for modification in FUNCTION_KEYS_MODIFICATIONS
+    karabiner_config["profiles"][0]["fn_function_keys"] = [
+        convert_modification_tuple(modification)
+        for modification in FUNCTION_KEYS_MODIFICATIONS
     ]
 
-    with open(KARABINER_CONFIG_PATH, 'w') as f:
+    with open(KARABINER_CONFIG_PATH, "w") as f:
         json.dump(karabiner_config, f, indent=4)
 
 
 if __name__ == "__main__":
     update_karabiner_config()
-
-

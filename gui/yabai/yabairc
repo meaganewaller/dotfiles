@@ -5,14 +5,13 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dots
-# Last edited: June 12, 2023
+# Last edited: July 01, 2023
 
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
 
-# yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
-# sudo yabai --load-sa
-
-# sudo yabai --load-sa
 source "${HOME}"/.config/yabai/scripts/helper
+
 # Signal Hooks
 yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
 yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
@@ -63,11 +62,11 @@ LAYOUT=(
 )
 
 MOUSE=(
-	mouse_modifier      fn
+	mouse_modifier      alt
 	mouse_action1       move
 	mouse_action2       resize
 	mouse_drop_action   swap
-	focus_follows_mouse autoraise
+	focus_follows_mouse autofocus
 	mouse_follows_focus off
 )
 
@@ -130,7 +129,7 @@ for ((i = 1; i <= "${#UNMANAGED[@]}"; i++)); do
 done
 
 yabai -m rule --add label="ColorSlurp" app="^ColorSlurp$" sticky=true layer=above manage=off
-yabai -m rule --add app="^zoom.us$" manage=off
+yabai -m rule --add app="zoom.us" manage=off
 
 # Exclude problematic apps from being managed:
 yabai -m rule --add label="Finder" app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off

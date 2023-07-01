@@ -37,7 +37,7 @@ function __gitnow_read_config -d "Reads the GitNow config file"
     set -l v_keybindings "keybindings"
     set -l v_options "options"
 
-    # Options set 
+    # Options set
     set -l v_clipboard 0
 
     # Loop every line
@@ -71,7 +71,7 @@ function __gitnow_read_config -d "Reads the GitNow config file"
                             set v_section 3
                             continue
                         end
-                        
+
                         # keybindings
                         if [ "$v_str" = "$v_keybindings" ]
                             set v_section 2
@@ -97,7 +97,7 @@ function __gitnow_read_config -d "Reads the GitNow config file"
                         continue
                     end
 
-                    # A [ abcde ] section is found so proceed with chars handling 
+                    # A [ abcde ] section is found so proceed with chars handling
                     # NOTE: only alphabetic and hyphens chars are allowed
                     if test $v_section -eq 2; or test $v_section -eq 3
                         switch $c

@@ -8,4 +8,3 @@ if [ $RUNNING == 0 ]; then
 else
   sketchybar -m --set $NAME drawing=off
 fi
-

@@ -10,7 +10,7 @@ local apple = {}
 
 function apple.run(codeString)
     local status, result = hs.osascript.applescript(codeString)
-    if not status then 
+    if not status then
         alert('Failed AppleScript execution.')
         print('Failed AppleScript execution.')
         print('Printing failed script...')

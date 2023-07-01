@@ -19,9 +19,10 @@ mouse_clicked() {
 }
 
 case "$SENDER" in
-  "mouse.clicked") mouse_clicked
+"mouse.clicked")
+  mouse_clicked
   ;;
-  *) update
+*)
+  update
   ;;
 esac
-

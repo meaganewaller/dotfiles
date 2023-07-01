@@ -20,25 +20,23 @@
   </p>
 </div>
 
-
 <!-- Project Demo -->
-https://user-images.githubusercontent.com/6320907/189829171-1e91c3e2-0feb-4e7a-aa12-0a4d899f059b.mp4
+<https://user-images.githubusercontent.com/6320907/189829171-1e91c3e2-0feb-4e7a-aa12-0a4d899f059b.mp4>
 
 <br>
 
 Inspired by [Workona's](https://workona.com/) tab management system and [Sublime Text's](https://www.sublimetext.com/) own [project manager](https://packagecontrol.io/packages/ProjectManager).
 
-
 <!-- ## Table of contents
 * [Contact](#contact)
 * [Acknowledgments](#acknowledgments) -->
-
 
 ## Installation
 
 1. Follow the instructions to install [Hammerspoon](https://github.com/Hammerspoon/hammerspoon)
 2. Download the contents of this repo and put them inside of the Spoons folder.
 3. Insert the following command into ```init.lua``` in the .hammerspoon folder:
+
 ```lua
 fsm = require('Spoons/FinderSessionManager')
 
@@ -58,19 +56,17 @@ hs.hotkey.bind({'ctrl', 'alt'}, 'O', fsm.detach)
 
 FSM saves tabs automatically as Finder is being used. Explore the menu bar menu for options on saving paths to sessions and use the default keybindings to change between sessions: Ctrl + Alt + P.
 
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Roadmap
 
 Refer to the [Notion Roadmap] for future features and the state of the project.
 
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contact
-Created by [Jonathan Delgado](https://jdelgado.net/).
 
+Created by [Jonathan Delgado](https://jdelgado.net/).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
