@@ -1,6 +1,6 @@
 # vim: ft=gitconfig
-; [include]
-  ; path = ~/.config/git/conf/alias.conf
+[include]
+  path = ~/.config/git/conf/alias.conf
   ; path = ~/.config/git/conf/user.conf
   ; path = ~/.config/git/conf/core.conf
   ; path = ~/.config/git/conf/url.conf
