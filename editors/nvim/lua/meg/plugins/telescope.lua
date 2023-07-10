@@ -1,304 +1,278 @@
 -- https://github.com/nvim-telescope/telescope.nvim
 
-function mw.find_files(...)
-  if mw._find_files_impl then
-    mw._find_files_impl(...)
-  else
-    vim.notify("No fuzzy finder installed", vim.log.levels.ERROR)
-  end
-end
+local telescope = require("telescope")
+local lga_actions = require("telescope-live-grep-args.actions")
 
-local function find_dotfiles()
-  mw.find_files({
-    cwd = string.format("%s/.config/nvim/", os.getenv("HOME")),
-    follow = true,
-    hidden = true,
-    previewer = false,
-  })
-end
+local border = "rounded"
+local borderchars = {
+  prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
+  results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
+  preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+}
 
-local function find_local_files()
-  mw.find_files({
-    cwd = string.format("%s/.local/share/nvim-local/", os.getenv("HOME")),
-    follow = true,
-    hidden = true,
-    previewer = false,
-  })
-end
-
-local telescope = require('telescope')
-local actions = require("telescope.actions")
-local actions_layout = require("telescope.actions.layout")
-local fb_actions = require("telescope").extensions.file_browser.actions
-local pickers = require("meg.plugins.telescope_pickers").window_size
-local icons = mw.ui.icons
-local borders = mw.ui.borders
-
-telescope.setup({
+local config = {
   defaults = {
-    prompt_prefix = " " .. icons.search[1] .. " ",
-    selection_caret = icons.point[1] .. " ",
-    multi_icon = " " .. icons.select[1],
-    entry_prefix = " ",
-    winblend = mw.ui.window.transparency,
+    border = border,
+    borderchars = borderchars,
+    prompt_prefix = " " .. mw.ui.icons.search[1] .. " ",
+    selection_caret = mw.ui.icons.point[1] .. " ",
     color_devicons = true,
-    border = true,
-    borderchars = {
-      prompt = {
-        borders.none.t,
-        borders.default.r,
-        borders.default.b,
-        borders.default.l,
-        borders.default.l,
-        borders.default.r,
-        borders.default.br,
-        borders.default.bl,
-      },
-      results = {
-        borders.default.t,
-        borders.default.r,
-        borders.default.b,
-        borders.default.l,
-        borders.default.tl,
-        borders.default.tr,
-        borders.default.br,
-        borders.default.bl,
-      },
-      preview = {
-        borders.default.t,
-        borders.default.r,
-        borders.default.b,
-        borders.default.l,
-        borders.default.tl,
-        borders.default.tr,
-        borders.default.br,
-        borders.default.bl,
-      },
-    },
-    initial_mode = "insert",
-    path_display = {
-      truncate = 3,
-    },
+    path_display = { "truncate" },
     dynamic_preview_title = true,
-    preview = {
-      check_mime_type = true,
-      timeout = 3000,
-      msg_bg_fillchar = "╱", -- "╱" "╲" "╳"
-    },
-    vimgrep_arguments = {
-      "rg",
-      "--no-heading",
-      "--with-filename",
-      "--line-number",
-      "--column",
-      "--smart-case",
-      "--trim", -- Remove indentation
-      "--hidden",
-    },
+    sorting_strategy = "descending",
     layout_strategy = "horizontal",
     layout_config = {
       horizontal = {
-        mirror = false,
-        preview_width = 0.6,
-        width = pickers.width.large,
-        height = pickers.height.large,
-      },
-      vertical = {
-        mirror = false,
-        preview_height = 0.4,
-        width = pickers.width.medium,
-        height = pickers.height.medium,
+        preview_width = 0.58,
       },
     },
-    selection_strategy = "reset",
-    sorting_strategy = "descending",
-    file_ignore_patterns = {
-      "^.git",
-      "^.nvim/",
-      "tags",
-      "node_modules",
-    },
-    history = {
-      path = vim.fn.stdpath("data") .. "/databases/telescope_history",
-      limit = 100,
-    },
-    file_sorter = require('telescope.sorters').get_fuzzy_file,
-    file_previewer = require('telescope.previewers').vim_buffer_cat.new,
-    generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-    grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
-    gflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
-    mappings = {
-      i = {
-        ["<C-c>"] = actions.close,
-        ["<Down>"] = actions.move_selection_next,
-        ["<Up>"] = actions.move_selection_previous,
-        ["<C-n>"] = actions.move_selection_next,
-        ["<C-p>"] = actions.move_selection_previous,
-        ["<C-y>"] = actions.select_default,
-        ["<CR>"] = actions.select_default,
-        ["<C-o>"] = false,
-        ["<C-v>"] = false,
-        ["<C-t>"] = false,
-        ["<M-o>"] = actions.select_horizontal,
-        ["<M-v>"] = actions.select_vertical,
-        ["<M-t>"] = actions.select_tab,
-        ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_worse,
-        ["<Tab>"] = actions.toggle_selection + actions.move_selection_better,
-        ["<C-u>"] = actions.preview_scrolling_up,
-        ["<C-d>"] = actions.preview_scrolling_down,
-        ["<PageUp>"] = actions.results_scrolling_up,
-        ["<PageDown>"] = actions.results_scrolling_down,
-        ["<C-l>"] = actions.complete_tag,
-        ["<C-_>"] = actions.which_key,
---        ["<M-q>F"] = trouble.smart_open_with_trouble,
-        ["<M-p>"] = actions_layout.toggle_preview,
-        ["<C-x>"] = false,
-        ["<C-q>"] = false,
-        ["<M-q>"] = false,
-        ["<C-/>"] = actions.which_key,
-        ["<C-w>"] = false,
-        ["<C-j>"] = actions.nop,
-      },
-      n = {
-        ["q"] = actions.close,
-        ["<esc>"] = actions.close,
-        ["<C-c>"] = actions.close,
-        ["<CR>"] = actions.select_default,
-        ["P"] = actions.select_default,
-        ["o"] = actions.select_horizontal,
-        ["v"] = actions.select_vertical,
-        ["t"] = actions.select_tab,
-        ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_worse,
-        ["<Tab>"] = actions.toggle_selection + actions.move_selection_better,
-        ["mf"] = actions.toggle_selection,
-        ["<Space>"] = actions.toggle_selection,
-        ["j"] = actions.move_selection_next,
-        ["k"] = actions.move_selection_previous,
-        ["<Down>"] = actions.move_selection_next,
-        ["<Up>"] = actions.move_selection_previous,
-        ["<C-n>"] = actions.move_selection_next,
-        ["<C-p>"] = actions.move_selection_previous,
-        ["gg"] = actions.move_to_top,
-        ["G"] = actions.move_to_bottom,
-        ["H"] = actions.move_to_top,
-        ["M"] = actions.move_to_middle,
-        ["L"] = actions.move_to_bottom,
-        ["<C-u>"] = actions.preview_scrolling_up,
-        ["<C-d>"] = actions.preview_scrolling_down,
-        ["<PageUp>"] = actions.results_scrolling_up,
-        ["<PageDown>"] = actions.results_scrolling_down,
-        ["?"] = actions.which_key,
---        ["qF"] = trouble.smart_open_with_trouble,
-        ["p"] = actions_layout.toggle_preview,
-        ["<C-x>"] = false,
-        ["<C-v>"] = false,
-        ["<C-t>"] = false,
-        ["<C-q>"] = false,
-        ["<M-q>"] = false,
-      },
-    },
-  },
-  pickers = {
-    find_files = {
-      find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" },
-    },
+    mappings = {},
+    winblend = mw.ui.window.transparency,
   },
   extensions = {
-    file_browser = {
-      grouped = true,
-      depth = 1,
-      dir_icon = icons.dir[1],
-      dir_icon_hl = "Directory",
-      -- disables netrw and use telescope-file-browser in its place
-      hijack_netrw = false,
-      mappings = {
-        ["i"] = {
-          ["-"] = false,
-          ["~"] = false,
-          ["<A-c>"] = false,
-          ["<A-%>"] = fb_actions.create_from_prompt,
-          ["<A-r>"] = false,
-          ["<A-m>"] = false,
-          ["<A-y>"] = false,
-          ["<A-d>"] = false,
-          ["<C-o>"] = false,
-          ["<C-g>"] = false,
-          ["<C-e>"] = false,
-          ["<C-w>"] = false,
-          ["<C-t>"] = false,
-          ["<C-f>"] = false,
-          ["<C-h>"] = false,
-          ["<C-s>"] = false,
-        },
-        ["n"] = {
-          ["%"] = fb_actions.create,
-          ["R"] = fb_actions.rename,
-          ["M"] = fb_actions.move,
-          ["Y"] = fb_actions.copy,
-          ["D"] = fb_actions.remove,
-          ["X"] = fb_actions.open,
-          ["-"] = fb_actions.goto_parent_dir,
-          ["h"] = fb_actions.goto_parent_dir,
-          ["~"] = fb_actions.goto_home_dir,
-          ["."] = fb_actions.goto_cwd,
-          ["cd"] = fb_actions.change_cwd,
-          ["a"] = fb_actions.toggle_browser,
-          ["gh"] = fb_actions.toggle_hidden,
-          ["mu"] = fb_actions.toggle_all,
-          ["c"] = false,
-          ["r"] = false,
-          ["m"] = false,
-          ["y"] = false,
-          ["d"] = false,
-          ["o"] = false,
-          ["g"] = false,
-          ["e"] = false,
-          ["t"] = actions.select_tab,
-          ["f"] = false,
-          ["s"] = false,
-        },
-      },
-    },
-    frecency = {
-      db_root = vim.fn.stdpath("data") .. "/databases",
-      show_scores = true,
-      show_unindexed = true,
-      ignore_patterns = { "*.git/*", "*/tmp/*" },
-      disable_devicons = false,
-      workspaces = {
-        ["dots"] = "$HOME/.dotfiles",
-        ["workspace"] = "$HOME/workspace",
-      },
-    },
-    fzf = {
-      fuzzy = true,
+    fzy_native = {
       override_generic_sorter = true,
       override_file_sorter = true,
-      case_mode = "ignore_case",
     },
-  },
-})
-
--- Load extensions
-local extensions = {
-  "dir",
-  "file_browser",
-  "frecency",
-  "fzf",
---  "luasnip",
---  "possession"
+    live_grep_args = {
+      auto_quoting = true,
+      mappings = {},
+      theme = "ivy",
+      border = border,
+    },
+    media_files = {
+      filetypes = { "png", "webp", "jpg", "jpeg", "pdf", "mkv" },
+      find_cmd = "fd",
+    },
+    persisted = {
+      sorting_strategy = "ascending",
+      layout_strategy = "center",
+      layout_config = {
+        width = 80,
+        height = 15,
+        prompt_position = "top",
+      },
+      border = true,
+      results_title = false,
+      borderchars = borderchars,
+    },
+  }
 }
-pcall(function()
-  for _, ext in ipairs(extensions) do
-    telescope.load_extension(ext)
-  end
-end)
 
-if not mw._find_files_impl then
-  mw._find_files_impl = function(opts)
-    opts = vim.tbl_deep_extend("keep", opts or {}, {
-      previewer = false,
-    })
-    require("telescope.builtin").find_files(opts)
+local actions = require("telescope.actions")
+
+config.defaults.mappings = {
+  i = {
+    ["<C-c>"] = actions.close,
+
+    ["<CR>"] = actions.select_default,
+    ["<kEnter>"] = actions.select_default,
+    ["<C-s>"] = actions.select_horizontal,
+    ["<C-v>"] = actions.select_vertical,
+    ["<C-t>"] = actions.select_tab,
+
+    ["<C-j>"] = actions.move_selection_next,
+    ["<C-k>"] = actions.move_selection_previous,
+    ["<C-n>"] = actions.cycle_history_next,
+    ["<C-p>"] = actions.cycle_history_prev,
+
+    ["<C-y>"] = actions.results_scrolling_up,
+    ["<C-e>"] = actions.results_scrolling_down,
+    ["<C-u>"] = actions.preview_scrolling_up,
+    ["<C-d>"] = actions.preview_scrolling_down,
+
+    -- ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+    -- ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+    ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+    ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+    ["<C-l>"] = actions.complete_tag,
+    ["<C-_>"] = actions.which_key, -- keys from pressing <C-/>
+
+    ["<Del>"] = require("telescope.actions").delete_buffer,
+  },
+
+  n = {
+    ["<Esc>"] = actions.close,
+    ["<C-c>"] = actions.close,
+
+    ["<kEnter>"] = actions.select_default,
+    ["<CR>"] = actions.select_default,
+    ["<C-x>"] = actions.select_horizontal,
+    ["<C-v>"] = actions.select_vertical,
+    ["<C-t>"] = actions.select_tab,
+
+    ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+    ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+    ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+    ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+
+    ["j"] = actions.move_selection_next,
+    ["k"] = actions.move_selection_previous,
+    ["H"] = actions.move_to_top,
+    ["M"] = actions.move_to_middle,
+    ["L"] = actions.move_to_bottom,
+
+    ["<Down>"] = actions.move_selection_next,
+    ["<Up>"] = actions.move_selection_previous,
+    ["gg"] = actions.move_to_top,
+    ["G"] = actions.move_to_bottom,
+
+    ["<C-y>"] = actions.results_scrolling_up,
+    ["<C-e>"] = actions.results_scrolling_down,
+    ["<C-u>"] = actions.preview_scrolling_up,
+    ["<C-d>"] = actions.preview_scrolling_down,
+
+    ["?"] = actions.which_key,
+    ["<Del>"] = require("telescope.actions").delete_buffer,
+  },
+}
+
+config.extensions.live_grep_args.mappings = {
+  i = {
+    ["<C-S-'>"] = lga_actions.quote_prompt(),
+    ['<C-">'] = lga_actions.quote_prompt(),
+    -- ["<C-i>"] = lga_actions.quote_prompt { postfix = " --iglob " },
+  },
+}
+
+local function find_config(prompt_title, search_dirs, search_file)
+  require('telescope.builtin').find_files({
+    cmd = vim.fn.stdpath("config") .. "/lua/meg",
+    search_dirs = search_dirs,
+    search = search_file,
+    prompt_title = "meg " .. prompt_title,
+  })
+end
+
+nx.map({
+  -- Quick Pickers
+  {
+    "<C-p>",
+    function()
+      require('telescope.builtin').find_files(require("telescope.themes").get_dropdown({
+        previewer = false,
+        -- border = border,
+        -- borderchars = borderchars,
+      }))
+    end,
+    desc = "Go to File",
+  },
+  {
+    "<A-p>",
+    function()
+      require('telescope.builtin').buffers(require("telescope.themes").get_dropdown({
+        previewer = false,
+        -- border = border,
+        -- borderchars = borderchars,
+      }))
+    end,
+    desc = "Go to Open Buffer",
+  },
+  -- Registers
+  -- Telescopes as File Browser instead of tree plugins?
+  -- shortcuts help: ':h telescope-file-browser.picker.file_browser()'
+  -- {"<leader>te", "<Cmd>Telescope file_browser theme=ivy<CR>",  desc = "File Browser" },
+  -- {"<leader>fe", "<Cmd>Telescope file_browser theme=ivy<CR>",  desc = "File Browser" )},
+  -- Files
+  { "<leader>f/", "<Cmd>Telescope find_files<CR>", desc = "Search Files" },
+  { "<leader>fr", telescope.extensions.recent_files.pick, desc = "Recent Files" },
+  { "<leader>fR", "<Cmd>Telescope frecency<CR>", desc = "Frequent Files" },
+  -- Git
+  { "<leader>gb", "<Cmd>Telescope git_branches<CR>", desc = "Branches" },
+  { "<leader>gc", "<Cmd>Telescope git_commits<CR>", desc = "Commits" },
+  { "<leader>gf", "<Cmd>Telescope git_status<CR>", desc = "Changed Files" },
+  -- History
+  { "<leader>hq", "<Cmd>Telescope quickfixhistory<CR>", desc = "Quickfixes" },
+  { "<leader>h:", "<Cmd>Telescope command_history<CR>", desc = "Commands" },
+  { "<leader>h/", "<Cmd>Telescope search_history<CR>", desc = "Searches" },
+  -- Config
+  --[[ {"<leader>,/"},
+  "<Cmd>Telescope file_browser depth=false path=~/.config/nvim grouped=true prompt_title=NXVim\\ Config<CR>",
+   desc = "Search Config Files" ) ]]
+  -- { "<leader>,k", function() find_config("Keymaps", nil, "keymaps") end, desc = "Search Keymap Files" },
+  {
+    "<leader>,k",
+    "<Cmd>Telescope grep_string cwd=~/.config/nvim/lua/nxvim/ search=nx.map prompt_title=NXVim\\ Keymaps<CR>",
+    desc = "Search Key Mappings",
+  },
+  -- { "<leader>,a", function() find_config("Autocmds", nil, "autocmds") end, desc = "Search Autocmd Files" },
+  -- { "<leader>,g", function() find_config("GUI Options", { "client" }) end, desc = "Search GUI Client Files" },
+  { "<leader>,l", function() find_config("LSP", { "lsp" }) end, desc = "Search LSP Files" },
+  {
+    "<leader>,p",
+    function() find_config("Plugins", { "plugins", "lsp/plugins" }) end,
+    desc = "Search Plugin Files",
+  },
+  {
+    "<leader>,c",
+    function() find_config("Colorschemes", { "colorschemes" }) end,
+    desc = "Search Colorscheme Files",
+  },
+  { "<leader>tC", "<Cmd>Telescope colorscheme<CR>", desc = "Toggle Colorscheme", wk_label = "Colorscheme" },
+})
+-- Search
+nx.map({
+  { "<leader>//", "<Cmd>Telescope resume<CR>", desc = "Last Search" },
+  { '<leader>/"', "<Cmd>Telescope registers<CR>", desc = "Search Registers" },
+  { "<leader>/:", "<Cmd>Telescope commands<CR>", desc = "Search Commands" },
+  { "<leader>/f", "<Cmd>Telescope find_files<CR>", desc = "Search Files" },
+  -- {"<leader>/g", "<Cmd>Telescope live_grep theme=ivy<CR>",  desc = "Grep" },
+  { "<leader>/g", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", desc = "Live Grep" },
+  -- <Cmd> must end with `<CR>`. As we just want to initate the grep_string command we use `:`
+  { "<leader>/G", ":Telescope grep_string theme=ivy search=", desc = "Grep String" },
+  { "<leader>/h", "<Cmd>Telescope highlights<CR>", desc = "Search Highlights" },
+  { "<leader>/H", "<Cmd>Telescope help_tags<CR>", desc = "Search Help" },
+  { "<leader>/i", "<Cmd>Telescope media_files<CR>", desc = "Search Media" },
+  { "<leader>/k", "<Cmd>Telescope keymaps<CR>", desc = "Search Keymaps" },
+  { "<leader>/M", "<Cmd>Telescope man_pages<CR>", desc = "Search Man Pages" },
+  { "<leader>/r", telescope.extensions.recent_files.pick, desc = "Search Recent Files" },
+}, { wk_label = { sub_desc = "Search" } })
+
+nx.hl({
+  { "TelescopeBorder", link = "LspFloatWinBorder" },
+})
+if vim.g.multigrid and vim.g.neovide then
+  -- Workaround for layered highlight groups causing a different blend transparency in Telescope dialogs.
+  nx.hl({
+    { "TelescopeResultsNormal", bg = "Normal:bg", blend = 100 },
+    { "TelescopeSelection", bg = "Visual:bg", blend = 0 },
+    -- With this solution bg highlights in telescope dialogs are only visible on hover (see `:Telescope highlights`).
+    -- It would require to re-set `blend` for every hl color to show the bg when it's not hovered.
+    -- Since bg hls are not common in other telescope dialogs, we'll use this workaround it anyway.
+    { { "TodoBgFIX", "TodoBgNOTE", "TodoBgTODO" }, blend = 0 },
+  })
+  if vim.g.neovide then config.defaults.winblend = 30 end
+end
+
+telescope.setup(config)
+
+-- Prevent entering buffers in insert mode. Mainly after opening buffers via telescope.
+local original_edit = require("telescope.actions.set").edit
+---@diagnostic disable-next-line: duplicate-set-field
+require("telescope.actions.set").edit = function(...)
+  original_edit(...)
+  vim.cmd.stopinsert()
+end
+
+---@param extensions string[]
+local function load_extensions(extensions)
+  for _, extension in ipairs(extensions) do
+    telescope.load_extension(extension)
   end
 end
+
+-- Lazy load majority of extensions
+vim.schedule(
+  function()
+    load_extensions({
+      "bookmarks",
+      "recent_files",
+      "frecency",
+      "persisted",
+      "fzy_native",
+      "media_files",
+      "projects",
+    })
+  end
+)
+nx.au({ "TermEnter", once = true, callback = function() telescope.load_extension("termfinder") end })
