@@ -7,25 +7,28 @@ vim.g.multigrid = vim.api.nvim_list_uis()[1].ext_multigrid
 ---@field eager? boolean
 
 local modules = {
+  -- Modules
   { dir = "meg/colorschemes", priority = 90, config = "colorschemes", eager = true },
+  { dir = "meg/client", priority = 95, config = "client", eager = true },
   { dir = "meg/keymaps", priority = 80, config = "keymaps", eager = true },
   { dir = "meg/autocmds", priority = 80, config = "autocmds", eager = true },
   { dir = "meg/options", priority = 80, config = "options", eager = true },
   { dir = "meg/lsp", priority = 80, config = "lsp" },
 
-  { "nvim-lua/plenary.nvim" },
-
-  { "folke/lazy.nvim", tag = "v9.10.0" },
+  -- Must have utilities
   { "tenxsoydev/nx.nvim", priority = 100, config = function() _G.nx = require("nx") end, eager = true },
+  { "folke/lazy.nvim", tag = "v9.10.0" },
+  { "nvim-lua/plenary.nvim" },
+  { "nvim-lua/popup.nvim" },
   { "folke/which-key.nvim", config = "plugins.which-key", eager = true },
   { "wakatime/vim-wakatime", eager = true },
   { "anuvyklack/hydra.nvim", eager = true, config = "plugins.hydra" },
 
-  { "luukvbaal/statuscol.nvim", config = "plugins.statuscol" },
-
+  -- Dashboard
   { "goolord/alpha-nvim", eager = true, config = "plugins.alpha" },
 
   -- UI Improvements
+  { "luukvbaal/statuscol.nvim", config = "plugins.statuscol" },
   { "stevearc/dressing.nvim", config = "plugins.dressing" },
   { "kevinhwang91/nvim-hlslens", config = "plugins.nvim-hlslens" },
   { "rcarriga/nvim-notify", config = "plugins.notify" },
@@ -101,17 +104,24 @@ local modules = {
   -- Telescope
   { 'nvim-telescope/telescope.nvim', config = 'plugins.telescope' },
   { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+  { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
   'nvim-telescope/telescope-frecency.nvim',
   'tami5/sqlite.lua',
   'nvim-telescope/telescope-file-browser.nvim',
   'benfowler/telescope-luasnip.nvim',
   'princejoogie/dir-telescope.nvim',
   { "ibhagwan/fzf-lua", enabled = vim.fn.executable("fzf") == 1, config = "plugins.fzf-lua" },
+  { "nvim-telescope/telescope-live-grep-args.nvim", lazy = true },
+  { "nvim-telescope/telescope-media-files.nvim", lazy = true },
+	{ "smartpde/telescope-recent-files" },
+	{ "tknightz/telescope-termfinder.nvim", lazy = true },
 
   -- Testing
-  { 'nvim-neotest/neotest', config = 'plugins.neotest' },
+  { 'nvim-neotest/neotest', config = 'plugins.neotest', eager = true },
   { 'nvim-neotest/neotest-plenary' },
   { 'olimorris/neotest-rspec' },
+  { "zidhuss/neotest-minitest" },
+  { "nvim-neotest/neotest-vim-test", dependencies = { "vim-test/vim-test" }},
   { 'stevearc/overseer.nvim', config = 'plugins.overseer' },
 
   -- Git Integrations
@@ -119,6 +129,14 @@ local modules = {
 
   -- Colorschemes
   { "rose-pine/neovim", name = "rose-pine" },
+
+  -- Marks & Session
+  { "tomasky/bookmarks.nvim", config = "plugins.bookmarks" },
+  { "olimorris/persisted.nvim", config = "plugins.persisted" },
+  { "rmagatti/auto-session", config = "plugins.auto-session" },
+  { "ahmedkhalf/project.nvim", config = "plugins.project" },
+  { "chentoast/marks.nvim", event = "VeryLazy", config = "plugins.marks" },
+  { "ThePrimeagen/harpoon", event = "VeryLazy", config = "plugins.harpoon" },
 }
 
 local function get(plugin_config, eager)
