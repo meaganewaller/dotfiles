@@ -192,7 +192,7 @@ for ((i = 1; i <= "${#MEDIA[@]}"; i++)); do
 done
 
 GTD=(
-  Thπings
+  Things
 	Notes
 	Reminders
 	Calendar

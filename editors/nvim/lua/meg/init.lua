@@ -5,6 +5,8 @@ vim.g.multigrid = vim.api.nvim_list_uis()[1].ext_multigrid
 ---@diagnostic disable-next-line: duplicate-doc-field
 ---@field config? fun()|boolean|string @add `string` as possible config type.
 ---@field eager? boolean
+-- Problem childs that need to be loaded outside of `lazy.setup`
+require("meg.plugins.visual-multi") -- `VM_maps` config won't work otherwise afaik
 
 local modules = {
   -- Modules
@@ -16,7 +18,14 @@ local modules = {
   { dir = "meg/lsp", priority = 80, config = "lsp" },
 
   -- Must have utilities
-  { "tenxsoydev/nx.nvim", priority = 100, config = function() _G.nx = require("nx") end, eager = true },
+  {
+    "tenxsoydev/nx.nvim",
+    priority = 100,
+    config = function()
+      _G.nx = require("nx")
+    end,
+    eager = true,
+  },
   { "folke/lazy.nvim", tag = "v9.10.0" },
   { "nvim-lua/plenary.nvim" },
   { "nvim-lua/popup.nvim" },
@@ -30,102 +39,208 @@ local modules = {
   -- UI Improvements
   { "luukvbaal/statuscol.nvim", config = "plugins.statuscol" },
   { "stevearc/dressing.nvim", config = "plugins.dressing" },
-  { "kevinhwang91/nvim-hlslens", config = "plugins.nvim-hlslens" },
-  { "rcarriga/nvim-notify", config = "plugins.notify" },
-  { "folke/todo-comments.nvim", config = "plugins.todo-comments" },
-  { "lukas-reineke/indent-blankline.nvim", config = "plugins.indent-blankline" },
-  { "anuvyklack/pretty-fold.nvim", config = "plugins.pretty-fold" },
-  { "lewis6991/satellite.nvim", config = "plugins.satellite" },
-  { "echasnovski/mini.nvim", config = "plugins.mini.animate" },
+  { "folke/noice.nvim", config = not vim.g.multigrid and "plugins.noice" or false },
+  { "kevinhwang91/nvim-hlslens", config = "plugins.nvim-hlslens", event = "VeryLazy" },
+  { "edluffy/hologram.nvim", event = "VeryLazy" },
+  { "AckslD/messages.nvim", event = "VeryLazy", config = vim.g.multigrid and "plugins.messages" or false },
+  { "rcarriga/nvim-notify", config = vim.g.multigrid and "plugins.notify" or false },
+  { "folke/todo-comments.nvim", config = "plugins.todo-comments", event = "VeryLazy" },
+  { "lukas-reineke/indent-blankline.nvim", event = "VeryLazy", config = "plugins.indent-blankline" },
+  { "nacro90/numb.nvim", event = "VeryLazy", config = true },
+  { "NvChad/nvim-colorizer.lua", event = "VeryLazy", config = "plugins.colorizer" },
+  { "nvim-tree/nvim-web-devicons", config = "plugins.devicons", eager = true },
+  -- { "anuvyklack/pretty-fold.nvim", config = "plugins.pretty-fold" },
+  -- { "lewis6991/satellite.nvim", config = "plugins.satellite" },
+  { "karb94/neoscroll.nvim", config = "plugins.neoscroll" },
+  { "echasnovski/mini.nvim", config = "plugins.mini" },
+  { "tenxsoydev/size-matters.nvim", lazy = true },
+  { "levouh/tint.nvim", event = "VeryLazy", config = "plugins.tint" },
+
+  -- { "echasnovski/mini.nvim", config = "plugins.mini.animate" },
 
   -- Treesitter
   { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", config = "plugins.treesitter" },
-  { "mrjones2014/nvim-ts-rainbow" },
-  { "nvim-treesitter/nvim-treesitter-textobjects" },
-  { "JoosepAlviste/nvim-ts-context-commentstring" },
+  { "windwp/nvim-ts-autotag", dependencies = "nvim-treesitter/nvim-treesitter" },
+  { "JoosepAlviste/nvim-ts-context-commentstring", dependencies = "nvim-treesitter/nvim-treesitter" },
+  { "mrjones2014/nvim-ts-rainbow", dependencies = "nvim-treesitter/nvim-treesitter" },
+  { "nvim-treesitter/playground", dependencies = "nvim-treesitter/nvim-treesitter" },
+  {
+    "mizlan/iswap.nvim",
+    event = "VeryLazy",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    config = "plugins.iswap",
+  },
+  {
+    "aarondiel/spread.nvim",
+    event = "VeryLazy",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    config = "plugins.spread",
+  },
 
   -- Artifical Intelligence
   { "zbirenbaum/copilot.lua", config = "plugins.copilot", eager = true },
 
-  -- LSP
-  { "neovim/nvim-lspconfig" },
-  { "williamboman/mason.nvim" },
-  { "WhoIsSethDaniel/mason-tool-installer.nvim" },
-  { "williamboman/mason-lspconfig.nvim" },
-  { "ray-x/lsp_signature.nvim" },
-  { "jose-elias-alvarez/null-ls.nvim" },
-  { "smjonas/inc-rename.nvim" },
-  { "j-hui/fidget.nvim", tag = "legacy" },
-  { "SmiteshP/nvim-navic" },
-  { "DNLHC/glance.nvim" },
+  -- LSP / Formatters
+  { "folke/neodev.nvim", config = true },
+  { "neovim/nvim-lspconfig", config = "lsp.plugins.lspconfig" },
+  { "jose-elias-alvarez/null-ls.nvim", config = "lsp.plugins.null-ls" }, -- inject external formatters and linters
+  { "glepnir/lspsaga.nvim", event = "VeryLazy", config = "lsp.plugins.lspsaga" },
+  { "j-hui/fidget.nvim", event = "VeryLazy", config = "lsp.plugins.fidget" },
+  { "ray-x/lsp_signature.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-signature" },
+  { "WhoIsSethDaniel/toggle-lsp-diagnostics.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-toggle" },
+  "b0o/SchemaStore.nvim",
+  { "RRethy/vim-illuminate", dependencies = "nvim-treesitter/nvim-treesitter" },
+  -- Mason
+  { "williamboman/mason.nvim", config = "lsp.plugins.mason" },
+  -- stylua: ignore
+  { "williamboman/mason-lspconfig.nvim", dependencies = "williamboman/mason.nvim", config = "lsp.plugins.mason.lspconfig" },
+  { "jayp0521/mason-null-ls.nvim", dependencies = "williamboman/mason.nvim", config = true },
+  -- { "ThePrimeagen/refactoring.nvim", config = true },
+  -- "tamago324/nlsp-settings.nvim",
+  -- Language Specific
+  { "simrat39/rust-tools.nvim", config = "lsp.plugins.rust-tools" },
+  -- "ron-rs/ron.vim",
+  { "linux-cultist/venv-selector.nvim", config = "plugins.venv-selector", event = "VeryLazy" },
+  -- { "neovim/nvim-lspconfig" },
+  -- { "williamboman/mason.nvim" },
+  -- { "WhoIsSethDaniel/mason-tool-installer.nvim" },
+  -- { "williamboman/mason-lspconfig.nvim" },
+  -- { "ray-x/lsp_signature.nvim" },
+  -- { "jose-elias-alvarez/null-ls.nvim" },
+  -- { "smjonas/inc-rename.nvim" },
+  -- { "j-hui/fidget.nvim", tag = "legacy" },
+  -- { "SmiteshP/nvim-navic" },
+  -- { "DNLHC/glance.nvim" },
+
+  -- Debug
+  { "kevinhwang91/nvim-bqf", event = "VeryLazy", config = "plugins.bqf" },
+  { "folke/trouble.nvim", event = "VeryLazy", config = "plugins.trouble" },
 
   -- Completion
-  { "hrsh7th/nvim-cmp", config = "plugins.cmp" },
-  { "hrsh7th/cmp-nvim-lsp" },
-  { "hrsh7th/cmp-nvim-lua" },
-  { "hrsh7th/cmp-buffer" },
-  { "f3fora/cmp-spell" },
-  { "hrsh7th/cmp-path" },
-  { "hrsh7th/cmp-cmdline" },
-  { "L3MON4D3/LuaSnip", config = "plugins.cmp.luasnip" },
-  { "saadparwaiz1/cmp_luasnip" },
-  { "zbirenbaum/copilot-cmp", config = "plugins.cmp.copilot" },
+  { "hrsh7th/nvim-cmp", config = "plugins.cmp", event = "InsertEnter" },
+  "hrsh7th/cmp-buffer",
+  "hrsh7th/cmp-path",
+  "hrsh7th/cmp-cmdline",
+  "hrsh7th/cmp-nvim-lsp",
+  "chrisgrieser/cmp-nerdfont",
+  "hrsh7th/cmp-nvim-lua",
+  { "tzachar/cmp-tabnine", build = "./install.sh", config = "plugins.tabnine" },
+  { "Exafunction/codeium.vim", event = "InsertEnter", config = "plugins.codeium" },
+  { "zbirenbaum/copilot-cmp", dependencies = "zbirenbaum/copilot.lua", config = true },
+
+  -- Snippets
+  { "L3MON4D3/LuaSnip", event = "VeryLazy", config = "plugins.luasnip" }, --snippet engine
+  "saadparwaiz1/cmp_luasnip",
+  "rafamadriz/friendly-snippets",
+  { "michaelb/sniprun", event = "VeryLazy", build = "bash ./install.sh", config = "plugins.sniprun" },
+
+  -- { "hrsh7th/cmp-nvim-lsp" },
+  -- { "hrsh7th/cmp-nvim-lua" },
+  -- { "hrsh7th/cmp-buffer" },
+  -- { "f3fora/cmp-spell" },
+  -- { "hrsh7th/cmp-path" },
+  -- { "hrsh7th/cmp-cmdline" },
+  -- { "L3MON4D3/LuaSnip", config = "plugins.cmp.luasnip" },
+  -- { "saadparwaiz1/cmp_luasnip" },
+  -- { "zbirenbaum/copilot-cmp", config = "plugins.cmp.copilot" },
 
   -- Buffer & Window Management
+  { "kwkarlwang/bufresize.nvim", event = "VeryLazy", config = true }, -- handle split window sizes on client resize
+  { "gorbit99/codewindow.nvim", event = "VeryLazy", config = "plugins.codewindow" },
+  { "petertriho/nvim-scrollbar", event = "VeryLazy", config = "plugins.scrollbar" },
   { "windwp/windline.nvim", config = "plugins.windline", eager = true },
+  { "s1n7ax/nvim-window-picker", event = "VeryLazy", config = "plugins.window-picker" },
+  { "mrjones2014/smart-splits.nvim", event = "VeryLazy", config = "plugins.smart-splits" },
+  {
+    "anuvyklack/windows.nvim",
+    dependencies = { "anuvyklack/middleclass", "anuvyklack/animation.nvim" },
+    event = "VeryLazy",
+    config = "plugins.windows",
+  },
+  -- { "christoomey/vim-tmux-navigator", event = "VeryLazy", config = function() vim.keymap.del("", "<C-Bslash>") end },
+  { "folke/zen-mode.nvim", event = "VeryLazy", config = "plugins.zen-mode" },
   { "romgrk/barbar.nvim", event = "VeryLazy", config = "plugins.barbar" },
-  { "famiu/bufdelete.nvim", cmd = { "Bdelete" } },
+  -- { "famiu/bufdelete.nvim", cmd = { "Bdelete" } },
 
   -- Code Utilities
-  { "stevearc/aerial.nvim", config = "plugins.aerial" },
-  { "numToStr/Comment.nvim", config = "plugins.comment" },
+  -- { "stevearc/aerial.nvim", config = "plugins.aerial" },
+  { "numToStr/Comment.nvim", config = "plugins.comment", event = "VeryLazy" },
   { "kylechui/nvim-surround", config = "plugins.nvim-surround" },
   { "godlygeek/tabular", cmd = { "Tabularize" } },
-  { "folke/trouble.nvim", config = "plugins.trouble" },
+  -- { "folke/trouble.nvim", config = "plugins.trouble" },
   { "RRethy/vim-illuminate", config = "plugins.illuminate" },
+  { "windwp/nvim-autopairs", event = "VeryLazy", config = "plugins.autopairs" },
+  { "nat-418/boole.nvim", event = "VeryLazy", config = "plugins.boole" }, -- extend increment/decrement to cycle through related words
+
+  -- Editor Improvements
+  { "gelguy/wilder.nvim", dependencies = "romgrk/fzy-lua-native", event = "CmdlineEnter", config = "plugins.wilder" },
+  { "max397574/better-escape.nvim", event = "InsertEnter", config = "plugins.better-escape" }, -- remove delay from escape keys while typing in insert mode.
+  { "NMAC427/guess-indent.nvim", event = "VeryLazy", config = true },
+  { "windwp/nvim-spectre", event = "VeryLazy", config = "plugins.spectre" },
+  { "tenxsoydev/tabs-vs-spaces.nvim", config = true },
+  { "andymass/vim-matchup", event = "VeryLazy", config = "plugins.matchup" }, -- highlight matching patterns and extend `%` navigation
+  { "tpope/vim-repeat", event = "VeryLazy" },
+  { "tpope/vim-surround", event = "VeryLazy" },
+  "mg979/vim-visual-multi", -- needs to be loaded outside of lazy.nvim for its global variable config values to work
+  -- { "kevinhwang91/nvim-ufo", dependencies = "kevinhwang91/promise-async", config = "plugins.ufo" },
 
   -- File explorer
   {
-    'stevearc/oil.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = 'plugins.oil'
+    "loichyan/neo-tree.nvim",
+    branch = "fix-obsolete-icons",
+    dependencies = "MunifTanjim/nui.nvim",
+    config = "plugins.neo-tree",
   },
-  {
-    'nvim-neo-tree/neo-tree.nvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-tree/nvim-web-devicons',
-      'MunifTanjim/nui.nvim',
-      's1n7ax/nvim-window-picker',
-    },
-    config = 'plugins.neotree'
-  },
+
+  -- Terminal
+  { "akinsho/toggleterm.nvim", event = "VeryLazy", config = "plugins.toggleterm" },
+  { "willothy/flatten.nvim", priority = 100, config = "plugins.flatten" },
 
   -- Telescope
-  { 'nvim-telescope/telescope.nvim', config = 'plugins.telescope' },
-  { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
-  { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
-  'nvim-telescope/telescope-frecency.nvim',
-  'tami5/sqlite.lua',
-  'nvim-telescope/telescope-file-browser.nvim',
-  'benfowler/telescope-luasnip.nvim',
-  'princejoogie/dir-telescope.nvim',
-  { "ibhagwan/fzf-lua", enabled = vim.fn.executable("fzf") == 1, config = "plugins.fzf-lua" },
+  {
+    "nvim-telescope/telescope.nvim",
+    config = "plugins.telescope",
+    tag = "0.1.2",
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
+  { "nvim-telescope/telescope-frecency.nvim", dependencies = "kkharji/sqlite.lua", lazy = true },
+  -- { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
   { "nvim-telescope/telescope-live-grep-args.nvim", lazy = true },
   { "nvim-telescope/telescope-media-files.nvim", lazy = true },
-	{ "smartpde/telescope-recent-files" },
-	{ "tknightz/telescope-termfinder.nvim", lazy = true },
+  { "smartpde/telescope-recent-files" },
+  { "tknightz/telescope-termfinder.nvim", lazy = true },
+
+  { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+  { "nvim-telescope/telescope-symbols.nvim" },
+  --  { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
+  --  'nvim-telescope/telescope-frecency.nvim',
+  --  'tami5/sqlite.lua',
+  --  'nvim-telescope/telescope-file-browser.nvim',
+  --  'benfowler/telescope-luasnip.nvim',
+  --  'princejoogie/dir-telescope.nvim',
+  --  { "ibhagwan/fzf-lua", enabled = vim.fn.executable("fzf") == 1, config = "plugins.fzf-lua" },
+  --  { "nvim-telescope/telescope-live-grep-args.nvim", lazy = true },
+  --  { "nvim-telescope/telescope-media-files.nvim", lazy = true },
+  -- { "smartpde/telescope-recent-files" },
+  -- { "tknightz/telescope-termfinder.nvim", lazy = true },
 
   -- Testing
-  { 'nvim-neotest/neotest', config = 'plugins.neotest', eager = true },
-  { 'nvim-neotest/neotest-plenary' },
-  { 'olimorris/neotest-rspec' },
+  { "nvim-neotest/neotest", config = "plugins.neotest", eager = true },
+  { "nvim-neotest/neotest-plenary" },
+  { "olimorris/neotest-rspec" },
   { "zidhuss/neotest-minitest" },
-  { "nvim-neotest/neotest-vim-test", dependencies = { "vim-test/vim-test" }},
-  { 'stevearc/overseer.nvim', config = 'plugins.overseer' },
+  { "nvim-neotest/neotest-vim-test", dependencies = { "vim-test/vim-test" } },
+  { "stevearc/overseer.nvim", config = "plugins.overseer" },
 
   -- Git Integrations
-  { "lewis6991/gitsigns.nvim", config = "plugins.gitsigns" },
+  { "sindrets/diffview.nvim", event = "VeryLazy", config = "plugins.diffview" },
+  { "akinsho/git-conflict.nvim", event = "VeryLazy", config = "plugins.git-conflict" },
+  { "ruifm/gitlinker.nvim", event = "VeryLazy", config = true },
+  { "lewis6991/gitsigns.nvim", event = "VeryLazy", config = "plugins.gitsigns" },
+  { "tobealive/neogit", branch = "fix-noice-commit-confirm-message", event = "VeryLazy", config = "plugins.neogit" },
+  { "mattn/vim-gist", event = "VeryLazy", config = "plugins.gist" },
+  { "mattn/webapi-vim" },
+  -- "ThePrimeagen/git-worktree.nvim",
 
   -- Colorschemes
   { "rose-pine/neovim", name = "rose-pine" },
@@ -137,11 +252,30 @@ local modules = {
   { "ahmedkhalf/project.nvim", config = "plugins.project" },
   { "chentoast/marks.nvim", event = "VeryLazy", config = "plugins.marks" },
   { "ThePrimeagen/harpoon", event = "VeryLazy", config = "plugins.harpoon" },
+
+  -- Yank & Register Handling
+  {
+    "tversteeg/registers.nvim",
+    event = "VeryLazy",
+    config = "plugins.registers",
+    commit = "0a461e635403065b3f9a525bd77eff30759cfba0",
+  },
+  { "tenxsoydev/karen-yank.nvim", event = "VeryLazy", config = true, branch = "remove-cut-esc" },
+
+  -- Markdown
+  { "preservim/vim-markdown", config = "plugins.markdown" },
+  { "dkarter/bullets.vim", ft = "markdown", config = "plugins.bullets" },
+  {
+    "iamcco/markdown-preview.nvim",
+    build = "cd app && npm install",
+    event = "VeryLazy",
+    config = "plugins.markdown-preview",
+  },
+  { "tenxsoydev/vim-markdown-checkswitch", ft = "markdown" },
 }
 
 local function get(plugin_config, eager)
-  if (plugin_config:match("plugins") or
-    plugin_config:match("colorschemes")) and not plugin_config:match("meg") then
+  if (plugin_config:match("plugins") or plugin_config:match("colorschemes")) and not plugin_config:match("meg") then
     plugin_config = "meg." .. plugin_config
   end
 
@@ -191,3 +325,14 @@ require("lazy").setup(modules, {
   ui = { border = mw.ui.borders.round },
   dev = { path = "~/code/neovim-plugins/" },
 })
+
+nx.au({
+  "BufEnter",
+  pattern = { vim.fn.stdpath("config") .. "*/init.lua" },
+  callback = function()
+    vim.opt_local.path = { ",,", vim.fn.stdpath("config") .. "/lua/meg/" }
+    vim.cmd("setlocal inex=tr(v:fname,'.','/')")
+  end,
+})
+
+nx.map({ "<leader>P", "<Cmd>Lazy<CR>", desc = "Plugin Manager" })
