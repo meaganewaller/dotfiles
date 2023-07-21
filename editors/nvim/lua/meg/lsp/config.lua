@@ -32,9 +32,9 @@ local function on_attach(client, bufnr)
     require("meg.lsp.utils.nvim-navic").setup(client, bufnr)
   end
 
-  if server_caps.documentFormattingProvider then
-    vim.api.nvim_buf_set_option(bufnr, "formatexpr", "v:lua.vim.lsp.formatexpr()")
-  end
+  -- if server_caps.documentFormattingProvider then
+  --   vim.api.nvim_buf_set_option(bufnr, "formatexpr", "v:lua.vim.lsp.formatexpr()")
+  -- end
 end
 
 local function setup_language_servers(lspconfig, servers, root_files)
@@ -73,7 +73,7 @@ local function setup_language_servers(lspconfig, servers, root_files)
           experimental = {
             useFlatConfig = false,
           },
-          format = true,
+          -- format = true,
           nodePath = "",
           onIgnoredFiles = "off",
           packageManager = "npm",
@@ -92,8 +92,7 @@ local function setup_language_servers(lspconfig, servers, root_files)
       })
     elseif name == "lua_ls" then
       -- Make the server aware of Neovim runtime files when editing Neovim config
-      local library = vim.fn.getcwd() == vim.fn.stdpath("config") and vim.api.nvim_get_runtime_file("", true)
-      or nil
+      local library = vim.fn.getcwd() == vim.fn.stdpath("config") and vim.api.nvim_get_runtime_file("", true) or nil
       lspconfig[name].setup({
         root_dir = lspconfig.util.root_pattern(root_files),
         settings = {
