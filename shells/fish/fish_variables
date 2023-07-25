@@ -1,14 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR --export FZF_DEFAULT_OPTS:\x0a\x20\x20\x2d\x2dcolor\x3dfg\x3a\x23908caa\x2cbg\x3a\x23232136\x2chl\x3a\x23ea9a97\x0a\x20\x20\x2d\x2dcolor\x3dfg\x2b\x3a\x23e0def4\x2cbg\x2b\x3a\x23393552\x2chl\x2b\x3a\x23ea9a97\x0a\x09\x2d\x2dcolor\x3dborder\x3a\x2344415a\x2cheader\x3a\x233e8fb0\x2cgutter\x3a\x23232136\x0a\x09\x2d\x2dcolor\x3dspinner\x3a\x23f6c177\x2cinfo\x3a\x239ccfd8\x2cseparator\x3a\x2344415a\x0a\x09\x2d\x2dcolor\x3dpointer\x3a\x23c4a7e7\x2cmarker\x3a\x23eb6f92\x2cprompt\x3a\x23908caa
-SETUVAR OS_THEME:light
 SETUVAR __fish_initialized:3400
-SETUVAR _fisher_jorgebucaran_2F_spark_2E_fish_files:\x7e/\x2econfig/fish/functions/spark\x2efish\x1e\x7e/\x2econfig/fish/completions/spark\x2efish
-SETUVAR _fisher_joseluisq_2F_gitnow_40_32_2E_31_31_2E_30__files:\x7e/\x2econfig/fish/functions/__gitnow_config_file\x2efish\x1e\x7e/\x2econfig/fish/functions/__gitnow_functions\x2efish\x1e\x7e/\x2econfig/fish/functions/__gitnow_manual\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/gitnow\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/gitnow_config\x2efish\x1e\x7e/\x2econfig/fish/completions/__gitnow_completions\x2efish
-SETUVAR _fisher_meaningful_2D_ooo_2F_sponge_files:\x7e/\x2econfig/fish/functions/_sponge_clear_state\x2efish\x1e\x7e/\x2econfig/fish/functions/_sponge_on_exit\x2efish\x1e\x7e/\x2econfig/fish/functions/_sponge_on_postexec\x2efish\x1e\x7e/\x2econfig/fish/functions/_sponge_on_preexec\x2efish\x1e\x7e/\x2econfig/fish/functions/_sponge_on_prompt\x2efish\x1e\x7e/\x2econfig/fish/functions/_sponge_remove_from_history\x2efish\x1e\x7e/\x2econfig/fish/functions/sponge_filter_failed\x2efish\x1e\x7e/\x2econfig/fish/functions/sponge_filter_matched\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/sponge\x2efish
-SETUVAR _fisher_paysonwallach_2F_fish_2D_you_2D_should_2D_use_files:\x7e/\x2econfig/fish/functions/__ysu__check_aliases\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__check_git_aliases\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__check_hardcore\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__flush_buffer\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__get_field\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__message\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__set_default\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__set_field\x2efish\x1e\x7e/\x2econfig/fish/functions/__ysu__write_buffer\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/you_should_use\x2efish
-SETUVAR _fisher_plugins:paysonwallach/fish\x2dyou\x2dshould\x2duse\x1emeaningful\x2dooo/sponge\x1ejorgebucaran/spark\x2efish\x1ejoseluisq/gitnow\x402\x2e11\x2e0\x1erstacruz/fish\x2dasdf
-SETUVAR _fisher_rstacruz_2F_fish_2D_asdf_files:\x7e/\x2econfig/fish/conf\x2ed/asdf\x2efish\x1e\x7e/\x2econfig/fish/completions/asdf\x2efish
 SETUVAR _fisher_upgraded_to_4_4:\x1d
 SETUVAR fish_color_autosuggestion:555\x1ebrblack
 SETUVAR fish_color_cancel:\x2dr
@@ -38,6 +30,7 @@ SETUVAR fish_pager_color_description:B3A06D\x1eyellow\x1e\x2di
 SETUVAR fish_pager_color_prefix:normal\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
 SETUVAR fish_pager_color_selected_background:\x2dr
+SETUVAR fish_user_paths:/Users/meaganwaller/\x2ecargo/bin\x1e/Users/meaganwaller/\x2elocal/bin\x1e/Users/meaganwaller/bin\x1e/usr/local/opt/libpq/bin\x1e/usr/local/bin\x1e/usr/local/sbin
 SETUVAR sponge_allow_previously_successful:true
 SETUVAR sponge_delay:2
 SETUVAR sponge_filters:sponge_filter_failed\x1esponge_filter_matched

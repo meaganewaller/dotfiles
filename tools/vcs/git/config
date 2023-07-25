@@ -9,7 +9,7 @@
 [user]
   name = Meagan Waller
   email = meagan@meaganwaller.com
-  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFNP94jVBN332XG5smSZ/o3AsAIaQu8UI5yaKEffiqJ2
+  signingkey=45348A6C2B951746
 [init]
   defaultBranch = main
 [core]
@@ -72,5 +72,3 @@
   required = true
 [diff "lfs"]
   textconv = cat
-[gpg]
-	format = ssh

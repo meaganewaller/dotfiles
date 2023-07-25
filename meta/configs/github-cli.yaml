@@ -3,3 +3,6 @@
     global: latest
     versions:
       - latest
+
+- shell:
+    - [gh completion -s fish > ~/.local/share/fish/generated_completions/_gh, Configuring completion]

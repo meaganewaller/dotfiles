@@ -1,0 +1,47 @@
+# --- Shell Configuration ---
+- ifubuntu:
+  - apt:
+    - zsh
+    - fish
+    - fzf
+    - starship
+    - silversearcher-ag
+    - libnotify-bin
+
+- ifarch:
+  - pacman:
+    - zsh
+    - fish
+    - starship
+    - fzf
+    - the_silver_searcher
+    - libnotify
+
+- ifmacos:
+  - tap:
+    - homebrew/command-not-found
+  - brew:
+    - zsh
+    - fish
+    - bash-completion
+    - starship
+    - fzf
+    - coreutils
+    - the_silver_searcher
+
+- link:
+    ~/.zshrc: shells/zsh/zshrc
+    ~/.zsh_plugins.txt: shells/zsh/plugins.txt
+    ~/.config/starship:
+      path: shells/starship/*
+      glob: true
+      exclude: [shells/starship/README.md]
+    ~/.config/fish:
+      glob: true
+      path: shells/fish/*
+      exclude: [shells/fish/install-fisher]
+
+- shell:
+  - [zsh -c 'antibody update', Updating Zsh plugins]
+  - [$DOTFILES/shells/fish/install-fisher, Installing Fisher]
+  - [fish -c "fisher update", Updating fish plugins]

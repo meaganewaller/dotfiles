@@ -1,0 +1,43 @@
+# --- Terminal Emulator Configuration ---
+
+- ifmacos:
+  - tap:
+    - homebrew/cask-fonts
+  - cask:
+    - kitty
+    - iterm2
+    - font-bigblue-terminal-nerd-font
+    - font-fira-code-nerd-font
+    - font-fira-mono-nerd-font
+    - font-blex-mono-nerd-font
+    - alacritty
+
+- ifubuntu:
+  - apt:
+    - kitty
+    - alacritty
+
+- ifarch:
+  - pacman:
+    - kitty
+    - alacritty
+
+- ifanylinux:
+  - shell:
+    - git clone --depth 1 https://github.com/ryanoasis/nerd-fonts /tmp/nerd-fonts
+    - /tmp/nerd-fonts/install.sh BigBlueTerminal IBMPlexMono FiraCode FiraMono 
+    - rm -rf /tmp/nerd-fonts
+
+- create:
+  - ~/.config/kitty
+  - ~/.config/alacritty
+
+- link:
+    ~/.config/alacritty:
+        glob: true
+        path: terminals/alacritty
+    
+    ~/.config/kitty:
+        glob: true
+        path: terminals/kitty
+        exclude: [terminals/kitty/README.md]

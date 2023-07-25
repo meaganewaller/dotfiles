@@ -1,5 +1,5 @@
 - asdf:
-    - plugin: fzf
-      global: latest
-      versions:
-        - latest
+  - plugin: fzf
+    global: latest
+    versions:
+      - latest

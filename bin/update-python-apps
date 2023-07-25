@@ -1,7 +1,0 @@
-#!/usr/bin/env zsh
-
-cat ~/.default-python-packages | while read -r l
-do
-  eval pip install --upgrade $l
-done
-asdf reshim
