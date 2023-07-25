@@ -1,139 +1,105 @@
 -- https://github.com/nvim-telescope/telescope.nvim
 
-local telescope = require("telescope")
-local actions = require("telescope.actions")
-local actions_layout = require("telescope.actions.layout")
+local function jump_to_symbol(builtin)
+  local valid_clients = #vim.tbl_filter(function(client)
+    return client.server_capabilities.documentSymbolProvider
+  end, vim.lsp.get_active_clients()) > 0
 
-local config = {
-  defaults = {
-    multi_icon = "",
-    layout_strategy = "flex",
-    scroll_strategy = "cycle",
-    select_strategy = "reset",
-    winblend = 0,
-    layout_config = {
-      vertical = {
-        mirror = true,
-      },
-      center = {
-        mirror = true,
-      },
-    },
-    hl_result_eol = false,
-    preview = {
-      msg_bg_fillchar = " ",
-    },
-    history = {
-      cycle_wrap = true,
-    },
-    cache = false,
-    mappings = {
-      i = {
-        ["<C-s>"] = actions.cycle_previewers_next,
-        ["<C-a>"] = actions.cycle_previewers_prev,
+  if valid_clients then
+    return builtin.lsp_document_symbols()
+  end
 
-        ["<C-Down>"] = actions.cycle_history_next,
-        ["<C-Up>"] = actions.cycle_history_prev,
-        ["<C-h>"] = actions_layout.toggle_preview,
+  return builtin.current_buffer_tags()
+end
 
-        ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
-        ["<a-q>"] = false,
-        ["<c-c>"] = function()
-          vim.cmd([[stopinsert]])
-        end,
-        ["<esc>"] = actions.close,
+local function setup_custom_actions(actions, builtin)
+  local transform_mod = require("telescope.actions.mt").transform_mod
+  return transform_mod({
+    jump_to_symbol = function(prompt_bufnr)
+      actions.file_edit(prompt_bufnr)
+      jump_to_symbol(builtin)
+    end,
+    jump_to_line = function(prompt_bufnr)
+      actions.file_edit(prompt_bufnr)
+      vim.defer_fn(function()
+        vim.api.nvim_feedkeys(":", "n", true)
+      end, 100)
+    end,
+  })
+end
+
+local function setup(telescope)
+  local builtin = require("telescope.builtin")
+  local actions = require("telescope.actions")
+  local custom_actions = setup_custom_actions(actions, builtins)
+
+  telescope.setup({
+    extensions = {
+      fzf = {
+        fuzzy = true,
+        override_generic_sorter = true,
+        override_file_sorter = true,
+        case_mode = "smart_case",
       },
     },
-    file_ignore_patterns = { "src/parser.c" },
-    dynamic_preview_title = true,
-  },
-  pickers = {
-    find_files = {
-      theme = "dropdown",
-      previewer = false,
-    },
-    file_browser = {
-      theme = "dropdown",
-      previewer = false,
-    },
-    git_files = {
-      theme = "dropdown",
-      previewer = false,
-    },
-    buffers = {
-      sort_mru = true,
-      theme = "dropdown",
-      previewer = false,
+    defaults = {
+      layout_config = {
+        prompt_position = "top",
+        preview_cutoff = 170,
+      },
+      prompt_prefix = "   ",
+      selection_caret = "  ",
+      entry_prefix = "  ",
+      results_title = false,
+      sorting_strategy = "ascending",
       mappings = {
-        i = { ["<c-d>"] = actions.delete_buffer },
+        i = {
+          ["<C-p>"] = require("telescope.actions.layout").toggle_preview,
+          ["<C-j>"] = actions.move_selection_next,
+          ["<C-k>"] = actions.move_selection_previous,
+          ["<Esc>"] = actions.close,
+          ["<C-[>"] = actions.close,
+          ["<C-s>"] = custom_actions.jump_to_symbol,
+          ["<C-l>"] = custom_actions.jump_to_line,
+        },
       },
     },
-    man_pages = { sections = { "2", "3" } },
-    lsp_references = { path_display = { "shorten" } },
-    lsp_code_actions = { theme = "dropdown" },
-    current_buffer_fuzzy_find = { theme = "dropdown" },
-  },
-  extensions = {
-    frecency = {
-      persistent_filter = false,
-      show_scores = true,
-      show_unindexed = true,
-      ignore_patterns = { "*.git/*", "*/tmp/*", "*.foo" },
-      workspaces = {},
-    },
-  },
-}
+  })
 
-telescope.setup(config)
-telescope.load_extension("fzf")
+  telescope.load_extension("fzf")
+  telescope.load_extension("recent_files")
 
-nx.map({
-  { "<Leader>//", "<cmd>Telescope resume<CR>", desc = "Last Search" },
-  { '<leader>/"', "<Cmd>Telescope registers<CR>", desc = "Search Registers" },
-  { "<leader>/:", "<Cmd>Telescope commands<CR>", desc = "Search Commands" },
-  { "<leader>/f", "<Cmd>Telescope find_files<CR>", desc = "Search Files" },
-  { "<leader>/g", "<Cmd>Telescope live_grep theme=ivy<CR>", desc = "Grep" },
-  { "<leader>/G", ":Telescope grep_string theme=ivy search=", desc = "Grep String" },
-  { "<leader>/h", "<Cmd>Telescope highlights<CR>", desc = "Search Highlights" },
-  { "<leader>/H", "<Cmd>Telescope help_tags<CR>", desc = "Search Help" },
-  { "<leader>/i", "<Cmd>Telescope media_files<CR>", desc = "Search Media" },
-  { "<leader>/k", "<Cmd>Telescope keymaps<CR>", desc = "Search Keymaps" },
-  { "<leader>/M", "<Cmd>Telescope man_pages<CR>", desc = "Search Man Pages" },
-  { "<leader>/r", telescope.extensions.recent_files.pick, desc = "Search Recent Files" },
-}, { wk_label = { sub_desc = "+ Search" } })
---
---
--- -- Prevent entering buffers in insert mode. Mainly after opening buffers via telescope.
--- local original_edit = require("telescope.actions.set").edit
--- ---@diagnostic disable-next-line: duplicate-set-field
--- require("telescope.actions.set").edit = function(...)
---   original_edit(...)
---   vim.cmd.stopinsert()
--- end
---
--- ---@param extensions string[]
--- local function load_extensions(extensions)
---   for _, extension in ipairs(extensions) do
---     telescope.load_extension(extension)
---   end
--- end
---
--- -- Lazy load majority of extensions
--- vim.schedule(function()
---   load_extensions({
---     "bookmarks",
---     "recent_files",
---     "frecency",
---     "persisted",
---     "fzy_native",
---     "media_files",
---     "projects",
---   })
--- end)
--- nx.au({
---   "TermEnter",
---   once = true,
---   callback = function()
---     telescope.load_extension("termfinder")
---   end,
--- })
+  vim.keymap.set("n", "<C-p>", function()
+    return require("telescope.builtin").find_files({ find_command = { "rg", "--files", "--hidden", "-g", "!.git/" } })
+  end)
+  vim.keymap.set("n", "<C-y>", function()
+    return require("telescope.builtin").resume()
+  end)
+  vim.keymap.set("n", "<Leader>b", function()
+    return require("telescope.builtin").buffers({ sort_lastused = true })
+  end)
+  vim.keymap.set("n", "<Leader>t", function()
+    return jump_to_symbol(require("telescope.builtin"))
+  end)
+  vim.keymap.set("n", "<Leader>m", function()
+    return require("telescope").extensions.recent_files.pick()
+  end)
+  vim.keymap.set("n", "<Leader>g", function()
+    return require("telescope.builtin").git_status()
+  end)
+
+  vim.keymap.set("n", "<Leader>lT", function()
+    return require("telescope.builtin").lsp_dynamic_workspace_symbols()
+  end)
+  vim.keymap.set("n", "<Leader>lt", function()
+    return require("telescope.builtin").current_buffer_tags()
+  end)
+end
+
+local loaded, telescope = pcall(require, "telescope")
+if not loaded then
+  mw.loading_error_msg("telescope")
+  return
+end
+
+setup(telescope)
