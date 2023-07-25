@@ -68,8 +68,27 @@ config.key_bindings = {
 }
 
 nx.map({
-	{ "<leader>gd", "<Cmd>DiffviewToggle<CR>", desc = "Toggle Diffview", wk_label = "Diffview" },
-	{ "<leader>gh", "<Cmd>DiffviewFileHistory %<CR>", desc = "Diffview File History", wk_label = "File History" },
+  {
+    "<Leader>dh",
+    ":DiffviewFileHistory %<CR>",
+    { silent = true }
+  },
+  {
+    "<Leader>dc",
+    function()
+      vim.cmd.DiffviewClose()
+      vim.cmd('botright Git commit')
+    end, { silent = true }
+  },
+  {
+    "<Leader>da",
+    function()
+      vim.cmd.DiffviewClose()
+      vim.cmd('botright Git commit --amend')
+    end, { silent = true }
+  },
+  { "<Leader>dp", ":Git push<CR>", { silent = true } },
+  { "<Leader>df", ":Git push --force-with-lease<CR>", { silent = true } },
 })
 -- <== }
 

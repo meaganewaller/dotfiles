@@ -26,6 +26,7 @@ local function setup(indent_blankline, icons)
       "terminal",
       "prompt",
     },
+    disable_with_nolist = true,
     show_first_indent_level = true,
     show_trailing_blankline_indent = true,
     show_end_of_line = false,

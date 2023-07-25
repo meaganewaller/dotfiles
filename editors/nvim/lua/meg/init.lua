@@ -14,7 +14,9 @@ local modules = {
   { dir = "meg/client", priority = 95, config = "client", eager = true },
   { dir = "meg/keymaps", priority = 80, config = "keymaps", eager = true },
   { dir = "meg/autocmds", priority = 80, config = "autocmds", eager = true },
-  { dir = "meg/options", priority = 80, config = "options", eager = true },
+  { dir = "meg/settings", priority = 80, config = "settings", eager = true },
+  { dir = "meg/abbr", priority = 80, config = "abbr", eager = true },
+  { dir = "meg/statusline", priority = 80, config = "statusline", eager = true },
   { dir = "meg/lsp", priority = 80, config = "lsp" },
 
   -- Must have utilities
@@ -49,21 +51,56 @@ local modules = {
   { "nacro90/numb.nvim", event = "VeryLazy", config = true },
   { "NvChad/nvim-colorizer.lua", event = "VeryLazy", config = "plugins.colorizer" },
   { "nvim-tree/nvim-web-devicons", config = "plugins.devicons", eager = true },
-  -- { "anuvyklack/pretty-fold.nvim", config = "plugins.pretty-fold" },
-  -- { "lewis6991/satellite.nvim", config = "plugins.satellite" },
   { "karb94/neoscroll.nvim", config = "plugins.neoscroll" },
   { "echasnovski/mini.nvim", config = "plugins.mini" },
   { "tenxsoydev/size-matters.nvim", lazy = true },
   { "levouh/tint.nvim", event = "VeryLazy", config = "plugins.tint" },
 
-  -- { "echasnovski/mini.nvim", config = "plugins.mini.animate" },
-
   -- Treesitter
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", config = "plugins.treesitter" },
-  { "windwp/nvim-ts-autotag", dependencies = "nvim-treesitter/nvim-treesitter" },
-  { "JoosepAlviste/nvim-ts-context-commentstring", dependencies = "nvim-treesitter/nvim-treesitter" },
-  { "mrjones2014/nvim-ts-rainbow", dependencies = "nvim-treesitter/nvim-treesitter" },
-  { "nvim-treesitter/playground", dependencies = "nvim-treesitter/nvim-treesitter" },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = "VeryLazy",
+    config = "plugins.treesitter",
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-refactor",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
+  },
+  {
+    "yioneko/nvim-yati",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
+  },
+  {
+    "yioneko/vim-tmindent",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
+  },
+  {
+    "nvim-treesitter/playground",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
+  },
+  {
+    "windwp/nvim-ts-autotag",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
+  },
+  {
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+  },
+  {
+    "mrjones2014/nvim-ts-rainbow",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+  },
   {
     "mizlan/iswap.nvim",
     event = "VeryLazy",
@@ -78,43 +115,34 @@ local modules = {
   },
 
   -- Artifical Intelligence
-  { "zbirenbaum/copilot.lua", config = "plugins.copilot", eager = true },
+  { "zbirenbaum/copilot.lua", config = "plugins.copilot", eager = true, event = "InsertEnter" },
+
+  -- DB
+  {
+    "kristijanhusak/vim-dadbod-ui",
+    dependencies = {
+      { "tpope/vim-dadbod", lazy = true },
+      { "kristijanhusak/vim-dadbod-completion", ft = { "sql", "mysql", "plsql" }, lazy = true },
+    },
+    cmd = { "DBUI", "DBUIFindBuffer" },
+    config = "plugins.dadbod",
+  },
 
   -- LSP / Formatters
   { "folke/neodev.nvim", config = true },
   { "neovim/nvim-lspconfig", config = "lsp.plugins.lspconfig" },
-  { "jose-elias-alvarez/null-ls.nvim", config = "lsp.plugins.null-ls" }, -- inject external formatters and linters
-  { "glepnir/lspsaga.nvim", event = "VeryLazy", config = "lsp.plugins.lspsaga" },
-  { "j-hui/fidget.nvim", event = "VeryLazy", config = "lsp.plugins.fidget" },
-  { "ray-x/lsp_signature.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-signature" },
-  { "WhoIsSethDaniel/toggle-lsp-diagnostics.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-toggle" },
-  "b0o/SchemaStore.nvim",
+  { "jose-elias-alvarez/null-ls.nvim", config = "lsp.plugins.null-ls", event = "VeryLazy" }, -- inject external formatters and linters
+  { "yioneko/nvim-vtsls", event = "VeryLazy" },
   { "RRethy/vim-illuminate", dependencies = "nvim-treesitter/nvim-treesitter" },
-  -- Mason
   { "williamboman/mason.nvim", config = "lsp.plugins.mason" },
   -- stylua: ignore
   { "williamboman/mason-lspconfig.nvim", dependencies = "williamboman/mason.nvim", config = "lsp.plugins.mason.lspconfig" },
-  { "jayp0521/mason-null-ls.nvim", dependencies = "williamboman/mason.nvim", config = true },
-  -- { "ThePrimeagen/refactoring.nvim", config = true },
-  -- "tamago324/nlsp-settings.nvim",
-  -- Language Specific
-  { "simrat39/rust-tools.nvim", config = "lsp.plugins.rust-tools" },
-  -- "ron-rs/ron.vim",
-  { "linux-cultist/venv-selector.nvim", config = "plugins.venv-selector", event = "VeryLazy" },
-  -- { "neovim/nvim-lspconfig" },
-  -- { "williamboman/mason.nvim" },
-  -- { "WhoIsSethDaniel/mason-tool-installer.nvim" },
-  -- { "williamboman/mason-lspconfig.nvim" },
-  -- { "ray-x/lsp_signature.nvim" },
-  -- { "jose-elias-alvarez/null-ls.nvim" },
-  -- { "smjonas/inc-rename.nvim" },
-  -- { "j-hui/fidget.nvim", tag = "legacy" },
-  -- { "SmiteshP/nvim-navic" },
-  -- { "DNLHC/glance.nvim" },
+  { "SmiteshP/nvim-navic", event = "VeryLazy" },
 
   -- Debug
   { "kevinhwang91/nvim-bqf", event = "VeryLazy", config = "plugins.bqf" },
   { "folke/trouble.nvim", event = "VeryLazy", config = "plugins.trouble" },
+  { "puremourning/vimspector", event = "VeryLazy", config = "plugins.vimspector" },
 
   -- Completion
   { "hrsh7th/nvim-cmp", config = "plugins.cmp", event = "InsertEnter" },
@@ -134,21 +162,10 @@ local modules = {
   "rafamadriz/friendly-snippets",
   { "michaelb/sniprun", event = "VeryLazy", build = "bash ./install.sh", config = "plugins.sniprun" },
 
-  -- { "hrsh7th/cmp-nvim-lsp" },
-  -- { "hrsh7th/cmp-nvim-lua" },
-  -- { "hrsh7th/cmp-buffer" },
-  -- { "f3fora/cmp-spell" },
-  -- { "hrsh7th/cmp-path" },
-  -- { "hrsh7th/cmp-cmdline" },
-  -- { "L3MON4D3/LuaSnip", config = "plugins.cmp.luasnip" },
-  -- { "saadparwaiz1/cmp_luasnip" },
-  -- { "zbirenbaum/copilot-cmp", config = "plugins.cmp.copilot" },
-
   -- Buffer & Window Management
   { "kwkarlwang/bufresize.nvim", event = "VeryLazy", config = true }, -- handle split window sizes on client resize
   { "gorbit99/codewindow.nvim", event = "VeryLazy", config = "plugins.codewindow" },
   { "petertriho/nvim-scrollbar", event = "VeryLazy", config = "plugins.scrollbar" },
-  { "windwp/windline.nvim", config = "plugins.windline", eager = true },
   { "s1n7ax/nvim-window-picker", event = "VeryLazy", config = "plugins.window-picker" },
   { "mrjones2014/smart-splits.nvim", event = "VeryLazy", config = "plugins.smart-splits" },
   {
@@ -157,23 +174,30 @@ local modules = {
     event = "VeryLazy",
     config = "plugins.windows",
   },
-  -- { "christoomey/vim-tmux-navigator", event = "VeryLazy", config = function() vim.keymap.del("", "<C-Bslash>") end },
   { "folke/zen-mode.nvim", event = "VeryLazy", config = "plugins.zen-mode" },
-  { "romgrk/barbar.nvim", event = "VeryLazy", config = "plugins.barbar" },
-  -- { "famiu/bufdelete.nvim", cmd = { "Bdelete" } },
 
   -- Code Utilities
-  -- { "stevearc/aerial.nvim", config = "plugins.aerial" },
   { "numToStr/Comment.nvim", config = "plugins.comment", event = "VeryLazy" },
   { "kylechui/nvim-surround", config = "plugins.nvim-surround" },
   { "godlygeek/tabular", cmd = { "Tabularize" } },
-  -- { "folke/trouble.nvim", config = "plugins.trouble" },
   { "RRethy/vim-illuminate", config = "plugins.illuminate" },
-  { "windwp/nvim-autopairs", event = "VeryLazy", config = "plugins.autopairs" },
+  { "windwp/nvim-autopairs", event = "InsertEnter", config = true },
   { "nat-418/boole.nvim", event = "VeryLazy", config = "plugins.boole" }, -- extend increment/decrement to cycle through related words
+  { "stefandtw/quickfix-reflector.vim", event = "VeryLazy" },
+  {
+    "kristijanhusak/vim-js-file-import",
+    build = "pnpm install",
+    ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    config = "plugins.javascript",
+  },
+  {
+    "axelvc/template-string.nvim",
+    ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    config = "plugins.template_string",
+  },
 
   -- Editor Improvements
-  { "gelguy/wilder.nvim", dependencies = "romgrk/fzy-lua-native", event = "CmdlineEnter", config = "plugins.wilder" },
+  { "LunarVim/bigfile.nvim" },
   { "max397574/better-escape.nvim", event = "InsertEnter", config = "plugins.better-escape" }, -- remove delay from escape keys while typing in insert mode.
   { "NMAC427/guess-indent.nvim", event = "VeryLazy", config = true },
   { "windwp/nvim-spectre", event = "VeryLazy", config = "plugins.spectre" },
@@ -181,8 +205,10 @@ local modules = {
   { "andymass/vim-matchup", event = "VeryLazy", config = "plugins.matchup" }, -- highlight matching patterns and extend `%` navigation
   { "tpope/vim-repeat", event = "VeryLazy" },
   { "tpope/vim-surround", event = "VeryLazy" },
+  { "tpope/vim-sleuth", event = "VeryLazy" },
+  { "tpope/vim-abolish", event = "VeryLazy" },
+  { "Wansmer/treesj", event = "VeryLazy", config = "plugins.treesj" },
   "mg979/vim-visual-multi", -- needs to be loaded outside of lazy.nvim for its global variable config values to work
-  -- { "kevinhwang91/nvim-ufo", dependencies = "kevinhwang91/promise-async", config = "plugins.ufo" },
 
   -- File explorer
   {
@@ -204,25 +230,13 @@ local modules = {
     dependencies = { "nvim-lua/plenary.nvim" },
   },
   { "nvim-telescope/telescope-frecency.nvim", dependencies = "kkharji/sqlite.lua", lazy = true },
-  -- { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
   { "nvim-telescope/telescope-live-grep-args.nvim", lazy = true },
   { "nvim-telescope/telescope-media-files.nvim", lazy = true },
-  { "smartpde/telescope-recent-files" },
+  { "smartpde/telescope-recent-files", lazy = true },
   { "tknightz/telescope-termfinder.nvim", lazy = true },
 
-  { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+  { "nvim-telescope/telescope-fzf-native.nvim", build = "make", lazy = true },
   { "nvim-telescope/telescope-symbols.nvim" },
-  --  { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
-  --  'nvim-telescope/telescope-frecency.nvim',
-  --  'tami5/sqlite.lua',
-  --  'nvim-telescope/telescope-file-browser.nvim',
-  --  'benfowler/telescope-luasnip.nvim',
-  --  'princejoogie/dir-telescope.nvim',
-  --  { "ibhagwan/fzf-lua", enabled = vim.fn.executable("fzf") == 1, config = "plugins.fzf-lua" },
-  --  { "nvim-telescope/telescope-live-grep-args.nvim", lazy = true },
-  --  { "nvim-telescope/telescope-media-files.nvim", lazy = true },
-  -- { "smartpde/telescope-recent-files" },
-  -- { "tknightz/telescope-termfinder.nvim", lazy = true },
 
   -- Testing
   { "nvim-neotest/neotest", config = "plugins.neotest", eager = true },
@@ -235,12 +249,11 @@ local modules = {
   -- Git Integrations
   { "sindrets/diffview.nvim", event = "VeryLazy", config = "plugins.diffview" },
   { "akinsho/git-conflict.nvim", event = "VeryLazy", config = "plugins.git-conflict" },
-  { "ruifm/gitlinker.nvim", event = "VeryLazy", config = true },
+  { "ruifm/gitlinker.nvim", event = "VeryLazy", config = "plugins.gitlinker" },
   { "lewis6991/gitsigns.nvim", event = "VeryLazy", config = "plugins.gitsigns" },
   { "tobealive/neogit", branch = "fix-noice-commit-confirm-message", event = "VeryLazy", config = "plugins.neogit" },
   { "mattn/vim-gist", event = "VeryLazy", config = "plugins.gist" },
   { "mattn/webapi-vim" },
-  -- "ThePrimeagen/git-worktree.nvim",
 
   -- Colorschemes
   { "rose-pine/neovim", name = "rose-pine" },
@@ -322,8 +335,18 @@ for i, module in ipairs(modules) do
 end
 
 require("lazy").setup(modules, {
-  ui = { border = mw.ui.borders.round },
+  ui = {
+    border = mw.ui.borders.round,
+    custom_keys = {
+      ["<Leader>ll"] = function(plugin)
+        require("lazy.util").float_term({ "lazygit", "log" }, {
+          cwd = plugin.dir,
+        })
+      end,
+    },
+  },
   dev = { path = "~/code/neovim-plugins/" },
+  lockfile = vim.fn.stdpath("data") .. "/lazy-lock.json",
 })
 
 nx.au({
