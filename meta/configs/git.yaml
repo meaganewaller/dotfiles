@@ -1,20 +1,16 @@
+# --- Git Configuration ---
 - link:
-    ~/.gitattributes: tools/vcs/git/attributes
     ~/.gitconfig: tools/vcs/git/config
-    ~/.gitmessage:
-        force: true
-        path: tools/vcs/git/message
-    ~/.gitignore_global:
-        path: tools/vcs/git/ignore
-    ~/.gitconfig.local:
-        path: tools/vcs/git/config.local
+    ~/.gitattributes: tools/vcs/git/attributes
+    ~/.gitmessage: tools/vcs/git/message
+    ~/.gitignore_global: tools/vcs/git/ignore
+    ~/.gitconfig.local: tools/vcs/git/config.local
     ~/.config/git:
         glob: true
         path: tools/vcs/git/*
         exclude: [ tools/vcs/git/README.md ]
 
 - asdf:
-    - plugin: git
-      global: latest
-      versions:
-        - latest
+  - plugin: git
+    versions:
+      - latest

@@ -21,7 +21,7 @@ if command -sq exa
     alias la='exa -labgh --icons'
     alias ll='exa -lbg --icons'
     alias lsa='exa -lbagR --icons'
-    alias lst='exa -lTabgh --icons' # 输入lst,将展示类似于tree的树状列表。
+    alias lst='exa -lTabgh --icons'
 
     alias tree "exa -T"
 

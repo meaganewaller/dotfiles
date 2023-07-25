@@ -1,4 +1,32 @@
+# --- Ranger Configuration ---
+- pip:
+    file: tools/ranger/requirements.txt
+    user: true
+    stdout: false
+    stderr: true
+
+
+- ifubuntu:
+    - apt:
+        - file
+        - highlight
+
+- ifarch:
+    - pacman:
+        - file
+        - highlight
+
+- ifmacos:
+    - brew:
+        - highlight
+
+- create:
+    - ~/.config/ranger
+
 - link:
-    ~/.config/ranger:
-      glob: true
-      path: "cli/utils/ranger/*"
+    ~/.config/ranger/rifle.conf: tools/ranger/rifle.conf
+    ~/.config/ranger/rc.conf: tools/ranger/rc.conf
+    ~/.config/ranger/commands.py: tools/ranger/commands.py
+
+- shell:
+    - ["[ ! -d ~/.config/ranger/plugins/ranger_devicons ] && git clone --depth 1 https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons", "Install Ranger Icons"]

@@ -1,7 +1,23 @@
 - link:
+    ~/.condarc: programming/python/condarc
+    ~/.config/flake8: programming/python/flake8
     ~/.default-python-packages: programming/python/default-python-packages
+
 - asdf:
   - plugin: python
-    global: latest
     versions:
-      - latest
+      - latest:2.7
+      - latest:3.4
+      - latest:3.5
+      - latest:3.6
+      - latest:3.7
+      - latest:3.8
+
+- shell:
+  - [$DOTFILES/programming/python/install-poetry, Installing poetry]
+  - [echo 'eval (pipenv --completion)' > ~/.config/fish/completions/pipenv.fish, Adding pipenv fish completions]
+  - [poetry completions fish > ~/.config/fish/completions/poetry.fish, Adding poetry fish completions]
+  - [mkdir -p ~/.zfunc && poetry completions zsh > ~/.zfunc/_poetry, Adding poetry Zsh completions]
+  - [poetry config virtualenvs.in-project true, Setting poetry configuration variable]
+  - [asdf reshim, Recreating asdf shims]
+
