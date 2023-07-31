@@ -13,4 +13,4 @@ if not loaded then
   return
 end
 
-setup(temeplate_string)
+setup(template_string)

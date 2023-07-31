@@ -9,7 +9,7 @@
 [user]
   name = Meagan Waller
   email = meagan@meaganwaller.com
-	signingkey = 45348A6C2B951746
+	signingkey = "45348A6C2B951746"
 [init]
   defaultBranch = main
 [core]
