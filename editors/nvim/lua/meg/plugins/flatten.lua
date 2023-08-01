@@ -1,37 +1,59 @@
 -- https://github.com/willothy/flatten.nvim
 
-local toggleterm = require("toggleterm")
+local term = {}
+local opened_winnr = nil
+return {
+  window = {
+    open = "alternate",
+  },
+  callbacks = {
+    should_block = function(argv)
+      -- Note that argv contains all the parts of the CLI command, including
+      -- Neovim's path, commands, options and files.
+      -- See: :help v:argv
 
-require("flatten").setup({
-	callbacks = {
-		pre_open = function()
-			-- Close toggleterm when an external open request is received
-			toggleterm.toggle(0)
-		end,
-		post_open = function(bufnr, winnr, ft)
-			if ft == "gitcommit" then
-				-- If the file is a git commit, create one-shot autocmd to delete it on write
-				-- If you just want the toggleable terminal integration, ignore this bit and only use the
-				-- code in the else block
-				vim.api.nvim_create_autocmd("BufWritePost", {
-					buffer = bufnr,
-					once = true,
-					callback = function()
-						-- This is a bit of a hack, but if you run bufdelete immediately
-						-- the shell can occasionally freeze
-						vim.defer_fn(function() vim.api.nvim_buf_delete(bufnr, {}) end, 50)
-					end,
-				})
-			else
-				-- If it's a normal file, then reopen the terminal, then switch back to the newly opened window
-				-- This gives the appearance of the window opening independently of the terminal
-				toggleterm.toggle(0)
-				vim.api.nvim_set_current_win(winnr)
-			end
-		end,
-		block_end = function()
-			-- After blocking ends (for a git commit, etc), reopen the terminal
-			toggleterm.toggle(0)
-		end,
-	},
-})
+      -- In this case, we would block if we find the `-b` flag
+      -- This allows you to use `nvim -b file1` instead of `nvim --cmd 'let g:flatten_wait=1' file1`
+      return vim.tbl_contains(argv, "-b")
+
+      -- Alternatively, we can block if we find the diff-mode option
+      -- return vim.tbl_contains(argv, "-d")
+    end,
+    pre_open = function()
+      local id = vim.api.nvim_buf_get_var(0, "term_id")
+      term = require("nvterm.terminal").get_by_id(id)
+      -- require("nvterm.terminal").hide_term(term)
+    end,
+
+    post_open = function(bufnr, winnr, ft, is_blocking)
+      if is_blocking then
+        -- Hide the terminal while it's blocking
+        require("nvterm.terminal").hide_term(term)
+        -- vim.api.nvim_set_current_win(winnr)
+      else
+        -- If it's a normal file, just switch to its window
+        vim.api.nvim_set_current_win(winnr)
+      end
+
+      -- If the file is a git commit, create one-shot autocmd to delete its buffer on write
+      -- If you just want the toggleable terminal integration, ignore this bit
+      if ft == "gitcommit" then
+        vim.api.nvim_create_autocmd("BufWritePost", {
+          buffer = bufnr,
+          once = true,
+          callback = function()
+            -- This is a bit of a hack, but if you run bufdelete immediately
+            -- the shell can occasionally freeze
+            vim.defer_fn(function()
+              vim.api.nvim_buf_delete(bufnr, {})
+            end, 50)
+          end,
+        })
+      end
+    end,
+    block_end = function()
+      require("nvterm.terminal").show_term(term)
+      -- After blocking ends (for a git commit, etc), reopen the terminal
+    end,
+  },
+}

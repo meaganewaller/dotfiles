@@ -12,7 +12,7 @@ local modules = {
   -- Modules
   { dir = "meg/colorschemes", priority = 90, config = "colorschemes", eager = true },
   { dir = "meg/client", priority = 95, config = "client", eager = true },
-  { dir = "meg/keymaps", priority = 80, config = "keymaps", eager = true },
+  -- { dir = "meg/keymaps", priority = 80, config = "keymaps", eager = true },
   { dir = "meg/autocmds", priority = 80, config = "autocmds", eager = true },
   { dir = "meg/settings", priority = 80, config = "settings", eager = true },
   { dir = "meg/abbr", priority = 80, config = "abbr", eager = true },
@@ -20,6 +20,7 @@ local modules = {
   { dir = "meg/lsp", priority = 80, config = "lsp" },
 
   -- Must have utilities
+  "lewis6991/impatient.nvim",
   {
     "tenxsoydev/nx.nvim",
     priority = 100,
@@ -129,7 +130,10 @@ local modules = {
   },
 
   -- LSP / Formatters
-  { "folke/neodev.nvim", config = true },
+  {
+    "folke/neodev.nvim",
+    config = "plugins.completion.cmp_configs.neodev",
+  },
   { "neovim/nvim-lspconfig", config = "lsp.plugins.lspconfig" },
   { "jose-elias-alvarez/null-ls.nvim", config = "lsp.plugins.null-ls", event = "VeryLazy" }, -- inject external formatters and linters
   { "yioneko/nvim-vtsls", event = "VeryLazy" },
@@ -143,21 +147,50 @@ local modules = {
   { "kevinhwang91/nvim-bqf", event = "VeryLazy", config = "plugins.bqf" },
   { "folke/trouble.nvim", event = "VeryLazy", config = "plugins.trouble" },
   { "puremourning/vimspector", event = "VeryLazy", config = "plugins.vimspector" },
+  { "mfussenegger/nvim-dap", lazy = true, config = "plugins.dap" },
+  { "jbyuki/one-small-step-for-vimkind", lazy = true },
+  { "mxsdev/nvim-dap-vscode-js", lazy = true },
 
   -- Completion
-  { "hrsh7th/nvim-cmp", config = "plugins.cmp", event = "InsertEnter" },
-  "hrsh7th/cmp-buffer",
-  "hrsh7th/cmp-path",
-  "hrsh7th/cmp-cmdline",
-  "hrsh7th/cmp-nvim-lsp",
-  "chrisgrieser/cmp-nerdfont",
-  "hrsh7th/cmp-nvim-lua",
-  { "tzachar/cmp-tabnine", build = "./install.sh", config = "plugins.tabnine" },
-  { "Exafunction/codeium.vim", event = "InsertEnter", config = "plugins.codeium" },
-  { "zbirenbaum/copilot-cmp", dependencies = "zbirenbaum/copilot.lua", config = true },
+  {
+    "hrsh7th/nvim-cmp",
+    config = "plugins.completion.cmp_configs.cmp",
+    event = "InsertEnter",
+    dependencies = {
+      "chrisgrieser/cmp-nerdfont",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-cmdline",
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-nvim-lua",
+      "hrsh7th/cmp-path",
+      "onsails/lspkind-nvim",
+      "saadparwaiz1/cmp_luasnip",
+    },
+  },
+  {
+    "ray-x/lsp_signature.nvim",
+    config = "plugins.completion.cmp_configs.lspsignature_cmp",
+  },
+  {
+    "tzachar/cmp-tabnine",
+    build = "./install.sh",
+    config = "plugins.completion.cmp_configs.tabnine",
+  },
+  {
+    "Exafunction/codeium.vim",
+    event = "InsertEnter",
+    config = "plugins.completion.cmp_configs.codeium",
+  },
+  {
+    "zbirenbaum/copilot-cmp",
+    dependencies = "zbirenbaum/copilot.lua",
+    config = true,
+  },
+  { "zbirenbaum/neodim", event = { "LspAttach" }, config = true },
 
   -- Snippets
   { "L3MON4D3/LuaSnip", event = "VeryLazy", config = "plugins.luasnip" }, --snippet engine
+  -- "tamago324/nlsp-settings.nvim",
   "saadparwaiz1/cmp_luasnip",
   "rafamadriz/friendly-snippets",
   { "michaelb/sniprun", event = "VeryLazy", build = "bash ./install.sh", config = "plugins.sniprun" },
@@ -174,14 +207,22 @@ local modules = {
     event = "VeryLazy",
     config = "plugins.windows",
   },
+  { "gennaro-tedesco/nvim-jqx", cmd = { "JqxList", "JqxQuery" } },
   { "folke/zen-mode.nvim", event = "VeryLazy", config = "plugins.zen-mode" },
 
   -- Code Utilities
+  {
+    "nvim-neorg/neorg",
+    ft = "norg",
+    build = ":Neorg sync-parsers",
+    config = "plugins.neorg",
+    dependencies = { "nvim-web-devicons", "nvim-lua/plenary.nvim" },
+  },
   { "numToStr/Comment.nvim", config = "plugins.comment", event = "VeryLazy" },
-  { "kylechui/nvim-surround", config = "plugins.nvim-surround" },
+  { "kylechui/nvim-surround", config = true },
   { "godlygeek/tabular", cmd = { "Tabularize" } },
   { "RRethy/vim-illuminate", config = "plugins.illuminate" },
-  { "windwp/nvim-autopairs", event = "InsertEnter", config = true },
+  { "windwp/nvim-autopairs", event = "InsertEnter", config = "plugins.completion.autopairs" },
   { "nat-418/boole.nvim", event = "VeryLazy", config = "plugins.boole" }, -- extend increment/decrement to cycle through related words
   { "stefandtw/quickfix-reflector.vim", event = "VeryLazy" },
   {
@@ -195,13 +236,26 @@ local modules = {
     ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
     config = "plugins.template_string",
   },
+  { "jose-elias-alvarez/typescript.nvim", lazy = true },
 
   -- Editor Improvements
+  {
+    "ggandor/flit.nvim",
+    config = "plugins.flit",
+  },
+  {
+    "ggandor/leap.nvim",
+    config = "plugins.leap",
+    dependencies = { "tpope/vim-repeat" },
+  },
+
+  --
   { "LunarVim/bigfile.nvim" },
   { "max397574/better-escape.nvim", event = "InsertEnter", config = "plugins.better-escape" }, -- remove delay from escape keys while typing in insert mode.
   { "NMAC427/guess-indent.nvim", event = "VeryLazy", config = true },
   { "windwp/nvim-spectre", event = "VeryLazy", config = "plugins.spectre" },
   { "tenxsoydev/tabs-vs-spaces.nvim", config = true },
+  { "monkoose/matchparen.nvim", config = true },
   { "andymass/vim-matchup", event = "VeryLazy", config = "plugins.matchup" }, -- highlight matching patterns and extend `%` navigation
   { "tpope/vim-repeat", event = "VeryLazy" },
   { "tpope/vim-surround", event = "VeryLazy" },
@@ -220,11 +274,22 @@ local modules = {
 
   -- Terminal
   { "akinsho/toggleterm.nvim", event = "VeryLazy", config = "plugins.toggleterm" },
-  { "willothy/flatten.nvim", priority = 100, config = "plugins.flatten" },
+  { "NvChad/nvterm", config = "plugins.nvterm" },
+  {
+    "willothy/flatten.nvim",
+    cond = function()
+      return not os.getenv("NVIM") ~= nil
+    end,
+    lazy = false,
+    priority = 1001,
+    config = "plugins.flatten",
+  },
 
   -- Telescope
   {
     "nvim-telescope/telescope.nvim",
+    lazy = true,
+    cmd = { "Telescope" },
     config = "plugins.telescope",
     tag = "0.1.2",
     dependencies = { "nvim-lua/plenary.nvim" },
