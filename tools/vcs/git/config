@@ -1,15 +1,14 @@
 # vim: ft=gitconfig
 [include]
   path = ~/.config/git/conf/alias.conf
-  ; path = ~/.config/git/conf/user.conf
-  ; path = ~/.config/git/conf/core.conf
-  ; path = ~/.config/git/conf/url.conf
-  ; path = ~/.config/git/conf/os.conf
-  ; path = ~/.gitconfig.local
+  path = ~/.config/git/conf/user.conf
+  path = ~/.config/git/conf/core.conf
+  path = ~/.config/git/conf/url.conf
+  path = ~/.config/git/conf/os.conf
+  path = ~/.gitconfig.local
 [user]
   name = Meagan Waller
   email = meagan@meaganwaller.com
-	signingkey = "45348A6C2B951746"
 [init]
   defaultBranch = main
 [core]
@@ -21,7 +20,7 @@
   eol = lf
   excludesfile = ~/.gitignore_global
 [commit]
-	gpgsign = true
+  gpgsign = true
 [gpg "ssh"]
   program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
 [alias]
