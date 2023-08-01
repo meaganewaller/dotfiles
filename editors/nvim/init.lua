@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: July 5th, 2023
+# Last edited: July 31st, 2023
 --]]
 
 -- bootstrap lazy package manager
@@ -49,3 +49,4 @@ _G.mw = {
 }
 
 require("meg")
+require("meg.keymaps").set_all()

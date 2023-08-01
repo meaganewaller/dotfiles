@@ -1,12 +1,13 @@
 local function setup(copilot)
   copilot.setup({
-    filetypes = {
-      TelescopePrompt = false,
-      TelescopeResults = false,
+    suggestion = { auto_trigger = false },
+    panel = {
+      enabled = true,
+      layout = {
+        position = "bottom",
+        size = 0.4
+      }
     },
-    ft_disable = { "go", "dap-repl" },
-    suggestion = { auto_trigger = true },
-    panel = { enabled = false },
   })
 end
 
