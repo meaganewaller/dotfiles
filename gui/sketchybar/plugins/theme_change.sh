@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. ~/.local/bin/get-colorscheme
+. ~/.config/sketchybar/colors.sh
 
 function color() {
   alpha=${2:-255}
@@ -25,32 +25,31 @@ sketchybar --bar color=$BAR_COLOR \
   border_color=$BORDER_COLOR \
   shadow.color=$BAR_COLOR \
   --set '/.*/' icon.color=$ICON_COLOR \
-  icon.highlight_color="$(color ${COLOR_ROSE})" \
-  label.color=$LABEL_COLOR \
-  slider.highlight_color="$(color ${COLOR_IRIS} 150)" \
-  slider.background.color=$SEGMENT_BACKGROUND_COLOR \
-  popup.background.color="$POPUP_BACKGROUND_COLOR" \
-  popup.background.border_color="$POPUP_BORDER_COLOR" \
+               icon.highlight_color="$(color ${COLOR_ROSE})" \
+               label.color=$LABEL_COLOR \
+               popup.background.color="$POPUP_BACKGROUND_COLOR" \
+               popup.background.border_color="$POPUP_BORDER_COLOR" \
+               \
   --set label_template label.color=$CONTRAST_COLOR \
   --set /apple.*/ background.color=$TRANSPARENT \
-  label.background.color=$TRANSPARENT \
-  label.color=$(color ${COLOR_TEXT}) \
+                  label.background.color=$TRANSPARENT \
+                  label.color=$(color ${COLOR_TEXT}) \
   --set /apple.divider*/ background.color=$POPUP_BORDER_COLOR \
   --set /space\..*/ icon.highlight_color=$(color ${COLOR_ROSE}) \
-  --set front_app_bracket background.color=$FRONT_APP_BACKGROUND_COLOR \
-  --set calendar.time label.color="$(color ${COLOR_IRIS})" \
-  --set separator icon.color=$(color ${COLOR_ROSE} 150) \
-  --set music label.color=$(color ${COLOR_PINE} 180) \
-  --set calendar.date label.color="$BAR_COLOR" \
-  background.color="$(color ${COLOR_IRIS})" \
-  --set status background.color="$(color ${COLOR_SURFACE} 150)" \
-  background.border_color="$(color ${COLOR_OVERLAY})" \
-  --set bluetooth.alias alias.color="$(color ${COLOR_FOAM})" \
-  --set wifi.alias alias.color="$(color ${COLOR_FOAM})" \
-  --set battery icon.color="$(color ${COLOR_FOAM})" \
-  --set mic icon.color="$(color ${COLOR_FOAM})" \
-  --set /github.*/ icon.color="$(color ${COLOR_IRIS} 200)" \
-  --set /github*/ icon.color="$(color ${COLOR_IRIS} 200)" \
-  --set meeting.alias alias.color="$(color ${COLOR_TEXT})" \
-  --set volume slider.background.color=$SEGMENT_BACKGROUND_COLOR \
-  slider.highlight_color="$(color ${COLOR_IRIS} 150)"
+  --set music label.color=$(color ${COLOR_PINE} 180)
+  # --set front_app_bracket background.color=$FRONT_APP_BACKGROUND_COLOR \
+  # --set calendar.time label.color="$(color ${COLOR_IRIS})" \
+  # --set separator icon.color=$(color ${COLOR_ROSE} 150) \
+  # --set calendar.date label.color="$BAR_COLOR" \
+  # background.color="$(color ${COLOR_IRIS})" \
+  # --set status background.color="$(color ${COLOR_SURFACE} 150)" \
+  # background.border_color="$(color ${COLOR_OVERLAY})" \
+  # --set bluetooth.alias alias.color="$(color ${COLOR_FOAM})" \
+  # --set wifi.alias alias.color="$(color ${COLOR_FOAM})" \
+  # --set battery icon.color="$(color ${COLOR_FOAM})" \
+  # --set mic icon.color="$(color ${COLOR_FOAM})" \
+  # --set /github.*/ icon.color="$(color ${COLOR_IRIS} 200)" \
+  # --set /github*/ icon.color="$(color ${COLOR_IRIS} 200)" \
+  # --set meeting.alias alias.color="$(color ${COLOR_TEXT})" \
+  # --set volume slider.background.color=$SEGMENT_BACKGROUND_COLOR \
+  # slider.highlight_color="$(color ${COLOR_IRIS} 150)"

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 clock=(
-  update_freq=2
+  update_freq=20
   icon.drawing=off
   label.padding_right=20
   script="$PLUGIN_DIR/time.sh"
@@ -20,10 +20,10 @@ date=(
 )
 
 sketchybar --add item calendar.time right \
-           --set      calendar.time "${clock[@]}" \
-           --clone    calendar.date label_template \
-           --set      calendar.date "${date[@]}" \
-           --add bracket calendar \
-                         calendar.time \
-                         calendar.date \
-            --set calendar background.drawing=on
+  --set calendar.time "${clock[@]}" \
+  --clone calendar.date label_template \
+  --set calendar.date "${date[@]}" \
+  --add bracket calendar \
+            calendar.time \
+            calendar.date \
+  --set calendar.background.drawing=on

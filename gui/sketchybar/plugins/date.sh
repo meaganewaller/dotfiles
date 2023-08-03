@@ -21,4 +21,4 @@ esac
 # Generate date string
 myDate=$(date +%A,\ %B\ %d$postfix)
 
-sketchybar -m --set $NAME label="$myDate"
+sketchybar -m --set calendar.date label="$myDate"

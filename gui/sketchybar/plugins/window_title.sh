@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-#!/usr/bin/env sh
 
 APP_NAME=$(yabai -m query --windows --window | jq -rc '.app' | sed -E 's/^"(.*)"$/\1/')
 
