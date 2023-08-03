@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-STATIC_NAMES=("" "I" "II" "III" "IV" "V" "VI" "VII" "VIII" "IX" "X" "XI" "XII" "XIII" "XIV" "XV") #0 to 15
+STATIC_NAMES=("" "I" "II" "III" "IV" "V" "VI" "VII" "VIII" "IX" "X") #0 - #10
 
 args=()
 DISPLAYS="$(yabai -m query --displays | jq -rc '.[] | .index | @sh')"
@@ -13,7 +13,7 @@ icon() {
       echo "􀋃 "
       ;;
     code)
-      echo "􀪏 "
+      echo "􀤙 "
       ;;
     chat)
       echo "􀘲  "

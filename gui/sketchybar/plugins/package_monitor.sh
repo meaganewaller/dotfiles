@@ -7,7 +7,7 @@
 
 PREV_COUNT=$(sketchybar --query package_monitor | jq -r .popup.items | grep ".package*" -c)
 
-. ~/.local/bin/get-colorscheme
+# . ~/.local/bin/get-colorscheme
 
 render_bar_item() {
   case "$COUNT" in
@@ -30,81 +30,81 @@ render_bar_item() {
 }
 
 add_outdated_header() {
-	brew_header=(
-		label="$(echo -e 'Outdated Brews')"
-		label.font="$FONT:Bold:14.0"
-		label.align=left
-		icon.drawing=off
-		click_script="sketchybar --set $NAME popup.drawing=off"
-	)
+  brew_header=(
+    label="$(echo -e 'Outdated Brews')"
+    label.font="$FONT:Bold:14.0"
+    label.align=left
+    icon.drawing=off
+    click_script="sketchybar --set $NAME popup.drawing=off"
+  )
 
-	sketchybar --set brew.details "${brew_header[@]}"
+  sketchybar --set brew.details "${brew_header[@]}"
 
 }
 
 render_popup() {
-	add_outdated_header
+  add_outdated_header
 
-	COUNTER=0
-	sketchybar --remove '/brew.package\.*/'
+  COUNTER=0
+  sketchybar --remove '/brew.package\.*/'
 
-	if [[ -n "$OUTDATED" ]]; then
-		while IFS= read -r package; do
+  if [[ -n "$OUTDATED" ]]; then
+    while IFS= read -r package; do
 
-			brew_package=(
-				label="$package"
-				label.align=right
-				label.padding_left=20
-				icon.drawing=off
-				click_script="sketchybar --set $NAME popup.drawing=off"
+      brew_package=(
+        label="$package"
+        label.align=right
+        label.padding_left=20
+        icon.drawing=off
+        click_script="sketchybar --set $NAME popup.drawing=off"
 
-			)
-			item=brew.package."$COUNTER"
+      )
+      item=brew.package."$COUNTER"
 
-			sketchybar --add item "$item" popup."$NAME" \
-				--set "$item" "${brew_package[@]}"
+      sketchybar --add item "$item" popup."$NAME" \
+        --set "$item" "${brew_package[@]}"
 
-			COUNTER=$((COUNTER + 1))
+      COUNTER=$((COUNTER + 1))
 
-		done <<<"$(echo -n "$OUTDATED" | grep '^')"
-	fi
+    done <<<"$(echo -n "$OUTDATED" | grep '^')"
+  fi
 }
 
 update() {
-	brew update
-	COLOR=0xff${COLOR_LOVE}
-	OUTDATED=$(brew outdated)
-	COUNT=$(echo -n "$OUTDATED" | grep -c '^')
+  brew update
+  COLOR=0xff${COLOR_LOVE}
+  OUTDATED=$(brew outdated)
+  COUNT=$(echo -n "$OUTDATED" | grep -c '^')
 
-	render_bar_item
-	render_popup
+  render_bar_item
+  render_popup
 
-	if [ "$COUNT" -ne "$PREV_COUNT" ] 2>/dev/null || [ "$SENDER" = "forced" ]; then
-		sketchybar --animate tanh 15 --set "$NAME" label.y_offset=5 label.y_offset=0
-	fi
+  if [ "$COUNT" -ne "$PREV_COUNT" ] 2>/dev/null || [ "$SENDER" = "forced" ]; then
+    sketchybar --animate tanh 15 --set "$NAME" label.y_offset=5 label.y_offset=0
+  fi
 }
 
 popup() {
-	if [[ "$PREV_COUNT" -gt 0 ]]; then
-		sketchybar --set "$NAME" popup.drawing="$1"
-	else
-		sketchybar --set "$NAME" popup.drawing=off
-	fi
+  if [[ "$PREV_COUNT" -gt 0 ]]; then
+    sketchybar --set "$NAME" popup.drawing="$1"
+  else
+    sketchybar --set "$NAME" popup.drawing=off
+  fi
 }
 
 case "$SENDER" in
-"routine" | "forced")
-	update
-	;;
-"mouse.entered")
-	popup on
-	;;
-"mouse.exited" | "mouse.exited.global")
-	popup off
-	;;
-"mouse.clicked")
-	popup toggle
-	;;
+  "routine" | "forced")
+    update
+    ;;
+  "mouse.entered")
+    popup on
+    ;;
+  "mouse.exited" | "mouse.exited.global")
+    popup off
+    ;;
+  "mouse.clicked")
+    popup toggle
+    ;;
 esac
 
 # if [[ -x "$(command -v brew)" ]] && [[ $USE == *"brew"* ]]; then

@@ -7,7 +7,7 @@ update() {
   echo $DEVICE
 
   if [ "$DEVICE" = "" ]; then
-    sketchybar --set $NAME drawing=off
+    sketchybar --set headphones drawing=off
   elif [[ "$DEVICE" = AirPods\ Pro* ]]; then
     # Left
     LEFT="$(echo $QUERY | jq -rc '.[] | .device_batteryLevelLeft' | head -n1 | cut -d '%' -f1)"
@@ -29,18 +29,18 @@ update() {
       if [ $CASE = 0 ]; then
         CASE="-"
       fi
-      sketchybar --set $NAME drawing=on icon="􀪷 " label="$LEFT $RIGHT $CASE"
+      sketchybar --set headphones drawing=on icon=􀪷  label="$LEFT $RIGHT $CASE"
     else
-      sketchybar --set $NAME drawing=on icon="􀑈 " label="$DEVICE"
+      sketchybar --set headphones drawing=on icon="􀑈 " label="$DEVICE"
   fi
 }
 
 case "$SENDER" in
   "mouse.entered")
-    sketchybar --set $NAME icon.background.drawing=on icon.highlight=on label.drawing=on
+    sketchybar --set headphones icon.background.drawing=on icon.highlight=on label.drawing=on
     ;;
   "mouse.exited")
-    sketchybar --set $NAME icon.background.drawing=off icon.highlight=off label.drawing=off
+    sketchybar --set headphones icon.background.drawing=off icon.highlight=off label.drawing=off
     ;;
   *)
     update

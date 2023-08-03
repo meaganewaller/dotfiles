@@ -1,28 +1,32 @@
 [submodule "meta/dotbot"]
-	path = meta/dotbot
-	url = git@github.com:anishathalye/dotbot.git
-	ignore = dirty
+  path = meta/dotbot
+  url = git@github.com:anishathalye/dotbot.git
+  ignore = dirty
 [submodule "meta/plugins/dotbot-asdf"]
-	path = meta/plugins/dotbot-asdf
-	url = https://github.com/sobolevn/dotbot-asdf.git
-	ignore = dirty
+  path = meta/plugins/dotbot-asdf
+  url = https://github.com/sobolevn/dotbot-asdf.git
+  ignore = dirty
 [submodule "meta/plugins/dotbot-ghq"]
-	path = meta/plugins/dotbot-ghq
-	url = https://github.com/klane/dotbot-ghq.git
-	ignore = dirty
+  path = meta/plugins/dotbot-ghq
+  url = https://github.com/klane/dotbot-ghq.git
+  ignore = dirty
 [submodule "meta/plugins/dotbot-vscode"]
-	path = meta/plugins/dotbot-vscode
-	url = https://github.com/hujianxin/dotbot-vscode.git
-	ignore = dirty
+  path = meta/plugins/dotbot-vscode
+  url = https://github.com/hujianxin/dotbot-vscode.git
+  ignore = dirty
 [submodule "meta/plugins/dotbot-ifplatform"]
-	path = meta/plugins/dotbot-ifplatform
-	url = https://github.com/ssbanerje/dotbot-ifplatform.git
-	ignore = dirty
+  path = meta/plugins/dotbot-ifplatform
+  url = https://github.com/ssbanerje/dotbot-ifplatform.git
+  ignore = dirty
 [submodule "meta/plugins/dotbot-template"]
-	path = meta/plugins/dotbot-template
-	url = https://github.com/ssbanerje/dotbot-template.git
-	ignore = dirty
+  path = meta/plugins/dotbot-template
+  url = https://github.com/ssbanerje/dotbot-template.git
+  ignore = dirty
 [submodule "meta/plugins/dotbot-pip"]
-	path = meta/plugins/dotbot-pip
-	url = https://github.com/sobolevn/dotbot-pip.git
-	ignore = dirty
+  path = meta/plugins/dotbot-pip
+  url = https://github.com/sobolevn/dotbot-pip.git
+  ignore = dirty
+
+[submodule "meta/plugins/dotbot-brewfile"]
+  path = meta/plugins/dotbot-brewfile
+  url = git@github.com:sobolevn/dotbot-brewfile

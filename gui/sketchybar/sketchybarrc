@@ -2,11 +2,12 @@
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
-# Last Updated: 2023-05-29
+# Last Updated: 2023-08-01
 
 export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
 
+source "$HOME/.config/sketchybar/colors.sh"
 source "$HOME/.config/sketchybar/icons.sh"
 source "$HOME/.config/sketchybar/vars.sh"
 source "$HOME/.config/sketchybar/helper/helper.sh"
@@ -15,8 +16,6 @@ export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
 export EVENT_DIR="$HOME/.config/sketchybar/events"
 export DISPLAY_COUNT="$(yabai -m query --displays | jq -r 'length')"
-RIGHT="right"
-LEFT="left"
 
 # Unload the macOS on screen indicator overlay for volume change
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
@@ -38,27 +37,27 @@ bar_config=(
   topmost=off
   sticky=off
   font_smoothing=false
-  shadow.drawing=$SHADOW
+  shadow.drawing="$SHADOW"
 )
 
 icon_defaults=(
   icon.drawing=on
   icon.highlight=off
-  icon.padding_left=$PADDINGS
-  icon.padding_right=$PADDINGS
+  icon.padding_left="$PADDINGS"
+  icon.padding_right="$PADDINGS"
   icon.y_offset=0
   icon.font="$ICON_FONT:Bold:15.0"
   icon.align="center"
   icon.shadow.drawing=off
   icon.background.drawing=off
-  icon.background.height=$SEGMENT_HEIGHT
+  icon.background.height="$SEGMENT_HEIGHT"
 )
 
 label_defaults=(
   label.drawing=on
   label.highlight=off
-  label.padding_right=$PADDINGS
-  label.padding_left=$PADDINGS
+  label.padding_right="$PADDINGS"
+  label.padding_left="$PADDINGS"
   label.y_offset=0
   label.font.family="$LABEL_FONT"
   label.font.style="Regular"
@@ -69,11 +68,11 @@ label_defaults=(
 
 background_defaults=(
   drawing=on
-  background.border_width=$SEGMENT_BORDER_WIDTH
-  background.height=$SEGMENT_HEIGHT
-  background.corner_radius=$CORNER_RADIUS
-  background.padding_left=$PADDINGS
-  background.padding_right=$PADDINGS
+  background.border_width="$SEGMENT_BORDER_WIDTH"
+  background.height="$SEGMENT_HEIGHT"
+  background.corner_radius="$CORNER_RADIUS"
+  background.padding_left="$PADDINGS"
+  background.padding_right="$PADDINGS"
   background.y_offset=0
   background.clip=0.0
   background.shadow.drawing=off
@@ -87,7 +86,7 @@ popup_defaults=(
   popup.background.drawing=on
   popup.background.border_width="$POPUP_BORDER_WIDTH"
   popup.background.corner_radius="$POPUP_CORNER_RADIUS"
-  popup.background.shadow.drawing=$SHADOW
+  popup.background.shadow.drawing="$SHADOW"
 )
 
 sketchybar --bar "${bar_config[@]}"
@@ -106,9 +105,9 @@ label_template=(
   icon.drawing=off
   label.font="$LABEL_FONT:Regular:12.0"
   label.padding_right=5
-  label.background.height=$SEGMENT_HEIGHT
+  label.background.height="$SEGMENT_HEIGHT"
   click_script="$PLUGIN_DIR/toggle_bracket.sh"
-  background.padding_left=$SEGMENT_SPACING
+  background.padding_left="$SEGMENT_SPACING"
   background.padding_right=0
   drawing=off
 )
@@ -129,19 +128,20 @@ sketchybar --add item label_template left \
 
 # Left
 source "$ITEM_DIR/apple.sh"
-source "$ITEM_DIR/window_manager.sh"
 source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/front_app.sh"
+source "$ITEM_DIR/window_manager.sh"
+# source "$ITEM_DIR/front_app.sh"
 
 # Center
 source "$ITEM_DIR/music.sh"
 
 # Right
 source "$ITEM_DIR/calendar.sh"
-source "$ITEM_DIR/package.sh"
-source "$ITEM_DIR/cpu.sh"
 source "$ITEM_DIR/control_center.sh"
-source "$ITEM_DIR/meeting.sh"
+# source "$ITEM_DIR/package.sh"
+# source "$ITEM_DIR/cpu.sh"
+# source "$ITEM_DIR/control_center.sh"
+# source "$ITEM_DIR/meeting.sh"
 source "$ITEM_DIR/theme.sh"
 ###################### FINALIZE ###################
 sketchybar -m --update
