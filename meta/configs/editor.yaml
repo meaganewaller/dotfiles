@@ -60,7 +60,7 @@
     stdout: false
     stderr: true
 
-- npm:
+- pnpm:
     stdout: false
     stderr: true
     packages:

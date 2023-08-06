@@ -1,7 +1,9 @@
 # --- MacOS UI Elements Configuration ---
-
 - tap:
   - koekeishiya/formulae
+
+- asdf:
+  - plugin: python
 
 - brew:
   - yabai
@@ -10,17 +12,16 @@
 - cask:
   - dozer
   - hammerspoon
-  - karabiner
 
 - link:
     ~/.config/yabai/yabairc: gui/yabai/yabairc
     ~/.config/yabai/scripts: gui/yabai/scripts
     ~/.config/sketchybar:
+      force: true
       glob: true
-      path: gui/sketchybar/**/*
+      path: gui/sketchybar/*
     ~/.hammerspoon: gui/hammerspoon
 
 - shell:
     - "brew services start sketchybar"
     - "brew services start yabai"
-    - "./scripts/macos.sh"

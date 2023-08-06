@@ -1,3 +1,4 @@
+# --- Base Configuration ---
 - defaults:
     link:
       create: true
@@ -7,4 +8,14 @@
       stdout: true
       stderr: true
 
-- clean: ['~']
+- clean:
+    ~/:
+      force: true
+    ~/.local/bin:
+      force: true
+    ~/.config:
+      recursive: true
+
+- create:
+  - ~/.config
+  - ~/.local/bin

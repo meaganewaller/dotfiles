@@ -1,46 +1,228 @@
-nx.au({
-  -- Check if buffers were changed outside of Vim
---   { "FocusGained", pattern = "*.*", command = "checktime" },
---   -- Create parent dir if it doesn't exist
---   { "BufWritePre", command = "call mkdir(expand('<afile>:p:h'), 'p')" },
---   -- Reload(execute) on save
---   { "BufWritePost", pattern = "options.lua", command = "source <afile>" },
---   { -- Filetypes to quick close with `q`
---     { "Filetype", "CmdwinEnter" },
---     pattern = { "qf", "help", "man", "startuptime", "vim" },
---     callback = function() nx.map({ { "q", "<Cmd>close<CR>", buffer = 0 } }) end,
---   },
---   { -- Disable auto commenting
---     "BufEnter",
---     command = "setlocal formatoptions-=cro",
---   },
---   -- Highlight on yank
---   { "TextYankPost", callback = function() vim.highlight.on_yank({ higroup = "IncSearch", timeout = 150 }) end },
---   -- QFList - adapt window height to list item count(nxvim.utils function)
---   { "FileType", pattern = "qf", command = "setlocal nobuflisted | call AdjustWindowHeight(3, 10)" },
---
---   -- Filetype Specific ----------------------------------------------------------
---   { "FileType", pattern = "markdown", command = "setlocal wrap ts=2 sw=2" },
---   -- { "FileType", pattern = "markdown", callback = function() vim.wo.foldlevel = 99 end },
---   { "FileType", pattern = "teal", once = true, command = "LspToggleAutoFormat silent" },
---   { "FileType", pattern = "python", command = "setlocal noet ts=3 sw=3" },
---   { "FileType", pattern = "vb", command = "setlocal et ts=4 sw=4" },
--- })
---
--- nx.au({ -- Remember folds
---   { "BufWinLeave", pattern = "*.*", callback = function() vim.cmd("mkview") end },
---   { "BufWinEnter", pattern = "*.*", callback = function() vim.cmd("silent! loadview") end },
--- }, { create_group = "RememberFolds" })
---
--- nx.au({ -- Sync marks accross sessions
---   { "FocusLost", command = "wshada" },
---   -- stylua: ignore
---   { { "FocusGained", "UIEnter" }, callback = function() vim.schedule(function() vim.cmd("rshada") end) end },
-}, { create_group = "SyncMarks" })
--- <== }
+local ok, legendary = pcall(require, "legendary")
+if not ok then return end
 
--- { == Plugin Autocmds ==> ====================================================
+return {
+  {
+    name = "ConcealAttributes",
+    {
+      { "BufEnter", "BufWritePost", "TextChanged", "InsertLeave" },
+      function()
+        vim.opt.conceallevel = 2 -- Concealed text is completely hidden
+        local bufnr = vim.api.nvim_get_current_buf()
 
--- Autocmds that are specific to a module are set in that module's config file (`/nxvim/plugins/<modulename>.lua`).
--- This modular approach aims for an uncluttered keymap configuration in case plugins are removed or changed.
--- <== }
+        ---Conceal HTML class attributes. Ideal for big TailwindCSS class lists
+        ---Ref: https://gist.github.com/mactep/430449fd4f6365474bfa15df5c02d27b
+        local conceal_ns = vim.api.nvim_create_namespace("class_conceal")
+        local language_tree = vim.treesitter.get_parser(bufnr, "html")
+        local syntax_tree = language_tree:parse()
+        local root = syntax_tree[1]:root()
+
+        local query = vim.treesitter.query.parse(
+          "html",
+          [[
+    ((attribute
+        (attribute_name) @att_name (#eq? @att_name "class")
+        (quoted_attribute_value (attribute_value) @class_value) (#set! @class_value conceal "…")))
+    ]]
+        )
+
+        for _, captures, metadata in query:iter_matches(root, bufnr, root:start(), root:end_(), {}) do
+          local start_row, start_col, end_row, end_col = captures[2]:range()
+          vim.api.nvim_buf_set_extmark(bufnr, conceal_ns, start_row, start_col, {
+            end_line = end_row,
+            end_col = end_col,
+            conceal = metadata[2].conceal,
+          })
+        end
+      end,
+      opts = {
+        pattern = { "*.html" },
+      },
+    },
+  },
+  {
+    name = "PersistedHooks",
+    {
+      "User",
+      function(session)
+        -- Prompt to save the current session
+        if vim.fn.confirm("Save the current session?", "&Yes\n&No") == 1 then
+          require("persisted").save({ session = vim.g.persisted_loaded_session })
+        end
+
+        -- Clear all of the open buffers
+        vim.api.nvim_input("silent <ESC>:%bd!<CR>")
+
+        -- Disable automatic session saving
+        require("persisted").stop()
+      end,
+      opts = { pattern = "PersistedTelescopeLoadPre" },
+    },
+  },
+  {
+    name = "ReturnToLastEditingPosition",
+    {
+      "BufReadPost",
+      function()
+        if vim.fn.line("'\"") > 0 and vim.fn.line("'\"") <= vim.fn.line("$") then
+          vim.fn.setpos(".", vim.fn.getpos("'\""))
+          vim.api.nvim_feedkeys("zz", "n", true)
+          vim.cmd("silent! foldopen")
+        end
+      end,
+    },
+  },
+  {
+    name = "GitTrackRemoteBranch",
+    {
+      { "TermLeave" },
+      function() mw.GitRemoteSync() end,
+      opts = {
+        pattern = { "*" },
+      },
+    },
+    {
+      { "VimEnter" },
+      function()
+        local timer = vim.loop.new_timer()
+        timer:start(0, 120000, function() mw.GitRemoteSync() end)
+      end,
+      opts = {
+        pattern = { "*" },
+      },
+    },
+  },
+  {
+    name = "FiletypeOptions",
+    {
+      "FileType",
+      ":setlocal shiftwidth=2 tabstop=2",
+      opts = {
+        pattern = { "css", "eruby", "html", "lua", "javascript", "json", "ruby", "vue" },
+      },
+    },
+    {
+      "FileType",
+      ":setlocal shiftwidth=4 tabstop=4 expandtab",
+      opts = {
+        pattern = { "ledger", "journal" },
+      },
+    },
+    {
+      "FileType",
+      ":setlocal wrap linebreak",
+      opts = { pattern = "markdown" },
+    },
+    {
+      "FileType",
+      ":setlocal showtabline=0",
+      opts = { pattern = "alpha" },
+    },
+    {
+      "FileType",
+      --Credit:
+      --https://medium.com/scoro-engineering/5-smart-mini-snippets-for-making-text-editing-more-fun-in-neovim-b55ffb96325a
+      function()
+        vim.keymap.set("n", "o", function()
+          local line = vim.api.nvim_get_current_line()
+
+          local should_add_comma = string.find(line, "[^,{[]$")
+          if should_add_comma then
+            return "A,<cr>"
+          else
+            return "o"
+          end
+        end, { buffer = true, expr = true })
+      end,
+      opts = { pattern = "json" },
+    },
+    {
+      "FileType",
+      function()
+        vim.keymap.set("i", "=", function()
+          -- The cursor location does not give us the correct node in this case, so we
+          -- need to get the node to the left of the cursor
+          local cursor = vim.api.nvim_win_get_cursor(0)
+          local left_of_cursor_range = { cursor[1] - 1, cursor[2] - 1 }
+
+          local node = vim.treesitter.get_node({ pos = left_of_cursor_range })
+          local nodes_active_in = {
+            "attribute_name",
+            "directive_argument",
+            "directive_name",
+          }
+          if not node or not vim.tbl_contains(nodes_active_in, node:type()) then
+            -- The cursor is not on an attribute node
+            return "="
+          end
+
+          return '=""<left>'
+        end, { expr = true, buffer = true })
+      end,
+      opts = { pattern = { "html", "vue" } },
+    },
+  },
+  {
+    name = "QuickfixFormatting",
+    {
+      { "BufEnter", "WinEnter" },
+      ":if &buftype == 'quickfix' | setlocal nocursorline | setlocal number | endif",
+      opts = {
+        pattern = { "*" },
+      },
+    },
+  },
+  {
+    name = "AddRubyFiletypes",
+    {
+      { "BufNewFile", "BufRead" },
+      ":set ft=ruby",
+      opts = {
+        pattern = { "*.json.jbuilder", "*.jbuilder", "*.rake" },
+      },
+    },
+  },
+  {
+    name = "ChangeMappingsInTerminal",
+    {
+      "TermOpen",
+      function()
+        if vim.bo.filetype == "" or vim.bo.filetype == "toggleterm" then
+          local opts = { silent = false, buffer = 0 }
+          vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts)
+          vim.keymap.set("t", "jk", [[<C-\><C-n>]], opts)
+        end
+      end,
+      opts = {
+        pattern = "term://*",
+      },
+    },
+  },
+  {
+    name = "RemoveWhitespaceOnSave",
+    {
+      { "BufWritePre" },
+      [[%s/\s\+$//e]],
+      opts = {
+        pattern = { "*" },
+      },
+    },
+  },
+  -- Highlight text when yanked
+  {
+    name = "HighlightYankedText",
+    {
+      "TextYankPost",
+      function() vim.highlight.on_yank() end,
+      opts = { pattern = "*" },
+    },
+  },
+  {
+    name = "Telescope",
+    {
+      "User",
+      ":setlocal wrap",
+      opts = { pattern = "TelescopePreviewerLoaded" },
+    },
+  },
+}

@@ -8,12 +8,12 @@
 	<string>meagan.color-mode-notify</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/meagan/.dotfiles/bin/color-mode-notify</string>
-		<string>/Users/meagan/.dotfiles/bin/color-mode</string>
+		<string>/Users/meaganwaller/.dotfiles/bin/color-mode-notify</string>
+		<string>/Users/meaganwaller/.dotfiles/bin/color-mode</string>
 	</array>
 	<key>StandardErrorPath</key>
-	<string>/Users/meagan/.color-mode-notify-stderr.log</string>
+	<string>/Users/meaganwaller/.color-mode-notify-stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/meagan/.color-mode-notify-stdout.log</string>
+	<string>/Users/meaganwaller/.color-mode-notify-stdout.log</string>
 </dict>
 </plist>

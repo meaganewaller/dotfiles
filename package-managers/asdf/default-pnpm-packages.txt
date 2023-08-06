@@ -1,1 +1,7 @@
-pnpm
+colorkraken
+meta
+neovim
+next
+react
+tree-sitter
+wing

@@ -10,11 +10,11 @@
 	<key>Label</key>
 	<string>meagan.cloud-backup</string>
 	<key>Program</key>
-	<string>/Users/meagan/.dotfiles/bin/cloud-backup</string>
+	<string>/Users/meaganwaller/.dotfiles/bin/cloud-backup</string>
 	<key>StandardErrorPath</key>
-	<string>/Users/meagan/.cloud-backup-stderr.log</string>
+	<string>/Users/meaganwaller/.cloud-backup-stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/meagan/.cloud-backup-stdout.log</string>
+	<string>/Users/meaganwaller/.cloud-backup-stdout.log</string>
 	<key>StartCalendarInterval</key>
 	<array>
 		<dict>

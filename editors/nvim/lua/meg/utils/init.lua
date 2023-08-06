@@ -1,0 +1,117 @@
+function mw.has(feature)
+  return vim.fn.has(feature) > 0
+end
+
+mw.nightly = mw.has("nvim-0.10")
+
+local terminals = {}
+
+function mw.float_term(cmd, opts)
+  opts = vim.tbl_deep_extend("force", {
+    ft = "lazyterm",
+    size = { width = 0.9, height = 0.9 },
+  }, opts or {}, { persistent = true })
+
+  local termkey = vim.inspect({ cmd = cmd or "shell", cwd = opts.cwd, env = opts.env })
+
+  if terminals[termkey] and terminals[termkey]:buf_valid() then
+    terminals[termkey]:toggle()
+  else
+    terminals[termkey] = require("lazy.util").float_term(cmd, opts)
+    local buf = terminals[termkey].buf
+    vim.b[buf].lazyterm_cmd = cmd
+    if opts.esc_esc == false then vim.keymap.set("t", "<esc>", "<esc>", { buffer = buf, nowait = true }) end
+    vim.api.nvim_create_autocmd("BufEnter", {
+      buffer = buf,
+      callback = function() vim.cmd.startinsert() end,
+    })
+  end
+
+  return terminals[termkey]
+end
+
+function mw.on_big_screen()
+  return vim.o.columns > 150 and vim.o.lines >= 40
+end
+
+---Source a lua or vimscript file
+---@param path string path relative to the nvim directory
+---@param prefix boolean?
+function mw.source(path, prefix)
+  if not prefix then
+    vim.cmd(string.format("source %s", path))
+  else
+    vim.cmd(string.format("source %s/%s", vim.g.vim_dir, path))
+  end
+end
+
+---Require a module using [pcall] and report any errors
+---@param module string
+---@param opts table?
+---@return boolean, any
+function mw.safe_require(module, opts)
+  opts = opts or { silent = false }
+  local ok, result = pcall(require, module)
+  if not ok and not opts.silent then
+    vim.notify(result, vim.log.levels.ERROR, { title = string.format("Error requiring: %s", module) })
+  end
+  return ok, result
+end
+
+---Determine if a table contains a value
+---@param tbl table
+---@param value string
+---@return boolean
+function mw.contains(tbl, value) return tbl[value] ~= nil end
+
+---Pretty print a table
+---@param tbl table
+---@return table
+function mw.print_table(tbl) return require("pl.pretty").dump(tbl) end
+
+---Get values for a given highlight group
+---@param name string
+---@return table
+function mw.get_highlight(name)
+  local hl = vim.api.nvim_get_hl_by_name(name, vim.o.termguicolors)
+  if vim.o.termguicolors then
+    hl.fg = hl.foreground
+    hl.bg = hl.background
+    hl.sp = hl.special
+    hl.foreground = nil
+    hl.background = nil
+    hl.special = nil
+  else
+    hl.ctermfg = hl.foreground
+    hl.ctermbg = hl.background
+    hl.foreground = nil
+    hl.background = nil
+    hl.special = nil
+  end
+  return hl
+end
+
+---Invalidate lua modules
+---@param path string
+---@param recursive boolean
+function mw.invalidate(path, recursive)
+  if recursive then
+    for key, value in pairs(package.loaded) do
+      if key ~= "_G" and value and vim.fn.match(key, path) ~= -1 then
+        package.loaded[key] = nil
+        require(key)
+      end
+    end
+  else
+    package.loaded[path] = nil
+    require(path)
+  end
+end
+
+---Return true if any pattern in the tbl matches the provided value
+---@param tbl table
+---@param val string
+---@return boolean
+function mw.find_pattern_match(tbl, val)
+  return tbl and next(vim.tbl_filter(function(pattern) return val:match(pattern) end, tbl))
+end
