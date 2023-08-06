@@ -1,0 +1,22 @@
+name: build
+on:
+  pull_request: ~
+  push: ~
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rake
+        run: gem install rake
+
+      - name: Check install
+        run: rake install
+        env:
+          TEST_ENV: true

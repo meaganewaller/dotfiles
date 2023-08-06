@@ -1,0 +1,293 @@
+# vim:ft=kitty:fdm=marker
+
+# REFERENCES:
+# useful settings and options
+# https://github.com/akinsho/dotfiles/blob/main/.config/kitty/kitty.conf
+# https://paul-nameless.com/mastering-kitty.html
+# https://github.com/p-kolacz/.dotfiles/tree/master/kitty/.config/kitty/colors
+# https://github.com/kovidgoyal/kitty/issues/2238 (fzf + kitty icat)
+
+# -- [ kittens ]  --
+# https://github.com/kovidgoyal/kitty/tree/master/kittens
+# https://github.com/trygveaa/kitty-kitten-search
+# https://github.com/muchzill4/kitty-session
+# https://dev.to/dylanirlbeck/kitty-sessions-44j2 (blog)
+# https://github.com/muchzill4/setup/blob/master/dotfiles/fish/.config/fish/functions/kt.fish
+# https://github.com/ad-on-is/kittens
+# https://github.com/guysherman/kittymux
+# https://github.com/knubie/vim-kitty-navigator
+# https://github.com/fretboardfreak/kitty-theme-changer
+# https://github.com/kassio/dotfiles/tree/main/config/xdg/kitty/kitty_search
+
+# --[ fonts ] -------------------------------------------------------------- {{{
+## Font family. You can also specify different fonts for the
+## bold/italic/bold-italic variants.
+#
+## kitty recommends not to use patched fonts:
+## REF: https://github.com/kovidgoyal/kitty/discussions/4654
+##
+## You can get a list of full family names available on your computer by running
+## kitty list-fonts
+#
+#font_family        FiraCode Nerd Font Mono Light
+#bold_font          FiraCode Nerd Font Mono SemiBold
+#italic_font        BlexMono Nerd Font Mono Thin Italic
+#bold_italic_font   BlexMono Nerd Font Mono Medium Italic
+#font_size          16.0
+#adjust_line_height 110%
+#modify_font        strikethrough_position 120%
+#modify_font        strikethrough_thickness 250%
+#modify_font        underline_position 125%
+#modify_font        underline_thickness 3px
+#modify_font        cell_height 105%
+#undercurl_style    thin-dense
+#disable_ligatures  cursor
+#
+############################################################
+## Symbols Nerd Font complete symbol_map
+## easily troubleshoot missing/incorrect characters with:
+##   kitty --debug-font-fallback
+##
+## REF: https://erwin.co/kitty-and-nerd-fonts/#kitty-config
+##   3270 Nerd Font or Symbols Nerd Font Mono
+############################################################
+#
+## fix nerd font mappings
+## symbol_map         U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0 Symbols Nerd Font
+#
+## }}}
+
+# --[ cursor ] ------------------------------------------------------------- {{{
+# cursor                          none
+# The cursor shape can be one of (block, beam, underline)
+# cursor_shape     block
+cursor_stop_blinking_after      10.0
+pointer_shape_when_dragging     hand
+cursor_blink_interval           0.0
+# }}}
+
+# --[ mouse ] -------------------------------------------------------------- {{{
+copy_on_select                  yes
+
+# -1 effectively means infinite scrollback
+scrollback_lines                20000
+
+# The modifiers to use rectangular selection (i.e. to select text in a rectangular block with the mouse)
+# rectangle_select_modifiers ctrl+alt
+mouse_hide_wait                 15
+
+# Set the active window to the window under the mouse when moving the mouse around
+focus_follows_mouse             yes
+
+mouse_map cmd+left release ungrabbed pass_selection_to_program /usr/bin/open
+mouse_map cmd+left click grabbed,ungrabbed mouse_handle_click selection link prompt
+
+# unmap left click for open link (easy miss click)
+mouse_map left click ungrabbed no-op
+
+#: Click the link under the mouse or move the cursor
+mouse_map ctrl+left click ungrabbed mouse_handle_click selection link prompt
+mouse_map ctrl+left press ungrabbed mouse_selection normal
+mouse_map right press ungrabbed copy_to_clipboard
+# }}}
+
+# --[ bells ] -------------------------------------------------------------- {{{
+enable_audio_bell               no
+window_alert_on_bell            no
+visual_bell_duration            0.0
+# }}}
+
+# --[ windows ] ------------------------------------------------------------ {{{
+remember_window_size            no
+
+# fat -- One (or optionally more) windows are shown full width on the top, the rest of the windows are shown side-by-side on the bottom
+# grid -- All windows are shown in a grid
+# horizontal -- All windows are shown side-by-side
+# splits -- Windows arranged in arbitrary patterns created using horizontal and vertical splits
+# stack -- Only a single maximized window is shown at a time
+# tall -- One (or optionally more) windows are shown full height on the left, the rest of the windows are shown one below the other on the right
+# vertical -- All windows are shown one below the other
+enabled_layouts                 tall,vertical,fat,grid,stack
+window_border_width             1pt
+window_margin_width             4
+single_window_margin_width      0
+
+# NOTE: t r b l
+# window_padding_width           10 5 10
+placement_strategy              center
+resize_draw_strategy            static
+
+#: The list of characters to use for visual window selection (for
+#: example for selecting a window to focus with focus_visible_window).
+#: The value should be a series of unique numbers or alphabets, case
+#: insensitive, from the set [0-9A-Z]. Specify your preference as a
+#: string of characters.
+
+# with Shell integration enabled, using negative values means windows sitting at a shell prompt are not counted,
+# only windows where some command is currently running.
+# see https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.confirm_os_window_close
+
+visual_window_select_characters 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+# }}}
+
+# --[ tabs ] --------------------------------------------------------------- {{{
+# REF: https://github.com/kovidgoyal/kitty/discussions/4447
+# fade, slant, separator, powerline (slanted, angled, round), custom
+tab_bar_edge                    bottom
+tab_bar_margin_width            0.0
+tab_bar_margin_height           0.0 0.0
+tab_bar_style                   custom
+tab_bar_align                   left
+tab_bar_min_tabs                1
+tab_title_template              "{sup.index} {f'{title[:30]}…' if title.rindex(title[-1]) + 1 > 30 else (title.center(6) if (title.rindex(title[-1]) + 1) % 2 == 0 else title.center(5))}"
+active_tab_font_style           italic
+inactive_tab_font_style         normal
+tab_fade                        0 0 0 0
+tab_separator                   ""
+#}}}
+
+# --[ advanced ] ----------------------------------------------------------- {{{
+# HACK: passing environment variables to GUI applications in macOS is very hard
+# so this works around that by specifying the path to homebrew installations here
+# this only provides the $PATH not all the missing environment variables.
+# NOTE: this is why nvim must be started inside this file using zsh -c 'nvim'
+env PATH=/usr/local/bin/:${PATH}
+exe_search_path +=~/.config/kitty
+
+# The shell program to execute. The default value of . means
+# to use whatever shell is set as the default shell for the current user.
+# Note that on macOS if you change this, you might need to add --login to
+# ensure that the shell starts in interactive mode and reads its startup rc files.
+shell                           fish --login
+shell_integration               enabled
+allow_remote_control            yes
+listen_on                       unix:/tmp/mykitty
+editor                          nvim
+term                            xterm-256color
+single-instance                 yes
+#}}}
+
+# --[ sessions ] ----------------------------------------------------------- {{{
+# https://sw.kovidgoyal.net/kitty/overview/#startup-sessions
+# REF:
+# - https://dev.to/dylanirlbeck/kitty-sessions-44j2
+# - https://github.com/kovidgoyal/kitty/discussions/4066#discussioncomment-1390789 (troubleshooting with logging)
+# - https://github.com/dflock/kitty-save-session
+# - https://github.com/akinsho/phoenix-kitty
+# TODO: session switching via https://github.com/muchzill4/kitty-session
+# NOTE: nvim may need to be be started inside this file using zsh -c 'nvim'
+startup_session                 ~/.config/kitty/sessions/start.conf
+#}}}
+
+# --[ os-specific ] -------------------------------------------------------- {{{
+draw_minimal_borders            yes
+hide_window_decorations         titlebar-only
+# Change the color of the kitty window's titlebar on macOS. A value of "system"
+# means to use the default system color, a value of "background" means to use
+# the background color of the currently active window and finally you can use
+# an arbitrary color, such as #12af59 or "red". WARNING: This option works by
+# using a hack, as there is no proper Cocoa API for it. It sets the background
+# color of the entire window and makes the titlebar transparent. As such it is
+# incompatible with background_opacity. If you want to use both, you are
+# probably better off just hiding the titlebar with macos_hide_titlebar.
+# Match one dark vim title bar background color
+macos_hide_from_tasks                   no
+macos_traditional_fullscreen            yes
+macos_quit_when_last_window_closed      yes
+macos_thicken_font                      0.75
+macos_custom_beam_cursor                yes
+# Use the option key as an alt key. With this set to no, kitty will use
+# the macOS native Option+Key = unicode character behavior. This will
+# break any Alt+key keyboard shortcuts in your terminal programs, but you
+# can use the macOS unicode input technique.
+macos_option_as_alt                     both
+macos_show_window_title_in              none
+macos_titlebar_color                    background
+macos_colorspace                        displayp3
+
+# https://github.com/kovidgoyal/kitty/pull/5969
+text_gamma_adjustment 1.7
+text_contrast 30
+#}}}
+
+# --[ includes ] ----------------------------------------------------------- {{{
+# You can include secondary config files via the "include" directive.
+# If you use a relative path for include, it is resolved with respect to the
+# location of the current config file. For example:
+# include ${HOME}/${USER}.conf
+include ${HOME}/.config/kitty/includes/fonts.conf
+#}}}
+
+# -- [ aliases ] ----------------------------------------------------------- {{{
+action_alias launch_new launch --cwd=last_reported --location=after
+action_alias launch_script launch --allow-remote-control
+#}}}
+
+# --[ misc ] --------------------------------------------------------------- {{{
+# or 0, 1, 2 (number of tabs)
+# REF: https://sw.kovidgoyal.net/kitty/conf/?highlight=margin#opt-kitty.confirm_os_window_close
+confirm_os_window_close               -1
+dynamic_background_opacity            yes
+# url_style can be one of: none, single, double, curly
+url_style                             curly
+#: The color and style for highlighting URLs on mouse-over. url_style
+#: can be one of: none, single, double, curly
+open_url_modifiers                    super
+#: The modifier keys to press when clicking with the mouse on URLs to
+#: open the URL
+open_url_with                         default
+#: The program with which to open URLs that are clicked on. The
+#: special value default means to use the operating system's default
+#: URL handler.
+url_prefixes                          http https file ftp
+#: The set of URL prefixes to look for when detecting a URL under the
+#: mouse cursor.
+copy_on_select                        yes
+#: Copy to clipboard or a private buffer on select. With this set to
+#: clipboard, simply selecting text with the mouse will cause the text
+#: to be copied to clipboard. Useful on platforms such as macOS that
+#: do not have the concept of primary selections. You can instead
+#: specify a name such as a1 to copy to a private kitty buffer
+#: instead. Map a shortcut with the paste_from_buffer action to paste
+#: from this private buffer. For example::
+#:     map cmd+shift+v paste_from_buffer a1
+#: Note that copying to the clipboard is a security risk, as all
+#: programs, including websites open in your browser can read the
+#: contents of the system clipboard.
+strip_trailing_spaces smart
+#: Remove spaces at the end of lines when copying to clipboard. A
+#: value of smart will do it when using normal selections, but not
+#: rectangle selections. always will always do it.
+rectangle_select_modifiers ctrl+alt
+#: The modifiers to use rectangular selection (i.e. to select text in
+#: a rectangular block with the mouse)
+terminal_select_modifiers shift
+#: The modifiers to override mouse selection even when a terminal
+#: application has grabbed the mouse
+select_by_word_characters @-./_~?&=%+#
+
+sync_to_monitor yes
+background_opacity 1.0
+pointer_shape_when_dragging hand
+# How much to dim text that has the DIM/FAINT attribute set. 1.0 means no dimming and
+# 0.0 means fully dimmed (i.e. invisible).
+allow_hyperlinks yes
+# clipboard_control write-clipboard write-primary read-clipboard
+clipboard_control write-clipboard write-primary read-clipboard-ask read-primary-ask
+paste_actions quote-urls-at-prompt, confirm
+
+# https://github.com/kovidgoyal/kitty/issues/719
+# https://www.reddit.com/r/neovim/comments/qqf4nn/psa_you_can_use_neovim_as_the_kitty_terminal/
+# https://www.reddit.com/r/KittyTerminal/comments/l73ulu/pager/
+scrollback_pager nvimpager
+show_hyperlink_targets yes
+
+globinclude keymaps.conf
+globinclude splits.conf
+
+# BEGIN_KITTY_THEME
+# Rosé Pine Dawn
+include current-theme.conf
+# END_KITTY_THEME
+# --[ fin ] --------------------------------------------------------------------

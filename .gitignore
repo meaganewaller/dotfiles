@@ -1,2 +1,93 @@
+# Ignore everything except directories
+*
+!*/
+
+################################### ALLOW LIST ##################################
+
+# Config
+!editors/nvim/**/*
+!editors/vim/**/*
+!editors/vscode/**/*
+!gui/autorandr/**/*
+!gui/copyq/**/*
+!gui/keepassxc/**/*
+!gui/sketchybar/**/*
+!gui/skhd/**/*
+!gui/yabai/**/*
+!gui/zathura/**/*
+!languages/ruby/**/*
+!languages/snippets/**/*
+!os/macos/**/*
+!package-managers/asdf/**/*
+!package-managers/homebrew/**/*
+!package-managers/mas/**/*
+!shells/fish/**/*
+!shells/starship/**/*
+!shells/zsh/**/*
+!terminals/alacritty/**/*
+!terminals/kitty/**/*
+!terminals/tmux/**/*
+!tools/direnv/**/*
+!tools/flameshot/**/*
+!tools/gnupg/**/*
+!tools/gopass/**/*
+!tools/keys/**/*
+!tools/misc/**/*
+!tools/ncspot/**/*
+!tools/neofetch/**/*
+!tools/ranger/**/*
+!tools/rofi/**/*
+!tools/ssh/**/*
+!tools/taskwarrior/**/*
+!tools/tfenv/**/*
+!tools/ui/**/*
+!tools/vcs/**/*
+!tools/youtube-dl/**/*
+!tools/zk/**/*
+
+# Dotbot
+!meta/**/*
+!install
+!uninstall
+
+# Git
+!.github/**/*
+!.gitignore
+!.gitignore_global
+!.gitmodules
+
+# Other dirs
+!bin/**/*
+!commands/**/*
+!tasks/**/*
+!tests/**/*
+
+# Other files
+!.tool-versions
+!Rakefile
+!README.md
+!stylua.toml
+
+################################### DENY LIST ####################################
+
+# Config
+editors/nvim/plugin
 tools/vcs/git/config.local
-logfile
+
+# Fish
+shells/fish/env
+shells/fish/fish_variables
+
+# Tmux
+terminals/tmux/plugins
+terminals/tmux/resurrect
+
+# Zsh
+.env
+bookmarks
+
+# Others
+languages/ruby/enhance-rails-intellisense-in-solargraph
+.DS_Store
+backup
+.repro

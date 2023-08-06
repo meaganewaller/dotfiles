@@ -31,7 +31,6 @@
 
 - link:
     ~/.zshrc: shells/zsh/zshrc
-    ~/.zsh_plugins.txt: shells/zsh/plugins.txt
     ~/.config/starship:
       path: shells/starship/*
       glob: true
@@ -39,9 +38,5 @@
     ~/.config/fish:
       glob: true
       path: shells/fish/*
-      exclude: [shells/fish/install-fisher]
-
-- shell:
-  - [zsh -c 'antibody update', Updating Zsh plugins]
-  - [$DOTFILES/shells/fish/install-fisher, Installing Fisher]
-  - [fish -c "fisher update", Updating fish plugins]
+      exclude: [shells/fishs/env]
+    ~/.env: shells/fish/env

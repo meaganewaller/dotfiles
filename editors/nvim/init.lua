@@ -48,5 +48,7 @@ _G.mw = {
   end,
 }
 
+require("meg.utils")
+require("meg.options")
 require("meg")
-require("meg.keymaps").set_all()
+require("meg.keymaps")

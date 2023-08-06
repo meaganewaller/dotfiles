@@ -1,6 +1,6 @@
 # --- Dotfile Binaries Config ---
 - link:
-    ~/.local/bin: 
+    ~/.local/bin:
       glob: true
       path: bin/*
       exclude: [ bin/lock-screen, bin/lyrics ]

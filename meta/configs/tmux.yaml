@@ -1,3 +1,4 @@
+# --- Tmux Config ---
 - asdf:
     - plugin: tmux
       global: latest
