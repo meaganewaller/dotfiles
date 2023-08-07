@@ -77,6 +77,7 @@ tools/vcs/git/config.local
 # Fish
 shells/fish/env
 shells/fish/fish_variables
+shells/fish/config.local.fish
 
 # Tmux
 terminals/tmux/plugins
@@ -91,3 +92,4 @@ languages/ruby/enhance-rails-intellisense-in-solargraph
 .DS_Store
 backup
 .repro
+logfile
