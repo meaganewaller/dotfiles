@@ -93,3 +93,4 @@ languages/ruby/enhance-rails-intellisense-in-solargraph
 backup
 .repro
 logfile
+node_modules/
