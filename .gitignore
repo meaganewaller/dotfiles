@@ -38,7 +38,7 @@
 !tools/ranger/**/*
 !tools/rofi/**/*
 !tools/ssh/**/*
-!tools/taskwarrior/**/*
+tools/taskwarrior/**/*
 !tools/tfenv/**/*
 !tools/ui/**/*
 !tools/vcs/**/*
