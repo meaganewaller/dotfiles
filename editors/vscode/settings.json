@@ -12,7 +12,7 @@
   "telemetry.enableTelemetry": false,
   "telemetry.enableCrashReporter": false,
   "terminal.integrated.shell.osx": "/usr/local/bin/fish",
-  "workbench.colorTheme": "One Dark Pro",
+  "workbench.colorTheme": "Rosé Pine Moon",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.colorCustomizations": {
     "activityBar.background": "#333842",
@@ -155,5 +155,12 @@
       "scope": "workspace"
     }
   ],
-  "todo.statistics.statusbar.enabled": true
+  "todo.statistics.statusbar.enabled": true,
+  "workbench.commandPalette.experimental.suggestCommands": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "window.zoomLevel": 2,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  }
 }
