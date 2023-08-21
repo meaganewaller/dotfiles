@@ -5,7 +5,7 @@
   path = ~/.config/git/conf/core.conf
   path = ~/.config/git/conf/url.conf
   path = ~/.config/git/conf/os.conf
-  path = ~/.gitconfig.local
+  path = ~/.gitconfig.local.conf
 [user]
   name = Meagan Waller
   email = meagan.waller@testdouble.com
