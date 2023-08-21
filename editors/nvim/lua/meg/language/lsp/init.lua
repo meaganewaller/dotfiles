@@ -1,6 +1,8 @@
+local ok, nvim_lsp = pcall(require, 'lspconfig')
+if not ok then return end
+
 local lsps = {
   require("meg.language.lsp.bash"),
-  require("meg.language.lsp.csharp"),
   require("meg.language.lsp.dockerfile"),
   require("meg.language.lsp.go"),
   require("meg.language.lsp.null-ls"),
@@ -8,10 +10,12 @@ local lsps = {
   require("meg.language.lsp.nix"),
   require("meg.language.lsp.rust"),
   require("meg.language.lsp.terraform"),
+  require("meg.language.lsp.typescript"),
   require("meg.language.lsp.yaml"),
 }
 
 local M = {}
+
 function M.setup(capabilities, on_attach)
   vim.fn.sign_define("DiagnosticSignError", { texthl = "DiagnosticSignError", text = "󰅚" })
   vim.fn.sign_define("DiagnosticSignWarn", { texthl = "DiagnosticSignWarn", text = "󰀪" })

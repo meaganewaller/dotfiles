@@ -66,6 +66,7 @@ local function setup_cmp()
           luasnip = "[LuaSnip]",
           nvim_lsp = "[LSP]",
           nvim_lua = "[Lua]",
+          copilot = "[Copilot]",
         },
       }),
     },
@@ -88,6 +89,7 @@ local function setup_cmp()
       end,
     },
     sources = {
+      { name = "copilot" },
       { name = "luasnip" },
       { name = "nvim_lsp" },
       { name = "nvim_lua" },
