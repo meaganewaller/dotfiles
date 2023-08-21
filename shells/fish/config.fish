@@ -34,6 +34,7 @@ fish_add_path /usr/local/sbin
 fish_add_path "$HOME/.cargo/bin"
 fish_add_path "$HOME/.dotfiles/bin"
 fish_add_path "$HOME/.local/share/nvim/mason/bin"
+fish_add_path "$HOME/.local/bin"
 
 if type -q zoxide
   zoxide init fish | source
@@ -50,14 +51,9 @@ if status is-interactive
   source /usr/local/opt/asdf/libexec/asdf.fish
 end
 
-
-
-# fzf
-# fzf_configure_bindings --git_status=\cg --git_log=\cl --history=\cr --variables=\cv --directory=\cf --processes=\cp
-# set fzf_preview_dir_cmd exa --all --color=always --icons
-# set fzf_fd_opts --hidden --no-ignore
-# set -x FZF_DEFAULT_OPTS --cycle --layout=reverse --border --height=90% --preview-window=wrap --marker="*" --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6 --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
-#
 fnm env --use-on-cd | source
-
-source ~/.config/fish/config.local.fish
+# pnpm
+set -gx PNPM_HOME "$HOME/Library/pnpm"
+if not string match -q -- $PNPM_HOME $PATH
+  set -gx PATH "$PNPM_HOME" $PATH
+end

@@ -94,3 +94,4 @@ backup
 .repro
 logfile
 node_modules/
+meta/plugins
