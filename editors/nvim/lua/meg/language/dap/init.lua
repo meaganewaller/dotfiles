@@ -2,8 +2,6 @@ local dap = require("dap")
 local dapui = require("dapui")
 
 local daps = {
-  require("meg.language.dap.dotnet"),
-  require("meg.language.dap.rust"),
 }
 
 local M = {}

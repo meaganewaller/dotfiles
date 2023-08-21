@@ -4,7 +4,6 @@ local function setup_treesitter()
   require("nvim-treesitter.configs").setup({
     ensure_installed = {
       "bash",
-      "c_sharp",
       "css",
       "dockerfile",
       "go",
@@ -25,9 +24,11 @@ local function setup_treesitter()
       "toml",
       "typescript",
       "yaml",
+      "vim",
     },
     highlight = {
       enable = true,
+      disable = { 'help' },
     },
     indent = {
       enable = true,
@@ -106,6 +107,13 @@ local function setup_luasnip()
   require("luasnip/loaders/from_vscode").load()
 end
 
+local function setup_copilot()
+  vim.defer_fn(function()
+    require("copilot").setup()
+    require("copilot_cmp").setup()
+  end, 100)
+end
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -127,6 +135,14 @@ return {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-path",
+      {
+        "zbirenbaum/copilot-cmp",
+        event = "InsertEnter",
+        dependencies = { "zbirenbaum/copilot.lua" },
+        config = function()
+          setup_copilot()
+        end,
+      },
     },
   },
   "saadparwaiz1/cmp_luasnip",
