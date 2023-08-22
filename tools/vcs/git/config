@@ -19,6 +19,8 @@
   editor = 'nvim'
   eol = lf
   excludesfile = ~/.gitignore_global
+[gpg]
+  format = "ssh"
 [commit]
   gpgsign = true
 [gpg "ssh"]

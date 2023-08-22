@@ -1,6 +1,5 @@
-Include /Users/meaganwaller/.colima/ssh_config
-
-Include /Users/meagan/.colima/ssh_config
+Include ~/.colima/ssh_config
+Include ~/.colima/ssh_config
 Include config.d/local
 
 ControlMaster   no
