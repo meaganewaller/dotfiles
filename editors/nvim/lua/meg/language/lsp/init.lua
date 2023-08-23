@@ -1,17 +1,21 @@
-local ok, nvim_lsp = pcall(require, 'lspconfig')
+local ok, nvim_lsp = pcall(require, "lspconfig")
 if not ok then return end
 
 local lsps = {
   require("meg.language.lsp.bash"),
+  require("meg.language.lsp.cssls"),
   require("meg.language.lsp.dockerfile"),
   require("meg.language.lsp.go"),
+  require("meg.language.lsp.html"),
   require("meg.language.lsp.null-ls"),
   require("meg.language.lsp.lua"),
   require("meg.language.lsp.nix"),
   require("meg.language.lsp.rust"),
+  require("meg.language.lsp.tailwindcss"),
   require("meg.language.lsp.terraform"),
   require("meg.language.lsp.typescript"),
   require("meg.language.lsp.yaml"),
+  require("meg.language.lsp.vuels"),
 }
 
 local M = {}
@@ -29,9 +33,7 @@ function M.setup(capabilities, on_attach)
   })
 
   for _, server in pairs(lsps) do
-    if server ~= nil then
-      server.setup(capabilities, on_attach)
-    end
+    if server ~= nil then server.setup(capabilities, on_attach) end
   end
 end
 

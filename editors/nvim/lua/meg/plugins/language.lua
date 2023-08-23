@@ -25,10 +25,11 @@ local function setup_treesitter()
       "typescript",
       "yaml",
       "vim",
+      "vue",
     },
     highlight = {
       enable = true,
-      disable = { 'help' },
+      disable = { "help" },
     },
     indent = {
       enable = true,
@@ -84,9 +85,7 @@ local function setup_cmp()
       ["<S-Tab>"] = cmp.mapping(handle.jump_previous, { "i", "s" }),
     },
     snippet = {
-      expand = function(args)
-        require("luasnip").lsp_expand(args.body)
-      end,
+      expand = function(args) require("luasnip").lsp_expand(args.body) end,
     },
     sources = {
       { name = "copilot" },
@@ -119,9 +118,7 @@ end
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    config = function()
-      setup_treesitter()
-    end,
+    config = function() setup_treesitter() end,
     dependencies = {
       "p00f/nvim-ts-rainbow",
     },
@@ -129,9 +126,7 @@ return {
   },
   {
     "hrsh7th/nvim-cmp",
-    config = function()
-      setup_cmp()
-    end,
+    config = function() setup_cmp() end,
     dependencies = {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-nvim-lsp",
@@ -141,18 +136,15 @@ return {
         "zbirenbaum/copilot-cmp",
         event = "InsertEnter",
         dependencies = { "zbirenbaum/copilot.lua" },
-        config = function()
-          setup_copilot()
-        end,
+        config = function() setup_copilot() end,
       },
     },
   },
   "saadparwaiz1/cmp_luasnip",
   {
     "L3MON4D3/LuaSnip",
-    config = function()
-      setup_luasnip()
-    end,
+    config = function() setup_luasnip() end,
   },
   "rafamadriz/friendly-snippets",
+  "princejoogie/tailwind-highlight.nvim",
 }
