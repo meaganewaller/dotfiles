@@ -10,8 +10,7 @@ return {
   "lambdalisue/suda.vim",
   {
     "norcalli/nvim-colorizer.lua",
-    config = function()
-      require("colorizer").setup()
-    end,
+    config = function() require("colorizer").setup() end,
   },
+  "wakatime/vim-wakatime",
 }

@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: August 20th, 2023
+# Last edited: August 27th, 2023
 --]]
 
 -- bootstrap lazy package manager

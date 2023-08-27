@@ -7,4 +7,5 @@ return {
   { "edeneast/nightfox.nvim" },
   { "navarasu/onedark.nvim" },
   { "folke/tokyonight.nvim" },
+  { "sainnhe/everforest" },
 }
