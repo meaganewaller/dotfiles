@@ -80,15 +80,11 @@ return {
   },
   {
     "lukas-reineke/indent-blankline.nvim",
-    config = function()
-      setup_blankline()
-    end,
+    config = function() setup_blankline() end,
   },
   {
     "nvim-lualine/lualine.nvim",
-    config = function()
-      setup_lualine()
-    end,
+    config = function() setup_lualine() end,
     dependencies = {
       "arkav/lualine-lsp-progress",
     },

@@ -5,7 +5,6 @@ return {
       vim.o.sessionoptions = "buffers,curdir,folds,globals,tabpages,winpos,winsize"
 
       require("persisted").setup({
-        autoload = true,
         use_git_branch = true,
       })
 

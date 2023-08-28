@@ -6,14 +6,10 @@ local function on_attach(client, bufnr)
   -- client.server_capabilities.documentRangeFormattingProvider = false
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
-  if client.name == "yamlls" then
-    client.server_capabilities.document_formatting = true
-  end
+  if client.name == "yamlls" then client.server_capabilities.document_formatting = true end
 
-  local has_illuminate, illuminate = pcall(require, 'illuminate')
-  if has_illuminate then
-    illuminate.on_attach(client)
-  end
+  local has_illuminate, illuminate = pcall(require, "illuminate")
+  if has_illuminate then illuminate.on_attach(client) end
 
   require("lsp_signature").on_attach({
     bind = true,
@@ -30,10 +26,10 @@ local function on_attach(client, bufnr)
   keymaps.register_bufnr(bufnr, "n", mappings.editor_on_text)
 end
 
-local m = {}
-m.setup = function()
+local M = {}
+M.setup = function()
   local capabilities
-  local ok, cmp_nvim_lsp = pcall(require, 'cmp_nvim_lsp')
+  local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
   if not ok then
     capabilities = vim.lsp.protocol.make_client_capabilities()
   else
@@ -51,8 +47,8 @@ m.setup = function()
       opts = opts or {}
       opts.id = nil
       vim.lsp.buf.format(opts)
-    end
+    end,
   })
 end
 
-return m
+return M

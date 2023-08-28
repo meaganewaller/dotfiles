@@ -6,9 +6,7 @@ local M = {
     catppuccin = {
       style = { "latte", "frappe", "macchiato", "mocha" },
       transparent = false,
-      lualine = function(_)
-        return "catppuccin"
-      end,
+      lualine = function(_) return "catppuccin" end,
       activate = function(style, transparent)
         require("catppuccin").setup({
           flavour = style,
@@ -21,9 +19,7 @@ local M = {
     github = {
       style = { "dark", "dark_dimmed", "dark_default", "light", "light_default" },
       transparent = false,
-      lualine = function(style)
-        return "github_" .. style
-      end,
+      lualine = function(style) return "github_" .. style end,
       activate = function(style, transparent)
         require("github-theme").setup({
           options = { transparent = transparent },
@@ -35,9 +31,7 @@ local M = {
     gruvbox = {
       style = { "light", "dark" },
       transparent = false,
-      lualine = function(_)
-        return "gruvbox"
-      end,
+      lualine = function(_) return "gruvbox" end,
       activate = function(style, _)
         vim.o.background = style
         vim.cmd.colorscheme("gruvbox")
@@ -46,9 +40,7 @@ local M = {
     hardhacker = {
       style = { "dark", "darker" },
       transparent = false,
-      lualine = function(_)
-        return "palenight"
-      end,
+      lualine = function(_) return "palenight" end,
       activate = function(style, _)
         if style == "darker" then
           vim.g.hardhacker_darker = 1
@@ -62,9 +54,7 @@ local M = {
     monokai = {
       style = { "classic", "octagon", "pro", "machine", "ristretto", "spectrum" },
       transparent = false,
-      lualine = function(_)
-        return "monokai-pro"
-      end,
+      lualine = function(_) return "monokai-pro" end,
       activate = function(style, transparent)
         require("monokai-pro").setup({
           filter = style,
@@ -77,9 +67,7 @@ local M = {
     nightfox = {
       style = { "nightfox", "dayfox", "dawnfox", "duskfox", "nordfox", "terafox", "carbonfox" },
       transparent = false,
-      lualine = function(style)
-        return style
-      end,
+      lualine = function(style) return style end,
       activate = function(style, transparent)
         require("nightfox").setup({
           transparent = transparent,
@@ -91,9 +79,7 @@ local M = {
     onedark = {
       style = { "dark", "darker", "cool", "deep", "warm", "warmer" },
       transparent = false,
-      lualine = function(_)
-        return "onedark"
-      end,
+      lualine = function(_) return "onedark" end,
       activate = function(style, transparent)
         require("onedark").setup({
           style = style,
@@ -107,9 +93,7 @@ local M = {
     tokyonight = {
       style = { "storm", "moon", "night", "day" },
       transparent = false,
-      lualine = function(_)
-        return "tokyonight"
-      end,
+      lualine = function(_) return "tokyonight" end,
       activate = function(style, transparent)
         require("tokyonight").setup({
           style = style,
@@ -139,8 +123,6 @@ function M.activate_theme(theme, style, transparent)
   })
 end
 
-function M.get_lualine(theme, style)
-  return M.themes[theme].lualine(style)
-end
+function M.get_lualine(theme, style) return M.themes[theme].lualine(style) end
 
 return M

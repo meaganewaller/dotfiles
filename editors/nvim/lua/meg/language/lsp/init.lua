@@ -1,4 +1,4 @@
-local ok, nvim_lsp = pcall(require, "lspconfig")
+local ok, _ = pcall(require, "lspconfig")
 if not ok then return end
 
 local lsps = {
@@ -31,6 +31,22 @@ function M.setup(capabilities, on_attach)
       prefix = "󰄮",
     },
   })
+  local hl_name = "FloatBorder"
+  local border = {
+    { "╭", hl_name },
+    { "─", hl_name },
+    { "╮", hl_name },
+    { "│", hl_name },
+    { "╯", hl_name },
+    { "─", hl_name },
+    { "╰", hl_name },
+    { "│", hl_name },
+  }
+  -- LSP settings (for overriding per client)
+  local handlers = {
+    ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border }),
+    ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
+  }
 
   for _, server in pairs(lsps) do
     if server ~= nil then server.setup(capabilities, on_attach) end
