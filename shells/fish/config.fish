@@ -33,7 +33,7 @@ fish_add_path /usr/local/bin
 fish_add_path /usr/local/sbin
 fish_add_path "$HOME/.cargo/bin"
 fish_add_path "$HOME/.dotfiles/bin"
-fish_add_path "$HOME/.local/share/nvim/mason/bin"
+# fish_add_path "$HOME/.local/share/nvim/mason/bin"
 fish_add_path "$HOME/.local/bin"
 
 if type -q zoxide

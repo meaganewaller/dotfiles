@@ -225,8 +225,7 @@ local function setup_telescope()
   require("telescope").setup({
     defaults = {
       extensions = {
-        fzf = {
-          fuzzy = true,
+        fzy_native = {
           override_generic_sorter = true,
           override_file_sorter = true,
           case_mode = "smart_case",
@@ -244,7 +243,7 @@ local function setup_telescope()
   })
 
   require("telescope").load_extension("dap")
-  require("telescope").load_extension("fzf")
+  require("telescope").load_extension("fzy_native")
   require("telescope").load_extension("ui-select")
 end
 
@@ -289,10 +288,10 @@ return {
       "nvim-telescope/telescope-ui-select.nvim",
     },
   },
-  { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
   {
     "AckslD/muren.nvim",
     event = { "BufReadPost", "BufNewFile" },
     config = function() setup_muren() end,
   },
+  { "nvim-telescope/telescope-fzy-native.nvim", build = "make" },
 }

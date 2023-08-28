@@ -19,8 +19,24 @@ local lsps = {
 }
 
 local M = {}
+local filter = require("meg.utils.lsp").filter
+local filterReactDTS = require("meg.utils.lsp").filterReactDTS
 
 function M.setup(capabilities, on_attach)
+  require("glance").setup({
+    hooks = {
+      before_open = function(results, open, jump, method)
+        if #results == 1 then
+          jump(results[1])
+        elseif method == "definitions" then
+          results = filter(results, filterReactDTS)
+          open(results)
+        else
+          open(results)
+        end
+      end,
+    },
+  })
   vim.fn.sign_define("DiagnosticSignError", { texthl = "DiagnosticSignError", text = "󰅚" })
   vim.fn.sign_define("DiagnosticSignWarn", { texthl = "DiagnosticSignWarn", text = "󰀪" })
   vim.fn.sign_define("DiagnosticSignInfo", { texthl = "DiagnosticSignInfo", text = "󰋽" })

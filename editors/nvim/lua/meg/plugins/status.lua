@@ -69,6 +69,25 @@ end
 
 return {
   {
+    "SmiteshP/nvim-navic",
+    config = function()
+      vim.api.nvim_set_hl(0, "NavicText", { link = "Comment" })
+      vim.api.nvim_set_hl(0, "NavicSeparator", { link = "Comment" })
+
+      require("nvim-navic").setup({
+        lsp = {
+          auto_attach = true,
+          preference = nil,
+        },
+        highlight = true,
+        separator = " > ",
+        depth_limit = 0,
+        depth_limit_indicator = "..",
+        safe_output = true,
+      })
+    end,
+  },
+  {
     "utilyre/barbecue.nvim",
     name = "barbecue",
     version = "*",

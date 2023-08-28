@@ -124,6 +124,8 @@ return {
     config = function() setup_neoscroll() end,
   },
   "lambdalisue/suda.vim",
+  'nathom/filetype.nvim',
+  'lewis6991/impatient.nvim',
   {
     "norcalli/nvim-colorizer.lua",
     config = function() require("colorizer").setup() end,

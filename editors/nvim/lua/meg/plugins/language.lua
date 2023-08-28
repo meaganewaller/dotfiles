@@ -15,6 +15,9 @@ local function setup_treesitter()
     sync_install = false,
     ensure_installed = {
       "bash",
+      "c",
+      "css",
+      "dockerfile",
       "go",
       "html",
       "prisma",
@@ -36,6 +39,8 @@ local function setup_treesitter()
       "rust",
       "tsx",
       "typescript",
+      "tsx",
+      "yaml",
       "vim",
       "vue",
       "hjson",
