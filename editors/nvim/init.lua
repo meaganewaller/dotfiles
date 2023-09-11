@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: August 27th, 2023
+# Last edited: September 11th, 2023
 --]]
 
 -- bootstrap lazy package manager
@@ -23,23 +23,35 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-if not vim.g.vscode then
-  local neovim = require("meg.client.neovim")
-  neovim.setup()
+require('config.BrioVim')
+require('utils.globals')
+require('utils.functions')
 
-  local options = {}
-  require("lazy").setup("meg.plugins", options)
-  neovim.activate_theme()
-  neovim.configure_mappings()
-  neovim.configure_lsp()
-else
-  local vscode = require("meg.client.vscode")
-  vscode.configure()
+require('config.options')
+require('config.lazy')
 
-  local options = {
-    root = vim.fn.stdpath("data") .. "/lazy-vscode",
-    lockfile = vim.fn.stdpath("config") .. "/lazy-vscode-lock.json",
-  }
+local config = require('nvim')
+config.activate_theme()
+config.configure_mappings()
+config.configure_lsp()
 
-  require("lazy").setup(vscode.packages(), options)
-end
+-- if not vim.g.vscode then
+--   local neovim = require("meg.client.neovim")
+--   neovim.setup()
+--
+--   local options = {}
+--   require("lazy").setup("meg.plugins", options)
+--   neovim.activate_theme()
+--   neovim.configure_mappings()
+--   neovim.configure_lsp()
+-- else
+--   local vscode = require("meg.client.vscode")
+--   vscode.configure()
+--
+--   local options = {
+--     root = vim.fn.stdpath("data") .. "/lazy-vscode",
+--     lockfile = vim.fn.stdpath("config") .. "/lazy-vscode-lock.json",
+--   }
+--
+--   require("lazy").setup(vscode.packages(), options)
+-- end
