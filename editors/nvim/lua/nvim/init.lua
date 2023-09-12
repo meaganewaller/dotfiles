@@ -17,7 +17,11 @@ function M.configure_mappings()
 end
 
 function M.configure_lsp()
-  require('language').setup()
+  require('lsp')
+end
+
+function M.configure_autocmds()
+  require('config.autocmds').setup()
 end
 
 return M

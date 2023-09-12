@@ -33,6 +33,7 @@ require('config.lazy')
 local config = require('nvim')
 config.activate_theme()
 config.configure_mappings()
+config.configure_autocmds()
 config.configure_lsp()
 
 -- if not vim.g.vscode then

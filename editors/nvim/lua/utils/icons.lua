@@ -133,6 +133,13 @@ local icons = {
   watch               = "  ",
   word                = "  ",
   wrench              = "  ",
+	unstaged            = "  ",
+	staged              = "  ",
+	unmerged            = "  ",
+	renamed             = " ➜ ",
+	untracked           = "  ",
+	deleted             = "  ",
+	ignored             = " ◌ ",
 }
 
 return icons
