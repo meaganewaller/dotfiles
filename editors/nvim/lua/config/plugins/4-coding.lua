@@ -1,1016 +1,1017 @@
--- Coding
--- Things you actively use for coding.
-
---    Sections:
---       ## COMMENTS
---       -> comment.nvim                   [comment with a key]
-
---       ## SNIPPETS
---       -> luasnip                        [snippet engine]
---       -> friendly-snippets              [snippet templates]
-
---       ## GIT
---       -> gitsigns.nvim                  [git hunks]
---       -> fugitive.vim                   [git commands]
---       -> git-conflict.nvim              [git conflicts]
-
---       ## ANALYZER
---       -> aerial.nvim                    [symbols tree]
-
---       ## CODE DOCUMENTATION
---       -> dooku.nivm                     [html doc generator]
---       -> markdown-preview.nvim          [markdown previewer]
---       -> markmap.nvim                   [markdown mindmap]
-
---       ## ARTIFICIAL INTELLIGENCE
---       -> neural                         [chatgpt code generator]
---       -> copilot                        [github code suggestions]
---       -> guess-indent                   [guess-indent]
-
---       ## COMPILER
---       -> compiler.nvim                  [compiler]
---       -> overseer.nvim                  [task runner]
-
---       ## DEBUGGER
---       -> nvim-dap                       [debugger]
-
---       ## TESTING
---       -> neotest.nvim                   [unit testing]
---       -> nvim-coverage                  [code coverage]
-
---       ## NOT INSTALLED
---       -> distant.nvim                   [ssh to edit in a remote machine]
-
-local get_icon = require("utils").get_icon
-return {
-  --  COMMENTS ----------------------------------------------------------------
-  --  Advanced comment features [comment with a key]
-  --  https://github.com/numToStr/Comment.nvim
-  {
-    "numToStr/Comment.nvim",
-    keys = {
-      { "gc", mode = { "n", "v" }, desc = "Comment toggle linewise" },
-      { "gb", mode = { "n", "v" }, desc = "Comment toggle blockwise" },
-    },
-    opts = function()
-      local commentstring_avail, commentstring =
-        pcall(require, "ts_context_commentstring.integrations.comment_nvim")
-      return commentstring_avail
-          and commentstring
-          and { pre_hook = commentstring.create_pre_hook() }
-        or {}
-    end,
-  },
-
-  --  SNIPPETS ----------------------------------------------------------------
-  --  Vim Snippets engine  [snippet engine] + [snippet templates]
-  --  https://github.com/L3MON4D3/LuaSnip
-  --  https://github.com/rafamadriz/friendly-snippets
-  {
-    "L3MON4D3/LuaSnip",
-    build = "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build\n'; make install_jsregexp",
-    dependencies = {
-      "zeioth/friendly-snippets",
-      "Zeioth/NormalSnippets",
-      "benfowler/telescope-luasnip.nvim",
-    },
-    opts = {
-      history = true,
-      delete_check_events = "TextChanged",
-      region_check_events = "CursorMoved",
-    },
-    config = function(_, opts)
-      if opts then require("luasnip").config.setup(opts) end
-      vim.tbl_map(
-        function(type) require("luasnip.loaders.from_" .. type).lazy_load() end,
-        { "vscode", "snipmate", "lua" }
-      )
-      -- friendly-snippets - enable standardized comments snippets
-      require("luasnip").filetype_extend("typescript", { "tsdoc" })
-      require("luasnip").filetype_extend("javascript", { "jsdoc" })
-      require("luasnip").filetype_extend("lua", { "luadoc" })
-      require("luasnip").filetype_extend("python", { "pydoc" })
-      require("luasnip").filetype_extend("rust", { "rustdoc" })
-      require("luasnip").filetype_extend("cs", { "csharpdoc" })
-      require("luasnip").filetype_extend("java", { "javadoc" })
-      require("luasnip").filetype_extend("c", { "cdoc" })
-      require("luasnip").filetype_extend("cpp", { "cppdoc" })
-      require("luasnip").filetype_extend("php", { "phpdoc" })
-      require("luasnip").filetype_extend("kotlin", { "kdoc" })
-      require("luasnip").filetype_extend("ruby", { "rdoc" })
-      require("luasnip").filetype_extend("sh", { "shelldoc" })
-      --require("luasnip").filetype_extend("shell", { "doxygen" })
-    end,
-  },
-
-  --  GIT ---------------------------------------------------------------------
-  --  Git signs [git hunks]
-  --  https://github.com/lewis6991/gitsigns.nvim
-  {
-    "lewis6991/gitsigns.nvim",
-    enabled = vim.fn.executable "git" == 1,
-    event = "User BrioVimGitFile",
-    opts = {
-      signs = {
-        add = { text = get_icon "GitSign" },
-        change = { text = get_icon "GitSign" },
-        delete = { text = get_icon "GitSign" },
-        topdelete = { text = get_icon "GitSign" },
-        changedelete = { text = get_icon "GitSign" },
-        untracked = { text = get_icon "GitSign" },
-      },
-    },
-  },
-
-  --  Git fugitive mergetool + [git commands]
-  --  https://github.com/lewis6991/gitsigns.nvim
-  --  PR needed: Setup keymappings to move quickly when using this feature.
-  --
-  --  We only want this plugin to use it as mergetool like "git mergetool".
-  --  To enable this feature, add this  to your global .gitconfig:
-  --
-  --  [mergetool "fugitive"]
-  --  	cmd = nvim -c \"Gvdiffsplit!\" \"$MERGED\"
-  --  [merge]
-  --  	tool = fugitive
-  --  [mergetool]
-  --  	keepBackup = false
-  {
-    "tpope/vim-fugitive",
-    enabled = vim.fn.executable "git" == 1,
-    dependencies = { "tpope/vim-rhubarb" },
-    cmd = {
-      "Gvdiffsplit",
-      "Gdiffsplit",
-      "Gedit",
-      "Gsplit",
-      "Gread",
-      "Gwrite",
-      "Ggrep",
-      "GMove",
-      "GRename",
-      "GDelete",
-      "GRemove",
-      "GBrowse",
-      "Git",
-      "Gstatus",
-    },
-    init = function() vim.g.fugitive_no_maps = 1 end,
-  },
-
-  {
-    "akinsho/git-conflict.nvim",
-    version = "*",
-    config = true,
-  },
-
-   {
-    "sindrets/diffview.nvim",
-    cmd = {
-      "DiffviewOpen",
-      "DiffviewClose",
-      "DiffviewToggleFiles",
-      "DiffviewFocusFiles",
-    },
-    config = function()
-      local actions = require("diffview.actions")
-
-      require("diffview").setup({
-        diff_binaries = false, -- Show diffs for binaries
-        enhanced_diff_hl = false, -- See ':h diffview-config-enhanced_diff_hl'
-        git_cmd = { "git" }, -- The git executable followed by default args.
-        use_icons = true, -- Requires nvim-web-devicons
-        watch_index = true, -- Update views and index buffers when the git index changes.
-        icons = { -- Only applies when use_icons is true.
-          folder_closed = "",
-          folder_open = "",
-        },
-        signs = {
-          fold_closed = "",
-          fold_open = "",
-          done = "✓",
-        },
-        view = {
-          -- Configure the layout and behavior of different types of views.
-          -- Available layouts:
-          --  'diff1_plain'
-          --    |'diff2_horizontal'
-          --    |'diff2_vertical'
-          --    |'diff3_horizontal'
-          --    |'diff3_vertical'
-          --    |'diff3_mixed'
-          --    |'diff4_mixed'
-          -- For more info, see ':h diffview-config-view.x.layout'.
-          default = {
-            -- Config for changed files, and staged files in diff views.
-            layout = "diff2_horizontal",
-          },
-          merge_tool = {
-            -- Config for conflicted files in diff views during a merge or rebase.
-            layout = "diff3_horizontal",
-            disable_diagnostics = true, -- Temporarily disable diagnostics for conflict buffers while in the view.
-          },
-          file_history = {
-            -- Config for changed files in file history views.
-            layout = "diff2_horizontal",
-          },
-        },
-        file_panel = {
-          listing_style = "tree", -- One of 'list' or 'tree'
-          tree_options = { -- Only applies when listing_style is 'tree'
-            flatten_dirs = true, -- Flatten dirs that only contain one single dir
-            folder_statuses = "only_folded", -- One of 'never', 'only_folded' or 'always'.
-          },
-          win_config = { -- See ':h diffview-config-win_config'
-            position = "left",
-            width = 35,
-            win_opts = {},
-          },
-        },
-        file_history_panel = {
-          log_options = { -- See ':h diffview-config-log_options'
-            git = {
-              single_file = {
-                diff_merges = "combined",
-              },
-              multi_file = {
-                diff_merges = "first-parent",
-              },
-            },
-          },
-          win_config = { -- See ':h diffview-config-win_config'
-            position = "bottom",
-            height = 16,
-            win_opts = {},
-          },
-        },
-        commit_log_panel = {
-          win_config = { -- See ':h diffview-config-win_config'
-            win_opts = {},
-          },
-        },
-        default_args = { -- Default args prepended to the arg-list for the listed commands
-          DiffviewOpen = {},
-          DiffviewFileHistory = {},
-        },
-        hooks = {}, -- See ':h diffview-config-hooks'
-        keymaps = {
-          disable_defaults = false, -- Disable the default keymaps
-          view = {
-            -- The `view` bindings are active in the diff buffers, only when the current
-            -- tabpage is a Diffview.
-            { "n", "<tab>", actions.select_next_entry, { desc = "Open the diff for the next file" } },
-            { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
-            {
-              "n",
-              "gf",
-              actions.goto_file,
-              { desc = "Open the file in a new split in the previous tabpage" },
-            },
-            { "n", "<C-w><C-f>", actions.goto_file_split, { desc = "Open the file in a new split" } },
-            { "n", "<C-w>gf", actions.goto_file_tab, { desc = "Open the file in a new tabpage" } },
-            { "n", "<leader>e", actions.focus_files, { desc = "Bring focus to the file panel" } },
-            { "n", "<leader>b", actions.toggle_files, { desc = "Toggle the file panel." } },
-            { "n", "g<C-x>", actions.cycle_layout, { desc = "Cycle through available layouts." } },
-            {
-              "n",
-              "[x",
-              actions.prev_conflict,
-              { desc = "In the merge-tool: jump to the previous conflict" },
-            },
-            {
-              "n",
-              "]x",
-              actions.next_conflict,
-              { desc = "In the merge-tool: jump to the next conflict" },
-            },
-            { "n", "<leader>co", actions.conflict_choose("ours"), { desc = "Choose the OURS version of a conflict" } },
-            {
-              "n",
-              "<leader>ct",
-              actions.conflict_choose("theirs"),
-              { desc = "Choose the THEIRS version of a conflict" },
-            },
-            { "n", "<leader>cb", actions.conflict_choose("base"), { desc = "Choose the BASE version of a conflict" } },
-            { "n", "<leader>ca", actions.conflict_choose("all"), { desc = "Choose all the versions of a conflict" } },
-            { "n", "dx", actions.conflict_choose("none"), { desc = "Delete the conflict region" } },
-          },
-          diff1 = {
-            -- Mappings in single window diff layouts
-            { "n", "g?", actions.help({ "view", "diff1" }), { desc = "Open the help panel" } },
-          },
-          diff2 = {
-            -- Mappings in 2-way diff layouts
-            { "n", "g?", actions.help({ "view", "diff2" }), { desc = "Open the help panel" } },
-          },
-          diff3 = {
-            -- Mappings in 3-way diff layouts
-            {
-              { "n", "x" },
-              "2do",
-              actions.diffget("ours"),
-              { desc = "Obtain the diff hunk from the OURS version of the file" },
-            },
-            {
-              { "n", "x" },
-              "3do",
-              actions.diffget("theirs"),
-              { desc = "Obtain the diff hunk from the THEIRS version of the file" },
-            },
-            { "n", "g?", actions.help({ "view", "diff3" }), { desc = "Open the help panel" } },
-          },
-          diff4 = {
-            -- Mappings in 4-way diff layouts
-            {
-              { "n", "x" },
-              "1do",
-              actions.diffget("base"),
-              { desc = "Obtain the diff hunk from the BASE version of the file" },
-            },
-            {
-              { "n", "x" },
-              "2do",
-              actions.diffget("ours"),
-              { desc = "Obtain the diff hunk from the OURS version of the file" },
-            },
-            {
-              { "n", "x" },
-              "3do",
-              actions.diffget("theirs"),
-              { desc = "Obtain the diff hunk from the THEIRS version of the file" },
-            },
-            { "n", "g?", actions.help({ "view", "diff4" }), { desc = "Open the help panel" } },
-          },
-          file_panel = {
-            { "n", "j", actions.next_entry, { desc = "Bring the cursor to the next file entry" } },
-            { "n", "<down>", actions.next_entry, { desc = "Bring the cursor to the next file entry" } },
-            { "n", "k", actions.prev_entry, { desc = "Bring the cursor to the previous file entry." } },
-            { "n", "<up>", actions.prev_entry, { desc = "Bring the cursor to the previous file entry." } },
-            { "n", "<cr>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
-            { "n", "o", actions.select_entry, { desc = "Open the diff for the selected entry." } },
-            { "n", "<2-LeftMouse>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
-            { "n", "-", actions.toggle_stage_entry, { desc = "Stage / unstage the selected entry." } },
-   { "n", "S", actions.stage_all, { desc = "Stage all entries." } },
-            { "n", "U", actions.unstage_all, { desc = "Unstage all entries." } },
-            { "n", "X", actions.restore_entry, { desc = "Restore entry to the state on the left side." } },
-            { "n", "L", actions.open_commit_log, { desc = "Open the commit log panel." } },
-            { "n", "<c-b>", actions.scroll_view(-0.25), { desc = "Scroll the view up" } },
-            { "n", "<c-f>", actions.scroll_view(0.25), { desc = "Scroll the view down" } },
-            { "n", "<tab>", actions.select_next_entry, { desc = "Open the diff for the next file" } },
-            { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
-            {
-              "n",
-              "gf",
-              actions.goto_file,
-              { desc = "Open the file in a new split in the previous tabpage" },
-            },
-            { "n", "<C-w><C-f>", actions.goto_file_split, { desc = "Open the file in a new split" } },
-            { "n", "<C-w>gf", actions.goto_file_tab, { desc = "Open the file in a new tabpage" } },
-            { "n", "i", actions.listing_style, { desc = "Toggle between 'list' and 'tree' views" } },
-            {
-              "n",
-              "f",
-              actions.toggle_flatten_dirs,
-              { desc = "Flatten empty subdirectories in tree listing style." },
-            },
-            { "n", "R", actions.refresh_files, { desc = "Update stats and entries in the file list." } },
-            { "n", "<leader>e", actions.focus_files, { desc = "Bring focus to the file panel" } },
-            { "n", "<leader>b", actions.toggle_files, { desc = "Toggle the file panel" } },
-            { "n", "g<C-x>", actions.cycle_layout, { desc = "Cycle available layouts" } },
-            { "n", "[x", actions.prev_conflict, { desc = "Go to the previous conflict" } },
-            { "n", "]x", actions.next_conflict, { desc = "Go to the next conflict" } },
-            { "n", "g?", actions.help("file_panel"), { desc = "Open the help panel" } },
-          },
-          file_history_panel = {
-            { "n", "g!", actions.options, { desc = "Open the option panel" } },
-            {
-              "n",
-              "<C-A-d>",
-              actions.open_in_diffview,
-              { desc = "Open the entry under the cursor in a diffview" },
-            },
-            {
-              "n",
-              "y",
-              actions.copy_hash,
-              { desc = "Copy the commit hash of the entry under the cursor" },
-            },
-            { "n", "L", actions.open_commit_log, { desc = "Show commit details" } },
-            { "n", "zR", actions.open_all_folds, { desc = "Expand all folds" } },
-            { "n", "zM", actions.close_all_folds, { desc = "Collapse all folds" } },
-            {
-              "n",
-              "j",
-              actions.next_entry,
-              { desc = "Bring the cursor to the next file entry" },
-            },
-            {
-              "n",
-              "<down>",
-              actions.next_entry,
-              { desc = "Bring the cursor to the next file entry" },
-            },
-            {
-              "n",
-              "k",
-              actions.prev_entry,
-              { desc = "Bring the cursor to the previous file entry." },
-            },
-            {
-              "n",
-              "<up>",
-              actions.prev_entry,
-              { desc = "Bring the cursor to the previous file entry." },
-            },
-            { "n", "<cr>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
-            { "n", "o", actions.select_entry, { desc = "Open the diff for the selected entry." } },
-            { "n", "<2-LeftMouse>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
-            { "n", "<c-b>", actions.scroll_view(-0.25), { desc = "Scroll the view up" } },
-            { "n", "<c-f>", actions.scroll_view(0.25), { desc = "Scroll the view down" } },
-            { "n", "<tab>", actions.select_next_entry, { desc = "Open the diff for the next file" } },
-            { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
-            {
-              "n",
-              "gf",
-              actions.goto_file,
-              { desc = "Open the file in a new split in the previous tabpage" },
-            },
-            { "n", "<C-w><C-f>", actions.goto_file_split, { desc = "Open the file in a new split" } },
-            { "n", "<C-w>gf", actions.goto_file_tab, { desc = "Open the file in a new tabpage" } },
-            { "n", "<leader>e", actions.focus_files, { desc = "Bring focus to the file panel" } },
-            { "n", "<leader>b", actions.toggle_files, { desc = "Toggle the file panel" } },
-            { "n", "g<C-x>", actions.cycle_layout, { desc = "Cycle available layouts" } },
-            { "n", "g?", actions.help("file_history_panel"), { desc = "Open the help panel" } },
-          },
-          option_panel = {
-            { "n", "<tab>", actions.select_entry, { desc = "Change the current option" } },
-            { "n", "q", actions.close, { desc = "Close the panel" } },
-            { "n", "g?", actions.help("option_panel"), { desc = "Open the help panel" } },
-          },
-          help_panel = {
-            { "n", "q", actions.close, { desc = "Close help menu" } },
-            { "n", "<esc>", actions.close, { desc = "Close help menu" } },
-          },
-        },
-      })
-    end,
-  },
-
-
-  --  ANALYZER ----------------------------------------------------------------
-  --  [symbols tree]
-  --  https://github.com/stevearc/aerial.nvim
-  {
-    "stevearc/aerial.nvim",
-    event = "VeryLazy",
-    cmd = {
-      "AerialToggle",
-      "AerialOpen",
-      "AerialNavOpen",
-      "AerialInfo",
-      "AerialClose",
-    },
-    opts = {
-      open_automatic = false, -- Open if the buffer is compatible
-      attach_mode = "global",
-      backends = { "lsp", "treesitter", "markdown", "man" },
-      disable_max_lines = vim.g.big_file.lines,
-      disable_max_size = vim.g.big_file.size,
-      layout = { min_width = 28 },
-      show_guides = true,
-      filter_kind = false,
-      guides = {
-        mid_item = "├ ",
-        last_item = "└ ",
-        nested_top = "│ ",
-        whitespace = "  ",
-      },
-      keymaps = {
-        ["[y"] = "actions.prev",
-        ["]y"] = "actions.next",
-        ["[Y"] = "actions.prev_up",
-        ["]Y"] = "actions.next_up",
-        ["{"] = false,
-        ["}"] = false,
-        ["[["] = false,
-        ["]]"] = false,
-      },
-    },
-  },
-
-  --  CODE DOCUMENTATION ------------------------------------------------------
-  --  dooku.nvim [html doc generator]
-  --  https://github.com/Zeioth/dooku.nvim
-  {
-    "Zeioth/dooku.nvim",
-    cmd = {
-      "DookuGenerate",
-      "DookuOpen",
-      "DookuAutoSetup"
-    },
-    opts = {},
-  },
-
-  --  [markdown previewer]
-  --  https://github.com/iamcco/markdown-preview.nvim
-  --  Note: If you change the build command, wipe ~/.local/data/nvim/lazy
-  {
-    "iamcco/markdown-preview.nvim",
-    ft = "markdown",
-    cmd = {
-      "MarkdownPreview",
-      "MarkdownPreviewStop",
-      "MarkdownPreviewToggle",
-    },
-    build = "cd app && yarn install",
-  },
-
-  --  [markdown markmap]
-  --  https://github.com/Zeioth/markmap.nvim
-  --  Note: If you change the build command, wipe ~/.local/data/nvim/lazy
-  {
-    "Zeioth/markmap.nvim",
-    build = "yarn global add markmap-cli",
-    cmd = { "MarkmapOpen", "MarkmapSave", "MarkmapWatch", "MarkmapWatchStop" },
-    config = function(_, opts) require("markmap").setup(opts) end,
-  },
-
-  --  ARTIFICIAL INTELIGENCE  -------------------------------------------------
-  --  neural [chatgpt code generator]
-  --  https://github.com/dense-analysis/neural
-  {
-    "dense-analysis/neural",
-    cmd = { "Neural" },
-    config = function()
-      require("neural").setup {
-        source = {
-          openai = {
-            api_key = vim.env.OPENAI_API_KEY,
-          },
-        },
-        ui = {
-          prompt_icon = ">",
-        },
-      }
-    end,
-  },
-
-  {
-    "zbirenbaum/copilot.lua",
-    build = ":Copilot auth",
-    event = "InsertEnter",
-    dependencies = {
-      {
-        "zbirenbaum/copilot-cmp",
-        event = { "InsertEnter", "LspAttach" },
-        config = function(_, opts)
-          local function on_att(on_attach)
-            vim.api.nvim_create_autocmd("LspAttach", {
-              callback = function(args)
-                local buffer = args.buf
-                local client = vim.lsp.get_client_by_id(args.data.client_id)
-                on_attach(client, buffer)
-              end,
-            })
-          end
-          local copilot_cmp = require("copilot_cmp")
-          copilot_cmp.setup(opts)
-          -- attach cmp source whenever copilot attaches
-          -- fixes lazy-loading issues with the copilot cmp source
-          -- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/extras/coding/copilot.lua#L61
-          on_att(function(client)
-            if client.name == "copilot" then
-              copilot_cmp._on_insert_enter({})
-            end
-          end)
-        end,
-      },
-    },
-    config = function()
-      require("copilot").setup({
-        suggestion = { enabled = false },
-        panel = { enabled = false },
-      })
-    end,
-  },
-
-  -- [guess-indent]
-  -- https://github.com/NMAC427/guess-indent.nvim
-  -- Note that this plugin won't autoformat the code.
-  -- It just set the buffer options to tabuate in a certain way.
-  {
-    "NMAC427/guess-indent.nvim",
-    event = "VeryLazy",
-    config = function(_, opts)
-      require("guess-indent").setup(opts)
-      vim.cmd.lua {
-        args = { "require('guess-indent').set_from_buffer('auto_cmd')" },
-        mods = { silent = true },
-      }
-    end,
-  },
-
-  --  COMPILER ----------------------------------------------------------------
-  {
-    "Zeioth/compiler.nvim",
-    cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
-    dependencies = { "stevearc/overseer.nvim" },
-    config = function(_, opts) require("compiler").setup(opts) end,
-  },
-  {
-    "stevearc/overseer.nvim",
-    cmd = { "CompilerOpen", "CompilerToggleResults" },
-    opts = {
-      -- Tasks are disposed 5 minutes after running to free resources.
-      -- If you need to close a task inmediatelly:
-      -- press ENTER in the outut menu on the task you wanna close.
-      task_list = { -- this refers to the window that shows the result
-        direction = "bottom",
-        min_height = 25,
-        max_height = 25,
-        default_detail = 1,
-        bindings = {
-          ["q"] = function() vim.cmd("OverseerClose") end ,
-        }
-      },
-      -- component_aliases = { -- uncomment this to disable notifications
-      --   -- Components included in default will apply to all tasks
-      --   default = {
-      --     { "display_duration", detail_level = 2 },
-      --     "on_output_summarize",
-      --     "on_exit_set_status",
-      --     "on_complete_notify",
-      --     "on_complete_dispose",
-      --   },
-      -- },
-    },
-  },
-
-  --  DEBUGGER ----------------------------------------------------------------
-  --  Debugger alternative to vim-inspector [debugger]
-  --  https://github.com/mfussenegger/nvim-dap
-  --  Here we configure the adapter+config of every debugger.
-  --  Debuggers don't have system dependencies, you just install them with mason.
-  --  We currently ship most of them with nvim.
-  {
-    "mfussenegger/nvim-dap",
-    enabled = vim.fn.has "win32" == 0,
-    event = "User BrioVimFile",
-    config = function(_, opts)
-      local dap = require("dap")
-
-      -- C#
-      dap.adapters.coreclr = {
-        type = 'executable',
-        command = vim.fn.stdpath('data')..'/mason/bin/netcoredbg',
-        args = {'--interpreter=vscode'}
-      }
-      dap.configurations.cs = {
-        {
-          type = "coreclr",
-          name = "launch - netcoredbg",
-          request = "launch",
-          program = function() -- Ask the user what executable wants to debug
-              return vim.fn.input('Path to dll: ', vim.fn.getcwd() .. '/bin/Program.exe', 'file')
-          end,
-        },
-      }
-
-      -- Java
-      -- Note: The java debugger jdtls is automatically spawned and configured
-      --       when a java file is opened. You can check it here:
-      --       ../briovim/3-autocmds.lua
-
-      -- Python
-      dap.adapters.python = {
-          type = 'executable',
-          command = vim.fn.stdpath('data')..'/mason/packages/debugpy/venv/bin/python',
-          args = { '-m', 'debugpy.adapter' },
-      }
-      dap.configurations.python = {
-        {
-          type = "python",
-          request = "launch",
-          name = "Launch file",
-          program = "${file}", -- This configuration will launch the current file if used.
-        },
-      }
-
-      -- Lua
-      dap.adapters.nlua = function(callback, config)
-        callback({ type = 'server', host = config.host or "127.0.0.1", port = config.port or 8086 })
-      end
-      dap.configurations.lua = {
-        {
-          type = 'nlua',
-          request = 'attach',
-          name = "Attach to running Neovim instance",
-          program = function() pcall(require"osv".launch({port = 8086})) end,
-        }
-      }
-
-      -- C
-      dap.adapters.codelldb = {
-        type = 'server',
-        port = "${port}",
-        executable = {
-          command = vim.fn.stdpath('data')..'/mason/bin/codelldb',
-          args = {"--port", "${port}"},
-           detached = true,
-        }
-      }
-      dap.configurations.c = {
-        {
-          name = 'Launch',
-          type = 'codelldb',
-          request = 'launch',
-          program = function() -- Ask the user what executable wants to debug
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/bin/program', 'file')
-          end,
-          cwd = '${workspaceFolder}',
-          stopOnEntry = false,
-          args = {},
-        },
-      }
-
-      -- C++
-      dap.configurations.cpp = dap.configurations.c
-
-      -- Rust
-      dap.configurations.rust = {
-        {
-          name = 'Launch',
-          type = 'codelldb',
-          request = 'launch',
-          program = function() -- Ask the user what executable wants to debug
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/bin/program', 'file')
-          end,
-          cwd = '${workspaceFolder}',
-          stopOnEntry = false,
-          args = {},
-          initCommands = function() -- add rust types support (optional)
-            -- Find out where to look for the pretty printer Python module
-            local rustc_sysroot = vim.fn.trim(vim.fn.system('rustc --print sysroot'))
-
-            local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
-            local commands_file = rustc_sysroot .. '/lib/rustlib/etc/lldb_commands'
-
-            local commands = {}
-            local file = io.open(commands_file, 'r')
-            if file then
-              for line in file:lines() do
-                table.insert(commands, line)
-              end
-              file:close()
-            end
-            table.insert(commands, 1, script_import)
-
-            return commands
-          end,
-        }
-      }
-
-      -- Go
-      -- Requires:
-      -- * You have initialized your module with 'go mod init module_name'.
-      -- * You :cd your project before running DAP.
-      -- note that no mason package or nvim plugin is required.
-      dap.adapters.delve = {
-        type = 'server',
-        port = '${port}',
-        executable = {
-          command = vim.fn.stdpath('data')..'/mason/packages/delve/dlv',
-          args = {'dap', '-l', '127.0.0.1:${port}'},
-        }
-      }
-      dap.configurations.go = {
-        {
-          type = "delve",
-          name = "Compile module and debug this file",
-          request = "launch",
-          program = "./${relativeFileDirname}",
-        },
-        {
-          type = "delve",
-          name = "Compile module and debug this file (test)",
-          request = "launch",
-          mode = "test",
-          program = "./${relativeFileDirname}"
-        },
-      }
-
-      -- Dart (untested)
-      dap.adapters.dart = {
-        type = "executable",
-        command = "node",
-        args = { vim.fn.stdpath('data')..'/mason/bin/dart-debug-adapter', "flutter"}
-      }
-      dap.configurations.dart = {
-        {
-          type = "dart",
-          request = "launch",
-          name = "Launch flutter",
-          dartSdkPath = os.getenv('HOME').."/flutter/bin/cache/dart-sdk/",
-          flutterSdkPath = os.getenv('HOME').."/flutter",
-          program = "${workspaceFolder}/lib/main.dart",
-          cwd = "${workspaceFolder}",
-        }
-      }
-
-      -- Kotlin (untested)
-      dap.adapters.kotlin = {
-          type = 'executable';
-        command = vim.fn.stdpath('data')..'/mason/bin/kotlin-debug-adapter',
-      }
-      dap.configurations.kotlin = {
-          {
-              type = 'kotlin';
-              request = 'launch';
-              name = 'Launch kotlin program';
-              projectRoot = "${workspaceFolder}/app";
-              mainClass = "AppKt";
-          };
-      }
-
-      -- Javascript / Typescript (firefox)
-      dap.adapters.firefox = {
-        type = 'executable',
-        command = vim.fn.stdpath('data')..'/mason/bin/firefox-debug-adapter',
-      }
-      dap.configurations.typescript = {
-        {
-        name = 'Debug with Firefox',
-        type = 'firefox',
-        request = 'launch',
-        reAttach = true,
-        url = 'http://localhost:3000', -- Write the actual URL of your project.
-        webRoot = '${workspaceFolder}',
-        firefoxExecutable = '/usr/bin/firefox'
-        }
-      }
-
-      -- Shell
-      dap.adapters.bashdb = {
-        type = 'executable';
-        command = vim.fn.stdpath("data") .. '/mason/packages/bash-debug-adapter/bash-debug-adapter';
-        name = 'bashdb';
-      }
-      dap.configurations.sh = {
-        {
-          type = 'bashdb';
-          request = 'launch';
-          name = "Launch file";
-          showDebugOutput = true;
-          pathBashdb = vim.fn.stdpath("data") .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir/bashdb';
-          pathBashdbLib = vim.fn.stdpath("data") .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir';
-          trace = true;
-          file = "${file}";
-          program = "${file}";
-          cwd = '${workspaceFolder}';
-          pathCat = "cat";
-          pathBash = "/bin/bash";
-          pathMkfifo = "mkfifo";
-          pathPkill = "pkill";
-          args = {};
-          env = {};
-          terminalKind = "integrated";
-        }
-      }
-
-    end, -- of dap config
-    dependencies = {
-      {
-        "jay-babu/mason-nvim-dap.nvim",
-        "jbyuki/one-small-step-for-vimkind",
-        "https://github.com/mfussenegger/nvim-jdtls",
-        dependencies = { "nvim-dap" },
-        cmd = { "DapInstall", "DapUninstall" },
-        opts = { handlers = {} },
-      },
-      {
-        "rcarriga/nvim-dap-ui",
-        opts = { floating = { border = "rounded" } },
-        config = function(_, opts)
-          local dap, dapui = require "dap", require "dapui"
-          dap.listeners.after.event_initialized["dapui_config"] = function(
-          )
-            dapui.open()
-          end
-          dap.listeners.before.event_terminated["dapui_config"] = function(
-          )
-            dapui.close()
-          end
-          dap.listeners.before.event_exited["dapui_config"] = function()
-            dapui.close()
-          end
-          dapui.setup(opts)
-        end,
-      },
-      {
-        "rcarriga/cmp-dap",
-        dependencies = { "nvim-cmp" },
-        config = function()
-          require("cmp").setup.filetype(
-            { "dap-repl", "dapui_watches", "dapui_hover" },
-            {
-              sources = {
-                { name = "dap" },
-              },
-            }
-          )
-        end,
-      },
-    },
-  },
-
-  --  TESTING ----------------------------------------------------------------
-  --  Run tests inside of nvim [unit testing]
-  --  https://github.com/nvim-neotest/neotest
-  --
-  --
-  --  MANUAL:
-  --  -- Unit testing:
-  --  To tun an unit test you can run any of these commands:
-  --
-  --    :TestRunBlock   -- Runs the nearest test to the cursor.
-  --    :TestStopBlock  -- Stop the nearest test to the cursor.
-  --    :TestRunFile    -- Run all tests in the file.
-  --    :TestDebugBlock -- Debug the nearest test under the cursor using dap
-  --
-  --  All this commands are meant to be executed in a test file.
-  --  You can find them on ../briovim/3-autocmds.lua
-  --
-  --  -- E2e and Test Suite
-  --  Normally you will prefer to open your e2e framework GUI outside of nvim.
-  --  But you have the next commands in ../briovim/3-autocmds.lua:
-  --
-  --    :TestNodejs    -- Run all tests for this nodejs project.
-  --    :TestNodejsE2e -- Run the e2e tests/suite for this nodejs project.
-  {
-    "nvim-neotest/neotest",
-    cmd = {             -- All commands are meant to run in a test file
-      "TestRunBlock",   -- Run the nearest test to the cursor.
-      "TestStopBlock",  -- Stop the test to the cursor.
-      "TestDebugBlock", -- Debug the nearest test under the cursor using dap.
-      "TestRunFile",    -- Run all tests in the file.
-    },
-    dependencies = {
-      "nvim-neotest/neotest-go",
-      "nvim-neotest/neotest-python",
-      "nvim-neotest/neotest-jest",
-      "Issafalcon/neotest-dotnet",
-      "rouge8/neotest-rust",
-    },
-    opts = function()
-      return {
-        -- your neotest config here
-        adapters = {
-          require "neotest-go",
-          require "neotest-python",
-          require "neotest-jest",
-          require "neotest-dotnet",
-          require "neotest-rust",
-        },
-      }
-    end,
-    config = function(_, opts)
-      -- get neotest namespace (api call creates or returns namespace)
-      local neotest_ns = vim.api.nvim_create_namespace "neotest"
-      vim.diagnostic.config({
-        virtual_text = {
-          format = function(diagnostic)
-            local message = diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
-            return message
-          end,
-        },
-      }, neotest_ns)
-      require("neotest").setup(opts)
-    end,
-  },
-
-  --  Shows a float panel with the [code coverage]
-  --  https://github.com/andythigpen/nvim-coverage
-  --
-  --  Your project must generate coverage/lcov.info for this to work.
-  --
-  --  On jest, make sure your packages.json file has this:
-  --  "tests": "jest --coverage"
-  --
-  --  If you use other framework or language, refer to nvim-coverage docs:
-  --  https://github.com/andythigpen/nvim-coverage/blob/main/doc/nvim-coverage.txt
-  {
-    "andythigpen/nvim-coverage",
-    cmd = {
-      "Coverage",
-      "CoverageLoad",
-      "CoverageLoadLcov",
-      "CoverageShow",
-      "CoverageHide",
-      "CoverageToggle",
-      "CoverageClear",
-      "CoverageSummary",
-    },
-    config = function() require("coverage").setup() end,
-    requires = { "nvim-lua/plenary.nvim" },
-  },
-}
+return {}
+-- -- Coding
+-- -- Things you actively use for coding.
+--
+-- --    Sections:
+-- --       ## COMMENTS
+-- --       -> comment.nvim                   [comment with a key]
+--
+-- --       ## SNIPPETS
+-- --       -> luasnip                        [snippet engine]
+-- --       -> friendly-snippets              [snippet templates]
+--
+-- --       ## GIT
+-- --       -> gitsigns.nvim                  [git hunks]
+-- --       -> fugitive.vim                   [git commands]
+-- --       -> git-conflict.nvim              [git conflicts]
+--
+-- --       ## ANALYZER
+-- --       -> aerial.nvim                    [symbols tree]
+--
+-- --       ## CODE DOCUMENTATION
+-- --       -> dooku.nivm                     [html doc generator]
+-- --       -> markdown-preview.nvim          [markdown previewer]
+-- --       -> markmap.nvim                   [markdown mindmap]
+--
+-- --       ## ARTIFICIAL INTELLIGENCE
+-- --       -> neural                         [chatgpt code generator]
+-- --       -> copilot                        [github code suggestions]
+-- --       -> guess-indent                   [guess-indent]
+--
+-- --       ## COMPILER
+-- --       -> compiler.nvim                  [compiler]
+-- --       -> overseer.nvim                  [task runner]
+--
+-- --       ## DEBUGGER
+-- --       -> nvim-dap                       [debugger]
+--
+-- --       ## TESTING
+-- --       -> neotest.nvim                   [unit testing]
+-- --       -> nvim-coverage                  [code coverage]
+--
+-- --       ## NOT INSTALLED
+-- --       -> distant.nvim                   [ssh to edit in a remote machine]
+--
+-- local get_icon = require("utils").get_icon
+-- return {
+--   --  COMMENTS ----------------------------------------------------------------
+--   --  Advanced comment features [comment with a key]
+--   --  https://github.com/numToStr/Comment.nvim
+--   {
+--     "numToStr/Comment.nvim",
+--     keys = {
+--       { "gc", mode = { "n", "v" }, desc = "Comment toggle linewise" },
+--       { "gb", mode = { "n", "v" }, desc = "Comment toggle blockwise" },
+--     },
+--     opts = function()
+--       local commentstring_avail, commentstring =
+--         pcall(require, "ts_context_commentstring.integrations.comment_nvim")
+--       return commentstring_avail
+--           and commentstring
+--           and { pre_hook = commentstring.create_pre_hook() }
+--         or {}
+--     end,
+--   },
+--
+--   --  SNIPPETS ----------------------------------------------------------------
+--   --  Vim Snippets engine  [snippet engine] + [snippet templates]
+--   --  https://github.com/L3MON4D3/LuaSnip
+--   --  https://github.com/rafamadriz/friendly-snippets
+--   {
+--     "L3MON4D3/LuaSnip",
+--     build = "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build\n'; make install_jsregexp",
+--     dependencies = {
+--       "zeioth/friendly-snippets",
+--       "Zeioth/NormalSnippets",
+--       "benfowler/telescope-luasnip.nvim",
+--     },
+--     opts = {
+--       history = true,
+--       delete_check_events = "TextChanged",
+--       region_check_events = "CursorMoved",
+--     },
+--     config = function(_, opts)
+--       if opts then require("luasnip").config.setup(opts) end
+--       vim.tbl_map(
+--         function(type) require("luasnip.loaders.from_" .. type).lazy_load() end,
+--         { "vscode", "snipmate", "lua" }
+--       )
+--       -- friendly-snippets - enable standardized comments snippets
+--       require("luasnip").filetype_extend("typescript", { "tsdoc" })
+--       require("luasnip").filetype_extend("javascript", { "jsdoc" })
+--       require("luasnip").filetype_extend("lua", { "luadoc" })
+--       require("luasnip").filetype_extend("python", { "pydoc" })
+--       require("luasnip").filetype_extend("rust", { "rustdoc" })
+--       require("luasnip").filetype_extend("cs", { "csharpdoc" })
+--       require("luasnip").filetype_extend("java", { "javadoc" })
+--       require("luasnip").filetype_extend("c", { "cdoc" })
+--       require("luasnip").filetype_extend("cpp", { "cppdoc" })
+--       require("luasnip").filetype_extend("php", { "phpdoc" })
+--       require("luasnip").filetype_extend("kotlin", { "kdoc" })
+--       require("luasnip").filetype_extend("ruby", { "rdoc" })
+--       require("luasnip").filetype_extend("sh", { "shelldoc" })
+--       --require("luasnip").filetype_extend("shell", { "doxygen" })
+--     end,
+--   },
+--
+--   --  GIT ---------------------------------------------------------------------
+--   --  Git signs [git hunks]
+--   --  https://github.com/lewis6991/gitsigns.nvim
+--   {
+--     "lewis6991/gitsigns.nvim",
+--     enabled = vim.fn.executable "git" == 1,
+--     event = "User BrioVimGitFile",
+--     opts = {
+--       signs = {
+--         add = { text = get_icon "GitSign" },
+--         change = { text = get_icon "GitSign" },
+--         delete = { text = get_icon "GitSign" },
+--         topdelete = { text = get_icon "GitSign" },
+--         changedelete = { text = get_icon "GitSign" },
+--         untracked = { text = get_icon "GitSign" },
+--       },
+--     },
+--   },
+--
+--   --  Git fugitive mergetool + [git commands]
+--   --  https://github.com/lewis6991/gitsigns.nvim
+--   --  PR needed: Setup keymappings to move quickly when using this feature.
+--   --
+--   --  We only want this plugin to use it as mergetool like "git mergetool".
+--   --  To enable this feature, add this  to your global .gitconfig:
+--   --
+--   --  [mergetool "fugitive"]
+--   --  	cmd = nvim -c \"Gvdiffsplit!\" \"$MERGED\"
+--   --  [merge]
+--   --  	tool = fugitive
+--   --  [mergetool]
+--   --  	keepBackup = false
+--   {
+--     "tpope/vim-fugitive",
+--     enabled = vim.fn.executable "git" == 1,
+--     dependencies = { "tpope/vim-rhubarb" },
+--     cmd = {
+--       "Gvdiffsplit",
+--       "Gdiffsplit",
+--       "Gedit",
+--       "Gsplit",
+--       "Gread",
+--       "Gwrite",
+--       "Ggrep",
+--       "GMove",
+--       "GRename",
+--       "GDelete",
+--       "GRemove",
+--       "GBrowse",
+--       "Git",
+--       "Gstatus",
+--     },
+--     init = function() vim.g.fugitive_no_maps = 1 end,
+--   },
+--
+--   {
+--     "akinsho/git-conflict.nvim",
+--     version = "*",
+--     config = true,
+--   },
+--
+--    {
+--     "sindrets/diffview.nvim",
+--     cmd = {
+--       "DiffviewOpen",
+--       "DiffviewClose",
+--       "DiffviewToggleFiles",
+--       "DiffviewFocusFiles",
+--     },
+--     config = function()
+--       local actions = require("diffview.actions")
+--
+--       require("diffview").setup({
+--         diff_binaries = false, -- Show diffs for binaries
+--         enhanced_diff_hl = false, -- See ':h diffview-config-enhanced_diff_hl'
+--         git_cmd = { "git" }, -- The git executable followed by default args.
+--         use_icons = true, -- Requires nvim-web-devicons
+--         watch_index = true, -- Update views and index buffers when the git index changes.
+--         icons = { -- Only applies when use_icons is true.
+--           folder_closed = "",
+--           folder_open = "",
+--         },
+--         signs = {
+--           fold_closed = "",
+--           fold_open = "",
+--           done = "✓",
+--         },
+--         view = {
+--           -- Configure the layout and behavior of different types of views.
+--           -- Available layouts:
+--           --  'diff1_plain'
+--           --    |'diff2_horizontal'
+--           --    |'diff2_vertical'
+--           --    |'diff3_horizontal'
+--           --    |'diff3_vertical'
+--           --    |'diff3_mixed'
+--           --    |'diff4_mixed'
+--           -- For more info, see ':h diffview-config-view.x.layout'.
+--           default = {
+--             -- Config for changed files, and staged files in diff views.
+--             layout = "diff2_horizontal",
+--           },
+--           merge_tool = {
+--             -- Config for conflicted files in diff views during a merge or rebase.
+--             layout = "diff3_horizontal",
+--             disable_diagnostics = true, -- Temporarily disable diagnostics for conflict buffers while in the view.
+--           },
+--           file_history = {
+--             -- Config for changed files in file history views.
+--             layout = "diff2_horizontal",
+--           },
+--         },
+--         file_panel = {
+--           listing_style = "tree", -- One of 'list' or 'tree'
+--           tree_options = { -- Only applies when listing_style is 'tree'
+--             flatten_dirs = true, -- Flatten dirs that only contain one single dir
+--             folder_statuses = "only_folded", -- One of 'never', 'only_folded' or 'always'.
+--           },
+--           win_config = { -- See ':h diffview-config-win_config'
+--             position = "left",
+--             width = 35,
+--             win_opts = {},
+--           },
+--         },
+--         file_history_panel = {
+--           log_options = { -- See ':h diffview-config-log_options'
+--             git = {
+--               single_file = {
+--                 diff_merges = "combined",
+--               },
+--               multi_file = {
+--                 diff_merges = "first-parent",
+--               },
+--             },
+--           },
+--           win_config = { -- See ':h diffview-config-win_config'
+--             position = "bottom",
+--             height = 16,
+--             win_opts = {},
+--           },
+--         },
+--         commit_log_panel = {
+--           win_config = { -- See ':h diffview-config-win_config'
+--             win_opts = {},
+--           },
+--         },
+--         default_args = { -- Default args prepended to the arg-list for the listed commands
+--           DiffviewOpen = {},
+--           DiffviewFileHistory = {},
+--         },
+--         hooks = {}, -- See ':h diffview-config-hooks'
+--         keymaps = {
+--           disable_defaults = false, -- Disable the default keymaps
+--           view = {
+--             -- The `view` bindings are active in the diff buffers, only when the current
+--             -- tabpage is a Diffview.
+--             { "n", "<tab>", actions.select_next_entry, { desc = "Open the diff for the next file" } },
+--             { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
+--             {
+--               "n",
+--               "gf",
+--               actions.goto_file,
+--               { desc = "Open the file in a new split in the previous tabpage" },
+--             },
+--             { "n", "<C-w><C-f>", actions.goto_file_split, { desc = "Open the file in a new split" } },
+--             { "n", "<C-w>gf", actions.goto_file_tab, { desc = "Open the file in a new tabpage" } },
+--             { "n", "<leader>e", actions.focus_files, { desc = "Bring focus to the file panel" } },
+--             { "n", "<leader>b", actions.toggle_files, { desc = "Toggle the file panel." } },
+--             { "n", "g<C-x>", actions.cycle_layout, { desc = "Cycle through available layouts." } },
+--             {
+--               "n",
+--               "[x",
+--               actions.prev_conflict,
+--               { desc = "In the merge-tool: jump to the previous conflict" },
+--             },
+--             {
+--               "n",
+--               "]x",
+--               actions.next_conflict,
+--               { desc = "In the merge-tool: jump to the next conflict" },
+--             },
+--             { "n", "<leader>co", actions.conflict_choose("ours"), { desc = "Choose the OURS version of a conflict" } },
+--             {
+--               "n",
+--               "<leader>ct",
+--               actions.conflict_choose("theirs"),
+--               { desc = "Choose the THEIRS version of a conflict" },
+--             },
+--             { "n", "<leader>cb", actions.conflict_choose("base"), { desc = "Choose the BASE version of a conflict" } },
+--             { "n", "<leader>ca", actions.conflict_choose("all"), { desc = "Choose all the versions of a conflict" } },
+--             { "n", "dx", actions.conflict_choose("none"), { desc = "Delete the conflict region" } },
+--           },
+--           diff1 = {
+--             -- Mappings in single window diff layouts
+--             { "n", "g?", actions.help({ "view", "diff1" }), { desc = "Open the help panel" } },
+--           },
+--           diff2 = {
+--             -- Mappings in 2-way diff layouts
+--             { "n", "g?", actions.help({ "view", "diff2" }), { desc = "Open the help panel" } },
+--           },
+--           diff3 = {
+--             -- Mappings in 3-way diff layouts
+--             {
+--               { "n", "x" },
+--               "2do",
+--               actions.diffget("ours"),
+--               { desc = "Obtain the diff hunk from the OURS version of the file" },
+--             },
+--             {
+--               { "n", "x" },
+--               "3do",
+--               actions.diffget("theirs"),
+--               { desc = "Obtain the diff hunk from the THEIRS version of the file" },
+--             },
+--             { "n", "g?", actions.help({ "view", "diff3" }), { desc = "Open the help panel" } },
+--           },
+--           diff4 = {
+--             -- Mappings in 4-way diff layouts
+--             {
+--               { "n", "x" },
+--               "1do",
+--               actions.diffget("base"),
+--               { desc = "Obtain the diff hunk from the BASE version of the file" },
+--             },
+--             {
+--               { "n", "x" },
+--               "2do",
+--               actions.diffget("ours"),
+--               { desc = "Obtain the diff hunk from the OURS version of the file" },
+--             },
+--             {
+--               { "n", "x" },
+--               "3do",
+--               actions.diffget("theirs"),
+--               { desc = "Obtain the diff hunk from the THEIRS version of the file" },
+--             },
+--             { "n", "g?", actions.help({ "view", "diff4" }), { desc = "Open the help panel" } },
+--           },
+--           file_panel = {
+--             { "n", "j", actions.next_entry, { desc = "Bring the cursor to the next file entry" } },
+--             { "n", "<down>", actions.next_entry, { desc = "Bring the cursor to the next file entry" } },
+--             { "n", "k", actions.prev_entry, { desc = "Bring the cursor to the previous file entry." } },
+--             { "n", "<up>", actions.prev_entry, { desc = "Bring the cursor to the previous file entry." } },
+--             { "n", "<cr>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
+--             { "n", "o", actions.select_entry, { desc = "Open the diff for the selected entry." } },
+--             { "n", "<2-LeftMouse>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
+--             { "n", "-", actions.toggle_stage_entry, { desc = "Stage / unstage the selected entry." } },
+--    { "n", "S", actions.stage_all, { desc = "Stage all entries." } },
+--             { "n", "U", actions.unstage_all, { desc = "Unstage all entries." } },
+--             { "n", "X", actions.restore_entry, { desc = "Restore entry to the state on the left side." } },
+--             { "n", "L", actions.open_commit_log, { desc = "Open the commit log panel." } },
+--             { "n", "<c-b>", actions.scroll_view(-0.25), { desc = "Scroll the view up" } },
+--             { "n", "<c-f>", actions.scroll_view(0.25), { desc = "Scroll the view down" } },
+--             { "n", "<tab>", actions.select_next_entry, { desc = "Open the diff for the next file" } },
+--             { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
+--             {
+--               "n",
+--               "gf",
+--               actions.goto_file,
+--               { desc = "Open the file in a new split in the previous tabpage" },
+--             },
+--             { "n", "<C-w><C-f>", actions.goto_file_split, { desc = "Open the file in a new split" } },
+--             { "n", "<C-w>gf", actions.goto_file_tab, { desc = "Open the file in a new tabpage" } },
+--             { "n", "i", actions.listing_style, { desc = "Toggle between 'list' and 'tree' views" } },
+--             {
+--               "n",
+--               "f",
+--               actions.toggle_flatten_dirs,
+--               { desc = "Flatten empty subdirectories in tree listing style." },
+--             },
+--             { "n", "R", actions.refresh_files, { desc = "Update stats and entries in the file list." } },
+--             { "n", "<leader>e", actions.focus_files, { desc = "Bring focus to the file panel" } },
+--             { "n", "<leader>b", actions.toggle_files, { desc = "Toggle the file panel" } },
+--             { "n", "g<C-x>", actions.cycle_layout, { desc = "Cycle available layouts" } },
+--             { "n", "[x", actions.prev_conflict, { desc = "Go to the previous conflict" } },
+--             { "n", "]x", actions.next_conflict, { desc = "Go to the next conflict" } },
+--             { "n", "g?", actions.help("file_panel"), { desc = "Open the help panel" } },
+--           },
+--           file_history_panel = {
+--             { "n", "g!", actions.options, { desc = "Open the option panel" } },
+--             {
+--               "n",
+--               "<C-A-d>",
+--               actions.open_in_diffview,
+--               { desc = "Open the entry under the cursor in a diffview" },
+--             },
+--             {
+--               "n",
+--               "y",
+--               actions.copy_hash,
+--               { desc = "Copy the commit hash of the entry under the cursor" },
+--             },
+--             { "n", "L", actions.open_commit_log, { desc = "Show commit details" } },
+--             { "n", "zR", actions.open_all_folds, { desc = "Expand all folds" } },
+--             { "n", "zM", actions.close_all_folds, { desc = "Collapse all folds" } },
+--             {
+--               "n",
+--               "j",
+--               actions.next_entry,
+--               { desc = "Bring the cursor to the next file entry" },
+--             },
+--             {
+--               "n",
+--               "<down>",
+--               actions.next_entry,
+--               { desc = "Bring the cursor to the next file entry" },
+--             },
+--             {
+--               "n",
+--               "k",
+--               actions.prev_entry,
+--               { desc = "Bring the cursor to the previous file entry." },
+--             },
+--             {
+--               "n",
+--               "<up>",
+--               actions.prev_entry,
+--               { desc = "Bring the cursor to the previous file entry." },
+--             },
+--             { "n", "<cr>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
+--             { "n", "o", actions.select_entry, { desc = "Open the diff for the selected entry." } },
+--             { "n", "<2-LeftMouse>", actions.select_entry, { desc = "Open the diff for the selected entry." } },
+--             { "n", "<c-b>", actions.scroll_view(-0.25), { desc = "Scroll the view up" } },
+--             { "n", "<c-f>", actions.scroll_view(0.25), { desc = "Scroll the view down" } },
+--             { "n", "<tab>", actions.select_next_entry, { desc = "Open the diff for the next file" } },
+--             { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open the diff for the previous file" } },
+--             {
+--               "n",
+--               "gf",
+--               actions.goto_file,
+--               { desc = "Open the file in a new split in the previous tabpage" },
+--             },
+--             { "n", "<C-w><C-f>", actions.goto_file_split, { desc = "Open the file in a new split" } },
+--             { "n", "<C-w>gf", actions.goto_file_tab, { desc = "Open the file in a new tabpage" } },
+--             { "n", "<leader>e", actions.focus_files, { desc = "Bring focus to the file panel" } },
+--             { "n", "<leader>b", actions.toggle_files, { desc = "Toggle the file panel" } },
+--             { "n", "g<C-x>", actions.cycle_layout, { desc = "Cycle available layouts" } },
+--             { "n", "g?", actions.help("file_history_panel"), { desc = "Open the help panel" } },
+--           },
+--           option_panel = {
+--             { "n", "<tab>", actions.select_entry, { desc = "Change the current option" } },
+--             { "n", "q", actions.close, { desc = "Close the panel" } },
+--             { "n", "g?", actions.help("option_panel"), { desc = "Open the help panel" } },
+--           },
+--           help_panel = {
+--             { "n", "q", actions.close, { desc = "Close help menu" } },
+--             { "n", "<esc>", actions.close, { desc = "Close help menu" } },
+--           },
+--         },
+--       })
+--     end,
+--   },
+--
+--
+--   --  ANALYZER ----------------------------------------------------------------
+--   --  [symbols tree]
+--   --  https://github.com/stevearc/aerial.nvim
+--   {
+--     "stevearc/aerial.nvim",
+--     event = "VeryLazy",
+--     cmd = {
+--       "AerialToggle",
+--       "AerialOpen",
+--       "AerialNavOpen",
+--       "AerialInfo",
+--       "AerialClose",
+--     },
+--     opts = {
+--       open_automatic = false, -- Open if the buffer is compatible
+--       attach_mode = "global",
+--       backends = { "lsp", "treesitter", "markdown", "man" },
+--       disable_max_lines = vim.g.big_file.lines,
+--       disable_max_size = vim.g.big_file.size,
+--       layout = { min_width = 28 },
+--       show_guides = true,
+--       filter_kind = false,
+--       guides = {
+--         mid_item = "├ ",
+--         last_item = "└ ",
+--         nested_top = "│ ",
+--         whitespace = "  ",
+--       },
+--       keymaps = {
+--         ["[y"] = "actions.prev",
+--         ["]y"] = "actions.next",
+--         ["[Y"] = "actions.prev_up",
+--         ["]Y"] = "actions.next_up",
+--         ["{"] = false,
+--         ["}"] = false,
+--         ["[["] = false,
+--         ["]]"] = false,
+--       },
+--     },
+--   },
+--
+--   --  CODE DOCUMENTATION ------------------------------------------------------
+--   --  dooku.nvim [html doc generator]
+--   --  https://github.com/Zeioth/dooku.nvim
+--   {
+--     "Zeioth/dooku.nvim",
+--     cmd = {
+--       "DookuGenerate",
+--       "DookuOpen",
+--       "DookuAutoSetup"
+--     },
+--     opts = {},
+--   },
+--
+--   --  [markdown previewer]
+--   --  https://github.com/iamcco/markdown-preview.nvim
+--   --  Note: If you change the build command, wipe ~/.local/data/nvim/lazy
+--   {
+--     "iamcco/markdown-preview.nvim",
+--     ft = "markdown",
+--     cmd = {
+--       "MarkdownPreview",
+--       "MarkdownPreviewStop",
+--       "MarkdownPreviewToggle",
+--     },
+--     build = "cd app && yarn install",
+--   },
+--
+--   --  [markdown markmap]
+--   --  https://github.com/Zeioth/markmap.nvim
+--   --  Note: If you change the build command, wipe ~/.local/data/nvim/lazy
+--   {
+--     "Zeioth/markmap.nvim",
+--     build = "yarn global add markmap-cli",
+--     cmd = { "MarkmapOpen", "MarkmapSave", "MarkmapWatch", "MarkmapWatchStop" },
+--     config = function(_, opts) require("markmap").setup(opts) end,
+--   },
+--
+--   --  ARTIFICIAL INTELIGENCE  -------------------------------------------------
+--   --  neural [chatgpt code generator]
+--   --  https://github.com/dense-analysis/neural
+--   {
+--     "dense-analysis/neural",
+--     cmd = { "Neural" },
+--     config = function()
+--       require("neural").setup {
+--         source = {
+--           openai = {
+--             api_key = vim.env.OPENAI_API_KEY,
+--           },
+--         },
+--         ui = {
+--           prompt_icon = ">",
+--         },
+--       }
+--     end,
+--   },
+--
+--   {
+--     "zbirenbaum/copilot.lua",
+--     build = ":Copilot auth",
+--     event = "InsertEnter",
+--     dependencies = {
+--       {
+--         "zbirenbaum/copilot-cmp",
+--         event = { "InsertEnter", "LspAttach" },
+--         config = function(_, opts)
+--           local function on_att(on_attach)
+--             vim.api.nvim_create_autocmd("LspAttach", {
+--               callback = function(args)
+--                 local buffer = args.buf
+--                 local client = vim.lsp.get_client_by_id(args.data.client_id)
+--                 on_attach(client, buffer)
+--               end,
+--             })
+--           end
+--           local copilot_cmp = require("copilot_cmp")
+--           copilot_cmp.setup(opts)
+--           -- attach cmp source whenever copilot attaches
+--           -- fixes lazy-loading issues with the copilot cmp source
+--           -- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/extras/coding/copilot.lua#L61
+--           on_att(function(client)
+--             if client.name == "copilot" then
+--               copilot_cmp._on_insert_enter({})
+--             end
+--           end)
+--         end,
+--       },
+--     },
+--     config = function()
+--       require("copilot").setup({
+--         suggestion = { enabled = false },
+--         panel = { enabled = false },
+--       })
+--     end,
+--   },
+--
+--   -- [guess-indent]
+--   -- https://github.com/NMAC427/guess-indent.nvim
+--   -- Note that this plugin won't autoformat the code.
+--   -- It just set the buffer options to tabuate in a certain way.
+--   {
+--     "NMAC427/guess-indent.nvim",
+--     event = "VeryLazy",
+--     config = function(_, opts)
+--       require("guess-indent").setup(opts)
+--       vim.cmd.lua {
+--         args = { "require('guess-indent').set_from_buffer('auto_cmd')" },
+--         mods = { silent = true },
+--       }
+--     end,
+--   },
+--
+--   --  COMPILER ----------------------------------------------------------------
+--   {
+--     "Zeioth/compiler.nvim",
+--     cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
+--     dependencies = { "stevearc/overseer.nvim" },
+--     config = function(_, opts) require("compiler").setup(opts) end,
+--   },
+--   {
+--     "stevearc/overseer.nvim",
+--     cmd = { "CompilerOpen", "CompilerToggleResults" },
+--     opts = {
+--       -- Tasks are disposed 5 minutes after running to free resources.
+--       -- If you need to close a task inmediatelly:
+--       -- press ENTER in the outut menu on the task you wanna close.
+--       task_list = { -- this refers to the window that shows the result
+--         direction = "bottom",
+--         min_height = 25,
+--         max_height = 25,
+--         default_detail = 1,
+--         bindings = {
+--           ["q"] = function() vim.cmd("OverseerClose") end ,
+--         }
+--       },
+--       -- component_aliases = { -- uncomment this to disable notifications
+--       --   -- Components included in default will apply to all tasks
+--       --   default = {
+--       --     { "display_duration", detail_level = 2 },
+--       --     "on_output_summarize",
+--       --     "on_exit_set_status",
+--       --     "on_complete_notify",
+--       --     "on_complete_dispose",
+--       --   },
+--       -- },
+--     },
+--   },
+--
+--   --  DEBUGGER ----------------------------------------------------------------
+--   --  Debugger alternative to vim-inspector [debugger]
+--   --  https://github.com/mfussenegger/nvim-dap
+--   --  Here we configure the adapter+config of every debugger.
+--   --  Debuggers don't have system dependencies, you just install them with mason.
+--   --  We currently ship most of them with nvim.
+--   {
+--     "mfussenegger/nvim-dap",
+--     enabled = vim.fn.has "win32" == 0,
+--     event = "User BrioVimFile",
+--     config = function(_, opts)
+--       local dap = require("dap")
+--
+--       -- C#
+--       dap.adapters.coreclr = {
+--         type = 'executable',
+--         command = vim.fn.stdpath('data')..'/mason/bin/netcoredbg',
+--         args = {'--interpreter=vscode'}
+--       }
+--       dap.configurations.cs = {
+--         {
+--           type = "coreclr",
+--           name = "launch - netcoredbg",
+--           request = "launch",
+--           program = function() -- Ask the user what executable wants to debug
+--               return vim.fn.input('Path to dll: ', vim.fn.getcwd() .. '/bin/Program.exe', 'file')
+--           end,
+--         },
+--       }
+--
+--       -- Java
+--       -- Note: The java debugger jdtls is automatically spawned and configured
+--       --       when a java file is opened. You can check it here:
+--       --       ../briovim/3-autocmds.lua
+--
+--       -- Python
+--       dap.adapters.python = {
+--           type = 'executable',
+--           command = vim.fn.stdpath('data')..'/mason/packages/debugpy/venv/bin/python',
+--           args = { '-m', 'debugpy.adapter' },
+--       }
+--       dap.configurations.python = {
+--         {
+--           type = "python",
+--           request = "launch",
+--           name = "Launch file",
+--           program = "${file}", -- This configuration will launch the current file if used.
+--         },
+--       }
+--
+--       -- Lua
+--       dap.adapters.nlua = function(callback, config)
+--         callback({ type = 'server', host = config.host or "127.0.0.1", port = config.port or 8086 })
+--       end
+--       dap.configurations.lua = {
+--         {
+--           type = 'nlua',
+--           request = 'attach',
+--           name = "Attach to running Neovim instance",
+--           program = function() pcall(require"osv".launch({port = 8086})) end,
+--         }
+--       }
+--
+--       -- C
+--       dap.adapters.codelldb = {
+--         type = 'server',
+--         port = "${port}",
+--         executable = {
+--           command = vim.fn.stdpath('data')..'/mason/bin/codelldb',
+--           args = {"--port", "${port}"},
+--            detached = true,
+--         }
+--       }
+--       dap.configurations.c = {
+--         {
+--           name = 'Launch',
+--           type = 'codelldb',
+--           request = 'launch',
+--           program = function() -- Ask the user what executable wants to debug
+--             return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/bin/program', 'file')
+--           end,
+--           cwd = '${workspaceFolder}',
+--           stopOnEntry = false,
+--           args = {},
+--         },
+--       }
+--
+--       -- C++
+--       dap.configurations.cpp = dap.configurations.c
+--
+--       -- Rust
+--       dap.configurations.rust = {
+--         {
+--           name = 'Launch',
+--           type = 'codelldb',
+--           request = 'launch',
+--           program = function() -- Ask the user what executable wants to debug
+--             return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/bin/program', 'file')
+--           end,
+--           cwd = '${workspaceFolder}',
+--           stopOnEntry = false,
+--           args = {},
+--           initCommands = function() -- add rust types support (optional)
+--             -- Find out where to look for the pretty printer Python module
+--             local rustc_sysroot = vim.fn.trim(vim.fn.system('rustc --print sysroot'))
+--
+--             local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
+--             local commands_file = rustc_sysroot .. '/lib/rustlib/etc/lldb_commands'
+--
+--             local commands = {}
+--             local file = io.open(commands_file, 'r')
+--             if file then
+--               for line in file:lines() do
+--                 table.insert(commands, line)
+--               end
+--               file:close()
+--             end
+--             table.insert(commands, 1, script_import)
+--
+--             return commands
+--           end,
+--         }
+--       }
+--
+--       -- Go
+--       -- Requires:
+--       -- * You have initialized your module with 'go mod init module_name'.
+--       -- * You :cd your project before running DAP.
+--       -- note that no mason package or nvim plugin is required.
+--       dap.adapters.delve = {
+--         type = 'server',
+--         port = '${port}',
+--         executable = {
+--           command = vim.fn.stdpath('data')..'/mason/packages/delve/dlv',
+--           args = {'dap', '-l', '127.0.0.1:${port}'},
+--         }
+--       }
+--       dap.configurations.go = {
+--         {
+--           type = "delve",
+--           name = "Compile module and debug this file",
+--           request = "launch",
+--           program = "./${relativeFileDirname}",
+--         },
+--         {
+--           type = "delve",
+--           name = "Compile module and debug this file (test)",
+--           request = "launch",
+--           mode = "test",
+--           program = "./${relativeFileDirname}"
+--         },
+--       }
+--
+--       -- Dart (untested)
+--       dap.adapters.dart = {
+--         type = "executable",
+--         command = "node",
+--         args = { vim.fn.stdpath('data')..'/mason/bin/dart-debug-adapter', "flutter"}
+--       }
+--       dap.configurations.dart = {
+--         {
+--           type = "dart",
+--           request = "launch",
+--           name = "Launch flutter",
+--           dartSdkPath = os.getenv('HOME').."/flutter/bin/cache/dart-sdk/",
+--           flutterSdkPath = os.getenv('HOME').."/flutter",
+--           program = "${workspaceFolder}/lib/main.dart",
+--           cwd = "${workspaceFolder}",
+--         }
+--       }
+--
+--       -- Kotlin (untested)
+--       dap.adapters.kotlin = {
+--           type = 'executable';
+--         command = vim.fn.stdpath('data')..'/mason/bin/kotlin-debug-adapter',
+--       }
+--       dap.configurations.kotlin = {
+--           {
+--               type = 'kotlin';
+--               request = 'launch';
+--               name = 'Launch kotlin program';
+--               projectRoot = "${workspaceFolder}/app";
+--               mainClass = "AppKt";
+--           };
+--       }
+--
+--       -- Javascript / Typescript (firefox)
+--       dap.adapters.firefox = {
+--         type = 'executable',
+--         command = vim.fn.stdpath('data')..'/mason/bin/firefox-debug-adapter',
+--       }
+--       dap.configurations.typescript = {
+--         {
+--         name = 'Debug with Firefox',
+--         type = 'firefox',
+--         request = 'launch',
+--         reAttach = true,
+--         url = 'http://localhost:3000', -- Write the actual URL of your project.
+--         webRoot = '${workspaceFolder}',
+--         firefoxExecutable = '/usr/bin/firefox'
+--         }
+--       }
+--
+--       -- Shell
+--       dap.adapters.bashdb = {
+--         type = 'executable';
+--         command = vim.fn.stdpath("data") .. '/mason/packages/bash-debug-adapter/bash-debug-adapter';
+--         name = 'bashdb';
+--       }
+--       dap.configurations.sh = {
+--         {
+--           type = 'bashdb';
+--           request = 'launch';
+--           name = "Launch file";
+--           showDebugOutput = true;
+--           pathBashdb = vim.fn.stdpath("data") .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir/bashdb';
+--           pathBashdbLib = vim.fn.stdpath("data") .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir';
+--           trace = true;
+--           file = "${file}";
+--           program = "${file}";
+--           cwd = '${workspaceFolder}';
+--           pathCat = "cat";
+--           pathBash = "/bin/bash";
+--           pathMkfifo = "mkfifo";
+--           pathPkill = "pkill";
+--           args = {};
+--           env = {};
+--           terminalKind = "integrated";
+--         }
+--       }
+--
+--     end, -- of dap config
+--     dependencies = {
+--       {
+--         "jay-babu/mason-nvim-dap.nvim",
+--         "jbyuki/one-small-step-for-vimkind",
+--         "https://github.com/mfussenegger/nvim-jdtls",
+--         dependencies = { "nvim-dap" },
+--         cmd = { "DapInstall", "DapUninstall" },
+--         opts = { handlers = {} },
+--       },
+--       {
+--         "rcarriga/nvim-dap-ui",
+--         opts = { floating = { border = "rounded" } },
+--         config = function(_, opts)
+--           local dap, dapui = require "dap", require "dapui"
+--           dap.listeners.after.event_initialized["dapui_config"] = function(
+--           )
+--             dapui.open()
+--           end
+--           dap.listeners.before.event_terminated["dapui_config"] = function(
+--           )
+--             dapui.close()
+--           end
+--           dap.listeners.before.event_exited["dapui_config"] = function()
+--             dapui.close()
+--           end
+--           dapui.setup(opts)
+--         end,
+--       },
+--       {
+--         "rcarriga/cmp-dap",
+--         dependencies = { "nvim-cmp" },
+--         config = function()
+--           require("cmp").setup.filetype(
+--             { "dap-repl", "dapui_watches", "dapui_hover" },
+--             {
+--               sources = {
+--                 { name = "dap" },
+--               },
+--             }
+--           )
+--         end,
+--       },
+--     },
+--   },
+--
+--   --  TESTING ----------------------------------------------------------------
+--   --  Run tests inside of nvim [unit testing]
+--   --  https://github.com/nvim-neotest/neotest
+--   --
+--   --
+--   --  MANUAL:
+--   --  -- Unit testing:
+--   --  To tun an unit test you can run any of these commands:
+--   --
+--   --    :TestRunBlock   -- Runs the nearest test to the cursor.
+--   --    :TestStopBlock  -- Stop the nearest test to the cursor.
+--   --    :TestRunFile    -- Run all tests in the file.
+--   --    :TestDebugBlock -- Debug the nearest test under the cursor using dap
+--   --
+--   --  All this commands are meant to be executed in a test file.
+--   --  You can find them on ../briovim/3-autocmds.lua
+--   --
+--   --  -- E2e and Test Suite
+--   --  Normally you will prefer to open your e2e framework GUI outside of nvim.
+--   --  But you have the next commands in ../briovim/3-autocmds.lua:
+--   --
+--   --    :TestNodejs    -- Run all tests for this nodejs project.
+--   --    :TestNodejsE2e -- Run the e2e tests/suite for this nodejs project.
+--   {
+--     "nvim-neotest/neotest",
+--     cmd = {             -- All commands are meant to run in a test file
+--       "TestRunBlock",   -- Run the nearest test to the cursor.
+--       "TestStopBlock",  -- Stop the test to the cursor.
+--       "TestDebugBlock", -- Debug the nearest test under the cursor using dap.
+--       "TestRunFile",    -- Run all tests in the file.
+--     },
+--     dependencies = {
+--       "nvim-neotest/neotest-go",
+--       "nvim-neotest/neotest-python",
+--       "nvim-neotest/neotest-jest",
+--       "Issafalcon/neotest-dotnet",
+--       "rouge8/neotest-rust",
+--     },
+--     opts = function()
+--       return {
+--         -- your neotest config here
+--         adapters = {
+--           require "neotest-go",
+--           require "neotest-python",
+--           require "neotest-jest",
+--           require "neotest-dotnet",
+--           require "neotest-rust",
+--         },
+--       }
+--     end,
+--     config = function(_, opts)
+--       -- get neotest namespace (api call creates or returns namespace)
+--       local neotest_ns = vim.api.nvim_create_namespace "neotest"
+--       vim.diagnostic.config({
+--         virtual_text = {
+--           format = function(diagnostic)
+--             local message = diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
+--             return message
+--           end,
+--         },
+--       }, neotest_ns)
+--       require("neotest").setup(opts)
+--     end,
+--   },
+--
+--   --  Shows a float panel with the [code coverage]
+--   --  https://github.com/andythigpen/nvim-coverage
+--   --
+--   --  Your project must generate coverage/lcov.info for this to work.
+--   --
+--   --  On jest, make sure your packages.json file has this:
+--   --  "tests": "jest --coverage"
+--   --
+--   --  If you use other framework or language, refer to nvim-coverage docs:
+--   --  https://github.com/andythigpen/nvim-coverage/blob/main/doc/nvim-coverage.txt
+--   {
+--     "andythigpen/nvim-coverage",
+--     cmd = {
+--       "Coverage",
+--       "CoverageLoad",
+--       "CoverageLoadLcov",
+--       "CoverageShow",
+--       "CoverageHide",
+--       "CoverageToggle",
+--       "CoverageClear",
+--       "CoverageSummary",
+--     },
+--     config = function() require("coverage").setup() end,
+--     requires = { "nvim-lua/plenary.nvim" },
+--   },
+-- }

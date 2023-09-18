@@ -1,245 +1,246 @@
--- Core behaviors
-
-return {
-  -- [ranger] file browser
-  -- https://github.com/kevinhwang91/rnvimr
-  -- This is NormalNvim file browser, which is only for Linux.
-  --
-  {
-    "kevinhwang91/rnvimr",
-    cmd = { "RnvimrToggle" },
-    init = function()
-      vim.g.rnvimr_enable_picker = 1
-      vim.g.rnvimr_ranger_cmd = { "ranger" }
-    end,
-  },
-
-  -- project.nvim [project search + auto cd]
-  -- https://github.com/ahmedkhalf/project.nvim`
-  {
-    "Zeioth/project.nvim",
-    event = "VeryLazy",
-    cmd = "ProjectRoot",
-    config = function()
-      require("plugins.project")
-    end,
-  },
-
-  -- trim.nvim [auto trim spaces]
-  -- https://github.com/cappyzawa/trim.nvim
-  {
-    "cappyzawa/trim.nvim",
-    event = "BufWrite",
-    opts = {
-      -- ft_blocklist = {"typescript"},
-      trim_on_write = true,
-      trim_trailing = true,
-      trim_last_line = false,
-      trim_first_line = false,
-      -- patterns = {[[%s/\(\n\n\)\n\+/\1/]]}, -- Only one consecutive bl
-    },
-  },
-
-  -- stickybuf.nvim [lock special buffers]
-  -- https://github.com/arnamak/stay-centered.nvim
-  -- By default it support neovim/aerial and others.
-  {
-    "stevearc/stickybuf.nvim",
-  },
-
-  -- nvim-window-picker  [select buffer with a letter]
-  -- https://github.com/s1n7ax/nvim-window-picker
-  -- Warning: currently no keybinding assigned for this plugin.
-  {
-    "s1n7ax/nvim-window-picker",
-    name = "window-picker",
-    opts = {
-      picker_config = {
-        statusline_winbar_picker = {
-          use_winbar = "smart",
-        },
-      },
-    },
-  },
-
-  --  smart-splits [move and resize buffers]
-  --  https://github.com/mrjones2014/smart-splits.nvim
-  {
-    "mrjones2014/smart-splits.nvim",
-    opts = {
-      ignored_filetypes = { "nofile", "quickfix", "qf", "prompt" },
-      ignored_buftypes = { "nofile" },
-    },
-  },
-
-  -- Improved [esc]
-  -- https://github.com/max397574/better-escape.nvim
-  {
-    "max397574/better-escape.nvim",
-    event = "InsertCharPre",
-    opts = {
-      mapping = {},
-      timeout = 300,
-    },
-  },
-
-  -- Toggle floating terminal on <F7> [term]
-  -- https://github.com/akinsho/toggleterm.nvim
-  -- neovim bug → https://github.com/neovim/neovim/issues/21106
-  -- workarounds → https://github.com/akinsho/toggleterm.nvim/wiki/Mouse-support
-  {
-    "akinsho/toggleterm.nvim",
-    cmd = { "ToggleTerm", "TermExec" },
-    config = function()
-      require("plugins.toggleterm")
-    end
-  },
-
-  -- Session management [session]
-  -- https://github.com/Shatur/neovim-session-manager
-  -- This plugin save your session when you write a buffer.
-  -- It also display a Telescope menu to restore saved sessions.
-  -- Sessions are saved by directory.
-  --
-  -- If you prefer to manually manage sessions using <space>S
-  -- you can disable autosaving sessions here.
-  --
-  -- If you prefer to load the last session automatically when opening nvim,
-  -- you can delete all settings and just set "lazy = false".
-  {
-    "Shatur/neovim-session-manager",
-    cmd = "SessionManager",
-    config = function()
-      require("plugins.session-manager")
-    end,
-  },
-
-  -- spectre.nvim [search and replace in project]
-  -- https://github.com/nvim-pack/nvim-spectre
-  -- INSTRUCTIONS:
-  -- To see the instructions press '?'
-  -- To start the search press <ESC>.
-  -- It doesn't have ctrl-z so please always commit before using it.
-  {
-    "nvim-pack/nvim-spectre",
-    build = "./build.sh nvim-oxi",
-    cmd = "Spectre",
-    config = function()
-      require("plugins.spectre")
-    end,
-  },
-
-  -- neotree
-  -- https://github.com/nvim-neo-tree/neo-tree.nvim
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      { "nvim-tree/nvim-web-devicons", lazy = true },
-      { "MunifTanjim/nui.nvim", lazy = true },
-    },
-    cmd = "Neotree",
-    config = function()
-      require("plugins.neotree")
-    end,
-  },
-
-  {
-    "kevinhwang91/nvim-ufo",
-    dependencies = { "kevinhwang91/promise-async" },
-    opts = {
-      preview = {
-        mappings = {
-          scrollB = "<C-b>",
-          scrollF = "<C-f>",
-          scrollU = "<C-u>",
-          scrollD = "<C-d>",
-        },
-      },
-      provider_selector = function(_, filetype, buftype)
-        local function handleFallbackException(bufnr, err, providerName)
-          if type(err) == "string" and err:match "UfoFallbackException" then
-            return require("ufo").getFolds(bufnr, providerName)
-          else
-            return require("promise").reject(err)
-          end
-        end
-
-        -- only use indent until a file is opened
-        return (filetype == "" or buftype == "nofile") and "indent"
-          or function(bufnr)
-            return require("ufo")
-              .getFolds(bufnr, "lsp")
-              :catch(
-                function(err)
-                  return handleFallbackException(bufnr, err, "treesitter")
-                end
-              )
-              :catch(
-              function(err)
-                return handleFallbackException(bufnr, err, "indent")
-              end
-            )
-          end
-      end,
-    },
-  },
-
-  --  nvim-neoclip [nvim clipboard]
-  --  https://github.com/AckslD/nvim-neoclip.lua
-  --  By default registers are deleted between sessions.
-  {
-    "AckslD/nvim-neoclip.lua",
-    requires = { {'nvim-telescope/telescope.nvim'} },
-    config = function() require('neoclip').setup() end,
-  },
-
-  --  zen-mode.nivm [distraction free mode]
-  --  https://github.com/folke/zen-mode.nvim
-  {
-    "folke/zen-mode.nvim",
-    cmd = "ZenMode",
-  },
-
-  --  suda.nvim [write as sudo]
-  --  https://github.com/lambdalisue/suda.vim
-  {
-    "lambdalisue/suda.vim",
-    cmd = { "SudaRead", "SudaWrite" },
-  },
-
-  --  vim-matchup [improved % motion]
-  --  https://github.com/andymass/vim-matchup
-  {
-    "andymass/vim-matchup",
-    event = "VeryLazy",
-    config = function()
-      vim.g.matchup_matchparen_deferred = 1   -- work async
-      vim.g.matchup_matchparen_offscreen = {} -- disable status bar icon
-    end,
-  },
-
-  --  hop.nvim [go to word visually]
-  --  https://github.com/phaazon/hop.nvim
-  {
-    "phaazon/hop.nvim",
-    cmd = { "HopWord" },
-    opts = { keys = "etovxqpdygfblzhckisuran" },
-    config = function(_, opts)
-      -- you can configure Hop the way you like here; see :h hop-config
-      require("hop").setup(opts)
-    end,
-  },
-
-  --  nvim-autopairs [auto close brackets]
-  --  https://github.com/windwp/nvim-autopairs
-  --  It's disabled by default, you can enable it with <space>ua
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    config = function()
-      require("plugins.autopairs")
-    end
-  },
-}
+return {}
+-- -- Core behaviors
+--
+-- return {
+--   -- [ranger] file browser
+--   -- https://github.com/kevinhwang91/rnvimr
+--   -- This is NormalNvim file browser, which is only for Linux.
+--   --
+--   {
+--     "kevinhwang91/rnvimr",
+--     cmd = { "RnvimrToggle" },
+--     init = function()
+--       vim.g.rnvimr_enable_picker = 1
+--       vim.g.rnvimr_ranger_cmd = { "ranger" }
+--     end,
+--   },
+--
+--   -- project.nvim [project search + auto cd]
+--   -- https://github.com/ahmedkhalf/project.nvim`
+--   {
+--     "Zeioth/project.nvim",
+--     event = "VeryLazy",
+--     cmd = "ProjectRoot",
+--     config = function()
+--       require("plugins.project")
+--     end,
+--   },
+--
+--   -- trim.nvim [auto trim spaces]
+--   -- https://github.com/cappyzawa/trim.nvim
+--   {
+--     "cappyzawa/trim.nvim",
+--     event = "BufWrite",
+--     opts = {
+--       -- ft_blocklist = {"typescript"},
+--       trim_on_write = true,
+--       trim_trailing = true,
+--       trim_last_line = false,
+--       trim_first_line = false,
+--       -- patterns = {[[%s/\(\n\n\)\n\+/\1/]]}, -- Only one consecutive bl
+--     },
+--   },
+--
+--   -- stickybuf.nvim [lock special buffers]
+--   -- https://github.com/arnamak/stay-centered.nvim
+--   -- By default it support neovim/aerial and others.
+--   {
+--     "stevearc/stickybuf.nvim",
+--   },
+--
+--   -- nvim-window-picker  [select buffer with a letter]
+--   -- https://github.com/s1n7ax/nvim-window-picker
+--   -- Warning: currently no keybinding assigned for this plugin.
+--   {
+--     "s1n7ax/nvim-window-picker",
+--     name = "window-picker",
+--     opts = {
+--       picker_config = {
+--         statusline_winbar_picker = {
+--           use_winbar = "smart",
+--         },
+--       },
+--     },
+--   },
+--
+--   --  smart-splits [move and resize buffers]
+--   --  https://github.com/mrjones2014/smart-splits.nvim
+--   {
+--     "mrjones2014/smart-splits.nvim",
+--     opts = {
+--       ignored_filetypes = { "nofile", "quickfix", "qf", "prompt" },
+--       ignored_buftypes = { "nofile" },
+--     },
+--   },
+--
+--   -- Improved [esc]
+--   -- https://github.com/max397574/better-escape.nvim
+--   {
+--     "max397574/better-escape.nvim",
+--     event = "InsertCharPre",
+--     opts = {
+--       mapping = {},
+--       timeout = 300,
+--     },
+--   },
+--
+--   -- Toggle floating terminal on <F7> [term]
+--   -- https://github.com/akinsho/toggleterm.nvim
+--   -- neovim bug → https://github.com/neovim/neovim/issues/21106
+--   -- workarounds → https://github.com/akinsho/toggleterm.nvim/wiki/Mouse-support
+--   {
+--     "akinsho/toggleterm.nvim",
+--     cmd = { "ToggleTerm", "TermExec" },
+--     config = function()
+--       require("plugins.toggleterm")
+--     end
+--   },
+--
+--   -- Session management [session]
+--   -- https://github.com/Shatur/neovim-session-manager
+--   -- This plugin save your session when you write a buffer.
+--   -- It also display a Telescope menu to restore saved sessions.
+--   -- Sessions are saved by directory.
+--   --
+--   -- If you prefer to manually manage sessions using <space>S
+--   -- you can disable autosaving sessions here.
+--   --
+--   -- If you prefer to load the last session automatically when opening nvim,
+--   -- you can delete all settings and just set "lazy = false".
+--   {
+--     "Shatur/neovim-session-manager",
+--     cmd = "SessionManager",
+--     config = function()
+--       require("plugins.session-manager")
+--     end,
+--   },
+--
+--   -- spectre.nvim [search and replace in project]
+--   -- https://github.com/nvim-pack/nvim-spectre
+--   -- INSTRUCTIONS:
+--   -- To see the instructions press '?'
+--   -- To start the search press <ESC>.
+--   -- It doesn't have ctrl-z so please always commit before using it.
+--   {
+--     "nvim-pack/nvim-spectre",
+--     build = "./build.sh nvim-oxi",
+--     cmd = "Spectre",
+--     config = function()
+--       require("plugins.spectre")
+--     end,
+--   },
+--
+--   -- neotree
+--   -- https://github.com/nvim-neo-tree/neo-tree.nvim
+--   {
+--     "nvim-neo-tree/neo-tree.nvim",
+--     branch = "v3.x",
+--     dependencies = {
+--       "nvim-lua/plenary.nvim",
+--       { "nvim-tree/nvim-web-devicons", lazy = true },
+--       { "MunifTanjim/nui.nvim", lazy = true },
+--     },
+--     cmd = "Neotree",
+--     config = function()
+--       require("plugins.neotree")
+--     end,
+--   },
+--
+--   {
+--     "kevinhwang91/nvim-ufo",
+--     dependencies = { "kevinhwang91/promise-async" },
+--     opts = {
+--       preview = {
+--         mappings = {
+--           scrollB = "<C-b>",
+--           scrollF = "<C-f>",
+--           scrollU = "<C-u>",
+--           scrollD = "<C-d>",
+--         },
+--       },
+--       provider_selector = function(_, filetype, buftype)
+--         local function handleFallbackException(bufnr, err, providerName)
+--           if type(err) == "string" and err:match "UfoFallbackException" then
+--             return require("ufo").getFolds(bufnr, providerName)
+--           else
+--             return require("promise").reject(err)
+--           end
+--         end
+--
+--         -- only use indent until a file is opened
+--         return (filetype == "" or buftype == "nofile") and "indent"
+--           or function(bufnr)
+--             return require("ufo")
+--               .getFolds(bufnr, "lsp")
+--               :catch(
+--                 function(err)
+--                   return handleFallbackException(bufnr, err, "treesitter")
+--                 end
+--               )
+--               :catch(
+--               function(err)
+--                 return handleFallbackException(bufnr, err, "indent")
+--               end
+--             )
+--           end
+--       end,
+--     },
+--   },
+--
+--   --  nvim-neoclip [nvim clipboard]
+--   --  https://github.com/AckslD/nvim-neoclip.lua
+--   --  By default registers are deleted between sessions.
+--   {
+--     "AckslD/nvim-neoclip.lua",
+--     requires = { {'nvim-telescope/telescope.nvim'} },
+--     config = function() require('neoclip').setup() end,
+--   },
+--
+--   --  zen-mode.nivm [distraction free mode]
+--   --  https://github.com/folke/zen-mode.nvim
+--   {
+--     "folke/zen-mode.nvim",
+--     cmd = "ZenMode",
+--   },
+--
+--   --  suda.nvim [write as sudo]
+--   --  https://github.com/lambdalisue/suda.vim
+--   {
+--     "lambdalisue/suda.vim",
+--     cmd = { "SudaRead", "SudaWrite" },
+--   },
+--
+--   --  vim-matchup [improved % motion]
+--   --  https://github.com/andymass/vim-matchup
+--   {
+--     "andymass/vim-matchup",
+--     event = "VeryLazy",
+--     config = function()
+--       vim.g.matchup_matchparen_deferred = 1   -- work async
+--       vim.g.matchup_matchparen_offscreen = {} -- disable status bar icon
+--     end,
+--   },
+--
+--   --  hop.nvim [go to word visually]
+--   --  https://github.com/phaazon/hop.nvim
+--   {
+--     "phaazon/hop.nvim",
+--     cmd = { "HopWord" },
+--     opts = { keys = "etovxqpdygfblzhckisuran" },
+--     config = function(_, opts)
+--       -- you can configure Hop the way you like here; see :h hop-config
+--       require("hop").setup(opts)
+--     end,
+--   },
+--
+--   --  nvim-autopairs [auto close brackets]
+--   --  https://github.com/windwp/nvim-autopairs
+--   --  It's disabled by default, you can enable it with <space>ua
+--   {
+--     "windwp/nvim-autopairs",
+--     event = "InsertEnter",
+--     config = function()
+--       require("plugins.autopairs")
+--     end
+--   },
+-- }

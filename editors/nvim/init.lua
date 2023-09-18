@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: September 16th, 2023
+# Last edited: September 18th, 2023
 --]]
 
 -- Compile lua to bytecode if the nvim version supports it.
@@ -28,38 +28,24 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require('config.BrioVim')
-require('utils.globals')
-require('utils.functions')
+if not vim.g.vscode then
+  local neovim = require("client.neovim")
+  neovim.setup()
 
-require('config.options')
-require('config.lazy')
-require('config.autocmds')
-require('config.mappings')
+  local options = {}
+  require("lazy").setup("config.plugins", options)
 
-local config = require('nvim')
-config.activate_theme()
--- config.configure_mappings()
--- config.configure_autocmds()
-config.configure_lsp()
+  neovim.activate_theme()
+  neovim.configure_mappings()
+  -- neovim.configure_lsp()
+else
+  local vscode = require("client.vscode")
+  vscode.configure()
 
--- if not vim.g.vscode then
---   local neovim = require("meg.client.neovim")
---   neovim.setup()
---
---   local options = {}
---   require("lazy").setup("meg.plugins", options)
---   neovim.activate_theme()
---   neovim.configure_mappings()
---   neovim.configure_lsp()
--- else
---   local vscode = require("meg.client.vscode")
---   vscode.configure()
---
---   local options = {
---     root = vim.fn.stdpath("data") .. "/lazy-vscode",
---     lockfile = vim.fn.stdpath("config") .. "/lazy-vscode-lock.json",
---   }
---
---   require("lazy").setup(vscode.packages(), options)
--- end
+  local options = {
+    root = vim.fn.stdpath("data") .. "/lazy-vscode",
+    lockfile = vim.fn.stdpath("config") .. "/lazy-vscode-lock.json",
+  }
+
+  require("lazy").setup(vscode.packages(), options)
+end
