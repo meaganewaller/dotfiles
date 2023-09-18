@@ -210,6 +210,7 @@ require("telescope").setup {
   },
 }
 
+_ = require("telescope").load_extension "aerial"
 _ = require("telescope").load_extension "dap"
 _ = require("telescope").load_extension "notify"
 _ = require("telescope").load_extension "file_browser"

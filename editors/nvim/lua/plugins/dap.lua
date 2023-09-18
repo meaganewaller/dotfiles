@@ -1,7 +1,6 @@
 local present_dapui, dapui = pcall(require, "dapui")
 local present_dap, dap = pcall(require, "dap")
 local present_virtual_text, dap_vt = pcall(require, "nvim-dap-virtual-text")
-local _, shade = pcall(require, "shade")
 local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
@@ -96,15 +95,12 @@ dap.set_log_level("TRACE")
 -- Automatically open UI
 dap.listeners.after.event_initialized["dapui_config"] = function()
   dapui.open()
-  -- shade.toggle()
 end
 dap.listeners.after.event_terminated["dapui_config"] = function()
   dapui.close()
-  -- shade.toggle()
 end
 dap.listeners.before.event_exited["dapui_config"] = function()
   dapui.close()
-  -- shade.toggle()
 end
 
 -- Enable virtual text

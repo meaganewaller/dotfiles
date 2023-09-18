@@ -1,151 +1,137 @@
-local autocmds = {}
+local api = vim.api
 
-function autocmds.setup()
-  vim.api.nvim_create_augroup('Highlight', { clear = true })
-  vim.api.nvim_create_autocmd('TextYankPost', {
-    callback = function()
-      vim.highlight.on_yank({ higroup = 'IncSearch', timeout = 100 })
-    end,
-  })
+--- Remove all trailing whitespace on save
+local TrimWhiteSpaceGrp = api.nvim_create_augroup("TrimWhiteSpaceGrp", { clear = true })
+api.nvim_create_autocmd("BufWritePre", {
+  command = [[:%s/\s\+$//e]],
+  group = TrimWhiteSpaceGrp,
+})
 
-  vim.api.nvim_create_augroup('LspNodeModules', { clear = true })
-  vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-    pattern = '*/node_modules/*',
-    command = 'lua vim.diagnostic.disable(0)',
-    group = 'LspNodeModules',
-  })
+-- don't auto comment new line
+api.nvim_create_autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
 
-  vim.api.nvim_create_autocmd({ 'BufEnter,WinEnter' }, {
-    pattern = '*/node_modules/*',
-    command = 'LspStop',
-    group = 'LspNodeModules',
-  })
+-- wrap words "softly" (no carriage return) in mail buffer
+api.nvim_create_autocmd("Filetype", {
+  pattern = "mail",
+  callback = function()
+    vim.opt.textwidth = 0
+    vim.opt.wrapmargin = 0
+    vim.opt.wrap = true
+    vim.opt.linebreak = true
+    vim.opt.columns = 80
+    vim.opt.colorcolumn = "80"
+  end,
+})
 
-  vim.api.nvim_create_autocmd('BufLeave', {
-    pattern = '*/node_modules/*',
-    command = 'LspStart',
-    group = 'LspNodeModules',
-  })
+-- detect typst filetype
+api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.typ" },
+  callback = function()
+    vim.api.nvim_command("set filetype=typst")
+  end,
+})
 
-  vim.api.nvim_create_autocmd(
-    { 'BufEnter', 'WinEnter', 'BufLeave' },
-    { pattern = '*.min.*', command = 'LspStop', group = 'LspNodeModules' }
-  )
 
-  vim.api.nvim_create_augroup('Spell', { clear = true })
+-- detect terraform vars
+api.nvim_create_autocmd("Filetype", {
+  pattern = "terraform-vars",
+  callback = function()
+    vim.api.nvim_command("set filetype=hcl")
+  end,
+})
 
-  -- Enable spell checking for certain file types
-  vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-    pattern = { '*.txt', '*.md', '*.tex' },
-    command = 'setlocal spell',
-    group = 'Spell',
-  })
+-- fix terraform and hcl comment string
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("FixTerraformCommentString", { clear = true }),
+  callback = function(ev)
+    vim.bo[ev.buf].commentstring = "# %s"
+  end,
+  pattern = { "terraform", "hcl" },
+})
 
-  -- Show `` in specific files
-  vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-    pattern = { '*.txt', '*.md', '*.json' },
-    command = 'setlocal conceallevel=0',
-    group = 'Spell',
-  })
+-- Highlight on yank
+api.nvim_create_autocmd("TextYankPost", {
+  callback = function()
+    vim.highlight.on_yank()
+  end,
+})
 
-  vim.api.nvim_create_autocmd('BufWritePost', {
-    pattern = '*/spell/*.add',
-    command = 'silent! :mkspell! %',
-    group = 'Spell',
-  })
+-- go to last loc when opening a buffer
+api.nvim_create_autocmd("BufReadPost", {
+  callback = function()
+    local mark = vim.api.nvim_buf_get_mark(0, '"')
+    local lcount = vim.api.nvim_buf_line_count(0)
+    if mark[1] > 0 and mark[1] <= lcount then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
+  end,
+})
 
-  vim.api.nvim_create_augroup('NvimTree', { clear = true })
-  vim.api.nvim_create_autocmd('BufWinEnter', {
-    pattern = '*/spell/*.add',
-    command = 'let &l:statusline = " Explorer"',
-    group = 'NvimTree',
-  })
+-- windows to close with "q"
+api.nvim_create_autocmd("FileType", {
+  pattern = {
+    "dap-float",
+    "fugitive",
+    "help",
+    "man",
+    "notify",
+    "null-ls-info",
+    "qf",
+    "PlenaryTestPopup",
+    "startuptime",
+    "tsplayground",
+    "spectre_panel",
+  },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+  end,
+})
+api.nvim_create_autocmd("FileType", { pattern = "man", command = [[nnoremap <buffer><silent> q :quit<CR>]] })
 
-  vim.api.nvim_create_augroup('Startified', { clear = true })
-  vim.api.nvim_create_autocmd('User', {
-    pattern = 'Startified',
-    command = 'setlocal cursorline',
-    group = 'Startified',
-  })
+-- disable list option in certain filetypes
+api.nvim_create_autocmd("FileType", { pattern = { "NeoGitStatus" }, command = [[setlocal list!]] })
 
-  vim.api.nvim_create_augroup('ClearLuasnipSession', { clear = true })
-  vim.api.nvim_create_autocmd('CursorHold', {
-    pattern = '*',
-    -- Can't use InsertLeave here because that fires when we go to select mode
-    command = 'silent! LuaSnipUnlinkCurrent',
-    group = 'ClearLuasnipSession',
-  })
+-- show cursor line only in active window
+local cursorGrp = api.nvim_create_augroup("CursorLine", { clear = true })
+api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+  pattern = "*",
+  command = "set cursorline",
+  group = cursorGrp,
+})
+api.nvim_create_autocmd(
+  { "InsertEnter", "WinLeave" },
+  { pattern = "*", command = "set nocursorline", group = cursorGrp }
+)
 
-  vim.api.nvim_create_augroup('Spell', { clear = true })
-  vim.api.nvim_create_autocmd("TextYankPost", {
-    callback = function()
-      vim.highlight.on_yank({ higroup = 'IncSearch', timeout = 100 })
-    end,
-  })
+-- when there is no buffer left show Alpha dashboard
+-- requires "famiu/bufdelete.nvim" and "goolord/alpha-nvim"
+local alpha_on_empty = api.nvim_create_augroup("alpha_on_empty", { clear = true })
+api.nvim_create_autocmd("User", {
+  pattern = "BDeletePost*",
+  group = alpha_on_empty,
+  callback = function(event)
+    local fallback_name = vim.api.nvim_buf_get_name(event.buf)
+    local fallback_ft = vim.api.nvim_buf_get_option(event.buf, "filetype")
+    local fallback_on_empty = fallback_name == "" and fallback_ft == ""
 
-  -- Disable diagnostics in node_modules (0 is current buffer only)
-  vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-    pattern = "*/node_modules/*",
-    command = "lua vim.diagnostic.disable(0)"
-  })
+    if fallback_on_empty then
+      -- require("neo-tree").close_all()
+      vim.api.nvim_command("Alpha")
+      vim.api.nvim_command(event.buf .. "bwipeout")
+    end
+  end,
+})
 
-  -- Enable spell checking for certain file types
-  vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+-- Enable spell checking for certain file types
+api.nvim_create_autocmd(
+  { "BufRead", "BufNewFile" },
+  -- { pattern = { "*.txt", "*.md", "*.tex" }, command = [[setlocal spell<cr> setlocal spelllang=en,de<cr>]] }
+  {
     pattern = { "*.txt", "*.md", "*.tex" },
-    command = "setlocal spell"
-  })
-  -- Show `` in specific files
-  vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-    pattern = { "*.txt", "*.md", "*.json" },
-    command = "setlocal conceallevel=0"
-  })
-
-  -- Attach specific keybindings in which-key for specific filetypes
-  local present, _ = pcall(require, "which-key")
-  if not present then return end
-  local _, pwk = pcall(require, "plugins.which-key")
-
-  vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = "*.md",
-    callback = function() pwk.attach_markdown(0) end
-  })
-  vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = { "*.ts", "*.tsx" },
-    callback = function() pwk.attach_typescript(0) end
-  })
-  vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = { "package.json" },
-    callback = function() pwk.attach_npm(0) end
-  })
-  vim.api.nvim_create_autocmd("FileType",
-    {
-      pattern = "*",
-      callback = function()
-        if BrioVim.plugins.zen.enabled and vim.bo.filetype ~= "alpha" then
-          pwk.attach_zen(0)
-        end
-      end
-    })
-  vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = { "*test.js", "*test.ts", "*test.tsx" },
-    callback = function() pwk.attach_jest(0) end
-  })
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = "spectre_panel",
-    callback = function() pwk.attach_spectre(0) end
-  })
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = "NvimTree",
-    callback = function() pwk.attach_nvim_tree(0) end
-  })
-
-  vim.api.nvim_create_augroup('ClearLuasnipSession', { clear = true })
-  vim.api.nvim_create_autocmd('CursorHold', {
-    pattern = '*',
-    -- Can't use InsertLeave here because that fires when we go to select mode
-    command = 'silent! LuaSnipUnlinkCurrent',
-    group = 'ClearLuasnipSession',
-  })
-end
-
-return autocmds
+    callback = function()
+      vim.opt.spell = true
+      vim.opt.spelllang = "en,de"
+    end,
+  }
+)

@@ -13,7 +13,7 @@ if not snip_status_ok then
   return
 end
 
-local copilot_status_ok, copilot_cmp_comparators = pcall(require, "copilot_cmp.comparators")
+local _, copilot_cmp_comparators = pcall(require, "copilot_cmp.comparators")
 
 require("luasnip/loaders/from_vscode").lazy_load()
 
@@ -43,9 +43,9 @@ local function limit_lsp_types(entry, ctx)
 
   if char_before_cursor == "." and char_after_dot:match("[a-zA-Z]") then
     if
-      kind == types.lsp.CompletionItemKind.Method
-      or kind == types.lsp.CompletionItemKind.Field
-      or kind == types.lsp.CompletionItemKind.Property
+        kind == types.lsp.CompletionItemKind.Method
+        or kind == types.lsp.CompletionItemKind.Field
+        or kind == types.lsp.CompletionItemKind.Property
     then
       return true
     else
@@ -123,6 +123,15 @@ local buffer_option = {
   end,
 }
 
+cmp.setup.filetype(
+  { "dap-repl", "dapui_watches", "dapui_hover" },
+  {
+    sources = {
+      { name = "dap" },
+    },
+  }
+)
+
 cmp.setup({
   snippet = {
     expand = function(args)
@@ -160,9 +169,9 @@ cmp.setup({
         fallback()
       end
     end, {
-        "i",
-        "s",
-      }),
+      "i",
+      "s",
+    }),
     ["<S-Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
@@ -172,9 +181,9 @@ cmp.setup({
         fallback()
       end
     end, {
-        "i",
-        "s",
-      }),
+      "i",
+      "s",
+    }),
     ["<C-l>"] = cmp.mapping(function(fallback)
       if luasnip.expandable() then
         luasnip.expand()
@@ -184,9 +193,9 @@ cmp.setup({
         fallback()
       end
     end, {
-        "i",
-        "s",
-      }),
+      "i",
+      "s",
+    }),
     ["<C-h>"] = cmp.mapping(function(fallback)
       if luasnip.jumpable(-1) then
         luasnip.jump(-1)
@@ -194,9 +203,9 @@ cmp.setup({
         fallback()
       end
     end, {
-        "i",
-        "s",
-      }),
+      "i",
+      "s",
+    }),
   }),
   formatting = {
     format = function(entry, vim_item)
@@ -255,7 +264,7 @@ cmp.setup({
     { name = "codeium",     priority = 9 },
     { name = "copilot",     priority = 9 },
     { name = "cmp_tabnine", priority = 7 },
-    { name = "luasnip",     priority = 7  },
+    { name = "luasnip",     priority = 7 },
     {
       name = "buffer",
       priority = 7,
@@ -263,9 +272,9 @@ cmp.setup({
       max_item_count = 10,
       option = buffer_option,
     },
-    { name = "nvim_lua",    priority = 5 },
-    { name = "path",        priority = 4 },
-    { name = "calc",        priority = 3 },
+    { name = "nvim_lua", priority = 5 },
+    { name = "path",     priority = 4 },
+    { name = "calc",     priority = 3 },
   },
   sorting = {
     priority_weight = 2,

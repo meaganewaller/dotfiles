@@ -5,8 +5,13 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: September 11th, 2023
+# Last edited: September 16th, 2023
 --]]
+
+-- Compile lua to bytecode if the nvim version supports it.
+if vim.loader and vim.fn.has "nvim-0.9.1" == 1 then
+  vim.loader.enable()
+end
 
 -- bootstrap lazy package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -29,11 +34,13 @@ require('utils.functions')
 
 require('config.options')
 require('config.lazy')
+require('config.autocmds')
+require('config.mappings')
 
 local config = require('nvim')
 config.activate_theme()
-config.configure_mappings()
-config.configure_autocmds()
+-- config.configure_mappings()
+-- config.configure_autocmds()
 config.configure_lsp()
 
 -- if not vim.g.vscode then
