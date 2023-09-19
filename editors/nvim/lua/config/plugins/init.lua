@@ -6,6 +6,7 @@ return {
   { 'tpope/vim-projectionist' },
   {
     'ggandor/leap.nvim',
+    name = 'leap',
     dependencies = { 'tpope/vim-repeat' },
     cond = not vim.g.vscode,
     event = "BufWinEnter",
@@ -33,8 +34,17 @@ return {
     config = true,
     event = "BufWinEnter",
   },
+  {
+    'echasnovski/mini.align',
+    version = false,
+    config = true,
+    event = 'VeryLazy',
+  },
 
   -- Buffer/Split/Windows
+  {
+    'mrjones2014/smart-splits.nvim',
+  },
   {
     'kazhala/close-buffers.nvim',
     cond = not vim.g.vscode,

@@ -10,8 +10,8 @@ return {
     main = 'nvim-treesitter.configs', -- Which module to call '#setup(opts)' on
     opts = {
       ensure_installed = {
-        'bash', 'c', 'cpp', 'css', 'go', 'html', 'json', 'lua', 'python', 'ruby', 'vim', 'vue', 'javascript',
-        'typescript', 'tsx', 'markdown', 'markdown_inline', 'regex'
+        'bash', 'c', 'cpp', 'css', 'scss', 'go', 'html', 'json', 'lua', 'python', 'ruby', 'vim', 'vue', 'javascript',
+        'typescript', 'tsx', 'markdown', 'markdown_inline', 'regex', 'comment', 'http'
       },
       sync_install = false, -- Don't install parsers synchronously (only applied to `ensure_installed`)
       highlight = {

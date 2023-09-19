@@ -1,161 +1,52 @@
-local keymaps = require('nvim.keymaps')
+local opts = { noremap = true, silent = true }
 
-local mappings = {}
+local term_opts = { silent = true }
 
-local function tabs()
-  keymaps.register("n", {
-      ["<C-t><C-q>"] = [[<cmd>tabclose<cr>]],
-      ["<C-t><C-t>"] = [[<cmd>tabnew<cr>]],
-      ["<C-n>"] = [[<cmd>tabnext<cr>]],
-      ["<C-p>"] = [[<cmd>tabprevious<cr>]],
-      })
-end
+local keymap = vim.api.nvim_set_keymap
 
-local function windows()
-  keymaps.register("n", {
-      ["<C-w>x"] = [[<C-w>s]],
-      })
-end
+keymap('', '<Space>', '<Nop>', opts)
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ','
 
-local function navigations()
-  keymaps.register("n", {
-      ["<C-a>"] = [[<cmd>TodoTrouble<cr>]],
-      ["<C-e>"] = [[<cmd>NvimTreeFocus<cr>]],
-      ["<C-f><C-b>"] = [[<cmd>lua require'telescope.builtin'.buffers()<cr>]],
-      ["<C-f><C-d>"] = [[<cmd>lua require'telescope.builtin'.diagnostics()<cr>]],
-      ["<C-f><C-f>"] = [[<cmd>lua require'navigation.search'.git_or_local()<cr>]],
-      ["<C-f><C-g>"] = [[<cmd>lua require'telescope.builtin'.live_grep()<cr>]],
-      ["<C-f><C-h>"] = [[<cmd>lua require'telescope.builtin'.oldfiles()<cr>]],
-      ["<C-f><C-q>"] = [[<cmd>lua require'telescope.builtin'.quickfixhistory()<cr>]],
-      ["<C-f><C-p>"] = [[<cmd>Telescope persisted<cr>]],
-      ["<C-f><C-s>"] = [[<cmd>lua require'telescope.builtin'.lsp_document_symbols()<cr>]],
-      ["<C-f><C-a>"] = [[<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>]],
-      ["<C-f><C-t>"] = [[<cmd>lua require'theming.theme_picker'.open_picker()<cr>]],
-      ["<C-g>"] = [[<cmd>Oil<cr>]],
-      ["<C-q>"] = [[<cmd>Trouble quickfix<cr>]],
-      ["<C-x>"] = [[<cmd>Trouble workspace_diagnostics<cr>]],
-      })
-end
+keymap('n', '<Leader>w', ':w<cr>', opts)
+keymap('n', '<Leader>q', ':q<cr>', opts)
+keymap('n', '<Leader>wq', ':wq<cr>', opts)
 
-local function buffer()
-  keymaps.register("n", {
-      ["+"] = [[<C-a>]],
-      ["-"] = [[<C-x>]],
-      })
-keymaps.register("x", {
-    ["+"] = [[g<C-a>]],
-    ["-"] = [[g<C-x>]],
-    })
-end
+keymap('n', '<C-h>', '<C-w>h', opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
 
--- editor
-mappings.editor_on_text = {
-  ["ga"] = [[<cmd>lua vim.lsp.buf.format()<cr>]],
-  ["gd"] = [[<cmd>lua require'telescope.builtin'.lsp_definitions()<cr>]],
-  ["gf"] = [[<cmd>lua vim.lsp.buf.declaration()<cr>]],
-  ["gH"] = [[<cmd>lua require'telescope.builtin'.lsp_references()<cr>]],
-  ["gi"] = [[<cmd>lua vim.lsp.buf.implementation()<cr>]],
-  ["gh"] = [[<cmd>lua vim.lsp.buf.signature_help()<cr>]],
-  ["gr"] = [[<cmd>lua vim.lsp.buf.rename()<cr>]],
-  ["gx"] = [[<cmd>lua vim.lsp.buf.code_action()<cr>]],
-  ["gn"] = [[<cmd>lua vim.diagnostic.goto_next()<cr>]],
-  ["gp"] = [[<cmd>lua vim.diagnostic.goto_prev()<cr>]],
-  ["K"] = [[<cmd>lua vim.lsp.buf.hover()<cr>]],
-}
+-- Resize with arrows
+keymap("n", "<C-Up>", ":resize -2<CR>", opts)
+keymap("n", "<C-Down>", ":resize +2<CR>", opts)
+keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
-local function editor_motion()
-  keymaps.register("n", {
-      ["<leader>l"] = [[<cmd>HopChar1<cr>]],
-      ["<leader>r"] = [[<cmd>HopLine<cr>]],
-      ["<leader>w"] = [[<cmd>HopWord<cr>]],
-      })
-end
+-- Move text up and down
+keymap("n", "<A-j>", "<Esc>:m .+1<CR>==gi", opts)
+keymap("n", "<A-k>", "<Esc>:m .-2<CR>==gi", opts)
 
-local function editor_visual()
-  keymaps.register("v", {
-      ["J"] = [[:m'>+1<CR>gv=gv]],
-      ["K"] = [[:m-2<CR>gv=gv]],
-      })
-end
+-- Visual --
+-- Stay in indent mode
+keymap("v", "<", "<gv", opts)
+keymap("v", ">", ">gv", opts)
 
-mappings.editor_motion_textsubjects = {
-  init_selection = "<CR>",
-  scope_incremental = "<CR>",
-  node_incremental = "<TAB>",
-  node_decremental = "<S-TAB>",
-}
+-- Move text up and down
+keymap("v", "<A-j>", ":m .+1<CR>==", opts)
+keymap("v", "<A-k>", ":m .-2<CR>==", opts)
+keymap("v", "p", '"_dP', opts)
 
-local api = require("nvim-tree.api")
-mappings.explorer = {
-  ["a"] = api.fs.create,
-  ["d"] = api.fs.remove,
-  ["gn"] = api.node.navigate.diagnostics.next,
-  ["gp"] = api.node.navigate.diagnostics.previous,
-  ["h"] = api.node.navigate.parent,
-  ["l"] = api.node.open.edit,
-  ["m"] = api.fs.cut,
-  ["p"] = api.fs.paste,
-  ["r"] = api.fs.rename,
-  ["R"] = api.tree.reload,
-  ["t"] = api.node.open.tab,
-  ["y"] = api.fs.copy.node,
-  ["<C-c>"] = api.tree.close,
-  ["<C-v>"] = api.node.open.vertical,
-  ["<C-x>"] = api.node.open.horizontal,
-  ["<CR>"] = api.node.open.edit,
-  ["<tab>"] = api.node.open.preview,
-}
+-- Visual Block --
+-- Move text up and down
+keymap("x", "J", ":move '>+1<CR>gv-gv", opts)
+keymap("x", "K", ":move '<-2<CR>gv-gv", opts)
+keymap("x", "<A-j>", ":move '>+1<CR>gv-gv", opts)
+keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
 
-mappings.oil = {
-  ["g?"] = "actions.show_help",
-  ["H"] = "actions.parent",
-  ["<CR>"] = "actions.select",
-  ["L"] = "actions.select_vsplit",
-  ["J"] = "actions.select_split",
-  ["<tab>"] = "actions.preview",
-  ["<C-c>"] = "actions.close",
-  ["<C-r>"] = "actions.refresh",
-  ["zh"] = "actions.toggle_hidden",
-}
-
--- diagnostics
-mappings.diagnostics = {
-  ["close"] = "<C-c>",
-  ["cancel"] = "<C-k>",
-  ["refresh"] = "r",
-  ["jump"] = "<cr>",
-  ["hover"] = "K",
-  ["toggle_fold"] = "<space>",
-  ["previous"] = "<C-p>",
-  ["next"] = "<C-n>",
-}
-
-local function editor_dap()
-  keymaps.register("n", {
-      ["<F5>"] = [[<cmd>lua require'dap'.continue()<cr>]],
-      ["<F10>"] = [[<cmd>lua require'dap'.step_over()<cr>]],
-      ["<F11>"] = [[<cmd>lua require'dap'.step_into()<cr>]],
-      ["<F12>"] = [[<cmd>lua require'dap'.step_out()<cr>]],
-      ["<leader>b"] = [[<cmd>lua require'dap'.toggle_breakpoint()<cr>]],
-      ["<leader>d"] = [[<cmd>lua require'dapui'.toggle()<cr>]],
-      ["<leader>c"] = [[<cmd>lua require'telescope'.extensions.dap.configurations{}<cr>]],
-      })
-end
-
-mappings.search = function(actions)
-  return {
-    ["<C-q>"] = actions.send_to_qflist,
-  }
-end
-
-  mappings.setup = function()
-  tabs()
-  windows()
-  navigations()
-  buffer()
-  editor_dap()
-  editor_motion()
-editor_visual()
-  end
-
-  return mappings
+-- Terminal --
+-- Better terminal navigation
+keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
+keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
+keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
+keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)

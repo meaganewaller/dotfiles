@@ -14,7 +14,7 @@ function M.activate_theme()
 end
 
 function M.configure_mappings()
-  require("mappings").setup()
+  require("mappings")
 end
 
 -- function M.configure_lsp()

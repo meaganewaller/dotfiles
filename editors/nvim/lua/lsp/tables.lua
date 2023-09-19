@@ -19,12 +19,36 @@ m.auto_install_with_mason = {
   'pyright',
   'rust_analyzer',
   'tsserver',
-  'vue-language-server',
-  'prettierd',
-  'stylua',
-  'shellcheck',
-  'eslint_d',
-  'tailwindcss-language-server',
+  'vuels',
+  'tailwindcss',
+  'marksman',
+  'jsonls',
+  'efm',
+  'solargraph',
+}
+
+local prettier_fmt = {
+  formatCommand = 'prettierd "${INTPUT}"',
+  formatStdin = true,
+  env = {
+    string.format('PRETTIERD_DEFAULT_CONFIG=%s', vim.fn.expand('~/.prettierrc')),
+  },
+}
+
+local erb_fmt = {
+  formatCommand = 'htmlbeautifier',
+  lintDebounce = '2s',
+  lintCommand = 'erb -x -T - | ruby -c',
+  lintStdin = true,
+  lintOffset = 1,
+  formatStdin = true
+}
+
+local efm_languages = {
+  markdown = { prettier_fmt },
+  json = { prettier_fmt },
+  eruby = { erb_fmt },
+  scss = { prettier_fmt },
 }
 
 -- Server configs. Assumes these servers are present. Either through Mason (see above) or otherwise
@@ -55,6 +79,16 @@ m.server_settings = {
       filetypes = {
         slim = "slimlint",
       },
+    },
+  },
+  efm = {
+    init_options = {
+      documentFormatting = true,
+    },
+    filetypes = vim.tbl_keys(efm_languages),
+    settings = {
+      rootMarkers = { ".git/" },
+      languages = efm_languages
     },
   },
   emmet_ls = {},
@@ -89,9 +123,10 @@ m.server_settings = {
   },
   tsserver = {},
   lemminx = {},
-  volar = {
-
-  }
+  tailwindCSS = {
+    filetypes = { 'css', 'sass', 'scss', 'tsx' }
+  },
+  vuels = {},
 }
 
 m.table_merge = function(t1, t2)

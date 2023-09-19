@@ -4,111 +4,206 @@ return {
   cond = not vim.g.vscode,
   config = function()
     local wk = require('which-key')
-    local helpers = require('helpers')
-    local cmdify = helpers.cmdify
-    local telescope_builtin = require('telescope.builtin')
-    local themed_telescope = require('helpers').themed_telescope
-
-    local plug = function(cmd)
-      return "<Plug>(" .. cmd .. ")"
-    end
-
-    local git_files_or_all_files = function()
-      if helpers.cwd_in_git_repo() then
-        return themed_telescope(telescope_builtin.git_files)
-      else
-        return themed_telescope(telescope_builtin.find_files)
-      end
-    end
 
     wk.setup({
       plugins = {
+        marks = false,
         registers = false,
       },
-      key_labels = {
-        ["<space>"] = "SPC",
-        ["<tab>"] = "TAB",
-      }
+      presets = {
+        operators = false,
+        motions = false,
+        windows = false,
+        nav = false,
+        z = false,
+        g = false,
+      },
+      operators = { gc = 'Comments' },
+      icons = {
+        breadcrumb = "»", -- symbol used in the command line area that shows your active key combo
+        separator = "➜", -- symbol used between a key and it's label
+        group = "+", -- symbol prepended to a group
+      },
+      window = {
+        border = 'rounded',
+        position = 'bottom',
+        margin = { 1, 0, 1, 0 },
+        padding = { 2, 2, 2, 2 },
+      },
+      layout = {
+        height = { min = 4, max = 25 },
+        width = { min = 20, max = 20 },
+        spacing = 3,
+        align = "center",
+      },
+      ignore_missing = false,
+      hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ "}, -- hide mapping boilerplate
+      show_help = true, -- show help message on the command line when the popup is visible
+      -- triggers = "auto", -- automatically setup triggers
+      triggers = { "<Leader>", "<LocalLeader>" },
+      triggers_blacklist = {
+        i = { "j", "k" },
+        v = { "j", "k" },
+      },
     })
 
-    local termcodes = function(str)
-      return vim.api.nvim_replace_termcodes(str, true, true, true)
-    end
+    local opts = {
+      mode = 'n',
+      prefix = '<Leader>',
+      buffer = nil,
+      silent = true,
+      noremap = true,
+      nowait = false,
+    }
 
+    local visual_opts = {
+      mode = 'v',
+      prefix = '<Leader>',
+      buffer = nil,
+      silent = true,
+      noremap = true,
+      nowait = false,
+    }
+
+    local normal_mode_mappings = {
+      ['1'] = 'which_key_ignore',
+      ['2'] = 'which_key_ignore',
+      ['3'] = 'which_key_ignore',
+      ['4'] = 'which_key_ignore',
+      ['5'] = 'which_key_ignore',
+      ['6'] = 'which_key_ignore',
+      ['7'] = 'which_key_ignore',
+      ['8'] = 'which_key_ignore',
+      ['9'] = 'which_key_ignore',
+
+      -- single
+      ['='] = { '<cmd>vertical resize +5<CR>',                      'resize +5' },
+      ['-'] = { '<cmd>vertical resize -5<CR>',                      'resize +5' },
+      ['v'] = { '<C-W>v',                                           'split right' },
+      ['V'] = { '<C-W>s',                                           'split below' },
+      ['q'] = { 'quicklist' },
+
+      ['<Leader>'] = {
+        name = 'NeoVim',
+        ['/'] = { '<cmd>Alpha<CR>', 'open dashbord' },
+        c =  { '<cmd>e $MYVIMRC<CR>', 'open config' },
+        i = { '<cmd>Lazy<CR>', 'manage plugins' },
+        u = { '<cmd>Lazy update<CR>', 'update plugins' },
+        s = {
+          name = 'Session',
+        },
+      },
+
+      a = {
+        name = 'Actions',
+        n = { '<cmd>set nonumber!<CR>', 'line numbers' },
+        r = { '<cmd>set norelativenumber!<CR>', 'relative numbers' },
+      },
+
+      b = {
+        name = 'Buffer',
+      }
+    }
 
     wk.register({
-      ["<Leader>"] = {
-        ["<Leader>"] = { git_files_or_all_files(), "Find Files" },
-        b = {
-          name = "Buffer...",
-          b = { themed_telescope(telescope_builtin.buffers), "Switch buffers" },
-          d = {
-            name = "delete...",
-            d = { cmdify("BDelete this"), "current buffer" },
-            D = { cmdify("BDelete! this"), "current buffer forcefully" },
-            h = { cmdify("BDelete hidden"), "hidden buffers" },
-            H = { cmdify("BDelete! hidden"), "hidden buffers forcefully" },
-          }
-        },
+      ["<leader>"] = {
+        d = { '<cmd>bdelete!<cr>', 'Delete buffer' },
+        -- FZF
+        F = { ':FzfLua git_files<CR>', 'Git files' },
+        f = { ':FzfLua files<CR>', 'Files' },
+        b = { ':FzfLua buffers<CR>',           'Buffers' },
+        q = { ':FzfLua quickfix<CR>',          'Quickfix' },
+        G = { ':FzfLua live_grep<CR>',         'Live Grep' },
+        r = { ':lua vim.lsp.buf.rename()<CR>', 'Rename' },
+
         c = {
-          s = { cmdify("TSJSplit"), "Split thing under cursor" },
-          j = { cmdify("TSJJoin"), "Join thing under cursor" },
-          c = { cmdify("TSJToggle"), "Toggle split/join thing under cursor" }
+          name = 'Code (LSP)',
+          a = { ':FzfLua lsp_code_actions<CR>', 'Code actions' },
+          f = { ':lua vim.lsp.buf.format()<CR>',         'Autoformat' },
+          s = { ':lua vim.lsp.buf.signature_help()<CR>', 'Signature' },
+          S = { ':FzfLua lsp_document_symbols<CR>',      'Symbols' },
+          d = { ':lua vim.diagnostic.open_float() <CR>', 'Line diagnostics' },
         },
-        f = { themed_telescope(telescope_builtin.find_files), "Find Files" },
+
         g = {
-          name = "Git...",
-          c = {
-            name = "Conflict...",
-            o = { plug("git-conflict-ours"), "Choose ours" },
-            t = { plug("git-conflict-theirs"), "Choose theirs" },
-            b = { plug("git-conflict-both"), "Choose both" },
-            ["0"] = { plug("git-conflict-none"), "Choose none" },
-            n = { plug("git-conflict-next-conflict"), "Go to next conflict" },
-            p = { plug("git-conflict-prev-conflict"), "Go to prev conflict" },
-          },
-          f = { themed_telescope(telescope_builtin.git_files), "Files in Git" },
-          g = { cmdify("Git"), "Overview" },
-          h = { cmdify("DiffviewFileHistory %"), "History of current buffer" },
-          B = { cmdify("VGit toggle_live_blame"), "Toggle blame lens" },
-          s = { cmdify("Git sync"), "pull, then push" },
+          name = 'Git',
+          b = { ':lua require"gitsigns".blame_line()<CR>',      'Git Blame line' },
+          s = { ':lua require"gitsigns".stage_hunk()<CR>',      'Stage hunk' },
+          u = { ':lua require"gitsigns".undo_stage_hunk()<CR>', 'Undo stage hunk' },
+          r = { ':lua require"gitsigns".reset_hunk()<CR>',      'Reset hunk' },
+          R = { ':lua require"gitsigns".reset_buffer()<CR>',    'Reset buffer' },
+          p = { ':lua require"gitsigns".preview_hunk()<CR>',    'Preview hunk' },
         },
-        o = {
-          name = "Open...",
-          f = { cmdify("NvimTreeToggle"), "File Browser" },
-          F = { cmdify("NvimTreeFindFile"), "File Browser at current file" },
-          t = { cmdify("ToggleTerm"), "Terminal" },
-        },
-        s = {
-          name = "Search...",
-          s = { themed_telescope(telescope_builtin.grep_string), "String under cursor" },
-          c = { themed_telescope(telescope_builtin.resume), "Resume last search" },
-          g = { themed_telescope(telescope_builtin.live_grep), "String in project" },
-          h = { themed_telescope(telescope_builtin.help_tags), "Vim Helptags" },
-        },
-        w = {
-          name = "Window...",
-          w = { cmdify("WinShift"), "Enter move mode" },
-          s = { cmdify("WinShift swap"), "Swap current window with..." },
-          h = { cmdify("WinShift left"), "Move current window left" },
-          j = { cmdify("WinShift down"), "Move current window down" },
-          k = { cmdify("WinShift up"), "Move current window up" },
-          l = { cmdify("WinShift right"), "Move current window right" },
-          H = { cmdify("WinShift far_left"), "Move current window all the way left" },
-          J = { cmdify("WinShift far_down"), "Move current window all the way down" },
-          K = { cmdify("WinShift far_up"), "Move current window all the way up" },
-          L = { cmdify("WinShift far_right"), "Move current window all the way right" },
-        }
+        ["1"] = { ':BufferLineGoToBuffer 1<CR>', "Go to buffer 1" },
+        ["2"] = { ':BufferLineGoToBuffer 2<CR>', "Go to buffer 2" },
+        ["3"] = { ':BufferLineGoToBuffer 3<CR>', "Go to buffer 3" },
+        ["4"] = { ':BufferLineGoToBuffer 4<CR>', "Go to buffer 4" },
+        ["5"] = { ':BufferLineGoToBuffer 5<CR>', "Go to buffer 5" },
+        ["6"] = { ':BufferLineGoToBuffer 6<CR>', "Go to buffer 6" },
+        ["7"] = { ':BufferLineGoToBuffer 7<CR>', "Go to buffer 7" },
+        ["8"] = { ':BufferLineGoToBuffer 8<CR>', "Go to buffer 8" },
+        ["9"] = { ':BufferLineGoToBuffer 9<CR>', "Go to buffer 9" },
       },
+
       g = {
-        p = {
-          name = "gf in previous window",
-          f = { cmdify("call gfriend#goto_cfile(winwidth(0) >=# 180 ? 'vsp' : 'sp')"), "File under cursor" },
-          F = { cmdify("call gfriend#goto_cWORD(winwidth(0) >=# 180 ? 'vsp' : 'sp')"), "File&line under cursor" }
-        }
-      }
+        name = 'Goto',
+        b = { '<cmd>BufferLinePick<CR>', 'Buffer Picker' },
+        d = { ':lua vim.lsp.buf.definition()<CR>',       'Definition'},
+        t = { ':lua vim.lsp.buf.type_definition()<CR>',  'Type Definition'},
+        D = { ':lua vim.lsp.buf.declaration()<CR>',      'Declaration'},
+        r = { ':FzfLua lsp_references<CR>',              'References'},
+        i = { ':lua vim.lsp.buf.implementation()<CR>',   'Implementation'},
+        j = { ':lua vim.lsp.diagnostic.goto_next()<CR>', 'Next diagnostic' },
+        k = { ':lua vim.lsp.diagnostic.goto_prev()<CR>', 'Previuous diagnostic' },
+      },
+
+      -- Cycle buffers
+      ['<C-n>'] = { ':bnext<CR>', 'Next buffer'},
+      ['<C-p>'] = { ':bprev<CR>', 'Previous buffer'},
+
+      -- Remap the arrow keys to nothing
+      ['<left>']  = { '<nop>', 'Nothing'},
+      ['<right>'] = { '<nop>', 'Nothing'},
+      ['<up>']    = { '<nop>', 'Nothing'},
+      ['<down>']  = { '<nop>', 'Nothing'},
+
+      -- Use Q for playing q macro
+      Q = { '@q', 'Play q macro' },
     })
 
-    wk.register({ ["<esc>"] = { termcodes([[<C-\><C-n>]]), "Exit insert mode" } }, { mode = 't' })
+    for i=1,9 do
+      wk.register({
+        [tostring(i)] = 'which_key_ignore',
+      }, { prefix = '<Leader>' })
+    end
+
+    wk.register({
+      [';'] = { ':', 'Switch ; and :' },
+      [':'] = { ';', 'Switch ; and :' },
+    }, { mode = 'n', silent = false })
+
+    wk.register({
+      -- Switch ; and :
+      [';'] = { ':', 'Switch ; and :'},
+      [':'] = { ';', 'Switch ; and :'},
+
+      -- Indent lines and reselect visual group
+      ['<'] = { '<gv', 'Reselect on indenting lines'},
+      ['>'] = { '>gv', 'Reselect on indenting lines'},
+
+      -- Move lines up and down
+      ['<C-k>'] = { ":m-2<CR>gv", 'Move line up'},
+      ['<C-j>'] = { ":m '>+<CR>gv", 'Move line down'},
+
+      ['<C-a>'] = { "g<C-a>", 'Visual increment numbers'},
+      ['<C-x>'] = { "g<C-x>", 'Visual decrement numbers'},
+      ['g<C-a>'] = { "<C-a>", 'Increment numbers'},
+      ['g<C-x>'] = { "<C-x>", 'Decrement numbers'},
+
+      -- vnoremap <C-a> g<C-a>
+      -- vnoremap <C-x> g<C-x>
+      -- vnoremap g<C-a> <C-a>
+      -- vnoremap g<C-x> <C-x>
+    }, { mode = 'v', silent = false })
   end
 }
