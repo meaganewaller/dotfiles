@@ -37,6 +37,7 @@ if not vim.g.vscode then
 
   neovim.activate_theme()
   neovim.configure_mappings()
+  neovim.configure_projectionist()
   -- neovim.configure_lsp()
 else
   local vscode = require("client.vscode")

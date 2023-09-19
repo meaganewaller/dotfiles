@@ -40,6 +40,26 @@ return {
     config = true,
     event = 'VeryLazy',
   },
+  {
+    'tpope/vim-unimpaired',
+    config = function()
+      vim.keymap.set('n', 'crp', 'crm', { remap = true })
+      vim.keymap.set('n', 'cr-', 'crk', { remap = true })
+    end
+  },
+  'tpope/vim-characterize',
+  'tpope/vim-speeddating',
+  'tpope/vim-rsi',
+  'tpope/vim-abolish',
+
+  {
+    "ckolkey/ts-node-action",
+    dependencies = { "nvim-treesitter" },
+    config = function()
+      require("ts-node-action").setup({})
+      vim.keymap.set({ "n" }, "gs", require("ts-node-action").node_action, { desc = "Trigger Node Action" })
+    end,
+  },
 
   -- Buffer/Split/Windows
   {

@@ -6,12 +6,12 @@ return {
   },
   {
     'nvim-treesitter/nvim-treesitter',
-
+    build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Which module to call '#setup(opts)' on
     opts = {
       ensure_installed = {
-        'bash', 'c', 'cpp', 'css', 'scss', 'go', 'html', 'json', 'lua', 'python', 'ruby', 'vim', 'vue', 'javascript',
-        'typescript', 'tsx', 'markdown', 'markdown_inline', 'regex', 'comment', 'http'
+        'bash', 'c', 'cpp', 'css', 'scss', 'go', 'html', 'json', 'lua', 'luadoc', 'python', 'ruby', 'vim', 'vue', 'javascript',
+        'typescript', 'tsx', 'markdown', 'markdown_inline', 'regex', 'comment', 'http', 'query', 'vimdoc',
       },
       sync_install = false, -- Don't install parsers synchronously (only applied to `ensure_installed`)
       highlight = {
@@ -30,13 +30,73 @@ return {
       },
       endwise = {
         enable = true,
+      },
+      matchup = {
+        enable = true,
+        disable_virtual_text = true,
+      },
+      context_commentstring = {
+        enable = true,
+      },
+      playground = {
+        enable = true,
+        disable = {},
+        updatetime = 25,
+        persist_queries = false,
+      },
+      textobjects = {
+        select = {
+          enable = true,
+          lookahead = true,
+          keymaps = {
+            -- You can use the capture groups defined in textobjects.scm
+            ["aa"] = "@parameter.outer",
+            ["ia"] = "@parameter.inner",
+            ["af"] = "@function.outer",
+            ["if"] = "@function.inner",
+            ["ac"] = "@class.outer",
+            ["ic"] = "@class.inner",
+            ["ar"] = "@block.outer",
+            ["ir"] = "@block.inner",
+          },
+        },
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            ["]m"] = "@function.outer",
+            ["]]"] = "@class.outer",
+          },
+          goto_next_end = {
+            ["]M"] = "@function.outer",
+            ["]["] = "@class.outer",
+          },
+          goto_previous_start = {
+            ["[m"] = "@function.outer",
+            ["[["] = "@class.outer",
+          },
+          goto_previous_end = {
+            ["[M"] = "@function.outer",
+            ["[]"] = "@class.outer",
+          },
+        },
       }
     },
-
+    auto_install = true,
+    sync_install = false,
+    ignore_install = {},
     dependencies = {
+      'JoosepAlviste/nvim-ts-context-commentstring',
       "RRethy/nvim-treesitter-endwise",
       "windwp/nvim-ts-autotag",
       'nvim-treesitter/nvim-treesitter-textobjects',
+      'nvim-treesitter/playground',
     }
-  }
+  },
+  config = function(opts)
+    require('nvim-treesitter.configs').setup(opts)
+    vim.o.foldmethod = 'expr'
+    vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+    vim.o.foldlevel = 99
+  end
 }
