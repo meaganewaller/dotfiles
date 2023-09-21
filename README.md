@@ -15,13 +15,12 @@
 <!-- </p> -->
 
 <pre align="center">
-┌┬┐┬ ┬┌─┐┬─┐┌─┐┌─┐  ┌┐┌┌─┐  ┌─┐┬  ┌─┐┌─┐┌─┐  ┬  ┬┬┌─┌─┐
- │ ├─┤├┤ ├┬┘├┤ └─┐  ││││ │  ├─┘│  ├─┤│  ├┤   │  │├┴┐├┤
- ┴ ┴ ┴└─┘┴└─└─┘└─┘  ┘└┘└─┘  ┴  ┴─┘┴ ┴└─┘└─┘  ┴─┘┴┴ ┴└─┘
-° ˛ ° ˚*_Π_____*☽*˚ ˛
-✩ ˚˛˚*   /______/__＼。✩˚ ˚˛
-˚ ˛˚˛˚｜ 田田｜門｜ ˚ ˚
-´´ ̛ ̛ ´´ ´´ ´´ ̛ ̛ ´´ ´´ ´´ ̛ ̛ ´´ ´´
+  ┌┬┐┬ ┬┌─┐┬─┐┌─┐┌─┐  ┌┐┌┌─┐  ┌─┐┬  ┌─┐┌─┐┌─┐  ┬  ┬┬┌─┌─┐
+   │ ├─┤├┤ ├┬┘├┤ └─┐  ││││ │  ├─┘│  ├─┤│  ├┤   │  │├┴┐├┤
+   ┴ ┴ ┴└─┘┴└─└─┘└─┘  ┘└┘└─┘  ┴  ┴─┘┴ ┴└─┘└─┘  ┴─┘┴┴ ┴└─┘
+  ° ˛ ° ˚*_Π_____*☽*˚ ˛
+  ✩ ˚˛˚*   /______/__＼。✩˚ ˚˛
+  ˚ ˛˚˛˚｜ 田田｜門｜ ˚ ˚
 </pre>
 
 <h1>
@@ -66,10 +65,6 @@ My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and
 
 <br>
 
-<p align="right">
-[<a href="https://gitlab.com/meagan/dotfiles">mirror</a>]
-</p>
-
 ## 🌱 <samp>SETUP</samp>
 
 I use <a href="https://github.com/anishathalye/dotbot">dotbot</a> to bootstrap my dotfiles. This allows me to keep a versioned directory of all my config files that are symlinked into place via a command. This lets me share my files with you.
@@ -78,7 +73,7 @@ I use <a href="https://github.com/anishathalye/dotbot">dotbot</a> to bootstrap m
 
 I update this constantly with poor git habits. There are no guarantees of stability, working on any machine but my own (and sometimes, tbh not even my own), or a "productive" "enjoyable" "experience".
 
-> It's probably best that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you.
+> It's highly recommended that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you.
 
 ### <samp>INSTALLING</samp>
 
@@ -88,8 +83,8 @@ _Get up and running right now:_
 
 ```sh
 💲 cd ~
-💲 git clone git@github.com:meaganewaller/.dotfiles.git
-💲 cd .dotfiles
+💲 git clone git@github.com:meaganewaller/dotfiles.git ~/.dotfiles
+💲 cd ~/.dotfiles
 💲 make install
 ```
 
@@ -131,7 +126,7 @@ _Update an existing installation:_
 
 ## <samp>✨TOOLS & RESOURCES</samp>
 
-These are the one true way[^1].
+These are the one true way.[^1]
 
 * [kitty](https://github.com/kovidgoyal/kitty)
 * [neovim](https://neovim.io/)
