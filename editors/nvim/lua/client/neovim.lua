@@ -1,7 +1,13 @@
 local M = {}
 
 function M.setup()
-  require("settings").setup()
+  require('init.general')
+  require('init.keymaps')
+  require('init.autocmds')
+end
+
+function M.activate_plugins()
+  require('init.plugins')
 end
 
 function M.activate_theme()
@@ -11,10 +17,6 @@ function M.activate_theme()
   local themes = require('theming.themes')
 
   themes.activate_theme(theme.name, theme.style, theme.transparent)
-end
-
-function M.configure_mappings()
-  require("mappings")
 end
 
 function M.configure_projectionist()
@@ -78,9 +80,5 @@ function M.configure_projectionist()
     },
   })
 end
-
--- function M.configure_lsp()
---   require("lsp").setup()
--- end
 
 return M

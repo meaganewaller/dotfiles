@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: September 18th, 2023
+# Last edited: September 19th, 2023
 --]]
 
 -- Compile lua to bytecode if the nvim version supports it.
@@ -29,16 +29,12 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 if not vim.g.vscode then
-  local neovim = require("client.neovim")
-  neovim.setup()
+  local nvim = require('client.neovim')
+  nvim.setup()
 
-  local options = {}
-  require("lazy").setup("config.plugins", options)
-
-  neovim.activate_theme()
-  neovim.configure_mappings()
-  neovim.configure_projectionist()
-  -- neovim.configure_lsp()
+  nvim.activate_plugins()
+  nvim.activate_theme()
+  nvim.configure_projectionist()
 else
   local vscode = require("client.vscode")
   vscode.configure()

@@ -1,0 +1,15 @@
+local km = require('key-menu')
+vim.o.timeoutlen = 500
+
+km.set('n', '<Space>')
+km.set('n', '<Space>f', { desc = 'Telescope' })
+km.set('n', '<Space>fn', { desc = 'npm' })
+km.set('n', '<Space>d', { desc = 'Debug' })
+km.set('n', '<Space>h', { desc = 'Git' })
+km.set('n', '<Space>x', { desc = 'Trouble' })
+km.set('n', '<Space>t', { desc = 'Testing' })
+km.set('n', '<Space>n', { desc = 'File explorers' })
+km.set('n', 'g')
+km.set('n', '[')
+km.set('n', ']')
+km.set('n', 'z')

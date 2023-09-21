@@ -1,52 +1,125 @@
-local opts = { noremap = true, silent = true }
+local utils = require('utils')
 
-local term_opts = { silent = true }
-
-local keymap = vim.api.nvim_set_keymap
-
-keymap('', '<Space>', '<Nop>', opts)
+vim.keymap.set({ 'n', 'x' }, '<Space>', '<Ignore>')
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 
-keymap('n', '<Leader>w', ':w<cr>', opts)
-keymap('n', '<Leader>q', ':q<cr>', opts)
-keymap('n', '<Leader>wq', ':wq<cr>', opts)
+-- Multi-window operations
+-- stylua: ignore start
+vim.keymap.set({ 'x', 'n' }, '<M-W>',      '<C-w>W')
+vim.keymap.set({ 'x', 'n' }, '<M-H>',      '<C-w>H')
+vim.keymap.set({ 'x', 'n' }, '<M-J>',      '<C-w>J')
+vim.keymap.set({ 'x', 'n' }, '<M-K>',      '<C-w>K')
+vim.keymap.set({ 'x', 'n' }, '<M-L>',      '<C-w>L')
+vim.keymap.set({ 'x', 'n' }, '<M-=>',      '<C-w>=')
+vim.keymap.set({ 'x', 'n' }, '<M-_>',      '<C-w>_')
+vim.keymap.set({ 'x', 'n' }, '<M-|>',      '<C-w>|')
+vim.keymap.set({ 'x', 'n' }, '<M-<>',      '<C-w><')
+vim.keymap.set({ 'x', 'n' }, '<M->>',      'v:count ? "<C-w>>" : "4<C-w>>"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<M-<>',      'v:count ? "<C-w><" : "4<C-w><"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<M-+>',      'v:count ? "<C-w>+" : "2<C-w>+"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<M-->',      'v:count ? "<C-w>-" : "2<C-w>-"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<M-p>',      '<C-w>p')
+vim.keymap.set({ 'x', 'n' }, '<M-r>',      '<C-w>r')
+vim.keymap.set({ 'x', 'n' }, '<M-v>',      '<C-w>v')
+vim.keymap.set({ 'x', 'n' }, '<M-s>',      '<C-w>s')
+vim.keymap.set({ 'x', 'n' }, '<M-x>',      '<C-w>x')
+vim.keymap.set({ 'x', 'n' }, '<M-z>',      '<C-w>z')
+vim.keymap.set({ 'x', 'n' }, '<M-c>',      '<C-w>c')
+vim.keymap.set({ 'x', 'n' }, '<M-n>',      '<C-w>n')
+vim.keymap.set({ 'x', 'n' }, '<M-o>',      '<C-w>o')
+vim.keymap.set({ 'x', 'n' }, '<M-t>',      '<C-w>t')
+vim.keymap.set({ 'x', 'n' }, '<M-T>',      '<C-w>T')
+vim.keymap.set({ 'x', 'n' }, '<M-]>',      '<C-w>]')
+vim.keymap.set({ 'x', 'n' }, '<M-^>',      '<C-w>^')
+vim.keymap.set({ 'x', 'n' }, '<M-b>',      '<C-w>b')
+vim.keymap.set({ 'x', 'n' }, '<M-d>',      '<C-w>d')
+vim.keymap.set({ 'x', 'n' }, '<M-f>',      '<C-w>f')
+vim.keymap.set({ 'x', 'n' }, '<M-}>',      '<C-w>}')
+vim.keymap.set({ 'x', 'n' }, '<M-g>]',     '<C-w>g]')
+vim.keymap.set({ 'x', 'n' }, '<M-g>}',     '<C-w>g}')
+vim.keymap.set({ 'x', 'n' }, '<M-g>f',     '<C-w>gf')
+vim.keymap.set({ 'x', 'n' }, '<M-g>F',     '<C-w>gF')
+vim.keymap.set({ 'x', 'n' }, '<M-g>t',     '<C-w>gt')
+vim.keymap.set({ 'x', 'n' }, '<M-g>T',     '<C-w>gT')
+vim.keymap.set({ 'x', 'n' }, '<M-w>',      '<C-w><C-w>')
+vim.keymap.set({ 'x', 'n' }, '<M-h>',      '<C-w><C-h>')
+vim.keymap.set({ 'x', 'n' }, '<M-j>',      '<C-w><C-j>')
+vim.keymap.set({ 'x', 'n' }, '<M-k>',      '<C-w><C-k>')
+vim.keymap.set({ 'x', 'n' }, '<M-l>',      '<C-w><C-l>')
+vim.keymap.set({ 'x', 'n' }, '<M-g><M-]>', '<C-w>g<C-]>')
+vim.keymap.set({ 'x', 'n' }, '<M-g><Tab>', '<C-w>g<Tab>')
 
-keymap('n', '<C-h>', '<C-w>h', opts)
-keymap("n", "<C-j>", "<C-w>j", opts)
-keymap("n", "<C-k>", "<C-w>k", opts)
-keymap("n", "<C-l>", "<C-w>l", opts)
+vim.keymap.set({ 'x', 'n' }, '<C-w>>', 'v:count ? "<C-w>>" : "4<C-w>>"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<C-w><', 'v:count ? "<C-w><" : "4<C-w><"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<C-w>+', 'v:count ? "<C-w>+" : "2<C-w>+"', { expr = true })
+vim.keymap.set({ 'x', 'n' }, '<C-w>-', 'v:count ? "<C-w>-" : "2<C-w>-"', { expr = true })
+-- stylua: ignore end
 
--- Resize with arrows
-keymap("n", "<C-Up>", ":resize -2<CR>", opts)
-keymap("n", "<C-Down>", ":resize +2<CR>", opts)
-keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+-- Up/down motions
+vim.keymap.set({ 'n', 'x', 'o' }, 'j', 'v:count ? "j" : "gj"', { expr = true })
+vim.keymap.set({ 'n', 'x', 'o' }, 'k', 'v:count ? "k" : "gk"', { expr = true })
 
--- Move text up and down
-keymap("n", "<A-j>", "<Esc>:m .+1<CR>==gi", opts)
-keymap("n", "<A-k>", "<Esc>:m .-2<CR>==gi", opts)
+-- Buffer navigation
+vim.keymap.set('n', ']b', '<Cmd>exec v:count1 . "bn"<CR>')
+vim.keymap.set('n', '[b', '<Cmd>exec v:count1 . "bp"<CR>')
 
--- Visual --
--- Stay in indent mode
-keymap("v", "<", "<gv", opts)
-keymap("v", ">", ">gv", opts)
+-- Correct misspelled word / mark as correct
+vim.keymap.set('i', '<C-S-L>', '<Esc>[szg`]a')
+vim.keymap.set('i', '<C-l>', '<C-G>u<Esc>[s1z=`]a<C-G>u')
 
--- Move text up and down
-keymap("v", "<A-j>", ":m .+1<CR>==", opts)
-keymap("v", "<A-k>", ":m .-2<CR>==", opts)
-keymap("v", "p", '"_dP', opts)
+-- Only clear highlights and message area and don't redraw if search
+-- highlighting is on to avoid flickering
+vim.keymap.set('n', '<C-l>', function()
+  return vim.v.hlsearch == 1 and '<Cmd>nohlsearch<Bar>diffupdate<Bar>echo<CR>'
+  or '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-l><CR>'
+end, { expr = true })
 
--- Visual Block --
--- Move text up and down
-keymap("x", "J", ":move '>+1<CR>gv-gv", opts)
-keymap("x", "K", ":move '<-2<CR>gv-gv", opts)
-keymap("x", "<A-j>", ":move '>+1<CR>gv-gv", opts)
-keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
+-- Don't include extra spaces around quotes
+vim.keymap.set({ 'o', 'x' }, 'a"', '2i"', { noremap = false })
+vim.keymap.set({ 'o', 'x' }, "a'", "2i'", { noremap = false })
+vim.keymap.set({ 'o', 'x' }, 'a`', '2i`', { noremap = false })
 
--- Terminal --
--- Better terminal navigation
-keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
-keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
-keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
-keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
+-- Close all floating windows
+vim.keymap.set('n', 'q', function()
+  local count = 0
+  local current_win = vim.api.nvim_get_current_win()
+  -- close current win only if it's a floating window
+  if vim.api.nvim_win_get_config(current_win).relative ~= '' then
+    vim.api.nvim_win_close(current_win, true)
+    return
+  end
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_is_valid(win) then
+      local config = vim.api.nvim_win_get_config(win)
+      -- close floating windows that can be focused
+      if config.relative ~= '' and config.focusable then
+        vim.api.nvim_win_close(win, false) -- do not force
+        count = count + 1
+      end
+    end
+  end
+  if count == 0 then -- Fallback
+    vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes('q', true, true, true),
+    'n',
+    false
+    )
+  end
+end)
+
+-- Text object: current buffer
+-- stylua: ignore start
+vim.keymap.set('x', 'af', ':<C-u>silent! keepjumps normal! ggVG<CR>', { silent = true, noremap = false })
+vim.keymap.set('x', 'if', ':<C-u>silent! keepjumps normal! ggVG<CR>', { silent = true, noremap = false })
+vim.keymap.set('o', 'af', '<Cmd>silent! normal m`Vaf<CR><Cmd>silent! normal! ``<CR>', { silent = true, noremap = false })
+vim.keymap.set('o', 'if', '<Cmd>silent! normal m`Vif<CR><Cmd>silent! normal! ``<CR>', { silent = true, noremap = false })
+-- stylua: ignore end
+
+-- Abbreaviations
+utils.keymap.command_abbrev('S', '%s')
+utils.keymap.command_abbrev(':', 'lua')
+utils.keymap.command_abbrev('qa', 'qa!')
+utils.keymap.command_abbrev('bw', 'bw!')
+utils.keymap.command_abbrev('mks', 'mks!')
+utils.keymap.command_abbrev('man', 'Man')
