@@ -79,83 +79,197 @@ I update this constantly with poor git habits. There are no guarantees of stabil
 
 ### :blossom: ‎ <samp>INSTALLATION (<a href="./REPOLOGY.md">DEPENDENCIES</a>)</samp>
 
-_Get up and running right now:_
+Ready to dive into the deep end? Here's how to get started:
 
-```sh
+**1. Clone the Dotfiles Repository:**
+ ```sh
 💲 cd ~
 💲 git clone git@github.com:meaganewaller/dotfiles.git ~/.dotfiles
+ ```
+
+ Congratulations, you've just initiated the journey into my digital realm. The rabbit hole awaits.
+
+**2. Navigate to the Dotfiles Directory:**
+ ```sh
 💲 cd ~/.dotfiles
+ ```
+ Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Makefile.
+
+**3. Run the Installation Script:**
+ ```sh
 💲 make install
 ```
 
-_Update an existing installation:_
+This is where the real fun begins. Buckle up as the configurations are symlinked into place. Remember, this is a one-way trip. You can't go back now.
 
-```sh
+**4. Updating an Existing Installation:**
+ ```sh
 💲 make -C ~/.dotfiles up
-```
+ ```
+
+ Already in the rabbit hole? Keep your configs up to date with the latest changes by running the `up` command.
 
 <details>
-<summary><samp><b>macOS distros</b></samp></summary>
+<summary><samp><b>for macOS distros</b></samp></summary>
 
-```sh
+macOS users, you have your own set of commands. These are the same as above, but with a `macos` suffix.
+
+**to install macOS-specific configs:**
+ ```sh
 💲 cd ~/.dotfiles && make macos
 💲 make -C ~/.dotfiles macos
 ```
 
-```sh
+**for macOS command help:**
+ ```sh
 💲 cd ~/.dotfiles && make help
 💲 make -C ~/.dotfiles help
 ```
-
 </details>
 
 <details>
 <summary><samp><b>arch linux distros</b></samp></summary>
 
+if you're on the arch linux ship, these commands are your compass.
+
+**to install arch linux-specific configs:**
 ```sh
 💲 cd ~/.dotfiles && make arch
 💲 make -C ~/.dotfiles arch
 ```
 
+**for arch linux command help:**
 ```sh
 💲 cd ~/.dotfiles && make help
 💲 make -C ~/.dotfiles help
 ```
-
 </details>
+
+now you're all set to explore the depths of my dotfiles. enjoy the ride. just remember, with great customization comes great responsibility. or whatever uncle ben said.
 
 ## <samp>✨TOOLS & RESOURCES</samp>
 
-These are the one true way.[^1]
+allow me to introduce you to my trusted accomplices. keep in mind that my loyalty to any given tool is fickle and subject to change at any moment a shiny new one catches my eye. but for now, here's the current ensemble:
 
-* [kitty](https://github.com/kovidgoyal/kitty)
-* [neovim](https://neovim.io/)
-* [fish](https://fishshell.com/)
-* [asdf](https://asdf-vm.com/)
-* [sketchybar](https://github.com/FelixKratz/SketchyBar)
-* [skhd](https://github.com/koekeishiya/skhd)
-* [homebrew](https://brew.sh/)
-* [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode)
-* [ibm plex](https://www.ibm.com/plex/)
-* [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
-* [hammerspoon](https://www.hammerspoon.org/)
-* [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
+### kitty terminal emulator
 
-[^1]: Subject to change at any time a shiny new tool catches my eye.
+- **github**: [kitty](https://github.com/kovidgoyal/kitty)
+- **description**: the kitty terminal emulator is the cat's meow when it comes to terminal experiences. it's fast, it's customizable, and it's got a cute name with a cute icon. what more could you want? it's purr-fectly suited for my daily coding antics.
+
+### neovim code editor
+* **website:** [neovim](https://neovim.io/)
+* **description:** neovim is my code sanctuary. it's like a swiss army knife for text editing but with more shortcuts and fewer corkscrews. vim enthusiasts, rejoice!
+
+### fish shell
+* **website:** [fish](https://fishshell.com/)
+* **description:** the Fish shell is my trusty sidekick in the command-line world. it's user-friendly, intuitive, and always ready to lend a helping fin.
+
+### asdf version manager
+
+* **website:** [asdf](https://asdf-vm.com/)
+* **description:** asdf is the wizard behind the curtain, managing my development environment with ease. it's like having a magic wand for installing and switching between programming languages.
+
+### sketchybar menubar
+
+* **github:** [sketchybar](https://github.com/FelixKratz/SketchyBar)
+* **description:** like a chameleon for your desktop, sketchybar changes hues to match my mood and serves as a trusty heads-up display for key information.
+
+### skhd shortcut daemon
+
+* **github:** [skhd](https://github.com/koekeishiya/skhd)
+* **description:** a silent conductor orchestrating my custom keyboard shortcuts, working tirelessly behind the scenes.
+
+### homebrew package manager
+
+* **website:** [homebrew](https://brew.sh/)
+* **description:** homebrew is the bartender of my system, serving up all the software i need with a simple command. it keeps my system well-hydrated with the latest apps.
+
+### fira code nerd font
+
+* **github:** [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/firacode)
+* **description:** fira code nerd font is the font of choice for my code. it's like the perfect pair of jeans—it just fits right and makes everything look good.
+
+### ibm plex typeface
+
+* **website:** [ibm plex](https://www.ibm.com/plex/)
+* **description:** ibm plex is my typographic muse. it's clean, modern, and adds a touch of class to my monitor. i pretty much only use it for italics.
+
+### bigblue terminal font
+
+* **website:** [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
+* **description:** bigblue terminal font takes me back to the good old days of computing. it's retro, it's fixed-width, and it's just plain cool.
+
+### hammerspoon automation tool
+
+* **website:** [hammerspoon](https://www.hammerspoon.org/)
+* **description:** hammerspoon is my digital butler, automating tasks and making my life easier. it's like having a personal assistant in code form.
+
+### karabiner elements keyboard customizer
+
+* **github:** [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
+* **description:** karabiner elements is my key manipulator, shaping keyboard behaviors to adapt effortlessly to different layouts and key combinations. it's a versatile tool for customizing key functions to suit my needs.
+
+
+now that you've met the crew, feel free to explore their individual quirks and see how they contribute to the symphony of my digital life.
+
 
 ## 🌻 <samp> KEY BINDINGS</samp>
 
 I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F19. Using hammerspoon I set my hyper key to F18, this allows me to still have access to all modifiers (ctrl, alt, cmd, shift)[^2].
 
-| Key | Action |
-|:----|:-------|
-| <kbd>F19</kbd> + <kbd>⯇</kbd> | Move window focus to left-side |
-| <kbd>F19</kbd> + <kbd>⯈</kbd>                                                                                                                            | Move window focus to right-side                   |
-| <kbd>F19</kbd> + <kbd>⯅</kbd>                                                                                                                            | Move window focus to up-side                      |
-| <kbd>F19</kbd> + <kbd>⯆</kbd>                                                                                                                            | Move window focus to down-side                    |
-
 [^2]: Evan Travers' [blog post about a Better Hyper Key](https://evantravers.com/articles/2020/06/08/hammerspoon-a-better-better-hyper-key/) is the inspiration behind this.
 
+## 🌻 <samp> GUIDES</samp>
+
+to get the most out of my dotfiles, i recommend reading through the guides below. they'll help you understand how everything works and how to customize it to your liking.
+
+- [**hammerspoon guide**]()
+- [**kitty guide**]()
+- [**neovim guide**]()
+- [**fish guide**]()
+- [**sketchybar guide**]()
+- [**skhd guide**]()
+- [**homebrew guide**]()
+- [**karabiner elements guide**]()
+
 ## Credits
+
+##  🤝 <samp> CONTRIBUTING</samp>
+
+thank you for showing interest in contributing to my dotfiles! these configurations are deeply personal, reflecting my own quirks and preferences, but i'm always open to valuable suggestions and improvements.
+
+### ❗️ note
+
+these dotfiles are primarily tailored to my specific needs and workflow. while i may not be actively seeking random contributions, your insights and ideas are highly appreciated. if you come across something that
+could be enhanced or have a suggestion that could benefit a broader audience, please don't hesitate to share it.
+
+### 💡 suggesting changes
+
+if you have an idea for an improvement or a suggestion, feel free to open an issue outlining the details. i'll review it, and if it aligns with the goals of these dotfiles,
+we can turn it into an actionable issue that welcomes contributions.
+
+please be clear and concise in your proposals, and let's work together to make these dotfiles even more useful for everyone :sparkles:
+
+### 🐛 reporting bugs & troubleshooting
+
+if you encounter a bug or issue with these dotfiles, please open an issue with the details. i'll review it, and if it's a bug, we'll queue it for squashing.
+
+some issues may be related to the tools and resources used in these dotfiles. if that's the case, i'll do my best to help you troubleshoot and resolve the issue.
+in lieu of opening an issue, there are some common troubleshooting steps you can take:
+
+- **check the documentation:** if you're having trouble with a specific tool or resource, check the documentation to see if it addresses your issue.
+- **check the wiki:** i've documented some common issues and solutions in the wiki. check there to see if your issue is covered.
+- **check the source:** if you're comfortable with the tools and resources used in these dotfiles, you can check the source code to see if you can find the issue yourself.
+- **check the internet:** if all else fails, try searching the internet for a solution. you'd be surprised how many people have run into the same issues you're facing.
+
+
+## 📌 <samp> future plans</samp>
+
+these dotfiles are a work in progress, and i'm always looking for ways to improve them. here are some of the things i'm planning to add in the future:
+
+- [ ] add more documentation
+- [ ] add more guides
+- [ ] add more screenshots
+- [ ] add more tools & resources
 
 </div>
