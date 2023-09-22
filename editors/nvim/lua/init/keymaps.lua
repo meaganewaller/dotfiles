@@ -2,7 +2,7 @@ local utils = require('utils')
 
 vim.keymap.set({ 'n', 'x' }, '<Space>', '<Ignore>')
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.maplocalleader = ','
 
 -- Multi-window operations
 -- stylua: ignore start
@@ -116,7 +116,7 @@ vim.keymap.set('o', 'af', '<Cmd>silent! normal m`Vaf<CR><Cmd>silent! normal! ``<
 vim.keymap.set('o', 'if', '<Cmd>silent! normal m`Vif<CR><Cmd>silent! normal! ``<CR>', { silent = true, noremap = false })
 -- stylua: ignore end
 
--- Abbreaviations
+-- Abbreviations
 utils.keymap.command_abbrev('S', '%s')
 utils.keymap.command_abbrev(':', 'lua')
 utils.keymap.command_abbrev('qa', 'qa!')

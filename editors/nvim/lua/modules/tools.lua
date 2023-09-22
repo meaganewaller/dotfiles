@@ -189,4 +189,21 @@ return {
       require('configs.key-menu')
     end,
   },
+  {
+    "goolord/alpha-nvim",
+    enabled = true,
+    event = { "VimEnter" },
+    lazy = false,
+    cmd = "Alpha",
+    priority = 1000,
+    config = function()
+      require('configs.alpha')
+    end
+  },
+  {
+    "toppair/reach.nvim",
+    config = function()
+      require('configs.reach')
+    end
+  }
 }
