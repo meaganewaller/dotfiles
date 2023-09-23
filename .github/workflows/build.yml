@@ -13,8 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Rake
-        run: gem install rake
+      - name: Install dependencies
+        run: gem install rake colorize yaml
 
       - name: Check install
         run: rake install
