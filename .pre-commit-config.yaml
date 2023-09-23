@@ -20,4 +20,8 @@ repos:
     hooks:
       - id: forbid-tabs
         exclude: "[Mm]akefile$"
-
+  - repo: https://github.com/hugoh/pre-commit-fish.git
+    rev: v1.2
+    hooks:
+      - id: fish_syntax
+      - id: fish_indent

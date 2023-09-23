@@ -82,6 +82,7 @@ I update this constantly with poor git habits. There are no guarantees of stabil
 Ready to dive into the deep end? Here's how to get started:
 
 **1. Clone the Dotfiles Repository:**
+
  ```sh
 💲 cd ~
 💲 git clone git@github.com:meaganewaller/dotfiles.git ~/.dotfiles
@@ -90,12 +91,15 @@ Ready to dive into the deep end? Here's how to get started:
  Congratulations, you've just initiated the journey into my digital realm. The rabbit hole awaits.
 
 **2. Navigate to the Dotfiles Directory:**
+
  ```sh
 💲 cd ~/.dotfiles
  ```
+
  Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Rakefile.
 
 **4. Backup Your Existing Config:**
+
  ```sh
 💲 rake backup
 💲 rake # alias for rake backup
@@ -104,6 +108,7 @@ Ready to dive into the deep end? Here's how to get started:
  Ok, so maybe you can go back. But only if you've backed up your existing configs. This command will copy any existing dotfiles into a `~/.dotfiles-backup` directory. You can use this to restore your original configs if you decide to go back to the way things were.
 
 **5. Run the Installation Script:**
+
  ```sh
 💲 rake install
 ```
@@ -111,6 +116,7 @@ Ready to dive into the deep end? Here's how to get started:
 This is where the real fun begins. Buckle up as the configurations are symlinked into place, packages are installed, and defaults are set. This may take a while.
 
 **6. Updating an Existing Installation:**
+
  ```sh
 💲 rake update
  ```
@@ -127,14 +133,16 @@ allow me to introduce you to my trusted accomplices. keep in mind that my loyalt
 
 ### kitty terminal emulator
 
-- **github**: [kitty](https://github.com/kovidgoyal/kitty)
-- **description**: the kitty terminal emulator is the cat's meow when it comes to terminal experiences. it's fast, it's customizable, and it's got a cute name with a cute icon. what more could you want? it's purr-fectly suited for my daily coding antics.
+* **github**: [kitty](https://github.com/kovidgoyal/kitty)
+* **description**: the kitty terminal emulator is the cat's meow when it comes to terminal experiences. it's fast, it's customizable, and it's got a cute name with a cute icon. what more could you want? it's purr-fectly suited for my daily coding antics.
 
 ### neovim code editor
+
 * **website:** [neovim](https://neovim.io/)
 * **description:** neovim is my code sanctuary. it's like a swiss army knife for text editing but with more shortcuts and fewer corkscrews. vim enthusiasts, rejoice!
 
 ### fish shell
+
 * **website:** [fish](https://fishshell.com/)
 * **description:** the Fish shell is my trusty sidekick in the command-line world. it's user-friendly, intuitive, and always ready to lend a helping fin.
 
@@ -195,19 +203,21 @@ I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F
 
 to get the most out of my dotfiles, i recommend reading through the guides below. they'll help you understand how everything works and how to customize it to your liking.
 
-- [**hammerspoon guide**]()
-- [**kitty guide**]()
-- [**neovim guide**]()
-- [**fish guide**]()
-- [**sketchybar guide**]()
-- [**skhd guide**]()
-- [**homebrew guide**]()
-- [**karabiner elements guide**]()
+* [**hammerspoon guide**]()
+* [**kitty guide**]()
+* [**neovim guide**]()
+* [**fish guide**]()
+* [**sketchybar guide**]()
+* [**skhd guide**]()
+* [**homebrew guide**]()
+* [**karabiner elements guide**]()
 
 ## 🌻 <samp> CREDITS</samp>
+
 TODO: add credits
 
-##  🤝 <samp> CONTRIBUTING</samp>
+## 🤝 <samp> CONTRIBUTING</samp>
+
 thank you for showing interest in contributing to my dotfiles! these configurations are deeply personal, reflecting my own quirks and preferences, but i'm always open to valuable suggestions and improvements.
 
 ### ❗️ note
@@ -229,19 +239,18 @@ if you encounter a bug or issue with these dotfiles, please open an issue with t
 some issues may be related to the tools and resources used in these dotfiles. if that's the case, i'll do my best to help you troubleshoot and resolve the issue.
 in lieu of opening an issue, there are some common troubleshooting steps you can take:
 
-- **check the documentation:** if you're having trouble with a specific tool or resource, check the documentation to see if it addresses your issue.
-- **check the wiki:** i've documented some common issues and solutions in the wiki. check there to see if your issue is covered.
-- **check the source:** if you're comfortable with the tools and resources used in these dotfiles, you can check the source code to see if you can find the issue yourself.
-- **check the internet:** if all else fails, try searching the internet for a solution. you'd be surprised how many people have run into the same issues you're facing.
-
+* **check the documentation:** if you're having trouble with a specific tool or resource, check the documentation to see if it addresses your issue.
+* **check the wiki:** i've documented some common issues and solutions in the wiki. check there to see if your issue is covered.
+* **check the source:** if you're comfortable with the tools and resources used in these dotfiles, you can check the source code to see if you can find the issue yourself.
+* **check the internet:** if all else fails, try searching the internet for a solution. you'd be surprised how many people have run into the same issues you're facing.
 
 ## 📌 <samp> future plans</samp>
 
 these dotfiles are a work in progress, and i'm always looking for ways to improve them. here are some of the things i'm planning to add in the future:
 
-- [ ] add more documentation
-- [ ] add more guides
-- [ ] add more screenshots
-- [ ] add more tools & resources
+* [ ] add more documentation
+* [ ] add more guides
+* [ ] add more screenshots
+* [ ] add more tools & resources
 
 </div>
