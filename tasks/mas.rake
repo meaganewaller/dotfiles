@@ -1,4 +1,4 @@
-MAS_FILE = File.expand_path('../package-managers/mas/app_store.txt', __dir__).gsub(/ /, '\ ')
+MAS_FILE = File.expand_path("../package-managers/mas/app_store.txt", __dir__)
 
 namespace :backup do
   desc 'Backup App Store'
@@ -14,8 +14,12 @@ namespace :install do
   task :mas do
     section 'Installing macOS App Store apps'
 
-    mas_applications.each do |application|
-      run %( mas install #{application} )
+    if mas_applications.empty?
+      log_warning("No macOS App Store apps to install")
+    else
+      mas_applications.each do |application|
+        run %( mas install #{application} )
+      end
     end
   end
 end

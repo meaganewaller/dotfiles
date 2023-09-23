@@ -6,8 +6,8 @@ namespace :backup do
     section 'Using Mackup to backup app configs'
 
     if ENV['DRY_RUN']
-      puts "~> No changes! It's a dry run"
-      system %( mackup backup --dry-run )
+      log_info("~> No changes! It's a dry run")
+      run %( mackup backup --dry-run )
     else
       run %( mackup backup --force )
     end
@@ -19,12 +19,7 @@ namespace :backup do
 
     section 'Using RCLONE to backup files'
 
-    dirs = {
-      'dev' => 'dev',
-      'workspace' => 'workspace',
-      'code' => 'code',
-      '.dotfiles' => '.dotfiles'
-    }
+    dirs = config['backup_dirs']
 
     flag = '-P' if args[:progress]
 
@@ -44,13 +39,13 @@ namespace :install do
       run %( ln -s #{DIRECTORY_NAME + File::SEPARATOR + DOTS_FOLDER + File::SEPARATOR}.mackup.cfg #{'~' + File::SEPARATOR}.mackup.cfg )
       run %( ln -s #{DIRECTORY_NAME + File::SEPARATOR + DOTS_FOLDER + File::SEPARATOR}.mackup #{'~' + File::SEPARATOR}.mackup )
     else
-      puts '~> Already installed'
+      log_info '~> Already installed'
     end
 
     section 'Using Mackup to restore app configs'
 
     if ENV['DRY_RUN']
-      puts "~> No changes! It's a dry run"
+      log_info "~> No changes! It's a dry run"
       system %( mackup restore --dry-run )
     else
       run %( mackup restore --force )
@@ -60,7 +55,13 @@ namespace :install do
   task :dotbot do
     section 'Using Dotbot to symlink dotfiles'
 
-    run %( ./install_profile macos )
+    if macos?
+      run %( ./install-profile macos )
+    elsif linux?
+      run %( ./install-profile linux )
+    else
+      log_fail '~> Unknown OS'
+    end
   end
 
   task :files do
@@ -80,7 +81,7 @@ namespace :uninstall do
     section 'Using Mackup to put app configs back'
 
     if ENV['DRY_RUN']
-      puts '~> Just a dry run'
+      log_info '~> Just a dry run'
       system %( mackup uninstall --dry-run )
     else
       run %( mackup uninstall )

@@ -93,57 +93,31 @@ Ready to dive into the deep end? Here's how to get started:
  ```sh
 💲 cd ~/.dotfiles
  ```
- Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Makefile.
+ Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Rakefile.
 
-**3. Run the Installation Script:**
+**4. Backup Your Existing Config:**
  ```sh
-💲 make install
-```
-
-This is where the real fun begins. Buckle up as the configurations are symlinked into place. Remember, this is a one-way trip. You can't go back now.
-
-**4. Updating an Existing Installation:**
- ```sh
-💲 make -C ~/.dotfiles up
+💲 rake backup
+💲 rake # alias for rake backup
  ```
 
- Already in the rabbit hole? Keep your configs up to date with the latest changes by running the `up` command.
+ Ok, so maybe you can go back. But only if you've backed up your existing configs. This command will copy any existing dotfiles into a `~/.dotfiles-backup` directory. You can use this to restore your original configs if you decide to go back to the way things were.
 
-<details>
-<summary><samp><b>for macOS distros</b></samp></summary>
-
-macOS users, you have your own set of commands. These are the same as above, but with a `macos` suffix.
-
-**to install macOS-specific configs:**
+**5. Run the Installation Script:**
  ```sh
-💲 cd ~/.dotfiles && make macos
-💲 make -C ~/.dotfiles macos
+💲 rake install
 ```
 
-**for macOS command help:**
+This is where the real fun begins. Buckle up as the configurations are symlinked into place, packages are installed, and defaults are set. This may take a while.
+
+**6. Updating an Existing Installation:**
  ```sh
-💲 cd ~/.dotfiles && make help
-💲 make -C ~/.dotfiles help
-```
-</details>
+💲 rake update
+ ```
 
-<details>
-<summary><samp><b>arch linux distros</b></samp></summary>
+Already in the rabbit hole? Keep your configs up to date with the latest changes by running the `up` command.
 
-if you're on the arch linux ship, these commands are your compass.
-
-**to install arch linux-specific configs:**
-```sh
-💲 cd ~/.dotfiles && make arch
-💲 make -C ~/.dotfiles arch
-```
-
-**for arch linux command help:**
-```sh
-💲 cd ~/.dotfiles && make help
-💲 make -C ~/.dotfiles help
-```
-</details>
+<hr style="border: 1px dashed pink" />
 
 now you're all set to explore the depths of my dotfiles. enjoy the ride. just remember, with great customization comes great responsibility. or whatever uncle ben said.
 
@@ -209,9 +183,7 @@ allow me to introduce you to my trusted accomplices. keep in mind that my loyalt
 * **github:** [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
 * **description:** karabiner elements is my key manipulator, shaping keyboard behaviors to adapt effortlessly to different layouts and key combinations. it's a versatile tool for customizing key functions to suit my needs.
 
-
 now that you've met the crew, feel free to explore their individual quirks and see how they contribute to the symphony of my digital life.
-
 
 ## 🌻 <samp> KEY BINDINGS</samp>
 
@@ -232,10 +204,10 @@ to get the most out of my dotfiles, i recommend reading through the guides below
 - [**homebrew guide**]()
 - [**karabiner elements guide**]()
 
-## Credits
+## 🌻 <samp> CREDITS</samp>
+TODO: add credits
 
 ##  🤝 <samp> CONTRIBUTING</samp>
-
 thank you for showing interest in contributing to my dotfiles! these configurations are deeply personal, reflecting my own quirks and preferences, but i'm always open to valuable suggestions and improvements.
 
 ### ❗️ note

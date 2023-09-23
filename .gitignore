@@ -5,52 +5,35 @@
 ################################### ALLOW LIST ##################################
 
 # Config
+!package-managers/asdf/**/*
+!shells/bash/**/*
+!programming/efm-langserver/*
+!tools/env/.env.example
+!shells/fish/*
+!tools/vcs/git/**/*
+!gui/hammerspoon/**/*
+!tools/keys/karabiner/karabiner.json
+!terminals/kitty/**/*
+!tools/mackup/**/*
+!tools/nix/**/*
 !editors/nvim/**/*
 !editors/vim/**/*
-!editors/vscode/**/*
-!gui/autorandr/**/*
-!gui/copyq/**/*
-!gui/keepassxc/**/*
-!gui/sketchybar/**/*
-!gui/skhd/**/*
-!gui/yabai/**/*
-!gui/zathura/**/*
-!languages/ruby/**/*
+!tools/rclone/filter_list.txt
 !languages/snippets/**/*
-!os/macos/**/*
-!package-managers/asdf/**/*
-!package-managers/homebrew/**/*
-!package-managers/mas/**/*
-!shells/fish/**/*
+!tools/ssh/config
 !shells/starship/**/*
-!shells/zsh/**/*
-!terminals/alacritty/**/*
-!terminals/kitty/**/*
 !terminals/tmux/**/*
-!tools/direnv/**/*
-!tools/flameshot/**/*
-!tools/gnupg/**/*
-!tools/gopass/**/*
-!tools/keys/**/*
-!tools/misc/**/*
-!tools/ncspot/**/*
-!tools/neofetch/**/*
-!tools/ranger/**/*
-!tools/rofi/**/*
-!tools/ssh/**/*
-tools/taskwarrior/**/*
-!tools/tfenv/**/*
-!tools/ui/**/*
-!tools/vcs/**/*
-!tools/youtube-dl/**/*
-!tools/zk/**/*
+!editors/vim/**/*
+!tools/ui/vivid/**/*
+!shells/zsh/**/*
 
 # Dotbot
 !meta/**/*
-!install
+!install-standalone
+!install-profile
 !uninstall
 
-# Git
+# GitHub
 !.github/**/*
 !.gitignore
 !.gitignore_global
@@ -59,11 +42,14 @@ tools/taskwarrior/**/*
 # Other dirs
 !bin/**/*
 !commands/**/*
+!misc/packages/**/*
 !tasks/**/*
 !tests/**/*
+!os/macos/LaunchAgents/**/*
 
 # Other files
 !.tool-versions
+!.config/.color_mode
 !Rakefile
 !README.md
 !stylua.toml
@@ -71,27 +57,12 @@ tools/taskwarrior/**/*
 ################################### DENY LIST ####################################
 
 # Config
-editors/nvim/plugin
-tools/vcs/git/config.local
-
-# Fish
-shells/fish/env
-shells/fish/fish_variables
-shells/fish/config.local.fish
-
-# Tmux
-terminals/tmux/plugins
-terminals/tmux/resurrect
-
-# Zsh
-.env
-bookmarks
-
-# Others
-languages/ruby/enhance-rails-intellisense-in-solargraph
+.config/nvim/plugin
+.config/fish/fish_variables
+.config/tmux/plugins
+.config/tmux/resurrect
+misc/enhance-rails-intellisense-in-solargraph
 .DS_Store
 backup
 .repro
-logfile
-node_modules/
-meta/plugins
+tools/vcs/git/config.local

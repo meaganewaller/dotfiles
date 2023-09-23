@@ -1,14 +1,14 @@
-PIP_FILE = File.expand_path('../package-managers/asdf/default-python-packages.txt', __dir__).gsub(/ /, '\ ')
-PNPM_FILE = File.expand_path('../package-managers/asdf/default-pnpm-packages.txt', __dir__).gsub(/ /, '\ ')
-GEMS_FILE = File.expand_path('../package-managers/asdf/default-gems.txt', __dir__).gsub(/ /, '\ ')
-FONT_PATH = File.expand_path('../ui/fonts', __dir__).gsub(/ /, '\ ')
+PIP_FILE = File.expand_path("../package-managers/asdf/default-python-packages.txt", __dir__)
+PNPM_FILE = File.expand_path("../package-managers/asdf/default-pnpm-packages.txt", __dir__)
+GEMS_FILE = File.expand_path("../package-managers/asdf/default-gems.txt", __dir__)
+FONT_PATH = File.expand_path("../ui/fonts", __dir__)
 
 namespace :backup do
   desc 'Backup PIP files'
   task :pip do
     section 'Backing up PIP files'
-
     run %( pip3 freeze \> #{PIP_FILE} )
+    log_info "PIP files backed up to #{PIP_FILE}"
   end
 
   desc 'Backup PNPM files'
@@ -17,6 +17,8 @@ namespace :backup do
 
     run %( pnpm -g upgrade )
     run %( pnpm list --global --parseable --depth=0 | sed '1d' | awk '\{gsub\(/\\/.*\\//,"",$1\); print\}' \> #{PNPM_FILE} )
+
+    log_info "PNPM files backed up to #{PNPM_FILE}"
   end
 
   desc 'Backup Ruby Gems'
@@ -24,6 +26,8 @@ namespace :backup do
     section 'Backing up Ruby Gems'
 
     run %( gem list --no-versions | sed '1d' | awk '\{gsub\(/\\/.*\\//,"",$1\); print\}' \> #{GEMS_FILE} )
+
+    log_info "Ruby Gems backed up to #{GEMS_FILE}"
   end
 end
 
@@ -259,7 +263,7 @@ namespace :update do
       find_replace(PIP_FILE, '==', '>=')
       run %( pip3 install -r #{PIP_FILE} --upgrade )
     rescue StandardError
-      puts 'PIP update failed'
+      log_error 'PIP update failed'
     end
   end
 

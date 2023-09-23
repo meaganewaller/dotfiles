@@ -1,8 +1,14 @@
-BREW_TAPS_FILE = File.expand_path("../package-managers/homebrew/taps.txt", __dir__).gsub(/ /,'\ ')
-BREW_PACKAGES_FILE = File.expand_path('../package-managers/homebrew/packages.txt', __dir__).gsub(/ /, '\ ')
-BREW_CASK_PACKAGES_FILE = File.expand_path('../package-managers/homebrew/cask.txt', __dir__).gsub(/ /, '\ ')
+# frozen_string_literal: true
+# This file contains tasks related to Homebrew
 
-# HEAD_ONLY_FORMULAS = %w( neovim )
+BREW_TAPS_FILE = File.expand_path("../package-managers/homebrew/taps.txt", __dir__)
+BREW_PACKAGES_FILE = File.expand_path("../package-managers/homebrew/packages.txt", __dir__)
+BREW_CASK_PACKAGES_FILE = File.expand_path("../package-managers/homebrew/cask.txt", __dir__)
+
+BREW_BACKUP_TASKS = %w(backup:brew_packages
+                       backup:brew_cask_packages
+                       backup:brew_taps)
+
 HEAD_ONLY_FORMULAS = ''
 
 namespace :backup do
@@ -12,24 +18,37 @@ namespace :backup do
 
     run %( brew update )
     run %( brew upgrade )
-    Rake::Task['backup:brew_packages'].invoke
-    Rake::Task['backup:brew_cask_packages'].invoke
-    Rake::Task['backup:brew_taps'].invoke
+
+    BREW_BACKUP_TASKS.each do |task|
+      Rake::Task[task].invoke
+    end
   end
 
   desc 'Backup Brew Packages'
   task :brew_packages do
+    section 'Backing up Brew Packages'
+
     run %( brew leaves > #{BREW_PACKAGES_FILE} )
+
+    log_info "~> Brew packages saved to #{BREW_PACKAGES_FILE}"
   end
 
   desc 'Backup Brew Cask Packages'
   task :brew_cask_packages do
+    section 'Backing up Brew Cask Packages'
+
     run %( brew list --cask > #{BREW_CASK_PACKAGES_FILE} )
+
+    log_info "~> Brew cask packages saved to #{BREW_CASK_PACKAGES_FILE}"
   end
 
   desc 'Backup Brew Taps'
   task :brew_taps do
+    section 'Backing up Brew Taps'
+
     run %( brew tap > #{BREW_TAPS_FILE} )
+
+    log_info "~> Brew taps saved to #{BREW_TAPS_FILE}"
   end
 end
 
@@ -45,13 +64,19 @@ namespace :install do
   task :brew do
     section 'Installing Homebrew'
 
-    run %( /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\" )
+    unless system('which brew')
+      log_info("Homebrew is not installed. Proceeding with installation...")
+      run %( /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\" )
+      log_success("Homebrew installation completed successfully.")
+    else
+      log_warning("Homebrew is already installed. Skipping installation...")
+    end
 
-    puts '~> Updating brew directory permissions'
+    log_info '~> Updating brew directory permissions'
     run %( sudo chown -R $(whoami) /usr/local/ )
     run %( sudo chown -R $(whoami) /opt/homebrew/ )
 
-    puts '~> Installing brew taps'
+    log_info '~> Installing brew taps'
     brew_taps.each do |tap|
       run %( brew tap #{tap} )
     end
@@ -62,14 +87,7 @@ namespace :install do
   desc 'Install Brew Packages'
   task :brew_packages do
     section 'Installing Brew Packages'
-
-    brew_packages.each do |package|
-      if HEAD_ONLY_FORMULAS.include?(package)
-        run %( brew install --HEAD #{package} )
-      else
-        run %( brew install #{package} )
-      end
-    end
+    install_packages(brew_packages)
   end
 
   desc 'Install Brew Cask Packages'
@@ -83,9 +101,7 @@ namespace :install do
 
   desc 'Clean up Brew'
   task :brew_clean_up do
-    section 'Cleaning up Brew'
-
-    run %( brew cleanup )
+    brew_cleanup
   end
 end
 
@@ -111,3 +127,17 @@ def brew_cask_packages
   File.readlines(BREW_CASK_PACKAGES_FILE).map(&:strip)
 end
 
+def install_packages(packages)
+  packages.each do |package|
+    if HEAD_ONLY_FORMULAS.include?(package)
+      run %( brew install --HEAD ${package})
+    else
+      run %( brew install #{package})
+    end
+  end
+end
+
+def brew_cleanup
+  section 'Cleaning up Brew'
+  run %( brew cleanup )
+end
