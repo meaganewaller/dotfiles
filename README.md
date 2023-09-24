@@ -23,15 +23,11 @@
   ˚ ˛˚˛˚｜ 田田｜門｜ ˚ ˚
 </pre>
 
-<h1>
-  <a href="#--------">
-    <img alt="" align="right" src="https://badges.pufler.dev/visits/meaganewaller/dotfiles?style=flat-square&label=&color=000000&logo=github&logoColor=white&labelColor=000000"/>
-  </a>
-</h1>
+# [![repo visits](https://badges.pufler.dev/visits/meaganewaller/dotfiles?style=flat-square&label=&color=000000&logo=github&logoColor=white&labelColor=000000)](#)
 
 </div>
 
-### 🌷 <sup><sub><samp> welcome to my dotfiles! </samp></sub></sup>
+# 🌷 <sup><sub><samp> welcome to my dotfiles! </samp></sub></sup>
 
 <a href="">
 <picture>
@@ -42,20 +38,20 @@
 
 My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and** performance are prioritized.
 
-#### Quick details about my setup
+## Quick details about my setup
 
-#### macOS
+### macOS
 
-* **Operating System**: [macOS Monterey](https://www.apple.com/by/macos/monterey/)
-* **Automation Tool**: [hammerspoon](https://github.com/Hammerspoon/hammerspoon) ([config](/tools/misc/hammerspoon))
-* **Window Manager**: [yabai](https://github.com/koekeishiya/yabai) ([config](/wm/yabai))
-* **Terminal Emulator**: [kitty](https://sw.kovidgoyal.net/kitty/) ([config](/terminals/kitty))
-* **Shell**: [fish](https://fishshell.com/) ([config](/shells/fish))
-* **Editor**: [neovim](http://neovim.io/) ([config](/editors/nvim))
-* **Browser**: [Brave](https://brave.com/)
-* **App Launcher**: [Raycast](https://raycast.com) ([config](/launchers/raycast))
-* **Keyboard Customizer**: [Karabiner](https://karabiner-elements.pqrs.org/) ([config](/tools/keys/karabiner))
-* **Menubar**: [Sketchybar](https://felixkratz.github.io/SketchyBar/config/bar) ([config](/statusbars/sketchybar))
+- **Operating System**: [macOS Monterey](https://www.apple.com/by/macos/monterey/)
+- **Automation Tool**: [hammerspoon](https://github.com/Hammerspoon/hammerspoon) ([config](/tools/misc/hammerspoon))
+- **Window Manager**: [yabai](https://github.com/koekeishiya/yabai) ([config](/wm/yabai))
+- **Terminal Emulator**: [kitty](https://sw.kovidgoyal.net/kitty/) ([config](/terminals/kitty))
+- **Shell**: [fish](https://fishshell.com/) ([config](/shells/fish))
+- **Editor**: [neovim](http://neovim.io/) ([config](/editors/nvim))
+- **Browser**: [Brave](https://brave.com/)
+- **App Launcher**: [Raycast](https://raycast.com) ([config](/launchers/raycast))
+- **Keyboard Customizer**: [Karabiner](https://karabiner-elements.pqrs.org/) ([config](/tools/keys/karabiner))
+- **Menubar**: [Sketchybar](https://felixkratz.github.io/SketchyBar/config/bar) ([config](/statusbars/sketchybar))
 
 <h1>
   <a href="#---------1">
@@ -67,7 +63,7 @@ My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and
 
 ## 🌱 <samp>SETUP</samp>
 
-I use <a href="https://github.com/anishathalye/dotbot">dotbot</a> to bootstrap my dotfiles. This allows me to keep a versioned directory of all my config files that are symlinked into place via a command. This lets me share my files with you.
+I use [dotbot](https://github.com/anishathalye/dotbot) to bootstrap my dotfiles. This allows me to keep a versioned directory of all my config files that are symlinked into place via a command. This lets me share my files with you.
 
 ### 🧪🔬<samp> EXPERIMENTAL & NOT GUARANTEED</samp> 💁‍♀️
 
@@ -77,39 +73,39 @@ I update this constantly with poor git habits. There are no guarantees of stabil
 
 ### <samp>INSTALLING</samp>
 
-### :blossom: ‎ <samp>INSTALLATION (<a href="./REPOLOGY.md">DEPENDENCIES</a>)</samp>
+### :blossom: ‎ <samp>INSTALLATION ([DEPENDENCIES](./REPOLOGY.md))</samp>
 
 Ready to dive into the deep end? Here's how to get started:
 
 **1. Clone the Dotfiles Repository:**
 
- ```sh
+```sh
 💲 cd ~
 💲 git clone git@github.com:meaganewaller/dotfiles.git ~/.dotfiles
- ```
+```
 
- Congratulations, you've just initiated the journey into my digital realm. The rabbit hole awaits.
+Congratulations, you've just initiated the journey into my digital realm. The rabbit hole awaits.
 
 **2. Navigate to the Dotfiles Directory:**
 
- ```sh
+```sh
 💲 cd ~/.dotfiles
- ```
+```
 
- Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Rakefile.
+Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Rakefile.
 
 **4. Backup Your Existing Config:**
 
- ```sh
+```sh
 💲 rake backup
 💲 rake # alias for rake backup
- ```
+```
 
- Ok, so maybe you can go back. But only if you've backed up your existing configs. This command will copy any existing dotfiles into a `~/.dotfiles-backup` directory. You can use this to restore your original configs if you decide to go back to the way things were.
+Ok, so maybe you can go back. But only if you've backed up your existing configs. This command will copy any existing dotfiles into a `~/.dotfiles-backup` directory. You can use this to restore your original configs if you decide to go back to the way things were.
 
 **5. Run the Installation Script:**
 
- ```sh
+```sh
 💲 rake install
 ```
 
@@ -117,9 +113,9 @@ This is where the real fun begins. Buckle up as the configurations are symlinked
 
 **6. Updating an Existing Installation:**
 
- ```sh
+```sh
 💲 rake update
- ```
+```
 
 Already in the rabbit hole? Keep your configs up to date with the latest changes by running the `up` command.
 
@@ -133,63 +129,63 @@ allow me to introduce you to my trusted accomplices. keep in mind that my loyalt
 
 ### kitty terminal emulator
 
-* **github**: [kitty](https://github.com/kovidgoyal/kitty)
-* **description**: the kitty terminal emulator is the cat's meow when it comes to terminal experiences. it's fast, it's customizable, and it's got a cute name with a cute icon. what more could you want? it's purr-fectly suited for my daily coding antics.
+- **github**: [kitty](https://github.com/kovidgoyal/kitty)
+- **description**: the kitty terminal emulator is the cat's meow when it comes to terminal experiences. it's fast, it's customizable, and it's got a cute name with a cute icon. what more could you want? it's purr-fectly suited for my daily coding antics.
 
 ### neovim code editor
 
-* **website:** [neovim](https://neovim.io/)
-* **description:** neovim is my code sanctuary. it's like a swiss army knife for text editing but with more shortcuts and fewer corkscrews. vim enthusiasts, rejoice!
+- **website:** [neovim](https://neovim.io/)
+- **description:** neovim is my code sanctuary. it's like a swiss army knife for text editing but with more shortcuts and fewer corkscrews. vim enthusiasts, rejoice!
 
 ### fish shell
 
-* **website:** [fish](https://fishshell.com/)
-* **description:** the Fish shell is my trusty sidekick in the command-line world. it's user-friendly, intuitive, and always ready to lend a helping fin.
+- **website:** [fish](https://fishshell.com/)
+- **description:** the Fish shell is my trusty sidekick in the command-line world. it's user-friendly, intuitive, and always ready to lend a helping fin.
 
 ### asdf version manager
 
-* **website:** [asdf](https://asdf-vm.com/)
-* **description:** asdf is the wizard behind the curtain, managing my development environment with ease. it's like having a magic wand for installing and switching between programming languages.
+- **website:** [asdf](https://asdf-vm.com/)
+- **description:** asdf is the wizard behind the curtain, managing my development environment with ease. it's like having a magic wand for installing and switching between programming languages.
 
 ### sketchybar menubar
 
-* **github:** [sketchybar](https://github.com/FelixKratz/SketchyBar)
-* **description:** like a chameleon for your desktop, sketchybar changes hues to match my mood and serves as a trusty heads-up display for key information.
+- **github:** [sketchybar](https://github.com/FelixKratz/SketchyBar)
+- **description:** like a chameleon for your desktop, sketchybar changes hues to match my mood and serves as a trusty heads-up display for key information.
 
 ### skhd shortcut daemon
 
-* **github:** [skhd](https://github.com/koekeishiya/skhd)
-* **description:** a silent conductor orchestrating my custom keyboard shortcuts, working tirelessly behind the scenes.
+- **github:** [skhd](https://github.com/koekeishiya/skhd)
+- **description:** a silent conductor orchestrating my custom keyboard shortcuts, working tirelessly behind the scenes.
 
 ### homebrew package manager
 
-* **website:** [homebrew](https://brew.sh/)
-* **description:** homebrew is the bartender of my system, serving up all the software i need with a simple command. it keeps my system well-hydrated with the latest apps.
+- **website:** [homebrew](https://brew.sh/)
+- **description:** homebrew is the bartender of my system, serving up all the software i need with a simple command. it keeps my system well-hydrated with the latest apps.
 
 ### fira code nerd font
 
-* **github:** [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/firacode)
-* **description:** fira code nerd font is the font of choice for my code. it's like the perfect pair of jeans—it just fits right and makes everything look good.
+- **github:** [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/firacode)
+- **description:** fira code nerd font is the font of choice for my code. it's like the perfect pair of jeans—it just fits right and makes everything look good.
 
 ### ibm plex typeface
 
-* **website:** [ibm plex](https://www.ibm.com/plex/)
-* **description:** ibm plex is my typographic muse. it's clean, modern, and adds a touch of class to my monitor. i pretty much only use it for italics.
+- **website:** [ibm plex](https://www.ibm.com/plex/)
+- **description:** ibm plex is my typographic muse. it's clean, modern, and adds a touch of class to my monitor. i pretty much only use it for italics.
 
 ### bigblue terminal font
 
-* **website:** [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
-* **description:** bigblue terminal font takes me back to the good old days of computing. it's retro, it's fixed-width, and it's just plain cool.
+- **website:** [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
+- **description:** bigblue terminal font takes me back to the good old days of computing. it's retro, it's fixed-width, and it's just plain cool.
 
 ### hammerspoon automation tool
 
-* **website:** [hammerspoon](https://www.hammerspoon.org/)
-* **description:** hammerspoon is my digital butler, automating tasks and making my life easier. it's like having a personal assistant in code form.
+- **website:** [hammerspoon](https://www.hammerspoon.org/)
+- **description:** hammerspoon is my digital butler, automating tasks and making my life easier. it's like having a personal assistant in code form.
 
 ### karabiner elements keyboard customizer
 
-* **github:** [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
-* **description:** karabiner elements is my key manipulator, shaping keyboard behaviors to adapt effortlessly to different layouts and key combinations. it's a versatile tool for customizing key functions to suit my needs.
+- **github:** [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
+- **description:** karabiner elements is my key manipulator, shaping keyboard behaviors to adapt effortlessly to different layouts and key combinations. it's a versatile tool for customizing key functions to suit my needs.
 
 now that you've met the crew, feel free to explore their individual quirks and see how they contribute to the symphony of my digital life.
 
@@ -203,14 +199,14 @@ I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F
 
 to get the most out of my dotfiles, i recommend reading through the guides below. they'll help you understand how everything works and how to customize it to your liking.
 
-* [**hammerspoon guide**]()
-* [**kitty guide**]()
-* [**neovim guide**]()
-* [**fish guide**]()
-* [**sketchybar guide**]()
-* [**skhd guide**]()
-* [**homebrew guide**]()
-* [**karabiner elements guide**]()
+- [**hammerspoon guide**](https://github.com/meaganewaller/dotfiles/wiki/Hammerspoon-Guide)
+- [**kitty guide**](https://github.com/meaganewaller/dotfiles/wiki/Kitty-Guide)
+- [**neovim guide**](https://github.com/meaganewaler/dotfiles/wiki/Neovim-Guide)
+- [**fish guide**](https://github.com/meaganewaler/dotfiles/wiki/Neovim-Guide)
+- [**sketchybar guide**](https://github.com/meaganewaler/dotfiles/wiki/Neovim-Guide)
+- [**skhd guide**](https://github.com/meaganewaler/dotfiles/wiki/Neovim-Guide)
+- [**homebrew guide**](https://github.com/meaganewaler/dotfiles/wiki/Neovim-Guide)
+- [**karabiner guide**](https://github.com/meaganewaler/dotfiles/wiki/Neovim-Guide)
 
 ## 🌻 <samp> CREDITS</samp>
 
@@ -239,18 +235,18 @@ if you encounter a bug or issue with these dotfiles, please open an issue with t
 some issues may be related to the tools and resources used in these dotfiles. if that's the case, i'll do my best to help you troubleshoot and resolve the issue.
 in lieu of opening an issue, there are some common troubleshooting steps you can take:
 
-* **check the documentation:** if you're having trouble with a specific tool or resource, check the documentation to see if it addresses your issue.
-* **check the wiki:** i've documented some common issues and solutions in the wiki. check there to see if your issue is covered.
-* **check the source:** if you're comfortable with the tools and resources used in these dotfiles, you can check the source code to see if you can find the issue yourself.
-* **check the internet:** if all else fails, try searching the internet for a solution. you'd be surprised how many people have run into the same issues you're facing.
+- **check the documentation:** if you're having trouble with a specific tool or resource, check the documentation to see if it addresses your issue.
+- **check the wiki:** i've documented some common issues and solutions in the wiki. check there to see if your issue is covered.
+- **check the source:** if you're comfortable with the tools and resources used in these dotfiles, you can check the source code to see if you can find the issue yourself.
+- **check the internet:** if all else fails, try searching the internet for a solution. you'd be surprised how many people have run into the same issues you're facing.
 
 ## 📌 <samp> future plans</samp>
 
 these dotfiles are a work in progress, and i'm always looking for ways to improve them. here are some of the things i'm planning to add in the future:
 
-* [ ] add more documentation
-* [ ] add more guides
-* [ ] add more screenshots
-* [ ] add more tools & resources
+- [ ] add more documentation
+- [ ] add more guides
+- [ ] add more screenshots
+- [ ] add more tools & resources
 
 </div>

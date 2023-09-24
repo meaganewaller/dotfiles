@@ -3,7 +3,7 @@
 
 set -g gitnow_xpaste
 
-set -g gitnow_commands 'all' 'assume' 'bitbucket' 'bugfix' 'commit' 'commit-all' 'feature' 'github' 'gitnow' 'hotfix' 'logs' 'merge' 'move' 'pull' 'push' 'release' 'show' 'stage' 'state' 'tag' 'unstage' 'untracked' 'upstream'
+set -g gitnow_commands all assume bitbucket bugfix commit commit-all feature github gitnow hotfix logs merge move pull push release show stage state tag unstage untracked upstream
 
 function __gitnow_read_config -d "Reads the GitNow config file"
     # Sets a clipboard program
@@ -34,8 +34,8 @@ function __gitnow_read_config -d "Reads the GitNow config file"
     set -l v_section 0
 
     # Valid sections
-    set -l v_keybindings "keybindings"
-    set -l v_options "options"
+    set -l v_keybindings keybindings
+    set -l v_options options
 
     # Options set
     set -l v_clipboard 0
@@ -49,10 +49,12 @@ function __gitnow_read_config -d "Reads the GitNow config file"
         set -l v_command_val ""
 
         # Loop every char for current line
-        echo $l | while read -n 1 -la c;
+        echo $l | while read -n 1 -la c
             switch $c
                 case '['
-                    if test $v_comment -eq 1; continue; end
+                    if test $v_comment -eq 1
+                        continue
+                    end
 
                     # if test $v_section -gt 0
                     #     set v_section 0
@@ -60,9 +62,13 @@ function __gitnow_read_config -d "Reads the GitNow config file"
                     # end
 
                     # Start section
-                    if test $v_section -eq 0; set v_section 1; end
+                    if test $v_section -eq 0
+                        set v_section 1
+                    end
                 case ']'
-                    if test $v_comment -eq 1; continue; end
+                    if test $v_comment -eq 1
+                        continue
+                    end
 
                     # Check section name
                     if test $v_section -eq 1
@@ -86,10 +92,14 @@ function __gitnow_read_config -d "Reads the GitNow config file"
                 case '\r'
                     continue
                 case '#'
-                    if test $v_comment -eq 0; set v_comment 1; end
+                    if test $v_comment -eq 0
+                        set v_comment 1
+                    end
                     continue
                 case '*'
-                    if test $v_comment -eq 1; continue; end
+                    if test $v_comment -eq 1
+                        continue
+                    end
 
                     # If section has started then accumulate chars and continue
                     if test $v_section -eq 1
@@ -101,7 +111,7 @@ function __gitnow_read_config -d "Reads the GitNow config file"
                     # NOTE: only alphabetic and hyphens chars are allowed
                     if test $v_section -eq 2; or test $v_section -eq 3
                         switch $c
-                            case 'a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o' 'p' 'q' 'r' 's' 't' 'u' 'v' 'w' 'x' 'y' 'z' '-'
+                            case a b c d e f g h i j k l m n o p q r s t u v w x y z -
                                 if test $v_command_sep -eq 0
                                     set v_command_key "$v_command_key$c"
                                     continue
@@ -133,11 +143,11 @@ function __gitnow_read_config -d "Reads the GitNow config file"
         if test $v_section -eq 3
             switch $v_command_key
                 # Clipboard option
-                case 'clipboard'
-                    if [ "$v_command_val" = "true" ]
+                case clipboard
+                    if [ "$v_command_val" = true ]
                         set v_clipboard 1
                     end
-                # NOTE: handle future new options using a new case
+                    # NOTE: handle future new options using a new case
                 case '*'
                     continue
             end
@@ -151,7 +161,7 @@ function __gitnow_read_config -d "Reads the GitNow config file"
             set -l cmd
 
             switch $v_command_key
-                case 'release' 'hotfix' 'feature' 'bugfix'
+                case release hotfix feature bugfix
                     # Read text from clipboard if there is a valid clipboard program
                     # and if the "clipboard" option is "true"
                     if test -n $gitnow_xpaste; and test $v_clipboard -eq 1
@@ -171,7 +181,9 @@ function __gitnow_read_config -d "Reads the GitNow config file"
                     end
 
                     # If command key is not valid then just skip out
-                    if test $v_valid -eq 0; continue; end
+                    if test $v_valid -eq 0
+                        continue
+                    end
 
                     set cmd (echo -n "bind \\$v_command_val \"echo; $v_command_key; commandline -f repaint;\"")
             end
@@ -179,7 +191,7 @@ function __gitnow_read_config -d "Reads the GitNow config file"
             eval $cmd
         end
 
-    end < $config_file
+    end <$config_file
 end
 
 function __gitnow_get_clip_program -d "Gets the current clip installed program"
@@ -188,11 +200,11 @@ function __gitnow_get_clip_program -d "Gets the current clip installed program"
     if type -q xclip
         set v_paste "xclip -selection clipboard -o"
     else if type -q wl-clipboard
-        set v_paste "wl-paste"
+        set v_paste wl-paste
     else if type -q xsel
         set v_paste "xsel --clipboard --output"
     else if type -q pbpaste
-        set v_paste "pbpaste"
+        set v_paste pbpaste
     end
 
     echo -n $v_paste

@@ -4,15 +4,15 @@ function ggl --description "A simple search plugin for keywords on Google"
         -x 'e,l' \
         -x 'C,S,F,V,B,b' \
         -x 'u,L,site,g,y,s,f,z,q' \
-        'v/version' 'h/help' 't/test' 'o/output' 'd/debug' 'm/mode' 'quiet' \
-        'i/image' 'p/perfect' 'n/nonperson' 'e/english' 'a/additional=+' \
+        v/version h/help t/test o/output d/debug m/mode quiet \
+        i/image p/perfect n/nonperson e/english 'a/additional=+' \
         'l/lang=' 'r/range=' 'x/exclude=+' \
-        'C/Chrome' 'S/Safari' 'F/Firefox' 'V/Vivaldi' 'B/Brave' \
+        C/Chrome S/Safari F/Firefox V/Vivaldi B/Brave \
         'b/browser=' \
-        'noq' \
+        noq \
         'u/url=' 'L/local=?' 'site=' \
-        'g/github' 'y/youtube' 's/stackoverflow' 'f/fishdoc' \
-        'z/zenn' 'q/qiita' \
+        g/github y/youtube s/stackoverflow f/fishdoc \
+        z/zenn q/qiita \
         -- $argv
     or return 1
 
@@ -24,7 +24,7 @@ function ggl --description "A simple search plugin for keywords on Google"
     ## process
     set --local keyword (string join -- " " $argv)
     set --local baseURL "https://www.google.com/search?q="
-    set --local site "Google"
+    set --local site Google
 
     if set -q _flag_version
         echo 'Plugin  :' $version_plugin
@@ -54,20 +54,19 @@ function ggl --description "A simple search plugin for keywords on Google"
         set --local within
 
         # site options
-        set -q _flag_github; and set baseURL "https://github.com/search?q="; and set site "Github"
-        set -q _flag_youtube; and set baseURL "https://www.youtube.com/results?search_query="; and set site "YouTube"
+        set -q _flag_github; and set baseURL "https://github.com/search?q="; and set site Github
+        set -q _flag_youtube; and set baseURL "https://www.youtube.com/results?search_query="; and set site YouTube
         set -q _flag_stackoverflow; and set baseURL "https://stackoverflow.com/search?q="; and set site "Stack Overflow"
         set -q _flag_fishdoc; and set baseURL "https://fishshell.com/docs/current/search.html?q="; and set site "fish-shell docs"
         ## for Japanese users
-        set -q _flag_zenn; and set baseURL "https://zenn.dev/search?q="; and set site "Zenn"
-        set -q _flag_qiita; and set baseURL "https://qiita.com/search?q="; and set site "Qiita"
+        set -q _flag_zenn; and set baseURL "https://zenn.dev/search?q="; and set site Zenn
+        set -q _flag_qiita; and set baseURL "https://qiita.com/search?q="; and set site Qiita
         ## other URL options
         if set -q _flag_url
             set baseURL (string trim -lc '=' $_flag_url)
             set site $baseURL
         end
-        set -q _flag_local; and \
-        if test -n "$_flag_local"
+        set -q _flag_local; and if test -n "$_flag_local"
             set --local port (string trim -lc '=' $_flag_local)
             set baseURL (string join "" "http://localhost:" $port "/")
             set site (string join "" 'localhost:' $port)
@@ -85,38 +84,38 @@ function ggl --description "A simple search plugin for keywords on Google"
             switch "$_flag_lang"
                 case =e =en =english =English
                     set _flag_lang "lr=lang_en"
-                    set lang "English"
+                    set lang English
                 case =j =ja =japanese =Japanese
                     set _flag_lang "lr=lang_ja"
-                    set lang "Japanese"
+                    set lang Japanese
                 case =d =de =german =German
                     set _flag_lang "lr=lang_de"
-                    set lang "German"
+                    set lang German
                 case =f =fr =french =French
                     set _flag_lang "lr=lang_fr"
-                    set lang "French"
+                    set lang French
                 case =i =it =italian =Italian
                     set _flag_lang "lr=lang_it"
-                    set lang "Italian"
+                    set lang Italian
                 case =s =es =spanish =Spanish
                     set _flag_lang "lr=lang_es"
-                    set lang "Spanish"
+                    set lang Spanish
                 case =r =ru =russian =Russian
                     set _flag_lang "lr=lang_ru"
-                    set lang "Russian"
+                    set lang Russian
                 case =k =ko =korean =Korean
                     set _flag_lang "lr=lang_ko"
-                    set lang "Korean"
+                    set lang Korean
                 case =z =zh =chinese =Chinese
                     set _flag_lang "lr=lang_zh-CH"
-                    set lang "Chinese"
+                    set lang Chinese
                 case '*'
                     echo "\"$_flag_lang\"" "is invalid language flag. See help with -h option."
                     set _flag_lang
             end
         end
 
-        set -q _flag_english; and set _flag_lang "lr=lang_en"; and set lang "English"
+        set -q _flag_english; and set _flag_lang "lr=lang_en"; and set lang English
         set -q _flag_image; and set _flag_image "tbm=isch"
         set -q _flag_nonperson; and set _flag_nonperson "pws=0"
         set -q _flag_range; and set range (string trim -lc '=' $_flag_range); and set _flag_range (string join ':' "tbs=qdr" $range)
@@ -150,11 +149,16 @@ function ggl --description "A simple search plugin for keywords on Google"
         end
 
         # browser options
-        if set -q _flag_Vivaldi; set browser "Vivaldi"
-        else if set -q _flag_Chrome; set browser "Google Chrome"
-        else if set -q _flag_Safari; set browser "Safari"
-        else if set -q _flag_Firefox; set browser "Firefox"
-        else if set -q _flag_Brave; set browser "Brave"
+        if set -q _flag_Vivaldi
+            set browser Vivaldi
+        else if set -q _flag_Chrome
+            set browser "Google Chrome"
+        else if set -q _flag_Safari
+            set browser Safari
+        else if set -q _flag_Firefox
+            set browser Firefox
+        else if set -q _flag_Brave
+            set browser Brave
         else if set -q _flag_browser; and set browser (string trim -lc '=' $_flag_browser)
         end
 
@@ -162,26 +166,22 @@ function ggl --description "A simple search plugin for keywords on Google"
         if set -q _flag_test
             if test -n "$keyword"
                 echo $cc "Keyword    :" $cn "$keyword"
-                [ $exclude ]; and \
-                echo $cc "Excluded   :" $cn "$exlist"
+                [ $exclude ]; and echo $cc "Excluded   :" $cn "$exlist"
                 echo $cc "Encoded    :" $cn "$encoding"
             end
             if set -q _flag_lang
                 if test -n "$_flag_lang"
                     echo $cc "Language   :" $cn "$lang"
                 else
-                    echo $cc "Language   :" $cn "Invalid"
+                    echo $cc "Language   :" $cn Invalid
                 end
             end
-            set -q _flag_range; and \
-            echo $cc "Time Range :" $cn "$range"
-            if not test "$site" = "Google"
+            set -q _flag_range; and echo $cc "Time Range :" $cn "$range"
+            if not test "$site" = Google
                 echo $cc "Site       :" $cn "$site"
             end
-            set -q _flag_site; and \
-            echo $cc "Site       :" $cn 'Within "'$within'" on Google'
-            test -n "$browser"; and \
-            echo $cc "Browser    :" $cn "$browser"
+            set -q _flag_site; and echo $cc "Site       :" $cn 'Within "'$within'" on Google'
+            test -n "$browser"; and echo $cc "Browser    :" $cn "$browser"
             echo $cc "Search URL :" $cn "$searchURL"
             return
         end
@@ -189,7 +189,7 @@ function ggl --description "A simple search plugin for keywords on Google"
         # os detection: macOS or other
         set -l comment (echo "Search for" "\"$argv\"" (echo "on $site" ) "completed.")
         set -q _flag_local; and set comment (echo "Opened" $searchURL)
-        set -q _flag_noq; and set comment "opening" (test "$site" = "Google" && echo 'a site' || echo "$site") "without keywords"
+        set -q _flag_noq; and set comment opening (test "$site" = "Google" && echo 'a site' || echo "$site") "without keywords"
 
         if command -q open
             if test -n "$browser"
@@ -231,17 +231,17 @@ function __ggl_interactive
 
     set --local options
     set --local option_flag
-    set --local flag_loop_exit 'false'
+    set --local flag_loop_exit false
     set --local mode
 
-    set --local flag_image          '1:Image   | '
-    set --local flag_exact          '2:Exact   | '
-    set --local flag_nonpersonal    '3:Non-personal        | '
-    set --local flag_exclude        '4:Exclude | '
-    set --local flag_lang           '5:Lang    | '
-    set --local flag_time           '6:Time    | '
-    set --local flag_browser        '7:Browser | '
-    set --local flag_site           '8:Site    | '
+    set --local flag_image '1:Image   | '
+    set --local flag_exact '2:Exact   | '
+    set --local flag_nonpersonal '3:Non-personal        | '
+    set --local flag_exclude '4:Exclude | '
+    set --local flag_lang '5:Lang    | '
+    set --local flag_time '6:Time    | '
+    set --local flag_browser '7:Browser | '
+    set --local flag_site '8:Site    | '
 
     set --local opt_image
     set --local opt_exact
@@ -274,7 +274,7 @@ function __ggl_interactive
                     eval ggl --test $newkeyword $option_flag
                 case s S seq-mode
                     [ $options[1] ]; and set option_flag (string join "" " -" (string join " -" $options))
-                    set mode "seq"
+                    set mode seq
                     set_color $_ggl_color_other
                     echo '>>> Sequential Search Mode'
                     echo 'Type "EXIT" (or Ctrl+C) to exit, '
@@ -282,30 +282,24 @@ function __ggl_interactive
                     set_color normal
                     while true
                         read -l -P 'Keywords: ' newkeyword
-                        if test "$newkeyword" = "EXIT"
+                        if test "$newkeyword" = EXIT
                             return
-                        else if test "$newkeyword" = "BACK"
-                            set mode "base"
-                            set flag_loop_exit "true"
+                        else if test "$newkeyword" = BACK
+                            set mode base
+                            set flag_loop_exit true
                             break
-                        else if test "$newkeyword" = "CHECK"
+                        else if test "$newkeyword" = CHECK
                             # option check mod
-                            test -n "$opt_image"; and \
-                            echo $cc "Image?     :" $cn "True"
-                            test -n "$opt_exact"; and \
-                            echo $cc "Exact?     :" $cn "True"
-                            test -n "$opt_nonpersonal"; and \
-                            echo $cc "Non Personalized? :" $cn "True"
-                            test -n "$opt_exclude"; and \
-                            echo $cc "Excluded   :" $cn "$opt_exclude"
-                            test -n "$opt_lang"; and \
-                            echo $cc "Language   :" $cn "$opt_lang"
-                            test -n "$opt_time"; and \
-                            echo $cc "Time Range :" $cn "$opt_time"
+                            test -n "$opt_image"; and echo $cc "Image?     :" $cn True
+                            test -n "$opt_exact"; and echo $cc "Exact?     :" $cn True
+                            test -n "$opt_nonpersonal"; and echo $cc "Non Personalized? :" $cn True
+                            test -n "$opt_exclude"; and echo $cc "Excluded   :" $cn "$opt_exclude"
+                            test -n "$opt_lang"; and echo $cc "Language   :" $cn "$opt_lang"
+                            test -n "$opt_time"; and echo $cc "Time Range :" $cn "$opt_time"
                             if test -n "$opt_site"
                                 echo $cc "Site       :" $cn "$site"
                             else
-                                echo $cc "Site       :" $cn "Google"
+                                echo $cc "Site       :" $cn Google
                             end
                             if test -n "$opt_browser"
                                 echo $cc "Browser    :" $cn "$opt_browser"
@@ -316,25 +310,19 @@ function __ggl_interactive
                             eval ggl --quiet $newkeyword $option_flag
                         end
                     end
-                    test "$flag_loop_exit" = "true"; and set flag_loop_exit "false"; and break
+                    test "$flag_loop_exit" = true; and set flag_loop_exit false; and break
                 case c C check
                     # option check mod
-                    test -n "$opt_image"; and \
-                    echo $cc "Image?     :" $cn "True"
-                    test -n "$opt_exact"; and \
-                    echo $cc "Exact?     :" $cn "True"
-                    test -n "$opt_nonpersonal"; and \
-                    echo $cc "Non Personalized? :" $cn "True"
-                    test -n "$opt_exclude"; and \
-                    echo $cc "Excluded   :" $cn "$opt_exclude"
-                    test -n "$opt_lang"; and \
-                    echo $cc "Language   :" $cn "$opt_lang"
-                    test -n "$opt_time"; and \
-                    echo $cc "Time Range :" $cn "$opt_time"
+                    test -n "$opt_image"; and echo $cc "Image?     :" $cn True
+                    test -n "$opt_exact"; and echo $cc "Exact?     :" $cn True
+                    test -n "$opt_nonpersonal"; and echo $cc "Non Personalized? :" $cn True
+                    test -n "$opt_exclude"; and echo $cc "Excluded   :" $cn "$opt_exclude"
+                    test -n "$opt_lang"; and echo $cc "Language   :" $cn "$opt_lang"
+                    test -n "$opt_time"; and echo $cc "Time Range :" $cn "$opt_time"
                     if test -n "$opt_site"
                         echo $cc "Site       :" $cn "$site"
                     else
-                        echo $cc "Site       :" $cn "Google"
+                        echo $cc "Site       :" $cn Google
                     end
                     if test -n "$opt_browser"
                         echo $cc "Browser    :" $cn "$opt_browser"
@@ -361,15 +349,15 @@ function __ggl_interactive
                             case 1
                                 set flag_image ''
                                 set opt_image '[Image: True]'
-                                set -a options 'i'
+                                set -a options i
                             case 2
                                 set flag_exact ''
                                 set opt_exact '[Exact: True]'
-                                set -a options 'p'
+                                set -a options p
                             case 3
                                 set flag_nonpersonal ''
                                 set opt_nonpersonal '[Non-personal: True]'
-                                set -a options 'n'
+                                set -a options n
                             case 4
                                 set flag_exclude ''
                                 read -P "Excluded words: " opt_exclude
@@ -390,19 +378,19 @@ function __ggl_interactive
                                     read -P "which browser? To exit type e or exit: " opt_browser
                                     switch "$opt_browser"
                                         case c C Chrome
-                                            set -a options 'C'
+                                            set -a options C
                                             break
                                         case s S Safari
-                                            set -a options 'S'
+                                            set -a options S
                                             break
                                         case f F Firefox
-                                            set -a options 'F'
+                                            set -a options F
                                             break
                                         case v V Vivaldi
-                                            set -a options 'V'
+                                            set -a options V
                                             break
                                         case b B Brave
-                                            set -a options 'B'
+                                            set -a options B
                                             break
                                         case o O Other
                                             read -l -P "Type browser name" browsername
@@ -422,19 +410,19 @@ function __ggl_interactive
                                     switch "$opt_site"
                                         case l local localhost
                                             set site "Local host"
-                                            set -a options 'L'
+                                            set -a options L
                                             break
                                         case g github
-                                            set site "Github"
-                                            set -a options 'g'
+                                            set site Github
+                                            set -a options g
                                             break
                                         case y youtube
-                                            set site "Youtube"
-                                            set -a options 'y'
+                                            set site Youtube
+                                            set -a options y
                                             break
                                         case s stackoverflow
                                             set site "Stack overflow"
-                                            set -a options 's'
+                                            set -a options s
                                             break
                                         case e exit
                                             set flag_site '8:Site | '
@@ -445,14 +433,14 @@ function __ggl_interactive
                                 end
                             case 9
                                 set -l options ""
-                                set flag_image          '1:Image   | '
-                                set flag_exact          '2:Exact   | '
-                                set flag_nonpersonal    '3:Non-personal        | '
-                                set flag_exclude        '4:Exclude | '
-                                set flag_lang           '5:Lang    | '
-                                set flag_time           '6:Time    | '
-                                set flag_browser        '7:Browser | '
-                                set flag_site           '8:Site    | '
+                                set flag_image '1:Image   | '
+                                set flag_exact '2:Exact   | '
+                                set flag_nonpersonal '3:Non-personal        | '
+                                set flag_exclude '4:Exclude | '
+                                set flag_lang '5:Lang    | '
+                                set flag_time '6:Time    | '
+                                set flag_browser '7:Browser | '
+                                set flag_site '8:Site    | '
 
                                 set opt_image
                                 set opt_exact
@@ -470,7 +458,7 @@ function __ggl_interactive
                     read -P 'Type searching keywords: ' newkeyword
             end
         end
-        test "$flag_loop_exit" = "true"; and set flag_loop_exit "false"; and break
+        test "$flag_loop_exit" = true; and set flag_loop_exit false; and break
     end
 end
 
@@ -503,8 +491,8 @@ function __ggl_help
         '      -h, --help            Show Help' \
         '      -v, --version         Show Version Info' \
         '' \
-        '  UTILITY OPTIONS (mutually exclusive):'  \
-        '      -t, --test            Test URL Generation'  \
+        '  UTILITY OPTIONS (mutually exclusive):' \
+        '      -t, --test            Test URL Generation' \
         '      -o, --output          Print generated URL' \
         '      -d, --debug           Print some tests' \
         '          --quiet           Do search without complete message' \
@@ -513,7 +501,7 @@ function __ggl_help
         '      -m, --mode            Interactive Search Mode' \
         '' \
         '  BROWSER OPTIONS (Uppercase letter):' \
-        '      -C, --Chrome          Use Google Chrome'  \
+        '      -C, --Chrome          Use Google Chrome' \
         '      -S, --Safari          Use Safari' \
         '      -F, --Firefox         Use Firefox' \
         '      -V, --Vivaldi         Use Vivaldi' \

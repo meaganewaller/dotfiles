@@ -1,6 +1,8 @@
+#!/usr/bin/env fish
+
 function load_env_vars -d "Load variables in an .env file"
-  for i in (cat $argv)
-    set arr (echo $i |tr = \n)
-    set -gx $arr[1] $arr[2]
-  end
+    for i in (cat $argv)
+        set arr (echo $i |tr = \n)
+        set -gx $arr[1] $arr[2]
+    end
 end

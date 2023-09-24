@@ -16,6 +16,7 @@
 !terminals/kitty/**/*
 !tools/mackup/**/*
 !tools/nix/**/*
+!tools/ranger/**/*
 !editors/nvim/**/*
 !editors/vim/**/*
 !tools/rclone/filter_list.txt
@@ -32,6 +33,7 @@
 !install-standalone
 !install-profile
 !uninstall
+!config.yml
 
 # GitHub
 !.github/**/*
@@ -53,6 +55,7 @@
 !Rakefile
 !README.md
 !stylua.toml
+!.markdownlint.json
 
 ################################### DENY LIST ####################################
 

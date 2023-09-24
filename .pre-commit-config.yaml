@@ -1,27 +1,51 @@
-# yaml-language-server: $schema=https://json.schemastore.org/pre-commit-config.json
 ---
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
       - id: check-json
-      - id: check-yaml
-      - id: check-toml
-      - id: requirements-txt-fixer
-      - id: check-executables-have-shebangs
-      - id: double-quote-string-fixer
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
       - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
       - id: detect-private-key
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.10
+      - id: double-quote-string-fixer
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: file-contents-sorter
+      - id: mixed-line-ending
+      - id: pretty-format-json
+      - id: requirements-txt-fixer
+      - id: sort-simple-yaml
+      - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.5.1
     hooks:
-      - id: forbid-tabs
-        exclude: "[Mm]akefile$"
-  - repo: https://github.com/hugoh/pre-commit-fish.git
-    rev: v1.2
+      - id: prettier
+        files: \.(js|ts|jsx|tsx|css|less|html|json|markdown|md|yaml|yml)$
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
     hooks:
-      - id: fish_syntax
-      - id: fish_indent
+      - id: markdownlint
+  - repo: https://github.com/sirosen/texthooks
+    rev: 0.5.0
+    hooks:
+      - id: fix-smartquotes
+      - id: fix-ligatures
+        repos:
+  - repo: https://github.com/lyz-code/yamlfix/
+    rev: main
+    hooks:
+      - id: yamlfix
+  - repo: https://github.com/sirosen/check-jsonschema
+    rev: 0.10.0
+    hooks:
+      - id: check-github-actions
+      - id: check-github-workflows
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.8.0.3
+    hooks:
+      - id: shellcheck

@@ -37,11 +37,11 @@ function __gitnow_clone_repo
         end
 
         if test $ok -eq 1
-            if [ "$platform" = "github" ]
+            if [ "$platform" = github ]
                 set url github.com
             end
 
-            if [ "$platform" = "bitbucket" ]
+            if [ "$platform" = bitbucket ]
                 set url bitbucket.org
             end
 
@@ -142,7 +142,7 @@ function __gitnow_is_git_repository
 end
 
 function __gitnow_has_uncommited_changes
-    command git diff-index --quiet HEAD -- || echo "1" 2>&1
+    command git diff-index --quiet HEAD -- || echo 1 2>&1
 end
 
 function __gitnow_get_latest_tag

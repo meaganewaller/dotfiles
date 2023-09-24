@@ -1,5 +1,5 @@
 function __ysu__check_aliases \
-        --on-event fish_preexec
+    --on-event fish_preexec
     string match --quiet "sudo *" "$argv"; and return
 
     set --local found false
@@ -15,7 +15,7 @@ function __ysu__check_aliases \
         set --local escaped_value (string escape --no-quote --style=regex "$value")
 
         if string match --quiet --regex "(?<=^|\s)$escaped_value(?=\s|\$)" "$argv"
-            __ysu__message "alias" "$value" "$key"
+            __ysu__message alias "$value" "$key"
             set found true
         end
     end

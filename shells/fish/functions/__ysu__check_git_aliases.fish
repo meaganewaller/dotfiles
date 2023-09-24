@@ -1,5 +1,5 @@
 function __ysu__check_git_aliases \
-        --on-event fish_preexec
+    --on-event fish_preexec
     string match --quiet "sudo *" "$argv"; and return
 
     if string match --quiet --regex "git *" "$argv"

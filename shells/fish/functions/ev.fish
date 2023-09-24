@@ -36,10 +36,10 @@ function __ev_print_paths
 end
 
 function __ev_update_completions
-    set -q EVPATH ; or set -g EVPATH $DEFAULT_EVPATH
+    set -q EVPATH; or set -g EVPATH $DEFAULT_EVPATH
 
-    complete -c ev -x -s h -l help -d 'help'
-    complete -c ev -s q -d 'quiet'
+    complete -c ev -x -s h -l help -d help
+    complete -c ev -s q -d quiet
     for evdir in $EVPATH
         set parent (string replace -r "^$HOME" "~" -- "$evdir")
         complete -c ev -a "(__ev_print_paths $evdir (commandline -ct))" -d $parent
@@ -48,7 +48,7 @@ function __ev_update_completions
 end
 
 function __ev_expand_path
-    set -q EVPATH ; or set -g EVPATH $DEFAULT_EVPATH
+    set -q EVPATH; or set -g EVPATH $DEFAULT_EVPATH
     set -l path "$argv[1]"
     if test -e "$path"
         echo "$path"
@@ -66,13 +66,13 @@ function __ev_expand_path
 end
 
 function __ev_ls
-  set -l path $argv[1]
-  switch (uname)
-    case Darwin
-      command ls -1 "$path"
-    case '*'
-      command ls --color=never -1 "$path"
-  end
+    set -l path $argv[1]
+    switch (uname)
+        case Darwin
+            command ls -1 "$path"
+        case '*'
+            command ls --color=never -1 "$path"
+    end
 end
 
 
@@ -92,10 +92,10 @@ function __ev_handle_path
             echo "ev: invalid variable name: $varname" >&2
             return 1
         end
-        if [ "$quiet" != "yes" ]
+        if [ "$quiet" != yes ]
             echo $varname
         end
-        if [ "$unset" = "yes" ]
+        if [ "$unset" = yes ]
             set -e "$varname"
         else if test -x "$path"
             set -gx $varname (eval "$path")
@@ -108,7 +108,7 @@ function __ev_handle_path
 end
 
 function ev -d 'Load environment variables from files and directories'
-    set -q EVPATH ; or set -g EVPATH $DEFAULT_EVPATH
+    set -q EVPATH; or set -g EVPATH $DEFAULT_EVPATH
 
     if test (count $argv) -lt 1
         __ev_usage >&2

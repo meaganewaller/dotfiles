@@ -3,16 +3,16 @@ function fish_logo \
     --argument-names outer_color medium_color inner_color mouth eye
 
     # defaults:
-    [ $outer_color  ]; or set outer_color  'red'
-    [ $medium_color ]; or set medium_color 'f70'
-    [ $inner_color  ]; or set inner_color  'yellow'
+    [ $outer_color ]; or set outer_color red
+    [ $medium_color ]; or set medium_color f70
+    [ $inner_color ]; or set inner_color yellow
     [ $mouth ]; or set mouth '['
-    [ $eye   ]; or set eye   'O'
+    [ $eye ]; or set eye O
 
     set usage 'Usage: fish_logo <outer_color> <medium_color> <inner_color> <mouth> <eye>
 See set_color --help for more on available colors.'
 
-    if contains -- $outer_color '--help' '-h' '-help'
+    if contains -- $outer_color --help -h -help
         echo $usage
         return 0
     end

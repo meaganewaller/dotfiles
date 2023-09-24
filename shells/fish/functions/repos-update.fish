@@ -31,7 +31,7 @@ function repos-update --description 'Development projects update'
         git pull --quiet --recurse-submodules 2>/dev/null
         echo "Trimming dead branches"
         git-trim --no-confirm
-        echo "Done"
+        echo Done
         popd
     end
     popd

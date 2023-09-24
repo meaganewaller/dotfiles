@@ -1,3 +1,3 @@
-function m --description "Matrix" --wraps cmatrix
+function m --description Matrix --wraps cmatrix
     command cmatrix -s $argv
 end

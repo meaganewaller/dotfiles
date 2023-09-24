@@ -1,20 +1,21 @@
+#!/usr/bin/env fish
 function app -a cmd --description 'Operate on macOS applications'
     argparse -s h/help -- $argv
 
     if set --query _flag_help
         echo 'Usage: '(status function)' --help
-       app find --help | [options] pattern...
-       app bundleid --help | [options] pattern...
-       app icon --help | [options] pattern...
-       app quit --help | [options] pattern...
+    app find --help | [options] pattern...
+    app bundleid --help | [options] pattern...
+    app icon --help | [options] pattern...
+    app quit --help | [options] pattern...
 
-Operates on macOS apps by name.
+    Operates on macOS apps by name.
 
-Subcommands
-  app find                Shows installed matching apps
-  app bundleid            Shows the bundleID for installed matching apps
-  app icon                Saves the icon for matching apps to disk
-  app quit                Quits and optionally restarts matching apps'
+    Subcommands
+    app find                Shows installed matching apps
+    app bundleid            Shows the bundleID for installed matching apps
+    app icon                Saves the icon for matching apps to disk
+    app quit                Quits and optionally restarts matching apps'
         return 0
     end
 
