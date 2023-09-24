@@ -193,6 +193,28 @@ now that you've met the crew, feel free to explore their individual quirks and s
 
 I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F19. Using hammerspoon I set my hyper key to F18, this allows me to still have access to all modifiers (ctrl, alt, cmd, shift)[^2].
 
+| Key                     | Action                                                                         |
+|:------------------------|:-------------------------------------------------------------------------------|
+| <kbd>left_command</kbd> | Swap with <kbd>left_option</kbd> on Apple Keyboards (Vendor IDs: 1452, 76)     |
+| <kbd>left_option</kbd>  | Swap with <kbd>left_command</kbd> on Apple Keyboards (Vendor IDs: 1452, 76)    |
+| <kbd>caps_lock</kbd>    | Remap to <kbd>left_control</kbd>; If pressed alone, remap to <kbd>escape</kbd> |
+| <kbd>F1</kbd>           | Remap to <kbd>display_brightness_decrement</kbd>                               |
+| <kbd>F2</kbd>           | Remap to <kbd>display_brightness_increment</kbd>                               |
+| <kbd>F3</kbd>           | Remap to <kbd>mission_control</kbd>                                            |
+| <kbd>F4</kbd>           | Remap to <kbd>launchpad</kbd>                                                  |
+| <kbd>F5</kbd>           | Remap to <kbd>illumination_decrement</kbd>                                     |
+| <kbd>F6</kbd>           | Remap to <kbd>illumination_increment</kbd>                                     |
+| <kbd>F7</kbd>           | Remap to <kbd>rewind</kbd>                                                     |
+| <kbd>F8</kbd>           | Remap to <kbd>play_or_pause</kbd>                                              |
+| <kbd>F9</kbd>           | Remap to <kbd>fastforward</kbd>                                                |
+| <kbd>F10</kbd>          | Remap to <kbd>mute</kbd>                                                       |
+| <kbd>F11</kbd>          | Remap to <kbd>volume_decrement</kbd>                                           |
+| <kbd>F12</kbd>          | Remap to <kbd>volume_increment</kbd>                                           |
+| <kbd>left_control</kbd> | Remap to <kbd>f19</kbd>                                                        |
+| <kbd>right_option</kbd> | Remap to <kbd>keyboard_fn</kbd> (Apple vendor top case key code)               |
+
+These keybindings are applied based on the specified conditions and devices in your configuration.
+
 [^2]: Evan Travers' [blog post about a Better Hyper Key](https://evantravers.com/articles/2020/06/08/hammerspoon-a-better-better-hyper-key/) is the inspiration behind this.
 
 ## 🌻 <samp> GUIDES</samp>
