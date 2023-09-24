@@ -44,7 +44,7 @@
           {
             "manipulators": [
               {
-                "description": "Change f19 to command+control+option+shift.",
+                "description": "Change f19 to Hyper (command+control+option+shift)",
                 "from": {
                   "key_code": "f19"
                 },
@@ -101,6 +101,26 @@
           "ignore": false,
           "manipulate_caps_lock_led": true,
           "simple_modifications": [
+            {
+              "from": {
+                "apple_vendor_top_case_key_code": "keyboard_fn"
+              },
+              "to": [
+                {
+                  "key_code": "f18"
+                }
+              ]
+            },
+            {
+              "from": {
+                "key_code": "right_option"
+              },
+              "to": [
+                {
+                  "apple_vendor_top_case_key_code": "keyboard_fn"
+                }
+              ]
+            }
           ]
         },
         {

@@ -195,25 +195,52 @@ I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F
 
 | Key                     | Action                                                                         |
 |:------------------------|:-------------------------------------------------------------------------------|
-| <kbd>left_command</kbd> | Swap with <kbd>left_option</kbd> on Apple Keyboards (Vendor IDs: 1452, 76)     |
-| <kbd>left_option</kbd>  | Swap with <kbd>left_command</kbd> on Apple Keyboards (Vendor IDs: 1452, 76)    |
 | <kbd>caps_lock</kbd>    | Remap to <kbd>left_control</kbd>; If pressed alone, remap to <kbd>escape</kbd> |
-| <kbd>F1</kbd>           | Remap to <kbd>display_brightness_decrement</kbd>                               |
-| <kbd>F2</kbd>           | Remap to <kbd>display_brightness_increment</kbd>                               |
-| <kbd>F3</kbd>           | Remap to <kbd>mission_control</kbd>                                            |
-| <kbd>F4</kbd>           | Remap to <kbd>launchpad</kbd>                                                  |
-| <kbd>F5</kbd>           | Remap to <kbd>illumination_decrement</kbd>                                     |
-| <kbd>F6</kbd>           | Remap to <kbd>illumination_increment</kbd>                                     |
-| <kbd>F7</kbd>           | Remap to <kbd>rewind</kbd>                                                     |
-| <kbd>F8</kbd>           | Remap to <kbd>play_or_pause</kbd>                                              |
-| <kbd>F9</kbd>           | Remap to <kbd>fastforward</kbd>                                                |
-| <kbd>F10</kbd>          | Remap to <kbd>mute</kbd>                                                       |
-| <kbd>F11</kbd>          | Remap to <kbd>volume_decrement</kbd>                                           |
-| <kbd>F12</kbd>          | Remap to <kbd>volume_increment</kbd>                                           |
 | <kbd>left_control</kbd> | Remap to <kbd>f19</kbd>                                                        |
-| <kbd>right_option</kbd> | Remap to <kbd>keyboard_fn</kbd> (Apple vendor top case key code)               |
 
-These keybindings are applied based on the specified conditions and devices in your configuration.
+### Window Focus and Swap
+
+| Keybinding                                | Action                                                               |
+|:-----------------------------------------|:---------------------------------------------------------------------|
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Cmd</kbd> + <kbd>H</kbd> | Focus window to the west with `yabai` |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Cmd</kbd> + <kbd>J</kbd> | Focus window to the south with `yabai` |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Cmd</kbd> + <kbd>K</kbd> | Focus window to the north with `yabai` |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Cmd</kbd> + <kbd>L</kbd> | Focus window to the east with `yabai` |
+
+### Window Movement and Swap
+
+| Keybinding                                | Action                                                               |
+|:-----------------------------------------|:---------------------------------------------------------------------|
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>H</kbd> | Swap managed windows to the west with `yabai` |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>J</kbd> | Swap managed windows to the south with `yabai` |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>K</kbd> | Swap managed windows to the north with `yabai` |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>L</kbd> | Swap managed windows to the east with `yabai` |
+
+### Window Movement and Focus
+
+| Keybinding                                | Action                                                               |
+|:-----------------------------------------|:---------------------------------------------------------------------|
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <kbd>H</kbd> | Move to the west and focus with `yabai` |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <kbd>J</kbd> | Move to the south and focus with `yabai` |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <kbd>K</kbd> | Move to the north and focus with `yabai` |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <kbd>L</kbd> | Move to the east and focus with `yabai` |
+
+### Window Manipulation
+
+| Keybinding                                       | Action                                                    |
+|:-------------------------------------------------|:----------------------------------------------------------|
+| <kbd>Alt</kbd> + <kbd>R</kbd>                    | Rotate the window 90 degrees with `yabai`                 |
+| <kbd>Alt</kbd> + <kbd>F</kbd>                    | Toggle zoom/fullscreen with `yabai`                       |
+| <kbd>Alt</kbd> + <kbd>G</kbd>                    | Toggle padding and gap with `yabai`                       |
+| <kbd>Alt</kbd> + <kbd>T</kbd>                    | Toggle float and switch to a 4x4 grid layout with `yabai` |
+| <kbd>Alt</kbd> + <kbd>E</kbd>                    | Toggle split with `yabai`                                 |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>0</kbd> | Balance the space with `yabai`                            |
+
+### Window Attributes
+
+| Keybinding                                | Action                                                               |
+|:-----------------------------------------|:---------------------------------------------------------------------|
+| <kbd>Alt</kbd> + <kbd>S</kbd>            | Toggle sticky, topmost, and Picture-in-Picture (PiP) with `yabai` |
 
 [^2]: Evan Travers' [blog post about a Better Hyper Key](https://evantravers.com/articles/2020/06/08/hammerspoon-a-better-better-hyper-key/) is the inspiration behind this.
 
