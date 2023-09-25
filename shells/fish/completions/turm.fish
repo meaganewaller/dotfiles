@@ -1,1 +1,0 @@
-turm completion fish | source

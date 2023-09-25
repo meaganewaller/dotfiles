@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>meagan's dotfiles - aesthetics & productivity</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="meagan waller's dotfiles & workspace configurations">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+  <!-- Themes (light + dark) -->
+  <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css"/>
+  <link rel="stylesheet" media="(prefers-color-scheme: light)" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    window.$docsify = {
+      name: "meagan's dotfiles",
+      repo: 'https://github.com/meaganewaller/dotfiles',
+      formatUpdated: '{MM}/{DD} {HH}:{mm}',
+      routerMode: 'history',
+      loadFooter: true,
+      loadSidebar: true,
+      search: {
+        placeholder: 'find something...',
+      },
+      subMaxLevel: 0,
+      auto2top: true,
+      nativeEmoji: true,
+      copyCode: {
+        buttonText: 'Copy',
+        errorText: 'Error',
+        successText: 'Copied',
+      },
+      pagination: {
+        crossChapter: true,
+        crossChapterText: true,
+      },
+    }
+  </script>
+
+  <!-- Docsify v4 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+
+  <!-- docsify-themeable -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
+
+  <!-- docsify-search -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
+
+    <!-- docsify-zoom-image -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+
+  <!-- docsify-copy-code -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+
+  <!-- docsify-pagination -->
+  <script src="https://unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+
+  <!-- docsify-footer -->
+  <script src="https://cdn.jsdelivr.net/npm/@alertbox/docsify-footer/dist/docsify-footer.min.js"></script>
+
+    <!-- docsify-zoom-image -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+
+  <!-- docsify-copy-code -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+
+  <!-- docsify-pagination -->
+  <script src="https://unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+</body>
+</html>
