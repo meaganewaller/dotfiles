@@ -74,7 +74,7 @@ namespace :install do
 
     log_info '~> Updating brew directory permissions'
     run %( sudo chown -R $(whoami) /usr/local/ )
-    run %( sudo chown -R $(whoami) /opt/homebrew/ )
+    # run %( sudo chown -R $(whoami) /opt/homebrew/ )
 
     log_info '~> Installing brew taps'
     brew_taps.each do |tap|

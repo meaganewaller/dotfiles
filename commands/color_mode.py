@@ -4,8 +4,10 @@ import os
 import subprocess
 import sys
 
-nvim_path = "~/.config/nvim"
-starship_path = "~/.config/starship"
+nvim_path = '~/.config/nvim'
+tmux_path = '~/.config/tmux'
+starship_path = '~/.config/starship'
+kitty_path = '~/.config/kitty'
 
 # If we toggle dark mode via Alfred, we end up in a infinite loop. The dark-mode
 # binary changes the MacOS mode which in turn causes color-mode-notify to run
@@ -16,11 +18,11 @@ ran_from_cmd_line = False
 
 # The order in which apps are changed
 apps = [
-    "macos",
-    "kitty",
-    "starship",
-    "neovim",
-    "fish",
+    'macos',
+    'kitty',
+    'starship',
+    'neovim',
+    'fish',
 ]
 
 
@@ -28,24 +30,24 @@ def app_macos(mode):
     """
     Change the macOS environment
     """
-    path_to_file = "~/.color_mode"
+    path_to_file = '~/.color_mode'
 
     # Open the color_mode file
-    with open(os.path.expanduser(path_to_file), "r") as config_file:
+    with open(os.path.expanduser(path_to_file), 'r') as config_file:
         contents = config_file.read()
 
     # Change the mode to ensure on a fresh startup, the color is remembered
-    if mode == "dark":
-        contents = contents.replace("light", "dark")
+    if mode == 'dark':
+        contents = contents.replace('light', 'dark')
         if ran_from_cmd_line:
-            subprocess.run(["dark-mode", "on"])
+            subprocess.run(['dark-mode', 'on'])
 
-    if mode == "light":
-        contents = contents.replace("dark", "light")
+    if mode == 'light':
+        contents = contents.replace('dark', 'light')
         if ran_from_cmd_line:
-            subprocess.run(["dark-mode", "off"])
+            subprocess.run(['dark-mode', 'off'])
 
-    with open(os.path.expanduser(path_to_file), "w") as config_file:
+    with open(os.path.expanduser(path_to_file), 'w') as config_file:
         config_file.write(contents)
 
 
@@ -53,13 +55,13 @@ def app_kitty(mode):
     """
     Change the Kitty terminal
     """
-    theme = "Onedark"
+    theme = 'HardHacker'
 
-    if mode == "light":
-        theme = "Onelight"
+    if mode == 'light':
+        theme = 'HardHacker Light'
 
     subprocess.run(
-        ["/opt/homebrew/bin/kitty", "+kitten", "themes", "--reload-in=all", theme]
+        ['/usr/local/bin/kitty', '+kitten', 'themes', '--reload-in=all', theme]
     )
 
 
@@ -67,21 +69,21 @@ def app_starship(mode):
     """
     Change the prompt in the terminal
     """
-    if mode == "dark":
+    if mode == 'dark':
         return subprocess.run(
             [
-                "cp",
-                os.path.expanduser(starship_path + "/starship_dark.toml"),
-                os.path.expanduser(starship_path + "/starship.toml"),
+                'cp',
+                os.path.expanduser(starship_path + '/starship_dark.toml'),
+                os.path.expanduser(starship_path + '/starship.toml'),
             ]
         )
 
-    if mode == "light":
+    if mode == 'light':
         return subprocess.run(
             [
-                "cp",
-                os.path.expanduser(starship_path + "/starship_light.toml"),
-                os.path.expanduser(starship_path + "/starship.toml"),
+                'cp',
+                os.path.expanduser(starship_path + '/starship_light.toml'),
+                os.path.expanduser(starship_path + '/starship.toml'),
             ]
         )
 
@@ -92,36 +94,36 @@ def app_neovim(mode):
     """
     from pynvim import attach
 
-    nvim_config = nvim_path + "/lua/meg/options.lua"
+    nvim_config = nvim_path + '/lua/options.lua'
 
     # Open the neovim file
-    with open(os.path.expanduser(nvim_config), "r") as config_file:
+    with open(os.path.expanduser(nvim_config), 'r') as config_file:
         nvim_contents = config_file.read()
 
     # Change the mode to ensure on a fresh startup, the color is remembered
-    if mode == "dark":
+    if mode == 'dark':
         nvim_contents = nvim_contents.replace(
             'vo.background = "light"', 'vo.background = "dark"'
         )
 
-    if mode == "light":
+    if mode == 'light':
         nvim_contents = nvim_contents.replace(
             'vo.background = "dark"', 'vo.background = "light"'
         )
 
-    with open(os.path.expanduser(nvim_config), "w") as config_file:
+    with open(os.path.expanduser(nvim_config), 'w') as config_file:
         config_file.write(nvim_contents)
 
     # Now begin changing our open Neovim instances
 
     # Get the neovim servers using neovim-remote
-    servers = subprocess.run(["nvr", "--serverlist"], stdout=subprocess.PIPE)
+    servers = subprocess.run(['nvr', '--serverlist'], stdout=subprocess.PIPE)
     servers = servers.stdout.splitlines()
 
     # Loop through them and change the theme by calling our custom Lua code
     for server in servers:
         try:
-            nvim = attach("socket", path=server)
+            nvim = attach('socket', path=server)
             nvim.command("call v:lua.mw.ToggleTheme('" + mode + "')")
         except:
             continue
@@ -130,7 +132,7 @@ def app_neovim(mode):
 
 
 def app_fish(mode):
-    return subprocess.run(["/usr/local/bin/fish"])
+    return subprocess.run(['/usr/local/bin/fish'])
 
 
 def run_apps(mode=None):
@@ -141,7 +143,7 @@ def run_apps(mode=None):
         mode = get_mode()
 
     for app in apps:
-        getattr(sys.modules[__name__], "app_%s" % app)(mode)
+        getattr(sys.modules[__name__], 'app_%s' % app)(mode)
 
     return
 
@@ -151,16 +153,16 @@ def get_mode():
     Determine what mode macOS is currently in
     """
     mode = subprocess.run(
-        ["defaults", "read", "-g", "AppleInterfaceStyle", ">/dev/null"],
+        ['defaults', 'read', '-g', 'AppleInterfaceStyle', '>/dev/null'],
         capture_output=True,
     )
     if mode.returncode == 1:
-        return "light"
+        return 'light'
     else:
-        return "dark"
+        return 'dark'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # If we've passed a specific mode then activate it
     try:
         if sys.argv[1]:

@@ -1,4 +1,3 @@
-adwaita-icon-theme
 ansible
 asciidoctor
 asdf
@@ -30,6 +29,7 @@ dockutil
 dos2unix
 duck
 efm-langserver
+entr
 exa
 fd
 federico-terzi/espanso/espanso
@@ -90,6 +90,7 @@ libzip
 linuxbrew/xorg/xrdb
 llvm
 llvm@13
+llvm@15
 lnav
 lolcat
 lsd
@@ -149,6 +150,7 @@ shellcheck
 shfmt
 sphinx-doc
 ssh-copy-id
+st
 starship
 stylua
 subversion

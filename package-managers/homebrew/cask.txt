@@ -10,6 +10,7 @@ contexts
 controlplane
 cyberduck
 discord
+dozer
 dropbox
 fantastical
 figma
@@ -27,6 +28,7 @@ font-victor-mono-nerd-font
 gpg-suite
 hammerspoon
 hazel
+hyper
 inkscape
 insomnia
 intel-power-gadget
@@ -55,3 +57,4 @@ tableplus
 the-unarchiver
 thingsmacsandboxhelper
 utm
+warp
