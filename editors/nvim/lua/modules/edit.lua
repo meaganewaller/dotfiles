@@ -52,4 +52,12 @@ return {
       require('configs.vim-easy-align')
     end,
   },
+  {
+    "rainbowhxch/accelerated-jk.nvim",
+    lazy = true,
+    event = "VeryLazy",
+    config = function()
+      require('configs.accelerated-jk')
+    end
+  }
 }
