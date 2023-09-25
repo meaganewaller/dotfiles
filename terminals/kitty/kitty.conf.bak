@@ -203,7 +203,7 @@ macos_custom_beam_cursor                yes
 # can use the macOS unicode input technique.
 macos_option_as_alt                     both
 macos_show_window_title_in              none
-macos_titlebar_color                    background
+# macos_titlebar_color                    background
 macos_colorspace                        displayp3
 
 # https://github.com/kovidgoyal/kitty/pull/5969
@@ -287,7 +287,7 @@ globinclude keymaps.conf
 globinclude splits.conf
 
 # BEGIN_KITTY_THEME
-# Rosé Pine Dawn
+# HardHacker
 include current-theme.conf
 # END_KITTY_THEME
 # --[ fin ] --------------------------------------------------------------------
