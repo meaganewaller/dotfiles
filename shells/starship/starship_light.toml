@@ -1,51 +1,230 @@
-# # Get editor completions based on the config schema
-# "$schema" = 'https://starship.rs/config-schema.json'
-#
-# right_format = "$cmd_duration"
-#
-# [character]
-# success_symbol = "[➜](bold #1da912)" #green
-# error_symbol = "[➜](bold #e05661)" #red
-#
-# [cmd_duration]
-# format = "[ $duration]($style)"
-# style = "bold" #black
-#
-# [directory]
-# read_only = " "
-# style = "bold #9a77cf" #purple
-#
-# [docker_context]
-# symbol = " "
-#
-# [git_branch]
-# symbol = " "
-# style = "bold #1da912" #green
-#
-# [git_status]
-# style = "bold #bebebe" #gray
-#
-# [java]
-# symbol = " "
-# style = "bold #118dc3" #blue
-#
-# [nix_shell]
-# symbol = " "
-# style = "bold #118dc3" #blue
-# impure_msg = " [impure](bold #e05661)"
-# pure_msg = " [pure](bold)"
-#
-# [nodejs]
-# symbol = " "
-# style = "bold #eea825" #yellow
-#
-# [package]
-# style = "bold #e05661" #red
-#
-# [python]
-# symbol = " "
-# style = "bold #eea825" #yellow
-#
-# [ruby]
-# symbol = " "
-# style = "bold #e05661" #red
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """╭╴$all """
+right_format = """$time $cmd_duration"""
+add_newline = true
+command_timeout = 10_000
+palette = 'hardhacker'
+
+aws.disabled = true
+c.disabled = true
+cmake.disabled = true
+haskell.disabled = true
+python.disabled = true
+rust.disabled = true
+perl.disabled = true
+package.disabled = true
+lua.disabled = true
+nodejs.disabled = true
+java.disabled = true
+golang.disabled = true
+conda.disabled = true
+container.disabled = true
+gcloud.disabled = true
+localip.disabled = true
+php.disabled = true
+vagrant.disabled = true
+git_metrics.disabled = true
+
+[palettes.hardhacker]
+background = "#f5f0ff"
+foreground = "#282433"
+selection = "#d8d3eb"
+comment = "#938aad"
+red = "#e965a5"
+green = "#b1f2a7"
+yellow = "#ebde76"
+blue = "#b1baf4"
+purple = "#e192ef"
+cyan = "#b3f4f3"
+background_dark = "#d8d3eb"
+foreground_dark = "#33303f"
+selection_dark = "#b1baf4"
+comment_dark = "#7c7895"
+red_dark = "#d75098"
+green_dark = "#90cf8b"
+yellow_dark = "#d1c467"
+blue_dark = "#8a92c2"
+purple_dark = "#d48fdc"
+cyan_dark = "#8fcac9"
+background_light = "#fffaf3"
+foreground_light = "#26233a"
+selection_light = "#8a92c2"
+comment_light = "#a9a4c3"
+red_light = "#ff7ebd"
+green_light = "#ccf7bf"
+yellow_light = "#f3ec9a"
+blue_light = "#c9cde6"
+purple_light = "#f1d9f6"
+cyan_light = "#c9f1f0"
+
+[palettes.rainbow]
+red = "#F77976"
+orange = "#FFAB00"
+yellow = "#FDF148"
+green  = "#A0E426"
+blue = "#52E3E1"
+indigo = "#AEA9FE"
+violet = "#D6B1FC"
+dark_red = "#FF5C90"
+dark_orange = "#FF964B"
+dark_yellow = "#FFEC5C"
+dark_green = "#4F871A"
+dark_blue = "#318AD8"
+dark_indigo = "#645AFD"
+dark_violet = "#AE62F9"
+lavendar = "#D883FF"
+dark_lavendar = "#9336FD"
+pink = "#FFC8DD"
+dark_pink = "#F050AE"
+darkest_pink = "#B00544"
+baby_blue = "#BDE0FE"
+
+[ruby]
+symbol = " "
+format = "[](fg:purple bg:none)[$symbol](fg:foreground bg:purple)[](bg:purple_light fg:purple)[ $version]($style)[](fg:purple_light bg:none) "
+style = "fg:foreground bg:purple_light"
+
+[character]
+format = "\n╰╴$symbol "
+success_symbol = "[](green bold)"
+error_symbol = "[](red)"
+vicmd_symbol = "[](yellow)"
+
+[username]
+format = "[ $user]($style) "
+style_root = "bold blue"
+style_user = "bold cyan"
+disabled = true
+
+[hostname]
+ssh_only = true
+format = "[](fg:blue bg:none)[$ssh_symbol](fg:blue_light bg:blue)[](fg:blue bg:blue)[ $hostname]($style)[](fg:blue bg:none) "
+style = "fg:bold blue_light bg:blue"
+ssh_symbol = " "
+trim_at = "-"
+disabled = false
+
+[git_branch]
+symbol = ""
+# symbol = "🌱 "
+truncation_length = 4
+truncation_symbol = ""
+format = "[](fg:cyan bg:none)[$symbol](fg:blue_light bg:cyan)[](fg:cyan bg:cyan)[$branch]($style)[](fg:cyan bg:none) "
+style = "fg:blue_light bg:cyan"
+
+[git_commit]
+tag_symbol = " "
+tag_disabled = false
+format = "[ $hash$tag]($style) "
+
+[git_status]
+# format = "([ $all_status$ahead_behind]($style) )"
+format = "[](fg:purple bg:none)[$all_status$ahead_behind]($style)[ ](fg:purple bg:none)"
+conflicted = "="
+ahead =	"⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = ""
+untracked = "?${count}"
+stashed = ""
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "${count}"
+style = "bg:purple fg:foreground"
+# style = "bold yellow"
+ignore_submodules = true
+# format="[](fg:#4da0ff bg:none)[$all_status$ahead_behind](fg:#282c34 bg:#4da0ff)[](fg:#4da0ff bg:none)"
+# conflicted = " 🐗 "
+# ahead = " 🐇${count} "
+# behind = " 🐢${count} "
+# diverged = " 🔱 🐇${ahead_count} 🐢${behind_count} "
+# untracked = " 🦅${count} "
+# stashed = " 🐫 "
+# modified = " 🐾${count} "
+# staged = " 🐴${count} "
+# renamed = " 🦋${count} "
+# deleted = " 🐚${count} "
+
+[git_state]
+merge = " MERGING"
+cherry_pick = "🍒 PICKING"
+style = "bold red"
+
+[directory]
+read_only = " "
+format = "[](fg:foreground bg:none)[](fg:blue_light bg:purple_light)[](fg:foreground bg:purple_light)[ $path]($style)[](fg:foreground bg:none) "
+style = "fg:blue_light bg:foreground"
+truncation_length = 3
+truncate_to_repo=false
+
+[directory.substitutions]
+"~" = " ~"
+" ~/Documents" = " ~/Documents"
+" ~/Downloads" = " ~/Downloads"
+" ~/Desktop"   = " ~/Desktop"
+" ~/Music"     = " ~/Music"
+" ~/Pictures"  = " ~/Pictures"
+" ~/Library"   = " ~/Library"
+" ~/Dropbox"   = " ~/Dropbox"
+" ~/code"      = " ~/code"
+" ~/dev"       = " ~/dev"
+" ~/workspace" = " ~/workspace"
+" ~/.dotfiles" = " ~/.dotfiles"
+
+[docker_context]
+symbol = " "
+
+[time]
+disabled = false
+format="[](fg:red_light bg:none)[💖](fg:red_light bg:red_light)[](fg:red_light bg:red_light)[ $time]($style)[](fg:red_light bg:none)"
+time_format = "%l:%m%p" #change to %R to only have HH:MM
+style="fg:#E2285C bg:red_light"
+
+# #     望
+[battery]
+full_symbol = " "
+charging_symbol = " "
+discharging_symbol = " "
+
+[[battery.display]]
+threshold = 101
+style = "bold blue"
+
+[[battery.display]]
+threshold = 50
+style = "bold yellow"
+
+[[battery.display]]
+threshold = 30
+style = "bold red"
+
+[cmd_duration]
+min_time = 1
+# duration & style
+format = "[]($style)[[神](bg:cyan_light fg:foreground_light bold)$duration](bg:cyan_light fg:foreground_light)[ ]($style)"
+disabled = false
+style = "bg:none fg:foreground_light"
+
+[os.symbols]
+Alpine = " "
+Arch = " "
+CentOS = " "
+Debian = " "
+Fedora = " "
+FreeBSD = " "
+Gentoo = " "
+Linux = " "
+Macos = " "
+Mint = " "
+NixOS = " "
+OpenBSD = " "
+openSUSE = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+Ubuntu = " "
+Unknown = " "
+Windows = " "

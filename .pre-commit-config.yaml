@@ -31,15 +31,15 @@ repos:
       - id: fix-ligatures
         repos:
   - repo: https://github.com/lyz-code/yamlfix/
-    rev: main
+    rev: 1.13.0
     hooks:
       - id: yamlfix
   - repo: https://github.com/sirosen/check-jsonschema
-    rev: 0.10.0
+    rev: 0.26.3
     hooks:
       - id: check-github-actions
       - id: check-github-workflows
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.8.0.3
+    rev: v0.9.0.5
     hooks:
       - id: shellcheck

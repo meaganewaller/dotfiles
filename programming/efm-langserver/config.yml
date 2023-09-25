@@ -1,0 +1,81 @@
+version: 2
+log-file: "/Users/meaganwaller/.local/state/nvim/efm.log"
+log-level: 1
+root-markers:
+  - .git/
+  - package.json
+
+tools:
+  eslint: &eslint
+  lint-command: "eslint_d -f unix --stdin"
+  lint-ignore-exit-code: true
+  lint-stdin: true
+
+  google-java-format: &google-java-format
+    format-command: "google-java-format -"
+    format-stdin: true
+
+  fish: &fish
+    format-command: "fish_indent"
+    to-stdin: true
+
+  isort: &isort
+    format-command: "isort --stdout --filename ${INPUT} -"
+    format-stdin: true
+
+  prettier: &prettier
+    format-command: "prettier"
+
+  python-black: &python-black
+    format-command: "black --no-color -q -"
+    format-stdin: true
+
+  shfmt: &shfmt
+    format-command: "shfmt -filename {$INPUT} -"
+    format-stdin: true
+
+  stylua: &stylua
+    format-command: "stylua --color Never -"
+    format-stdin: true
+    root-markers:
+      - stylua.toml
+
+languages:
+  css:
+    - <<: *prettier
+  fish:
+    - <<: *fish
+  html:
+    - <<: *prettier
+  java:
+    - <<: *google-java-format
+  javascript:
+    - <<: *eslint
+    - <<: *prettier
+  javascriptreact:
+    - <<: *eslint
+    - <<: *prettier
+  json:
+    - <<: *prettier
+  lua:
+    - <<: *stylua
+  markdown:
+    - <<: *prettier
+  python:
+    - <<: *isort
+    - <<: *python-black
+  scss:
+    - <<: *prettier
+  sh:
+    - <<: *shfmt
+  typescript:
+    - <<: *eslint
+    - <<: *prettier
+  typescriptreact:
+    - <<: *eslint
+    - <<: *prettier
+  vue:
+    - <<: *eslint
+    - <<: *prettier
+  yaml:
+    - <<: *prettier

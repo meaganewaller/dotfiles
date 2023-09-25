@@ -64,6 +64,8 @@ alias bupg='brew upgrade && brew cleanup'
 # Mac
 alias code='open $argv -a "Visual Studio Code"'
 alias reloadapps="defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock"
+alias disableNotificationCenter="launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist && killall NotificationCenter"
+alias enableNotificationCenter="launchctl load -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist && open /System/Library/CoreServices/NotificationCenter.app/"
 
 # Misc
 alias ls='ls --color=auto'
@@ -78,7 +80,6 @@ alias essh='nvim ~/.ssh/config'
 alias chmodall='sudo chmod -R 0777'
 alias copyssh='pbcopy < ~/.ssh/$1'
 alias rk='pgrep kitty | xargs kill -SIGUSR1'
-alias dotbot='cd ~/.dotfiles && ./install'
 alias dotup='cd ~/.dotfiles && git submodule update --remote dotbot'
 alias mssh='ruby ~/.dotfiles/commands/ssh.rb'
 alias sep='ruby ~/.dotfiles/commands/make_separator.rb'
@@ -104,7 +105,6 @@ alias rup='rails app:update'
 alias rds='rails db:setup'
 alias rdm='rails db:migrate'
 alias rdmr='rails db:migrate:redo'
-# alias rg='rails generate'
 alias rgm='rails generate model'
 alias rgc='rails generate controller'
 alias rgmi='rails generate migration'
@@ -114,7 +114,7 @@ alias rprod='tail -f log/production.log'
 
 # Ruby
 alias rt='rake test'
-# alias sb='~/.local/share/nvim/mason/packages/solargraph/bin/solargraph bundle'
+alias sb='~/.local/share/nvim/mason/packages/solargraph/bin/solargraph bundle'
 alias gb='gem build'
 alias ug='gem update --system && gem update'
 
@@ -135,65 +135,3 @@ alias desk='cd ~/Desktop'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ze='zoxide edit'
-
-# Tmux
-alias tsa='tmux-sendall'                # Send a command to all windows and panes that don't have a process running
-alias tks='tmux kill-server'            # Kill everything
-alias tl='tmux list-sessions'           # List all of the open tmux sessions
-alias ts='tmux choose-session'          # Choose a session to attach to
-alias tk='tmux kill-session -t'         # Kill a named tmux session
-alias t='tmux attach || tmux new-session'   # Attaches tmux to the last session; creates a new session if none exists.
-alias tpi='~/.config/tmux/plugins/tpm/bin/install_plugins' # Installs Tmux plugins
-alias tpu='~/.config/tmux/plugins/tpm/bin/update_plugins all' # Updates all Tmux plugins
-
-# MacCOS
-alias disableNotificationCenter="launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist && killall NotificationCenter"
-alias enableNotificationCenter="launchctl load -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist && open /System/Library/CoreServices/NotificationCenter.app/"
-
-
-# alias x=extract
-#
-# alias cp="cp -i"
-# alias md="mkdir -p"
-# alias week='date +%V'
-#
-# if command -sq batcat
-#     alias bat=batcat
-#     alias cat="batcat -pp"
-#     alias ccat /usr/bin/cat
-# end
-# if command -sq bat
-#     alias cat="bat -pp"
-#     alias ccat /usr/bin/cat
-# end
-#
-# if command -sq exa
-#     alias ls="exa --color=auto"
-#     alias l='exa -lbh --icons'
-#     alias la='exa -labgh --icons'
-#     alias ll='exa -lbg --icons'
-#     alias lsa='exa -lbagR --icons'
-#     alias lst='exa -lTabgh --icons'
-#
-#     alias tree "exa -T"
-#
-# else
-#     alias ls='ls --color=auto'
-#     # color should not be always.
-#     alias lst='tree -pCsh'
-#     alias l='ls -lah'
-#     alias la='ls -lAh'
-#     alias ll='ls -lh'
-#     alias lsa='ls -lah'
-# end
-#
-# # tmux
-# alias tt "tmux a"
-# alias tn "tmux new"
-# alias tl "tmux list-sessions"
-# alias tk "tmux kill-session -t"
-# alias tka='tmux kill-server'
-#
-# alias color_test "curl https://gist.githubusercontent.com/lilydjwg/fdeaf79e921c2f413f44b6f613f6ad53/raw/94d8b2be62657e96488038b0e547e3009ed87d40/colors.py | python"
-#
-# alias clip='curl -F "c=@-" "https://fars.ee/?u=1"'

@@ -1,5 +1,7 @@
+# vim:ft=conf
+
 # Modes
-:: default  : ~/.config/sketchybar/plugins/skhd.sh default
+:: default : ~/.config/sketchybar/plugins/skhd.sh default
 :: resize @ : ~/.config/sketchybar/plugins/skhd.sh resize blue
 :: gaps   @ : ~/.config/sketchybar/modules/skhd.sh gaps   blue
 :: layout @ : ~/.config/sketchybar/modules/skhd.sh layout pink
@@ -59,27 +61,27 @@ move < shift - l : yabai -m window --warp east
 move < shift - j: yabai -m window --warp south
 move < shift - k: yabai -m window --warp north
 
-launch < f : ~/.config/skhd/apps/kitty launch-or-focus ; skhd -k 'escape'
+launch < f      : ~/.config/skhd/apps/kitty launch-or-focus ; skhd -k 'escape'
 launch < return : ~/.config/skhd/apps/kitty new-window ; skhd -k 'escape'
-launch < o : ~/.config/skhd/apps/obsidian launch-or-focus ; skhd -k 'escape'
+launch < o      : ~/.config/skhd/apps/obsidian launch-or-focus ; skhd -k 'escape'
 hyper - o       : ~/.config/skhd/apps/obsidian launch-or-focus ; skhd -k 'escape'
 
-resize < h   : yabai -m window --resize left:-64:0 || yabai -m window --resize right:-64:0
-resize < j   : yabai -m window --resize top:0:64   || yabai -m window --resize bottom:0:64
-resize < k     : yabai -m window --resize top:0:-64  || yabai -m window --resize bottom:0:-64
-resize < l  : yabai -m window --resize left:64:0  || yabai -m window --resize right:64:0
-resize < shift - h   : yabai -m window --resize right:-64:0  || yabai -m window --resize left:-64:0
-resize < shift - j   : yabai -m window --resize bottom:0:64  || yabai -m window --resize up:0:64
-resize < shift - k     : yabai -m window --resize bottom:0:-64 || yabai -m window --resize up:0:-64
-resize < shift - l  : yabai -m window --resize right:64:0   || yabai -m window --resize left:64:0
+resize < h         : yabai -m window --resize left:-64:0 || yabai -m window --resize right:-64:0
+resize < j         : yabai -m window --resize top:0:64   || yabai -m window --resize bottom:0:64
+resize < k         : yabai -m window --resize top:0:-64  || yabai -m window --resize bottom:0:-64
+resize < l         : yabai -m window --resize left:64:0  || yabai -m window --resize right:64:0
+resize < shift - h : yabai -m window --resize right:-64:0  || yabai -m window --resize left:-64:0
+resize < shift - j : yabai -m window --resize bottom:0:64  || yabai -m window --resize up:0:64
+resize < shift - k : yabai -m window --resize bottom:0:-64 || yabai -m window --resize up:0:-64
+resize < shift - l : yabai -m window --resize right:64:0   || yabai -m window --resize left:64:0
 
-gaps < k : yabai -m space --gap rel:8 --padding rel:8:8:8:8
-gaps < j : yabai -m space --gap rel:-8 --padding rel:-8:-8:-8:-8
-gaps < y : yabai -m space --gap abs:320 --padding abs:64:64:256:256
-gaps < u : yabai -m space --gap abs:0 --padding abs:0:0:0:0
-gaps < i : yabai -m space --gap abs:32 --padding abs:32:32:32:32
-gaps < p : yabai -m space --gap abs:256 --padding abs:128:128:256:256
-gaps < o : yabai -m space --gap abs:128 --padding abs:128:128:128:128
+gaps < k    : yabai -m space --gap rel:8 --padding rel:8:8:8:8
+gaps < j    : yabai -m space --gap rel:-8 --padding rel:-8:-8:-8:-8
+gaps < y    : yabai -m space --gap abs:320 --padding abs:64:64:256:256
+gaps < u    : yabai -m space --gap abs:0 --padding abs:0:0:0:0
+gaps < i    : yabai -m space --gap abs:32 --padding abs:32:32:32:32
+gaps < p    : yabai -m space --gap abs:256 --padding abs:128:128:256:256
+gaps < o    : yabai -m space --gap abs:128 --padding abs:128:128:128:128
 gaps < 0x1E : yabai -m config --space $(yabai -m query --spaces --space | jq .index) right_padding 16
 gaps < 0x21 : yabai -m config --space $(yabai -m query --spaces --space | jq .index) right_padding 320
 
@@ -115,65 +117,3 @@ layout < f : yabai -m space --layout float
 layout < s : yabai -m space --layout stack
 
 system < r : skhd --reload ; skhd -k 'escape' ; ~/.config/sketchybar/plugins/skhd-mode default
-
-# # Focus Window
-# cmd + ctrl - h : yabai -m window --focus west  || yabai -m display --focus west
-# cmd + ctrl - j : yabai -m window --focus south || yabai -m display --focus south
-# cmd + ctrl - k : yabai -m window --focus north || yabai -m display --focus north
-# cmd + ctrl - l : yabai -m window --focus east  || yabai -m display --focus east
-#
-# # Move Window
-# cmd + shift + ctrl - h : yabai -m window --warp west  || { yabai -m window --display west && yabai -m display --focus west }
-# cmd + shift + ctrl - j : yabai -m window --warp south || { yabai -m window --display south && yabai -m display --focus south }
-# cmd + shift + ctrl - k : yabai -m window --warp north || { yabai -m window --display north && yabai -m display --focus north }
-# cmd + shift + ctrl - l : yabai -m window --warp east  || { yabai -m window --display east && yabai -m display --focus east }
-#
-# # Balance size of windows
-# shift + alt - 0 : yabai -m space --balance
-#
-# # Destroy space
-# cmd + ctrl - w : yabai -m space --destroy
-#
-# # create space
-# cmd + ctrl - c : yabai -m space --create
-#
-# # Fast focus desktop
-# cmd + ctrl - tab   : yabai -m space --focus recent
-# cmd + ctrl - left  : yabai -m space --focus prev
-# cmd + ctrl - right : yabai -m space --focus next
-# cmd + ctrl - 1     : yabai -m space --focus 1
-# cmd + ctrl - 2     : yabai -m space --focus 2
-# cmd + ctrl - 3     : yabai -m space --focus 3
-# cmd + ctrl - 4     : yabai -m space --focus 4
-# cmd + ctrl - 5     : yabai -m space --focus 5
-# cmd + ctrl - 6     : yabai -m space --focus 6
-# cmd + ctrl - 7     : yabai -m space --focus 7
-# cmd + ctrl - 8     : yabai -m space --focus 8
-# cmd + ctrl - 9     : yabai -m space --focus 9
-# cmd + ctrl - 0     : yabai -m space --focus 10
-#
-# # set insertion point in focused container
-# cmd + ctrl + alt - h : yabai -m window --insert west
-# cmd + ctrl + alt - j : yabai -m window --insert south
-# cmd + ctrl + alt - k : yabai -m window --insert north
-# cmd + ctrl + alt - l : yabai -m window --insert east
-# cmd + ctrl + alt - s : yabai -m window --insert stack
-#
-# # Float / Unfloat window and center on screen
-# cmd + ctrl - space : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2
-#
-#
-# # toggle center window on screen in an orientation fit for reading/writing
-# shift + cmd + ctrl - space : export CURRENT_SPACE=$(yabai -m query --spaces | jq -r '.[]|select(."has-focus" == true)') ; \
-#                                                   export INDEX=$(echo $CURRENT_SPACE | jq -r '.index') ; \
-#                                                   export DISPLAY=$(echo $CURRENT_SPACE | jq -r '.display') ; \
-#                                                   export PADDING=$(($(yabai -m query --displays --display $DISPLAY | jq -r '.frame.w') / 4)) ; \
-#                                                   if [[ "$(yabai -m config --space $INDEX left_padding)" != $PADDING ]]; then \
-# { yabai -m config --space $INDEX left_padding $PADDING && \
-#   yabai -m config --space $INDEX right_padding $PADDING } \
-#   else \
-# { yabai -m config --space $INDEX left_padding 10 &&  \
-#   yabai -m config --space $INDEX right_padding 10  } \
-#   fi
-#
-#

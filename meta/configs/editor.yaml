@@ -1,79 +1,12 @@
+---
 # --- Editor Configuration ---
-
-- asdf:
-  - plugin: nodejs
-    global: 19.8.1
-    versions:
-      - 16.13.0
-      - 16.16.0
-      - 18.16.0
-      - 18.7.0
-      - 19.8.1
-  - plugin: neovim
-    global: nightly
-    versions:
-      - nightly
-  - plugin: python
-    global: 3.11.4
-    versions:
-      - 2.7.18
-      - 3.9.0
-      - 3.11.4
-
 - shell:
-  - ["asdf install neovim ref:master"]
-
+    - [asdf install neovim ref:master]
 - link:
     ~/.config/nvim: editors/nvim
-
-- ifubuntu:
-  - shell:
-    - ["curl -fsSL https://deb.nodesource.com/setup_16.x | sudo base -", "Add NodeJS PPA"]
-    - ["sudo add-apt-repository ppa:neovim-ppa/unstable", "Add Neovim PPA"]
-    - ["sudo apt-get update"]
-  - apt:
-    - unzip
-    - rsync
-    - wget
-    - ripgrep
-    - fd-find
-
-- ifarch:
-  - pacman:
-    - unzip
-    - rsync
-    - wget
-    - ripgrep
-    - fd
-
-- ifmacos:
-  - brew:
-    - unzip
-    - rsync
-    - wget
-    - ripgrep
-    - fd
-
-- pip:
-    file: editors/nvim/requirements.txt
-    user: true
-    stdout: false
-    stderr: true
-
-- pnpm:
-    stdout: false
-    stderr: true
-    packages:
-      - neovim
-      - tree-sitter-cli
-
 - shell:
-  - ["curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal", "Installing Rust"]
-  - [". ~/.cargo/env && rustup component add rust-src", "Adding Rust Source"]
-
-- vscodefile:
-    file: editors/vscode/extensions
-    insiders: false
-
+    - [curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+          --profile minimal, Installing Rust]
+    - [. ~/.cargo/env && rustup component add rust-src, Adding Rust Source]
 - link:
     ~/Library/Application Support/Code/User/settings.json: editors/vscode/settings.json

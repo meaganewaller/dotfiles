@@ -31,16 +31,20 @@ task :install do
   begin
     section 'Installing'
     Rake::Task['tests:setup'].invoke if testing?
-    Rake::Task['install:xcode'].invoke
-    Rake::Task['install:brew'].invoke
-    Rake::Task['install:brew_packages'].invoke
-    Rake::Task['install:brew_cask_packages'].invoke
-    Rake::Task['install:mas'].invoke unless testing?
-    Rake::Task['install:brew_clean_up'].invoke
-    Rake::Task['install:mackup'].invoke
+
+    if macos?
+      Rake::Task['install:xcode'].invoke
+      Rake::Task['install:brew'].invoke
+      Rake::Task['install:brew_packages'].invoke
+      Rake::Task['install:brew_cask_packages'].invoke
+      Rake::Task['install:mas'].invoke unless testing?
+      Rake::Task['install:brew_clean_up'].invoke
+      Rake::Task['install:mackup'].invoke
+    end
+
     Rake::Task['install:dotbot'].invoke
     Rake::Task['install:fonts'].invoke
-    Rake::Task['install:macos'].invoke
+    Rake::Task['install:macos'].invoke if macos?
     Rake::Task['install:servers'].invoke
     Rake::Task['install:neovim'].invoke
     Rake::Task['install:vim'].invoke
@@ -49,10 +53,10 @@ task :install do
     Rake::Task['install:gems'].invoke
     Rake::Task['install:cargo'].invoke
     Rake::Task['install:fish'].invoke
-    Rake::Task['install:launchagents'].invoke
+    Rake::Task['install:launchagents'].invoke if macos?
     Rake::Task['install:rails'].invoke
     Rake::Task['install:chmod_dots'].invoke
-    Rake::Task['install:hammerspoon'].invoke
+    Rake::Task['install:hammerspoon'].invoke if macos?
   rescue => e
     log_error("Something went wrong! 😞")
     log_error(e.message)
@@ -64,10 +68,9 @@ task :update do
   begin
     section 'Updating'
     Rake::Task['tests:setup'].invoke if testing?
-    Rake::Task['update:brew'].invoke
+    Rake::Task['update:brew'].invoke if macos?
     Rake::Task['update:dotbot'].invoke
     Rake::Task['update:neovim'].invoke
-    # Rake::Task['update:neovim_plugins'].invoke
     Rake::Task['update:vim_plugins'].invoke
     Rake::Task['update:rust'].invoke
     Rake::Task['update:cargo'].invoke
@@ -90,7 +93,7 @@ task :sync do
     section '!! Syncing !!'
     Rake::Task['update'].invoke
     Rake::Task['backup'].invoke
-    Rake::Task['install:brew_clean_up'].invoke
+    Rake::Task['install:brew_clean_up'].invoke if macos?
   rescue => e
     log_error("Something went wrong! 😞")
     log_error(e.message)

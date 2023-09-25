@@ -1,7 +1,11 @@
 colorkraken
+jdoc
 meta
 neovim
 next
+pnpm
 react
 tree-sitter
+typedoc
+v8
 wing

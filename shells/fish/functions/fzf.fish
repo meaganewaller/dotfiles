@@ -1,10 +1,15 @@
 function fzf --wraps="fzf"
-    set -Ux FZF_DEFAULT_OPTS "
-    --color=fg:#908caa,bg:#232136,hl:#ea9a97
-    --color=fg+:#e0def4,bg+:#393552,hl+:#ea9a97
-    --color=border:#44415a,header:#3e8fb0,gutter:#232136
-	  --color=spinner:#f6c177,info:#9ccfd8,separator:#44415a
-	  --color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
+  set -x FZF_DEFAULT_OPTS
+  set -a FZF_DEFAULT_OPTS --height=70%
+  # set -a FZF_DEFAULT_OPTS --multi
+  set -a FZF_DEFAULT_OPTS --border
+  # set -a FZF_DEFAULT_OPTS --preview-window=:hidden
+  set -a FZF_DEFAULT_OPTS --history=$HOME/.fzf_history
+  # set -a FZF_DEFAULT_OPTS --bind=ctrl-t:top
+  set -a FZF_DEFAULT_OPTS --marker='✓'
 
-    command fzf
+
+  set -g fzf_fd_opts --hidden --no-ignore --exclude=.git --exclude=Library
+
+  command fzf
 end
