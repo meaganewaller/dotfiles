@@ -21,19 +21,17 @@ set fish_color_comment gray
 set fish_color_autosuggestion gray
 
 if [ "$macOS_Theme" = light ]
-  set -x LS_COLORS "vivid generate $HOME/.config/vivid/onelight.yml"
+  set -x LS_COLORS "vivid generate $HOME/.config/vivid/hardhacker-light.yml"
 else if [ "$macOS_Theme" = dark ]
-  set -x LS_COLORS "vivid generate $HOME/.config/vivid/onedark.yml"
+  set -x LS_COLORS "vivid generate $HOME/.config/vivid/hardhacker-dark.yml"
 end
 
 # Paths
-fish_config theme choose "Rosé Pine Moon"
-fish_add_path ~/.cargo/bin
 fish_add_path /usr/local/bin
 fish_add_path /usr/local/sbin
 fish_add_path "$HOME/.cargo/bin"
 fish_add_path "$HOME/.dotfiles/bin"
-# fish_add_path "$HOME/.local/share/nvim/mason/bin"
+fish_add_path "$HOME/.local/share/nvim/mason/bin"
 fish_add_path "$HOME/.local/bin"
 
 if type -q zoxide

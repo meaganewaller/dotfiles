@@ -1,4 +1,5 @@
 #!/usr/bin/env fish
+
 function app -a cmd --description 'Operate on macOS applications'
     argparse -s h/help -- $argv
 

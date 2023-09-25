@@ -1,10 +1,11 @@
+# Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """╭╴$all """
 right_format = """$time $cmd_duration"""
 add_newline = true
 command_timeout = 10_000
-palette = 'rose-pine-moon'
+palette = 'hardhacker'
 
 aws.disabled = true
 c.disabled = true
@@ -26,57 +27,37 @@ php.disabled = true
 vagrant.disabled = true
 git_metrics.disabled = true
 
-[palettes.rose-pine]
-base = "#191724"
-surface = "#1f1d2e"
-overlay = "#26233a"
-muted = "#6e6a86"
-subtle = "#908caa"
-text = "#e0def4"
-love = "#eb6f92"
-gold = "#f6c177"
-rose = "#ebbcba"
-pine = "#31748f"
-foam = "#9ccfd8"
-iris = "#c4a7e7"
-highlight_low = "#21202e"
-highlight_med = "#403d5d"
-highlight_high = "#524f67"
-
-[palettes.rose-pine-moon]
-base = "#232136"
-surface = "#2a273f"
-overlay = "#393552"
-muted = "#6e6a86"
-subtle = "#908caa"
-text = "#e0def4"
-love_lighter = "#EE81A0"
-love = "#eb6f92"
-gold = "#f6c177"
-rose = "#ea9a97"
-pine = "#3e8fb0"
-foam = "#9ccfd8"
-iris = "#c4a7e7"
-highlight_low = "#2a283e"
-highlight_med = "#44415a"
-highlight_high = "#56526e"
-
-[palettes.rose-pine-dawn]
-base = "#faf4ed"
-surface = "#fffaf3"
-overlay = "#f2e9e1"
-muted = "#9893a5"
-subtle = "#797593"
-text = "#575279"
-love = "#b4637a"
-gold = "#ea9d34"
-rose = "#d7827e"
-pine = "#286983"
-foam = "#56949f"
-iris = "#907aa9"
-highlight_low = "#f4ede8"
-highlight_med = "#dfdad9"
-highlight_high = "#cecacd"
+[palettes.hardhacker]
+background = "#282433"
+foreground = "#eee9fc"
+selection = "#3f3951"
+comment = "#938aad"
+red = "#e965a5"
+green = "#b1f2a7"
+yellow = "#ebde76"
+blue = "#b1baf4"
+purple = "#e192ef"
+cyan = "#b3f4f3"
+background_dark = "#1e1a27"
+foreground_dark = "#dcd6f4"
+selection_dark = "#2d283d"
+comment_dark = "#7c7895"
+red_dark = "#d75098"
+green_dark = "#90cf8b"
+yellow_dark = "#d1c467"
+blue_dark = "#8a92c2"
+purple_dark = "#d48fdc"
+cyan_dark = "#8fcac9"
+background_light = "#33303f"
+foreground_light = "#f3f0ff"
+selection_light = "#4a445b"
+comment_light = "#a9a4c3"
+red_light = "#ff7ebd"
+green_light = "#ccf7bf"
+yellow_light = "#f3ec9a"
+blue_light = "#c9cde6"
+purple_light = "#f1d9f6"
+cyan_light = "#c9f1f0"
 
 [palettes.rainbow]
 red = "#F77976"
@@ -102,25 +83,25 @@ baby_blue = "#BDE0FE"
 
 [ruby]
 symbol = " "
-format = "[](fg:love bg:none)[$symbol](fg:text bg:love)[](bg:love_lighter fg:love)[ $version]($style)[](fg:love_lighter bg:none) "
-style = "fg:text bg:love_lighter"
+format = "[](fg:purple bg:none)[$symbol](fg:foreground bg:purple)[](bg:purple_light fg:purple)[ $version]($style)[](fg:purple_light bg:none) "
+style = "fg:foreground bg:purple_light"
 
 [character]
 format = "\n╰╴$symbol "
-success_symbol = "[](iris bold)"
-error_symbol = "[](love)"
-vicmd_symbol = "[](gold)"
+success_symbol = "[](green bold)"
+error_symbol = "[](red)"
+vicmd_symbol = "[](yellow)"
 
 [username]
 format = "[ $user]($style) "
-style_root = "bold foam"
-style_user = "bold pine"
+style_root = "bold blue"
+style_user = "bold cyan"
 disabled = true
 
 [hostname]
 ssh_only = true
-format = "[](fg:foam bg:none)[$ssh_symbol](fg:pine bg:foam)[](fg:foam bg:foam)[ $hostname]($style)[](fg:foam bg:none) "
-style = "fg:bold pine bg:foam"
+format = "[](fg:blue bg:none)[$ssh_symbol](fg:blue_dark bg:blue)[](fg:blue bg:blue)[ $hostname]($style)[](fg:blue bg:none) "
+style = "fg:bold blue_dark bg:blue"
 ssh_symbol = " "
 trim_at = "-"
 disabled = false
@@ -130,8 +111,8 @@ symbol = ""
 # symbol = "🌱 "
 truncation_length = 4
 truncation_symbol = ""
-format = "[](fg:foam bg:none)[$symbol](fg:pine bg:foam)[](fg:foam bg:foam)[$branch]($style)[](fg:foam bg:none) "
-style = "fg:pine bg:foam"
+format = "[](fg:cyan bg:none)[$symbol](fg:blue_dark bg:cyan)[](fg:cyan bg:cyan)[$branch]($style)[](fg:cyan bg:none) "
+style = "fg:blue_dark bg:cyan"
 
 [git_commit]
 tag_symbol = " "
@@ -140,7 +121,7 @@ format = "[ $hash$tag]($style) "
 
 [git_status]
 # format = "([ $all_status$ahead_behind]($style) )"
-format = "[](fg:iris bg:none)[$all_status$ahead_behind]($style)[ ](fg:iris bg:none)"
+format = "[](fg:purple bg:none)[$all_status$ahead_behind]($style)[ ](fg:purple bg:none)"
 conflicted = "="
 ahead =	"⇡${count}"
 behind = "⇣${count}"
@@ -152,7 +133,7 @@ modified = "!${count}"
 staged = "+${count}"
 renamed = "»${count}"
 deleted = "${count}"
-style = "bg:iris fg:text"
+style = "bg:purple fg:foreground"
 # style = "bold yellow"
 ignore_submodules = true
 # format="[](fg:#4da0ff bg:none)[$all_status$ahead_behind](fg:#282c34 bg:#4da0ff)[](fg:#4da0ff bg:none)"
@@ -170,12 +151,12 @@ ignore_submodules = true
 [git_state]
 merge = " MERGING"
 cherry_pick = "🍒 PICKING"
-style = "bold love"
+style = "bold red"
 
 [directory]
 read_only = " "
-format = "[](fg:text bg:none)[](fg:pine bg:text)[](fg:text bg:text)[ $path]($style)[](fg:text bg:none) "
-style = "fg:pine bg:text"
+format = "[](fg:foreground bg:none)[](fg:blue_dark bg:foreground)[](fg:foreground bg:foreground)[ $path]($style)[](fg:foreground bg:none) "
+style = "fg:blue_dark bg:foreground"
 truncation_length = 3
 truncate_to_repo=false
 
@@ -198,9 +179,9 @@ symbol = " "
 
 [time]
 disabled = false
-format="[](fg:love_lighter bg:none)[💖](fg:love_lighter bg:love_lighter)[](fg:love_lighter bg:love_lighter)[ $time]($style)[](fg:love_lighter bg:none)"
+format="[](fg:red_light bg:none)[💖](fg:red_light bg:red_light)[](fg:red_light bg:red_light)[ $time]($style)[](fg:red_light bg:none)"
 time_format = "%l:%m%p" #change to %R to only have HH:MM
-style="fg:#E2285C bg:love_lighter"
+style="fg:#E2285C bg:red_light"
 
 # #     望
 [battery]
@@ -210,22 +191,22 @@ discharging_symbol = " "
 
 [[battery.display]]
 threshold = 101
-style = "bold foam"
+style = "bold blue"
 
 [[battery.display]]
 threshold = 50
-style = "bold gold"
+style = "bold yellow"
 
 [[battery.display]]
 threshold = 30
-style = "bold love"
+style = "bold red"
 
 [cmd_duration]
 min_time = 1
 # duration & style
-format = "[]($style)[[神](bg:muted fg:subtle bold)$duration](bg:muted fg:subtle)[ ]($style)"
+format = "[]($style)[[神](bg:background_light fg:foreground_light bold)$duration](bg:background_light fg:foreground_light)[ ]($style)"
 disabled = false
-style = "bg:none fg:muted"
+style = "bg:none fg:foreground_light"
 
 [os.symbols]
 Alpine = " "
