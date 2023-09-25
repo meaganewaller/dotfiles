@@ -69,3 +69,4 @@ misc/enhance-rails-intellisense-in-solargraph
 backup
 .repro
 tools/vcs/git/config.local
+*.bak
