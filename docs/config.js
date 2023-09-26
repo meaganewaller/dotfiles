@@ -7,14 +7,11 @@ window.$docsify = {
   search: {
     placeholder: 'find something...',
   },
-  subMaxLevel: 4,
+  maxLevel: 3,
+  subMaxLevel: 2,
   auto2top: true,
-  autoHeader: true,
   nativeEmoji: true,
   routerMode: 'history',
-  alias: {
-    '/.*/_sidebar.md': '/_sidebar.md',
-  },
   copyCode: {
     buttonText: 'Copy',
     errorText: 'Error',

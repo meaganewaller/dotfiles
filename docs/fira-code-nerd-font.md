@@ -1,0 +1,1 @@
+# 🪄 fira code nerd font
