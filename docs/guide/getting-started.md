@@ -1,4 +1,4 @@
-# getting-started
+# 🚀 Getting Started
 
 dotfiles installation involves a few steps:
 

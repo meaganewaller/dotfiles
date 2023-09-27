@@ -1,4 +1,5 @@
 ---
+ title: welcome to my dotfiles
  layout: home
 
  hero:

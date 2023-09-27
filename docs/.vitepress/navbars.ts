@@ -18,7 +18,7 @@ const en = [
   { text: "Guide", link: "/guide/getting-started" },
   {
     text: "Reference",
-    link: "/manage/configuration",
+    link: "/guide/configuration",
   },
   {
     text: getVersion(),
