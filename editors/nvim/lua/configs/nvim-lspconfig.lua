@@ -63,7 +63,7 @@ local function lspconfig_diagnostics()
     -- Enable virtual text, override spacing to 4
     virtual_text = {
       spacing = 4,
-      prefix = vim.trim(static.icons.AngleLeft),
+      prefix = vim.trim(static.icons.ui.AngleLeft),
     },
   })
 
@@ -132,17 +132,12 @@ local function lsp_setup()
   ---@return boolean? is_setup
   local function setup_ft(ft)
     local servers = ft_servers[ft]
-    if not servers then
-      return false
-    end
-    if type(servers) ~= 'table' then
-      servers = { servers }
-    end
+    if not servers then return false end
+    if type(servers) ~= 'table' then servers = { servers } end
     for _, server in ipairs(servers) do
       lspconfig[server].setup(server_configs[server])
     end
     ft_servers[ft] = nil
-    vim.api.nvim_exec_autocmds('FileType', { pattern = ft })
     return true
   end
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -155,7 +150,10 @@ local function lsp_setup()
       pattern = ft,
       group = groupid,
       callback = function()
-        return setup_ft(ft)
+        if setup_ft(ft) then
+          vim.api.nvim_exec_autocmds('FileType', { pattern = ft })
+        end
+        return true
       end,
     })
   end

@@ -1,7 +1,7 @@
 return {
   {
     'lervag/vimtex',
-    ft = { 'tex', 'markdown' },
+    ft = { 'tex' },
     config = function()
       require('configs.vimtex')
     end,
@@ -9,7 +9,7 @@ return {
   {
     'iamcco/markdown-preview.nvim',
     lazy = true,
-    build = ':call mkdp#util#install()',
+    build = 'cd app && npm install',
     ft = 'markdown',
   },
   {

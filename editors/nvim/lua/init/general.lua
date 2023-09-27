@@ -3,13 +3,12 @@ local opt = vim.opt
 
 -- stylua: ignore start
 opt.cursorline     = true
-opt.colorcolumn    = '80'
+opt.cursorlineopt  = 'number'
+opt.colorcolumn    = '120'
 opt.foldlevelstart = 99
-opt.guifont        = 'JetbrainsMono Nerd Font:h13'
 opt.laststatus     = 3
 opt.showmode       = false
 opt.mouse          = 'a'
-opt.mousemoveevent = true
 opt.number         = true
 opt.pumheight      = 16
 opt.relativenumber = true
@@ -18,32 +17,31 @@ opt.scrolloff      = 4
 opt.sidescrolloff  = 8
 opt.signcolumn     = 'yes:1'
 opt.splitright     = true
+opt.splitbelow     = true
 opt.swapfile       = false
 opt.termguicolors  = true
 opt.undofile       = true
-opt.updatetime     = 10
 opt.wrap           = false
 opt.linebreak      = true
 opt.breakindent    = true
 opt.smoothscroll   = true
-opt.completeopt    = 'menuone'
+opt.completeopt    = 'menu,menuone,noselect'
 opt.conceallevel   = 2
 opt.autowriteall   = true
 -- stylua: ignore end
 
--- Cursor shape
--- For unknown reasons, wezterm won't reload config for current session
--- when we spawn 'setbg' or 'setcolors' scripts from nvim using libuv
--- if GUI cursor highlights are set for modes n,v,r,cr
-opt.gcr = vim.env.WEZTERM_PANE
-    and 'n-v:block,i-c-ci-ve:blinkoff500-blinkon500-block-TermCursor,r-cr:hor20,o:hor50'
-  or 'n-v:block-Cursor/lCursor,i-c-ci-ve:blinkoff500-blinkon500-block-TermCursor,r-cr:hor20,o:hor50-Cursor/lCursor'
+opt.pumblend = 0
+opt.winblend = 0
+
+opt.gcr:append 'n-v:block-Cursor/lCursor,i-c-ci-ve:blinkoff500-blinkon500-block-TermCursor,r-cr:hor20,o:hor50-Cursor/lCursor'
 
 -- Use patience algorithm for diffing
 opt.diffopt:append('algorithm:patience')
 
 opt.backup = true
 opt.backupdir:remove('.')
+
+opt.shortmess:append 'I'
 
 -- stylua: ignore start
 opt.list = true
@@ -63,17 +61,18 @@ opt.fillchars = {
   eob       = ' ',
 }
 
-opt.ts          = 4
-opt.softtabstop = 4
-opt.shiftwidth  = 4
+opt.tabstop     = 2
+opt.softtabstop = 2
+opt.shiftwidth  = 2
 opt.expandtab   = true
 opt.smartindent = true
 opt.autoindent  = true
 
+opt.hlsearch    = true
 opt.ignorecase  = true
 opt.smartcase   = true
 
-opt.spell         = true
+opt.spell         = false
 opt.spellcapcheck = ''
 opt.spelllang     = 'en,cjk'
 opt.spelloptions  = 'camel'
@@ -96,3 +95,16 @@ g.loaded_rrhelper        = 1
 g.loaded_netrw           = 1
 g.loaded_netrwPlugin     = 1
 -- stylua: ignore end
+
+if g.neovide then
+  opt.guifont = 'FiraCode Nerd Font Mono:h12'
+  g.neovide_cursor_vfx_mode = 'railgun'
+  g.neovide_no_idle = true
+  g.neovide_cursor_animation_length = 0.03
+  g.neovide_cursor_trail_length = 0.05
+  g.neovide_cursor_antialiasing = true
+  g.neovide_cursor_vfx_opacity = 200.0
+  g.neovide_cursor_vfx_particle_lifetime = 1.2
+  g.neovide_cursor_vfx_particle_speed = 20.0
+  g.neovide_cursor_vfx_particle_density = 5.0
+end

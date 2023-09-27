@@ -1,6 +1,5 @@
 _G.statusline = {}
-local utils = require('utils')
-local redraw_cmd = 'silent! redrawstatus'
+local utils = require 'utils'
 
 ---@type table<string, string>
 local signs_text_cache = {}
@@ -71,9 +70,7 @@ function statusline.gitdiff()
   local added = diff.added or 0
   local changed = diff.changed or 0
   local removed = diff.removed or 0
-  if added == 0 and removed == 0 and changed == 0 then
-    return ''
-  end
+  if added == 0 and removed == 0 and changed == 0 then return '' end
   return string.format(
     '+%s~%s-%s',
     utils.stl.hl(tostring(added), 'StatusLineGitAdded'),
@@ -103,36 +100,24 @@ statusline.flags = {
   md_captitle = function()
     return vim.bo.ft == 'markdown' and vim.b.captitle and 'md-cap-title' or ''
   end,
-  lsp_autofmt = function()
-    return vim.b.lsp_autofmt_enabled
-        and not vim.tbl_isempty(vim.lsp.get_clients({
-          bufnr = 0,
-          method = 'textDocument/formatting',
-        }))
-        and 'lsp-auto-format'
-      or ''
-  end,
+  autoformat = function() return vim.g.autoformat and 'auto-format' or '' end,
 }
 ---@diagnostic enable: undefined-field
 
 ---Additional info for the current buffer enclosed in parentheses
 ---@return string
 function statusline.info()
-  if vim.bo.bt ~= '' then
-    return ''
-  end
+  if vim.bo.bt ~= '' then return '' end
   local info = {}
   ---@param section string
   local function add_section(section)
-    if section ~= '' then
-      table.insert(info, section)
-    end
+    if section ~= '' then table.insert(info, section) end
   end
   add_section(statusline.ft())
   add_section(statusline.branch())
   add_section(statusline.gitdiff())
   add_section(statusline.flags.md_captitle())
-  add_section(statusline.flags.lsp_autofmt())
+  add_section(statusline.flags.autoformat())
   return vim.tbl_isempty(info) and ''
     or string.format('(%s) ', table.concat(info, ', '))
 end
@@ -157,9 +142,7 @@ function statusline.diag()
     local severity_num = vim.diagnostic.severity[severity:upper()]
     local count = counts[severity_num]
     local count_workspace = counts_workspace[severity_num]
-    if count + count_workspace == 0 then
-      return ''
-    end
+    if count + count_workspace == 0 then return '' end
     return utils.stl.hl(
       get_sign_text('DiagnosticSign' .. severity),
       'StatusLineDiagnostic' .. severity
@@ -169,7 +152,7 @@ function statusline.diag()
     )
   end
   local result = ''
-  for _, severity in ipairs({ 'Error', 'Warn', 'Info', 'Hint' }) do
+  for _, severity in ipairs { 'Error', 'Warn', 'Info', 'Hint' } do
     local diag_str = get_diagnostics_str(severity)
     if diag_str ~= '' then
       result = result .. (result == '' and '' or ' ') .. diag_str
@@ -214,25 +197,23 @@ vim.api.nvim_create_autocmd('LspProgress', {
     if data.result.value.kind == 'end' then
       local _report_time = report_time
       lsp_prog_data.result.value.message =
-        vim.trim(utils.static.icons.diagnostics.DiagnosticSignOk)
+        vim.trim(utils.static.icons.diagnostics.Ok)
       -- Clear client message after a short time if received an 'end' message
       vim.defer_fn(function()
         -- No new report since the timer was set
         if _report_time == report_time then
           lsp_prog_data = nil
-          vim.cmd(redraw_cmd)
+          vim.cmd.redrawstatus { bang = true }
         end
       end, 2048)
     end
-    vim.cmd(redraw_cmd)
+    vim.cmd.redrawstatus { bang = true }
   end,
 })
 
 ---@return string
 function statusline.lsp_progress()
-  if not lsp_prog_data then
-    return ''
-  end
+  if not lsp_prog_data then return '' end
   local value = lsp_prog_data.result.value
   return utils.stl.hl(
     string.format(
@@ -267,7 +248,8 @@ local groupid = vim.api.nvim_create_augroup('StatusLine', {})
 vim.api.nvim_create_autocmd({ 'WinEnter', 'BufWinEnter', 'CursorMoved' }, {
   group = groupid,
   callback = function()
-    vim.wo.statusline = table.concat({
+    vim.wo.statusline = table.concat {
+      components.padding,
       components.mode,
       components.fname,
       components.info,
@@ -276,21 +258,24 @@ vim.api.nvim_create_autocmd({ 'WinEnter', 'BufWinEnter', 'CursorMoved' }, {
       components.lsp_progress,
       components.diag,
       components.pos,
-    })
+      components.padding,
+    }
   end,
 })
 vim.api.nvim_create_autocmd('WinLeave', {
   group = groupid,
   callback = function()
-    vim.wo.statusline = table.concat({
+    vim.wo.statusline = table.concat {
+      components.padding,
       components.fname_nc,
       components.align,
       components.truncate,
       components.pos,
-    })
+      components.padding,
+    }
   end,
 })
 vim.api.nvim_create_autocmd({ 'FileChangedShellPost', 'DiagnosticChanged' }, {
   group = groupid,
-  command = redraw_cmd,
+  command = 'redrawstatus',
 })

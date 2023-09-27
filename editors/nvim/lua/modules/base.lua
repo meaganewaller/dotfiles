@@ -11,4 +11,6 @@ return {
       require('configs.nvim-web-devicons')
     end,
   },
+
+  { 'wakatime/vim-wakatime', event = 'VeryLazy' },
 }

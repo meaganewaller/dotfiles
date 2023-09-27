@@ -1,30 +1,19 @@
 local ts_configs = require('nvim-treesitter.configs')
 local utils = require('utils')
 
+local ts_filetypes = {}
+local langs = require('utils.static').langs
+for lang, _ in pairs(langs) do
+  if langs[lang].ts then table.insert(ts_filetypes, langs[lang].ft) end
+end
+
 -- Set treesitter folds
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('TSFolds', {}),
-  callback = function(info)
-    vim.schedule(function()
-      if
-        utils.treesitter.ts_active(info.buf)
-        and vim.opt_local.foldmethod:get() ~= 'diff'
-        and not utils.opt.foldexpr:last_set_from('modeline')
-        and not utils.opt.foldmethod:last_set_from('modeline')
-      then
-        vim.opt_local.foldmethod = 'expr'
-        vim.opt_local.foldexpr = 'nvim_treesitter#foldexpr()'
-      end
-    end)
-  end,
-})
-
-vim.api.nvim_create_autocmd('CmdWinEnter', {
-  group = vim.api.nvim_create_augroup('CmdWinRegexVimHl', {}),
-  desc = 'Use regex vim highlight in command window.',
-  callback = function(info)
-    if info.match == ':' then
-      vim.cmd('TSBufDisable highlight')
+  callback = function(tbl)
+    if vim.tbl_contains(ts_filetypes, tbl.match) then
+      vim.opt_local.foldmethod = 'expr'
+      vim.opt_local.foldexpr = 'nvim_treesitter#foldexpr()'
     end
   end,
 })
@@ -39,6 +28,7 @@ ts_configs.setup({
     disable = { 'markdown', 'tex', 'latex' },
     additional_vim_regex_highlighting = false,
   },
+  indent = { enable = true },
   context_commentstring = {
     enable = true,
     enable_autocmd = false,
@@ -49,10 +39,8 @@ ts_configs.setup({
   incremental_selection = {
     enable = true,
     keymaps = {
-      init_selection = false,
-      node_incremental = 'an',
-      scope_incremental = 'aN',
-      node_decremental = 'in',
+      node_incremental = '<Enter>',
+      node_decremental = '<Backspace>',
     },
   },
   textobjects = {
@@ -122,10 +110,10 @@ ts_configs.setup({
     swap = {
       enable = true,
       swap_next = {
-        ['<M-C-L>'] = '@parameter.inner',
+        ['<C-S-j>'] = '@parameter.inner',
       },
       swap_previous = {
-        ['<M-C-H>'] = '@parameter.inner',
+        ['<C-S-k>'] = '@parameter.inner',
       },
     },
     lsp_interop = {
@@ -136,4 +124,11 @@ ts_configs.setup({
       },
     },
   },
+  autotag = {
+    enable = true,
+    enable_rename = true,
+    enable_close = true,
+    enable_close_on_slash = true,
+  },
+
 })

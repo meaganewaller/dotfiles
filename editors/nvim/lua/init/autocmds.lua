@@ -37,6 +37,140 @@ local autocmds = {
   },
 
   {
+    { 'BufReadPost' },
+    {
+      pattern = '*',
+      group = 'LastPosJmp',
+      desc = 'Last position jump.',
+      callback = function(info)
+        local ft = vim.bo[info.buf].ft
+        -- don't apply to git messages
+        if ft ~= 'gitcommit' and ft ~= 'gitrebase' then
+          vim.cmd 'silent! normal! g`"'
+        end
+      end,
+    },
+  },
+
+  {
+    { 'BufReadPost', 'BufWinEnter', 'FileChangedShellPost' },
+    {
+      pattern = '*',
+      group = 'AutoCwd',
+      desc = 'Automatically change local current directory.',
+      callback = function(info)
+        if info.file == '' or not vim.bo[info.buf].ma then return end
+        local current_dir = vim.fn.getcwd()
+        local proj_dir = require('utils').fs.proj_dir(info.file)
+        -- Prevent unnecessary directory change, which triggers
+        -- DirChanged autocmds that may update winbar unexpectedly
+        if current_dir == proj_dir then return end
+        if proj_dir then
+          vim.cmd.lcd(proj_dir)
+          return
+        end
+        local dirname = vim.fs.dirname(info.file)
+        local stat = vim.uv.fs_stat(dirname)
+        if stat and stat.type == 'directory' and proj_dir ~= current_dir then
+          vim.cmd.lcd(dirname)
+        end
+      end,
+    },
+  },
+
+  {
+    { 'BufReadPre', 'UIEnter' },
+    {
+      group = 'RestoreBackground',
+      once = true,
+      desc = 'Restore dark/light background and colorscheme from ShaDa.',
+      callback = function()
+        if vim.g.theme_restored then return end
+        vim.g.theme_restored = true
+        if vim.g.BACKGROUND and vim.g.BACKGROUND ~= vim.go.background then
+          vim.go.background = vim.g.BACKGROUND
+        end
+        if not vim.g.colors_name or vim.g.COLORSNAME ~= vim.g.colors_name then
+          vim.cmd('silent! colorscheme ' .. (vim.g.COLORSNAME or 'catppuccin'))
+        end
+        return true
+      end,
+    },
+  },
+
+  {
+    { 'Signal' },
+    {
+      nested = true,
+      pattern = 'SIGUSR1',
+      group = 'SwitchBackground',
+      desc = 'Change background on receiving signal SIGUSER1.',
+      callback = function()
+        local hrtime = vim.uv.hrtime()
+        -- Check the last time when a signal is received/sent to avoid
+        -- the infinite loop of
+        -- -> receiving signal
+        -- -> setting bg
+        -- -> sending signals to other nvim instances
+        -- -> receiving signals from other nvim instances
+        -- -> setting bg
+        -- -> ...
+        if vim.g.sig_hrtime and hrtime - vim.g.sig_hrtime < 500000000 then
+          return
+        end
+        vim.g.sig_hrtime = hrtime
+        vim.cmd.rshada()
+        -- Must save the background and colorscheme name read from ShaDa
+        -- because setting background or colorscheme will overwrite them
+        local background = vim.g.BACKGROUND or 'light'
+        local colors_name = vim.g.COLORSNAME or 'hardhacker'
+        if vim.go.background ~= background then
+          vim.go.background = background
+        end
+        if vim.g.colors_name ~= colors_name then
+          vim.cmd('silent! colorscheme ' .. colors_name)
+        end
+      end,
+    },
+  },
+  {
+    { 'Colorscheme' },
+    {
+      group = 'SwitchBackground',
+      desc = 'Spawn setbg/setcolors on colorscheme change.',
+      callback = function()
+        vim.g.BACKGROUND = vim.go.background
+        vim.g.COLORSNAME = vim.g.colors_name
+        vim.cmd.wshada()
+        local hrtime = vim.uv.hrtime()
+        if vim.g.sig_hrtime and hrtime - vim.g.sig_hrtime < 500000000 then
+          return
+        end
+        vim.g.sig_hrtime = hrtime
+        local pid = vim.fn.getpid()
+        if vim.fn.executable 'setbg' == 1 then
+          vim.uv.spawn('setbg', {
+            args = {
+              vim.go.background,
+              '--exclude-nvim-processes=' .. pid,
+            },
+            stdio = { nil, nil, nil },
+          })
+        end
+        if vim.fn.executable 'setcolors' == 1 then
+          vim.uv.spawn('setcolors', {
+            args = {
+              vim.g.colors_name,
+              '--exclude-nvim-processes=' .. pid,
+            },
+            stdio = { nil, nil, nil },
+          })
+        end
+      end,
+    },
+  },
+
+  {
     { 'BufLeave', 'WinLeave', 'FocusLost' },
     {
       pattern = '*',
@@ -368,23 +502,7 @@ local autocmds = {
     { 'BufUnload' },
     {
       group = 'UpdateFolds',
-      callback = function(info)
-        vim.b[info.buf].foldupdated = nil
-      end,
-    },
-  },
-
-  {
-    { 'OptionSet' },
-    {
-      pattern = 'textwidth',
-      group = 'TextwidthRelativeColorcolumn',
-      desc = 'Set colorcolumn according to textwidth.',
-      callback = function()
-        if vim.v.option_new ~= '0' then
-          vim.opt_local.colorcolumn = '+1'
-        end
-      end,
+      callback = function(info) vim.b[info.buf].foldupdated = nil end,
     },
   },
 
@@ -398,7 +516,7 @@ local autocmds = {
         if vim.v.option_new == '1' then
           vim.w._winbar = vim.wo.winbar
           vim.wo.winbar = nil
-          if vim.wo.culopt:find('both') or vim.wo.culopt:find('line') then
+          if vim.wo.culopt:find 'both' or vim.wo.culopt:find 'line' then
             vim.w._culopt = vim.wo.culopt
             vim.wo.culopt = 'number'
           end

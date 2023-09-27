@@ -5,13 +5,11 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: September 19th, 2023
+# Last edited: September 27th, 2023
 --]]
 
 -- Compile lua to bytecode if the nvim version supports it.
-if vim.loader and vim.fn.has "nvim-0.9.1" == 1 then
-  vim.loader.enable()
-end
+if vim.loader and vim.fn.has("nvim-0.9.1") == 1 then vim.loader.enable() end
 
 -- bootstrap lazy package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -29,7 +27,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 if not vim.g.vscode then
-  local nvim = require('client.neovim')
+  local nvim = require("client.neovim")
   nvim.setup()
 
   nvim.activate_plugins()

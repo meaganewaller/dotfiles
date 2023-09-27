@@ -14,18 +14,7 @@ copilot.setup({
       accept = false,
     },
   },
-  filetypes = {
-    markdown = true,
-    help = true,
+  panel = {
+    auto_refresh = true,
   },
 })
-
-vim.defer_fn(function()
-  utils.keymap.amend('i', '<C-f>', function(fallback)
-    if suggestion.is_visible() then
-      suggestion.accept()
-    else
-      fallback()
-    end
-  end)
-end, 10)

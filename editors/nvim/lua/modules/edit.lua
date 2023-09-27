@@ -8,20 +8,16 @@ return {
       { 'S', mode = 'x' },
       { '<C-g>s', mode = 'i' },
     },
-    config = function()
-      require('configs.nvim-surround')
-    end,
+    config = function() require('configs.nvim-surround') end,
   },
 
   {
     'numToStr/Comment.nvim',
     keys = {
-      { 'gc', mode = { 'n', 'x' } },
-      { 'gb', mode = { 'n', 'x' } },
+      { 'gc', mode = { 'n', 'x' }, desc = 'comment: Toggle lines' },
+      { 'gb', mode = { 'n', 'x' }, desc = 'comment: Toggle block' },
     },
-    config = function()
-      require('configs.Comment')
-    end,
+    config = function() require('configs.Comment') end,
   },
 
   {
@@ -30,16 +26,9 @@ return {
   },
 
   {
-    'windwp/nvim-autopairs',
-    event = 'InsertEnter',
-    config = function()
-      require('configs.nvim-autopairs')
-    end,
-  },
-
-  {
-    'h-hg/fcitx.nvim',
-    event = 'InsertEnter',
+    'altermo/ultimate-autopair.nvim',
+    event = { 'InsertEnter', 'CmdlineEnter' },
+    config = function() require 'configs.ultimate-autopair' end,
   },
 
   {
@@ -52,6 +41,7 @@ return {
       require('configs.vim-easy-align')
     end,
   },
+
   {
     "rainbowhxch/accelerated-jk.nvim",
     lazy = true,

@@ -1,17 +1,16 @@
 return {
   {
     'hrsh7th/nvim-cmp',
-    lazy = true,
-    config = function()
-      require('configs.nvim-cmp')
-    end,
+    config = function() require('configs.nvim-cmp') end,
     dependencies = 'LuaSnip',
   },
+
   {
     'hrsh7th/cmp-calc',
     event = 'InsertEnter',
     dependencies = 'nvim-cmp',
   },
+
   {
     'hrsh7th/cmp-cmdline',
     event = 'CmdlineEnter',
@@ -31,24 +30,9 @@ return {
   },
 
   {
-    'tzachar/fuzzy.nvim',
-    lazy = true,
-    dependencies = {
-      {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        run = 'make'
-      },
-    },
-  },
-
-  {
-    'tzachar/cmp-fuzzy-path',
+    'hrsh7th/cmp-path',
     event = { 'CmdlineEnter', 'InsertEnter' },
-    dependencies = {
-      'fuzzy.nvim',
-      'nvim-cmp',
-      'telescope-fzf-native.nvim',
-    },
+    dependencies = 'nvim-cmp',
   },
 
   {
