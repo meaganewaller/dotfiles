@@ -1,81 +1,123 @@
-local utils = require('utils')
+vim.keymap.set({ "n", "x" }, "<Space>", "<Ignore>")
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 
-vim.keymap.set({ 'n', 'x' }, '<Space>', '<Ignore>')
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ','
+vim.keymap.set("n", "<Esc>", "<Cmd>noh<CR>", { desc = "search: Clear Highlights" })
+vim.keymap.set("n", "<C-s>", "<Cmd>write<CR>", { desc = "edit: Write to file" })
 
-vim.keymap.set(
-  'n',
-  '<Esc>',
-  '<Cmd>noh<CR>',
-  { desc = 'search: Clear Highlights' }
-)
-vim.keymap.set('n', '<C-s>', '<Cmd>write<CR>', { desc = 'edit: Write to file' })
-
--- Multi-window operations
-vim.keymap.set({ 'n', 'x' }, '<C-h>', '<C-w>h', { desc = 'window: Go left' })
-vim.keymap.set({ 'n', 'x' }, '<C-j>', '<C-w>j', { desc = 'window: Go down' })
-vim.keymap.set({ 'n', 'x' }, '<C-k>', '<C-w>k', { desc = 'window: Go up' })
-vim.keymap.set({ 'n', 'x' }, '<C-l>', '<C-w>l', { desc = 'window: Go right' })
+-- Window operations
+vim.keymap.set("n", "<Leader>wv", "<C-w>v", { desc = "Window - Split Vertically" })
+vim.keymap.set("n", "<leader>wh", "<C-w>s", { desc = "Window - Split Horizontally" })
+vim.keymap.set("n", "<leader>wm", "<cmd>WindowsMaximize<CR>", { desc = "Window - Maximize" })
+vim.keymap.set("n", "<leader>wc", "<cmd>bdelete!<CR>", { desc = "Window - Close" })
+vim.keymap.set({ "n", "x" }, "<C-h>", "<C-w>h", { desc = "window: Go left" })
+vim.keymap.set({ "n", "x" }, "<C-j>", "<C-w>j", { desc = "window: Go down" })
+vim.keymap.set({ "n", "x" }, "<C-k>", "<C-w>k", { desc = "window: Go up" })
+vim.keymap.set({ "n", "x" }, "<C-l>", "<C-w>l", { desc = "window: Go right" })
 
 -- Up/down motions
-vim.keymap.set({ 'n', 'x', 'o' }, 'j', 'v:count ? "j" : "gj"', { expr = true })
-vim.keymap.set({ 'n', 'x', 'o' }, 'k', 'v:count ? "k" : "gk"', { expr = true })
+vim.keymap.set({ "n", "x", "o" }, "j", 'v:count ? "j" : "gj"', { expr = true })
+vim.keymap.set({ "n", "x", "o" }, "k", 'v:count ? "k" : "gk"', { expr = true })
 
 -- Indent
-vim.keymap.set({ 'x', 'o' }, '>', '>gv', { desc = 'edit: Increase indent' })
-vim.keymap.set({ 'x', 'o' }, '<', '<gv', { desc = 'edit: Decrease indent' })
+vim.keymap.set({ "x", "o" }, ">", ">gv", { desc = "edit: Increase indent" })
+vim.keymap.set({ "x", "o" }, "<", "<gv", { desc = "edit: Decrease indent" })
 
 -- Buffer navigation
-vim.keymap.set(
-  'n',
-  '<A-j>',
-  '<Cmd>exec v:count1 . "bn"<CR>',
-  { desc = 'buffer: Next' }
-)
-vim.keymap.set(
-  'n',
-  '<A-k>',
-  '<Cmd>exec v:count1 . "bp"<CR>',
-  { desc = 'buffer: Previous' }
-)
+vim.keymap.set("n", "<S-L>", "<cmd>BufferNext<CR>", { desc = "Buffer - Next" })
+vim.keymap.set("n", "<S-H>", "<cmd>BufferPrevious<CR>", { desc = "Buffer - Previous" })
+vim.keymap.set("n", "<leader>wn", "<cmd>BufferNext<CR>", { desc = "Buffer - Next" })
+vim.keymap.set("n", "<leader>wp", "<cmd>BufferPrevious<CR>", { desc = "Buffer - Previous" })
+vim.keymap.set("n", "<leader>wsp", "<cmd>BufferMovePrevious<CR>", { desc = "Move - To Previous" })
+vim.keymap.set("n", "<leader>wsn", "<cmd>BufferMoveNext<CR>", { desc = "Move - To Next" })
+vim.keymap.set("n", "<leader>wf", "<cmd>BufferPin<CR>", { desc = "Buffer - Pin" })
+vim.keymap.set("n", "<leader>we", "<cmd>WindowsEqualize<CR>", { desc = "Window - Equalize" })
+
+-- CHECK PLUGIN UPDATE
+vim.keymap.set("n", "<leader>up", "<cmd>Lazy sync<CR>", { desc = "Update - Plugins" })
+vim.keymap.set("n", "<leader>ut", "<cmd>TSUpdate<CR>", { desc = "Update - Treesitter" })
+
+-- CREATE NEW BLANK BUFFER
+vim.keymap.set("n", "<leader>n", "<cmd>enew<CR>", { desc = "Create New Buffer" })
 
 -- Correct misspelled word / mark as correct
-vim.keymap.set('i', '<C-S-L>', '<Esc>[szg`]a')
-vim.keymap.set('i', '<C-l>', '<C-G>u<Esc>[s1z=`]a<C-G>u')
+vim.keymap.set("i", "<C-S-L>", "<Esc>[szg`]a")
+vim.keymap.set("i", "<C-l>", "<C-G>u<Esc>[s1z=`]a<C-G>u")
+-- SPELL CHECK
+vim.keymap.set("n", "wc", "z=", { desc = "Writer - Correct" })
+vim.keymap.set("n", "wd", "zg", { desc = "Writer - Add to dictionary" })
+vim.keymap.set("n", "wn", "]s", { desc = "Writer - Next Incorrect" })
+vim.keymap.set("n", "wp", "[s", { desc = "Writer - Previous Incorrect" })
+
+-- VIEW NOTIFY HISTORY
+vim.keymap.set("n", "<leader>vn", "<cmd>Notifications<CR>", { desc = "View - Notifications History" })
+
+-- BOOKMARKS
+vim.keymap.set("n", "<leader>mt", "<cmd>BookmarkToggle<CR>", { desc = "Bookmark - Toggle" })
+vim.keymap.set("n", "<leader>ma", "<cmd>BookmarkAnnotate ", { desc = "Bookmark - Annotation" })
+vim.keymap.set("n", "<leader>mc", "<cmd>BookmarkClear<CR>", { desc = "Bookmark - Clear All" })
+vim.keymap.set("n", "<leader>ms", "<cmd>BookmarkShowAll<CR>", { desc = "Bookmark - Bookmark Summary" })
+
+-- -- CONFIG =====================================================
+-- HLSLENS
+vim.keymap.set("n", "<leader>chs", "<cmd>HlSearchLensToggle<CR>", { desc = "Highlight - Toggle Search" })
+-- BAR
+vim.keymap.set("n", "<leader>cbe", "<cmd>:ScrollViewEnable<CR>", { desc = "Scrollbar - Enable" })
+vim.keymap.set("n", "<leader>cbd", "<cmd>:ScrollViewDisable<CR>", { desc = "Scrollbar - Disable" })
+vim.keymap.set("n", "<leader>cbs", "<cmd>:ScrollViewRefresh<CR>", { desc = "Scrollbar - Sync" })
+-- DISABLE HIGHLIGHT
+vim.keymap.set("n", "<leader>chn", "<cmd>nohl<CR>", { desc = "Highlight - Disable" })
+-- TOGGLE AUTO SAVE
+vim.keymap.set("n", "<leader>cs", "<cmd>ASToggle<CR>", { desc = "Config - Toggle Autosave" })
+-- LSP CONFIG
+vim.keymap.set("n", "<leader>cl", "<cmd>Mason<CR>", { desc = "Config - LSP Config" })
+-- SWITCH THEME
+vim.keymap.set("n", "<leader>ctd", "<cmd>set background=dark<CR>", { desc = "Theme - Dark" })
+vim.keymap.set("n", "<leader>ctl", "<cmd>set background=light<CR>", { desc = "Theme - Light" })
+-- CLEAR SPELL CHECKER HIGHLIGHT
+vim.keymap.set("n", "<leader>chc", "<cmd>highlight clear SpellBad<CR>", { desc = "Highlight - Clear Spell Checker" })
+-- TOGGLE ILLUMINATE REUSED WORDS
+vim.keymap.set("n", "<leader>chr", "<cmd>IlluminateToggle<CR>", { desc = "Highlight - Toggle Reused Words" })
+-- AUTOWIDTH
+vim.keymap.set("n", "<leader>cm", "<cmd>WindowsToggleAutowidth<CR>", { desc = "Config - Toggle Autowidth" })
+-- INLINE FOLD
+vim.keymap.set("n", "<leader>cf", "<cmd>InlineFoldToggle<CR>", { desc = "Config - Toggle Inline Fold" })
+
+-- -- EXTENSIONS =================================================
+-- MARKDOWN PREVIEW
+vim.keymap.set("n", "<leader>pm", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Previews - Markdown" })
+-- PLANTUML PREVIEW
+vim.keymap.set("n", "<leader>ppo", "<cmd>PlantumlOpen<CR>", { desc = "PlantUML - Start Preview" })
+vim.keymap.set("n", "<leader>ppp", "<cmd>PlantumlStop<CR>", { desc = "PLantUML - Stop Preview" })
+vim.keymap.set("n", "<leader>pps", ":PlantumlSave", { desc = "PlantUML - Save to" })
 
 -- Close all floating windows
-vim.keymap.set('n', 'q', function()
+vim.keymap.set("n", "q", function()
   local count = 0
   local current_win = vim.api.nvim_get_current_win()
   -- close current win only if it's a floating window
-  if vim.api.nvim_win_get_config(current_win).relative ~= '' then
+  if vim.api.nvim_win_get_config(current_win).relative ~= "" then
     vim.api.nvim_win_close(current_win, true)
     return
   end
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     local config = vim.api.nvim_win_get_config(win)
     -- close floating windows that can be focused
-    if config.relative ~= '' and config.focusable then
+    if config.relative ~= "" and config.focusable then
       vim.api.nvim_win_close(win, false) -- do not force
       count = count + 1
     end
   end
   if count == 0 then -- Fallback
-    vim.api.nvim_feedkeys(
-      vim.api.nvim_replace_termcodes('q', true, true, true),
-      'n',
-      false
-    )
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("q", true, true, true), "n", false)
   end
-end, { desc = 'window: Close floating windows' })
-
+end, { desc = "window: Close floating windows" })
 
 vim.keymap.set(
-  't',
-  '<C-x>',
-  vim.api.nvim_replace_termcodes('<C-\\><C-N>', true, true, true),
-  { desc = 'terminal: Exit terminal mode' }
+  "t",
+  "<C-x>",
+  vim.api.nvim_replace_termcodes("<C-\\><C-N>", true, true, true),
+  { desc = "terminal: Exit terminal mode" }
 )
 
 -- -- Multi-window operations

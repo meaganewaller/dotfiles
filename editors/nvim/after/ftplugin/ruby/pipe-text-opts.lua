@@ -1,0 +1,5 @@
+-- Define text objects for block arguments (do |...|)
+vim.api.nvim_buf_set_keymap(0, "x", "i|", ":<C-u>normal! T|vt|<CR>", { noremap = true, silent = true })
+vim.api.nvim_buf_set_keymap(0, "x", "a|", ":<C-u>normal! F|vf|<CR>", { noremap = true, silent = true })
+vim.api.nvim_buf_set_keymap(0, "o", "i|", ":<C-u>normal! T|vt|<CR>", { noremap = true, silent = true })
+vim.api.nvim_buf_set_keymap(0, "o", "a|", ":<C-u>normal! F|vf|<CR>", { noremap = true, silent = true })

@@ -47,5 +47,22 @@ return {
     config = function() require("configs.accelerated-jk") end,
   },
 
-  {},
+  {
+    "malbertzard/inline-fold.nvim",
+    event = { "BufEnter", "BufWinEnter" },
+    opts = {
+      defaultPlaceholder = "…",
+      queries = {
+
+        -- Some examples you can use
+        html = {
+          { pattern = 'class="([^"]*)"', placeholder = "@" }, -- classes in html
+          { pattern = 'href="(.-)"' }, -- hrefs in html
+          { pattern = 'src="(.-)"' }, -- HTML img src attribute
+        },
+      },
+    },
+    command = "InlineFoldToggle",
+    config = function(opts) require("inline-fold").setup(opts) end,
+  },
 }
