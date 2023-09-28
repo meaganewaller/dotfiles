@@ -1,16 +1,14 @@
 return {
   {
-    'nvim-lua/plenary.nvim',
+    "nvim-lua/plenary.nvim",
     lazy = true,
   },
 
   {
-    'nvim-tree/nvim-web-devicons',
+    "nvim-tree/nvim-web-devicons",
     lazy = true,
-    config = function()
-      require('configs.nvim-web-devicons')
-    end,
+    config = function() require("configs.nvim-web-devicons") end,
   },
 
-  { 'wakatime/vim-wakatime', event = 'VeryLazy' },
+  { "wakatime/vim-wakatime", event = "VeryLazy" },
 }

@@ -47,6 +47,31 @@ M.borders = {
   none                  = { '', '', '', '', '', '', '', '' },
 }
 
-M.icons = require('settings').icons
+local icons_mt = {}
+
+function icons_mt:__index(key)
+  return self.debug[key]
+    or self.diagnostics[key]
+    or self.kinds[key]
+    or self.ui[key]
+    or icons_mt[key]
+end
+
+---Flatten the layered icons table into a single type-icon table.
+---@return table<string, string>
+function icons_mt:flatten()
+  local result = {}
+  for _, icons in pairs(self) do
+    for type, icon in pairs(icons) do
+      result[type] = icon
+    end
+  end
+  return result
+end
+
+M.icons = setmetatable(
+  require('settings').icons,
+  icons_mt
+)
 
 return M

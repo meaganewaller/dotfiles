@@ -1,21 +1,38 @@
-local border = require('settings').border
+local border = require("settings").border
 
-require('dressing').setup {
+require("dressing").setup({
   input = {
+    insert_only = false,
     border = border,
     win_options = {
+      sidescrolloff = 4,
       winblend = 0,
     },
+    get_config = function()
+      if vim.api.nvim_win_get_width(0) < 50 then return {
+        relative = "editor",
+      } end
+    end,
   },
   select = {
-    backend = 'builtin',
-    builtin = {
-      border = border,
-      relative = 'cursor',
-      win_options = {
-        winblend = 0,
-      },
-      min_height = { 0, 0 },
+    backend = {
+      "fzf_lua",
+      "telescope",
+      "builtin",
     },
+    config = function(_, opts)
+      require("dresing").setup(opts)
+      vim.keymap.set("n", "z=", function()
+        local word = vim.fn.expand("<cword>")
+        local suggestions = vim.fn.spellsuggest(word)
+        vim.ui.select(
+          suggestions,
+          {},
+          vim.schedule_wrap(function(selected)
+            if selected then vim.cmd.normal({ args = { "ciw" .. selected }, bang = true }) end
+          end)
+        )
+      end)
+    end,
   },
-}
+})

@@ -88,28 +88,28 @@ return {
     -- stylua: ignore start
     keys = {
       {
-        '<A-i>',
-        '<Cmd>ToggleTerm direction=float<CR>',
-        mode = { 'n', 't' },
-        desc = 'terminal: Toggle floating',
+        "<A-i>",
+        "<Cmd>ToggleTerm direction=float<CR>",
+        mode = { "n", "t" },
+        desc = "terminal: Toggle floating",
       },
       {
-        '<A-v>',
-        '<Cmd>ToggleTerm direction=vertical<CR>',
-        mode = { 'n', 't' },
-        desc = 'terminal: Toggle vertical',
+        "<A-v>",
+        "<Cmd>ToggleTerm direction=vertical<CR>",
+        mode = { "n", "t" },
+        desc = "terminal: Toggle vertical",
       },
       {
-        '<A-h>',
-        '<Cmd>ToggleTerm direction=horizontal<CR>',
-        mode = { 'n', 't' },
-        desc = 'terminal: Toggle horizontal',
+        "<A-h>",
+        "<Cmd>ToggleTerm direction=horizontal<CR>",
+        mode = { "n", "t" },
+        desc = "terminal: Toggle horizontal",
       },
       {
-        '<A-g>',
-        '<Cmd>Lazygit<CR>',
-        mode = { 'n', 't' },
-        desc = 'terminal: Toggle LazyGit',
+        "<A-g>",
+        "<Cmd>Lazygit<CR>",
+        mode = { "n", "t" },
+        desc = "terminal: Toggle LazyGit",
       },
     },
     -- stylua: ignore end
@@ -271,5 +271,39 @@ return {
   {
     "toppair/reach.nvim",
     config = function() require("configs.reach") end,
+  },
+  {
+    "stevearc/resession.nvim",
+    lazy = true,
+    opts = {
+      extensions = {
+        overseer = {
+          status = { "RUNNING" },
+        },
+      },
+    },
+  },
+  {
+    "stevearc/overseer.nvim",
+    cmd = {
+      "Grep",
+      "Make",
+      "OverseerDebugParser",
+      "OverseerInfo",
+      "OverseerOpen",
+      "OverseerRun",
+      "OverseerRunCmd",
+      "OverseerToggle",
+    },
+    keys = {
+      { "<leader>oo", "<cmd>OverseerToggle<CR>", mode = "n", desc = "[overseer] Toggle" },
+      { "<leader>or", "<cmd>OverseerRun<CR>", mode = "n", desc = "[overseer] Run" },
+      { "<leader>oc", "<cmd>OverseerRunCmd<CR>", mode = "n", desc = "[overseer] Run Command" },
+      { "<leader>ol", "<cmd>OverseerLoadBundle<CR>", mode = "n", desc = "[overseer] Load Bundle" },
+      { "<leader>ob", "<cmd>OverseerToggle! bottom<CR>", mode = "n", desc = "[overseer] Toggle bottom" },
+      { "<leader>od", "<cmd>OverseerQuickAction<CR>", mode = "n", desc = "[overseer] Quick action" },
+      { "<leader>os", "<cmd>OverseerTaskAction<CR>", mode = "n", desc = "[overseer] Task action" },
+    },
+    config = function() require("configs.overseer") end,
   },
 }
