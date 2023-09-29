@@ -6,6 +6,10 @@ return {
   },
 
   {
+    "onsails/lspkind.nvim",
+  },
+
+  {
     "hrsh7th/cmp-calc",
     event = "InsertEnter",
     dependencies = "nvim-cmp",
@@ -54,10 +58,13 @@ return {
   },
 
   {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
-    config = function() require("configs.copilot") end,
+    "zbirenbaum/copilot-cmp",
+    dependencies = "copilot.lua",
+    opts = {},
+    config = function(_, opts)
+      local copilot_cmp = require("copilot_cmp")
+      copilot_cmp.setup(opts)
+    end,
   },
 
   {

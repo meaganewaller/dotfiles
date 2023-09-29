@@ -1,34 +1,101 @@
 return {
   {
     "nvim-telescope/telescope.nvim",
-    cmd = { "Telescope", "FZF" },
-    keys = {
-      { "<Leader>F", "<Cmd>Telescope builtin<CR>", desc = "find: Finders" },
-      { "<Leader>ff", "<Cmd>Telescope find_files<CR>", desc = "find: Files" },
-      { "<Leader>fo", "<Cmd>Telescope oldfiles<CR>", desc = "find: Recent files" },
-      { "<Leader>fw", "<Cmd>Telescope live_grep<CR>", desc = "find: Words" },
-      { "<Leader>fb", "<Cmd>Telescope buffers<CR>", desc = "find: Buffers" },
-      { "<Leader>fk", "<Cmd>Telescope keymaps<CR>", desc = "find: Key-mappings" },
-      { "<Leader>fh", "<Cmd>Telescope help_tags<CR>", desc = "find: Help pages" },
-      { "<Leader>fc", "<Cmd>Telescope colorscheme<CR>", desc = "find: Colorschemes" },
-      { "<Leader>fg", "<Cmd>Telescope git_status<CR>", desc = "find: Git status" },
-      { "<Leader>fe", "<Cmd>Telescope diagnostics<CR>", desc = "find: Diagnostics" },
-      { "<Leader>fr", "<Cmd>Telescope lsp_references<CR>", desc = "find: LSP references" },
-      { "<Leader>fd", "<Cmd>Telescope lsp_definitions<CR>", desc = "find: LSP definitions" },
-      { "<Leader>fs", "<Cmd>Telescope lsp_document_symbols<CR>", desc = "find: LSP document symbols" },
-      { "<Leader>fu", "<Cmd>Telescope undo<CR>", desc = "find: Undos" },
-      { "<Leader>fn", "<Cmd>Telescope notify<CR>", desc = "find: Notifications" },
-    },
+    cmd = "Telescope",
     dependencies = {
       "plenary.nvim",
-      "telescope-fzf-native.nvim",
       "telescope-undo.nvim",
+      "telescope-live-grep-args.nvim",
+      "telescope-fzf-native.nvim",
     },
     config = function() require("configs.telescope") end,
+    keys = {
+      {
+        "<Leader>f",
+        "<cmd>Telescope builtin<CR>",
+        desc = "find: Finders",
+      },
+      {
+        "<Leader>F",
+        "<cmd>Telescope builtin<CR>",
+        desc = "find: Finders",
+      },
+      {
+        "<Leader>ff",
+        "<cmd>Telescope find_files<CR>",
+        desc = "find: Files",
+      },
+      {
+        "<Leader>fo",
+        "<cmd>Telescope oldfiles<CR>",
+        desc = "find: Recent files",
+      },
+      {
+        "<Leader>fw",
+        "<cmd>Telescope live_grep<CR>",
+        desc = "find: Words",
+      },
+      {
+        "<Leader>fb",
+        "<Cmd>Telescope buffers<CR>",
+        desc = "find: Buffers",
+      },
+      {
+        "<Leader>fk",
+        "<Cmd>Telescope keymaps<CR>",
+        desc = "find: Key maps",
+      },
+      {
+        "<Leader>fh",
+        "<Cmd>Telescope help_tags<CR>",
+        desc = "find: Help pages",
+      },
+      {
+        "<Leader>fc",
+        "<cmd>Telescope colorscheme<CR>",
+        desc = "find: Colorschemes",
+      },
+      {
+        "<Leader>fg",
+        "<cmd>Telescope git_status<CR>",
+        desc = "find: Git status",
+      },
+      {
+        "<Leader>fe",
+        "<Cmd>Telescope diagnostics<CR>",
+        desc = "find: Diagnostics",
+      },
+      {
+        "<Leader>fr",
+        "<Cmd>Telescope lsp_references<CR>",
+        desc = "find: LSP references",
+      },
+      {
+        "<Leader>fd",
+        "<Cmd>Telescope lsp_definitions<CR>",
+        desc = "find: LSP definitions",
+      },
+      {
+        "<Leader>fs",
+        "<Cmd>Telescope lsp_document_symbols<CR>",
+        desc = "find: LSP document symbols",
+      },
+
+      { "<Leader>fu", "<Cmd>Telescope undo<CR>", desc = "find: Undoes" },
+      {
+        "<Leader>fn",
+        "<Cmd>Telescope notify<CR>",
+        desc = "find: Notifications",
+      },
+    },
   },
   {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
+    lazy = true,
+    dependencies = { "plenary.nvim", "telescope.nvim" },
+  },
+  {
+    "nvim-telescope/telescope-live-grep-args.nvim",
     lazy = true,
     dependencies = { "plenary.nvim", "telescope.nvim" },
   },

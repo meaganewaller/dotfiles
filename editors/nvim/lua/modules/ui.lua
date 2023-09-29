@@ -1,5 +1,22 @@
 return {
   {
+    "goolord/alpha-nvim",
+    enabled = true,
+    event = { "VimEnter" },
+    lazy = false,
+    cmd = "Alpha",
+    priority = 1000,
+    config = function() require("configs.alpha") end,
+  },
+
+  {
+    "akinsho/bufferline.nvim",
+    lazy = true,
+    event = { "BufReadPost", "BufAdd", "BufNewFile" },
+    config = function() require("configs.bufferline") end,
+  },
+
+  {
     "rcarriga/nvim-notify",
     event = "VeryLazy",
     opts = {},
@@ -16,8 +33,8 @@ return {
     event = "VeryLazy",
     config = function() require("configs.noice") end,
     dependencies = {
-      'MunifTanjim/nui.nvim',
-      'rcarriga/nvim-notify',
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
     },
   },
 
@@ -53,15 +70,5 @@ return {
     "yorickpeterse/nvim-pqf",
     event = "VeryLazy",
     config = function() require("configs.pqf") end,
-  },
-
-  {
-    "goolord/alpha-nvim",
-    enabled = true,
-    event = { "VimEnter" },
-    lazy = false,
-    cmd = "Alpha",
-    priority = 1000,
-    config = function() require("configs.alpha") end,
   },
 }

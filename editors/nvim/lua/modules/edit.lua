@@ -12,6 +12,12 @@ return {
   },
 
   {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function() require("configs.autopairs") end,
+  },
+
+  {
     "numToStr/Comment.nvim",
     keys = {
       { "gc", mode = { "n", "x" }, desc = "comment: Toggle lines" },
@@ -64,5 +70,39 @@ return {
     },
     command = "InlineFoldToggle",
     config = function(opts) require("inline-fold").setup(opts) end,
+  },
+
+  {
+    "ojroques/nvim-bufdel",
+    lazy = true,
+    cmd = { "BufDel", "BufDelAll", "BufDelOthers" },
+  },
+
+  {
+    "rhysd/clever-f.vim",
+    lazy = true,
+    event = { "CursorHold", "CursorHoldI" },
+    config = function() require("configs.cleverf") end,
+  },
+
+  {
+    "sindrets/diffview.nvim",
+    lazy = true,
+    cmd = { "DiffviewOpen", "DiffviewClose" },
+  },
+
+  {
+    "smoka7/hop.nvim",
+    lazy = true,
+    version = "*",
+    event = { "CursorHold", "CursorHoldI" },
+    config = function() require("configs.hop") end,
+  },
+
+  {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    build = ":Copilot auth",
+    config = function() require("configs.copilot") end,
   },
 }

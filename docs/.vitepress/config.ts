@@ -1,97 +1,101 @@
-import wikilinks from "markdown-it-wikilinks";
-import { type DefaultTheme, type HeadConfig, defineConfig } from 'vitepress'
-import * as navbars from './navbars';
-import * as sidebars from './sidebars';
-
-const head: HeadConfig[] = [
-  [
-    'link',
-    {
-      rel: 'prefetch',
-      as: 'style',
-      type: 'text/css;charset=utf-8',
-      href: 'https://cdn.jsdelivr.net/npm/@typehaus/metropolis/index.css',
-      crossorigin: 'anonymous',
-    },
-  ],
-  [
-    'link',
-    {
-      rel: 'prefetch',
-      as: 'icon',
-      type: 'image/svg+xml;charset=utf-8',
-      href: '/favicon.svg',
-    },
-  ],
-  [
-    'link',
-    {
-      rel: 'icon',
-      type: 'image/svg+xml;charset=utf-8',
-      href: '/favicon.svg',
-    },
-  ],
-  [
-    'link',
-    {
-      rel: 'stylesheet',
-      type: 'text/css;charset=utf-8',
-      href: 'https://cdn.jsdelivr.net/npm/@typehaus/metropolis/index.css',
-      crossorigin: 'anonymous',
-    },
-  ],
-  [
-    'link',
-    {
-      rel: 'mask-icon',
-      type: 'image/svg+xml;charset=utf-8',
-      href: '/favicon.svg',
-      color: '#112233',
-    },
-  ],
-  [
-    'meta',
-    {
-      name: 'theme-color',
-      content: '#112233',
-      value: '#112233',
-    },
-  ],
-]
-
-const nav: DefaultTheme.NavItem[] = [
-  {
-    text: 'Issues',
-    target: '_blank',
-    rel: 'noopener',
-    ariaLabel: 'GitHub Issue Tracker',
-    link: 'https://github.com/meaganewaller/dotfiles/issues',
-  },
-  {
-    text: 'Discussions',
-    target: '_blank',
-    rel: 'noopener',
-    ariaLabel: 'GitHub Discussions',
-    link: 'https://github.com/meaganewaller/dotfiles/discussions',
-  },
-]
+import { defineConfig } from "vitepress";
 
 export default defineConfig({
-  lang: 'en-US',
-  title: 'meaganewaller/dotfiles',
-  description: 'the dotfiles that make my machines cute and functional',
-  base: '/',
-  head,
+  title: "meaganewaller/dotfiles",
+  description: "my dotfiles - where cuteness & productivity are prioritized.",
+  base: process.env.BASE_URL || "/",
+  lang: "en-US",
+  lastUpdated: true,
+  cleanUrls: true,
+  appearance: "light",
+  titleTemplatee: ":title • meaganewaller/dotfiles",
+  head: [
+    ["meta", { name: "theme-color", content: "#FFD1DC" }],
+    ["meta", { name: "og:type", content: "website" }],
+    ["meta", { name: "og:locale", content: "en" }],
+  ],
   themeConfig: {
-    nav,
-    logo: '/favicon.svg',
-    repo: 'meaganewaller/dotfiles',
-    docsDir: 'docs',
-    docsBranch: 'main',
-    editLinks: true,
-    editLinkText: 'Edit on GitHub',
-    lastUpdated: true,
-    prevLinks: true,
-    nextLinks: true,
-  } as DefaultTheme.Config,
+    nav: [
+      {
+        text: "Discussions",
+        link: "https://github.com/meaganewaller/dotfiles/discussions",
+      },
+      {
+        text: "Issues",
+        link: "https://github.com/meaganewaller/dotfiles/issues",
+      },
+    ],
+    sidebar: [
+      {
+        items: [
+          { text: "Overview", link: "/" },
+          { text: "Getting started", link: "/getting-started" },
+          { text: "Installation", link: "/installation" },
+          { text: "Gallery", link: "/gallery" },
+        ],
+      },
+      {
+        text: "🧰 tools",
+        collapsible: true,
+        collapsed: true,
+        items: [
+          { text: "asdf", link: "/features/asdf" },
+          { text: "fish shell", link: "/features/fish-shell" },
+          { text: "hammerspoon", link: "/features/hammerspoon" },
+          { text: "homebrew", link: "/features/homebrew" },
+          { text: "karabiner", link: "/features/karabiner" },
+          { text: "kitty", link: "/features/kitty" },
+          { text: "neovim", link: "/features/neovim" },
+          { text: "sketchybar", link: "/features/sketchybar" },
+          { text: "skhd", link: "/features/skhd" },
+          { text: "yabai", link: "/features/yabai" },
+        ],
+      },
+      {
+        text: "🧭 guides",
+        collapsible: true,
+        collapsed: true,
+        items: [
+          {
+            text: "keyboard-driven workflows",
+            link: "/guides/keyboard-driven-workflows",
+          },
+          {
+            text: "managing windows with yabai",
+            link: "/guides/managing-windows-with-yabai",
+          },
+        ],
+      },
+      {
+        text: "🙋 help & support",
+        collapsible: true,
+        collapsed: false,
+        items: [
+          {
+            text: "getting help",
+            link: "/help/",
+          },
+          {
+            text: "faq",
+            link: "/help/faq",
+          },
+        ],
+      },
+    ],
+    search: {
+      provider: "local",
+    },
+    docFooter: { next: false, prev: false },
+    socialLinks: [
+      { icon: "github", link: "https://github.com/meaganewaller/dotfiles" },
+      {
+        icon: "twitter",
+        link: "https://twitter.com/meaganewaller",
+      },
+      {
+        icon: "linkedin",
+        link: "https://linkedin.com/u/meaganewaller",
+      },
+    ],
+  },
 });

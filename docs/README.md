@@ -24,7 +24,7 @@ allow me to introduce you to my trusted accomplices. keep in mind that my loyalt
 - **website:** [asdf](https://asdf-vm.com/)
 - **description:** asdf is the wizard behind the curtain, managing my development environment with ease. It's like having a magic wand for installing and switching between programming languages.
 
-### 🖼️ <samp>bigblue terminal font</samp>
+### 🖼️ <samp>bigblue terminal font
 
 - **website:** [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
 - **description:** bigblue terminal font takes me back to the good old days of computing. It's retro, it's fixed-width, and it's just plain cool.

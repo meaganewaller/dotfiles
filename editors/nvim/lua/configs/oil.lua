@@ -23,6 +23,7 @@ oil.setup({
     concealcursor = "nvic",
   },
   delete_to_trash = true,
+  trash_command = "trash",
   skip_confirm_for_simple_edits = true,
   restore_win_options = false,
   prompt_save_on_select_new_entry = false,

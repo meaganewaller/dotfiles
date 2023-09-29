@@ -23,4 +23,5 @@ return {
     event = 'LspAttach',
     config = function() require('configs.glance') end,
   },
+
 }

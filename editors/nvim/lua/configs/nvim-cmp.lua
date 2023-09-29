@@ -1,12 +1,16 @@
-local cmp = require('cmp')
-local luasnip = require('luasnip')
+local cmp = require("cmp")
+local luasnip = require("luasnip")
 
-local function t(str)
-  return vim.api.nvim_replace_termcodes(str, true, true, true)
+local function t(str) return vim.api.nvim_replace_termcodes(str, true, true, true) end
+
+local function has_words_before()
+  if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
+  local line, col = vim.F.unpack_len(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
-cmp.setup {
-  view = { entries = 'custom' },
+cmp.setup({
+  view = { entries = "custom" },
   window = {
     documentation = {
       max_width = 80,
@@ -14,92 +18,68 @@ cmp.setup {
     },
   },
   snippet = {
-    expand = function(args) require('luasnip').lsp_expand(args.body) end,
+    expand = function(args) require("luasnip").lsp_expand(args.body) end,
   },
-  mapping = {
-    ['<CR>'] = cmp.mapping.confirm {
-      select = true,
-      behavior = cmp.ConfirmBehavior.Replace,
-    },
-    ['<S-Tab>'] = {
-      ['c'] = function()
-        if cmp.visible() then
-          cmp.select_prev_item()
-        else
-          cmp.complete()
+  formatting = {
+    format = function(entry, vim_item)
+      if vim.tbl_contains({ "path" }, entry.source.name) then
+        local icon, hl_group = require("nvim-web-devicons").get_icon(entry:get_completion_item().label)
+        if icon then
+          vim_item.kind = icon
+          vim_item.kind_hl_group = hl_group
+          return vim_item
         end
-      end,
-      ['i'] = function(fallback)
-        if cmp.visible() then
-          cmp.select_prev_item()
-        elseif require('luasnip').jumpable(-1) then
-          vim.fn.feedkeys(t '<Plug>luasnip-jump-prev', '')
-        else
-          fallback()
-        end
-      end,
-    },
-    ['<Tab>'] = {
-      ['c'] = function()
-        if cmp.visible() then
-          cmp.select_next_item()
-        else
-          cmp.complete()
-        end
-      end,
-      ['i'] = function(fallback)
-        if cmp.visible() then
-          cmp.select_next_item()
-        elseif require('luasnip').expand_or_locally_jumpable() then
-          vim.fn.feedkeys(t '<Plug>luasnip-expand-or-jump')
-        else
-          fallback()
-        end
-      end,
-    },
-    ['<C-p>'] = {
-      ['c'] = cmp.mapping.select_prev_item(),
-      ['i'] = function()
-        if cmp.visible() then
-          cmp.select_prev_item()
-        elseif luasnip.choice_active() then
-          luasnip.change_choice(-1)
-        else
-          cmp.complete()
-        end
-      end,
-    },
-    ['<C-n>'] = {
-      ['c'] = cmp.mapping.select_next_item(),
-      ['i'] = function()
-        if cmp.visible() then
-          cmp.select_next_item()
-        elseif luasnip.choice_active() then
-          luasnip.change_choice(1)
-        else
-          cmp.complete()
-        end
-      end,
-    },
-    ['<Down>'] = cmp.mapping(cmp.mapping.select_next_item(), { 'i', 'c' }),
-    ['<Up>'] = cmp.mapping(cmp.mapping.select_prev_item(), { 'i', 'c' }),
-    ['<C-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-    ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-    ['<C-w>'] = cmp.mapping(function(fallback)
+      end
+      vim_item.kind = (require("lspkind")[vim_item.kind] or "") .. " " .. vim_item.kind
+
+      return vim_item
+    end,
+  },
+  mapping = cmp.mapping.preset.insert({
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-f>"] = cmp.mapping.scroll_docs(4),
+    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<C-e>"] = cmp.mapping.close(),
+    ["<CR>"] = cmp.mapping.confirm({
+      select = false,
+    }),
+    ["<Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
-        cmp.abort()
+        cmp.select_next_item()
+      elseif luasnip.expand_or_locally_jumpable() then
+        luasnip.expand_or_jump()
+      elseif has_words_before() then
+        cmp.complete()
       else
         fallback()
       end
-    end, { 'i', 'c' }),
-  },
+    end, { "i", "s" }),
+    ["<S-Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
+  }),
   sources = {
-    { name = 'luasnip' },
-    { name = 'nvim_lsp_signature_help' },
-    { name = 'nvim_lsp' },
-    { name = 'buffer', max_item_count = 8 },
-    { name = 'path' },
-    { name = 'calc' },
+    { name = "nvim_lsp" },
+    { name = "copilot" },
+    { name = "path" },
+    { name = "buffer" },
+  },
+  window = {
+    completion = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
+  },
+  experimental = {
+    ghost_text = {
+      hl_group = "LspCodeLens",
+    },
   },
   sorting = {
     ---@type table[]|function[]
@@ -111,24 +91,21 @@ cmp.setup {
       cmp.config.compare.score,
     },
   },
-}
+})
 
 -- Use buffer source for `/`.
-cmp.setup.cmdline('/', {
-  enabled = true,
-  view = { entries = 'wildmenu' },
-  sources = { { name = 'buffer' } },
-})
-cmp.setup.cmdline('?', {
-  enabled = true,
-  view = { entries = 'wildmenu' },
-  sources = { { name = 'buffer' } },
-})
--- Use cmdline & path source for ':'.
-cmp.setup.cmdline(':', {
-  enabled = true,
+cmp.setup.cmdline({ "/", "?" }, {
+  mapping = cmp.mapping.preset.cmdline(),
   sources = {
-    { name = 'path', group_index = 1 },
-    { name = 'cmdline', group_index = 2 },
+    { name = "buffer" },
   },
+})
+
+cmp.setup.cmdline(":", {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = "path" },
+  }, {
+    { name = "cmdline" },
+  }),
 })
