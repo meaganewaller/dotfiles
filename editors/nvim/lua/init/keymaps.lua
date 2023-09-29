@@ -2,8 +2,24 @@ vim.keymap.set({ "n", "x" }, "<Space>", "<Ignore>")
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
+local opts = { silent = true }
+
 vim.keymap.set("n", "<Esc>", "<Cmd>noh<CR>", { desc = "search: Clear Highlights" })
 vim.keymap.set("n", "<C-s>", "<Cmd>write<CR>", { desc = "edit: Write to file" })
+
+vim.keymap.set("n", "<UP>", "<NOP>", opts)
+vim.keymap.set("n", "<DOWN>", "<NOP>", opts)
+vim.keymap.set("n", "<LEFT>", "<NOP>", opts)
+vim.keymap.set("n", "<RIGHT>", "<NOP>", opts)
+
+vim.keymap.set({ "n", "t", "v", "i", "" }, "<C-x>", "<cmd>echo &filetype<cr>", opts)
+
+-- Use x and Del key for black hole register
+vim.keymap.set("", "<Del>", '"_x', opts)
+vim.keymap.set("", "x", '"_x', opts)
+
+-- Paste over selected text
+vim.keymap.set("v", "p", '"_dP', opts)
 
 -- Window operations
 vim.keymap.set("n", "<Leader>wv", "<C-w>v", { desc = "Window - Split Vertically" })
@@ -15,21 +31,46 @@ vim.keymap.set({ "n", "x" }, "<C-j>", "<C-w>j", { desc = "window: Go down" })
 vim.keymap.set({ "n", "x" }, "<C-k>", "<C-w>k", { desc = "window: Go up" })
 vim.keymap.set({ "n", "x" }, "<C-l>", "<C-w>l", { desc = "window: Go right" })
 
+-- Resize splits with alt+cursor keys
+vim.keymap.set("n", "<M-Up>", ":resize +2<CR>", opts)
+vim.keymap.set("n", "<M-Down>", ":resize -2<CR>", opts)
+vim.keymap.set("n", "<M-Left>", ":vertical resize -2<CR>", opts)
+vim.keymap.set("n", "<M-Right>", ":vertical resize +2<CR>", opts)
+
 -- Up/down motions
 vim.keymap.set({ "n", "x", "o" }, "j", 'v:count ? "j" : "gj"', { expr = true })
 vim.keymap.set({ "n", "x", "o" }, "k", 'v:count ? "k" : "gk"', { expr = true })
+
+-- move lines
+vim.keymap.set("v", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
+vim.keymap.set("v", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
+
+-- Insert lines above/below without leaving normal mode
+vim.keymap.set("n", "oo", "o<Esc>k", opts)
+vim.keymap.set("n", "OO", "O<Esc>j", opts)
+
+-- Escape in normal mode seems to tab
+vim.keymap.set("n", "<esc>", "<NOP>", opts)
 
 -- Indent
 vim.keymap.set({ "x", "o" }, ">", ">gv", { desc = "edit: Increase indent" })
 vim.keymap.set({ "x", "o" }, "<", "<gv", { desc = "edit: Decrease indent" })
 
 -- Buffer navigation
-vim.keymap.set("n", "<S-L>", "<cmd>BufferNext<CR>", { desc = "Buffer - Next" })
-vim.keymap.set("n", "<S-H>", "<cmd>BufferPrevious<CR>", { desc = "Buffer - Previous" })
-vim.keymap.set("n", "<leader>wn", "<cmd>BufferNext<CR>", { desc = "Buffer - Next" })
-vim.keymap.set("n", "<leader>wp", "<cmd>BufferPrevious<CR>", { desc = "Buffer - Previous" })
-vim.keymap.set("n", "<leader>wsp", "<cmd>BufferMovePrevious<CR>", { desc = "Move - To Previous" })
-vim.keymap.set("n", "<leader>wsn", "<cmd>BufferMoveNext<CR>", { desc = "Move - To Next" })
+
+-- Delete buffer
+vim.keymap.set("n", "<c-w>", ":bd<CR>", opts)
+
+-- Navigate buffers
+vim.keymap.set("n", "bn", ":bnext<CR>", opts)
+vim.keymap.set("n", "bl", ":bnext<CR>", opts)
+vim.keymap.set("n", "bv", ":bprevious<CR>", opts)
+vim.keymap.set("n", "bh", ":bprevious<CR>", opts)
+vim.keymap.set("n", "BN", ":bprevious<CR>", opts)
+
+vim.keymap.set("n", "<c-]>", ":bnext<CR>", opts)
+vim.keymap.set("n", "<c-[>", "", opts)
+vim.keymap.set("n", "<c-[>", ":bprevious<CR>", opts)
 vim.keymap.set("n", "<leader>wf", "<cmd>BufferPin<CR>", { desc = "Buffer - Pin" })
 vim.keymap.set("n", "<leader>we", "<cmd>WindowsEqualize<CR>", { desc = "Window - Equalize" })
 

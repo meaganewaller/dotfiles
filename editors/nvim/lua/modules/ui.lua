@@ -10,22 +10,20 @@ return {
   },
 
   {
-    "akinsho/bufferline.nvim",
-    lazy = true,
-    event = { "BufReadPost", "BufAdd", "BufNewFile" },
-    config = function() require("configs.bufferline") end,
+    "romgrk/barbar.nvim",
+    event = "VeryLazy",
+    config = function() require("configs.barbar") end,
   },
 
   {
     "rcarriga/nvim-notify",
     event = "VeryLazy",
-    opts = {},
+    config = function() require("configs.notify") end,
   },
 
   {
     "stevearc/dressing.nvim",
     event = "VeryLazy",
-    config = function() require("configs.dressing") end,
   },
 
   {

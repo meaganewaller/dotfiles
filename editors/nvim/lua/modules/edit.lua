@@ -32,6 +32,11 @@ return {
   },
 
   {
+    "famiu/bufdelete.nvim",
+    event = "BufEnter",
+  },
+
+  {
     "altermo/ultimate-autopair.nvim",
     event = { "InsertEnter", "CmdlineEnter" },
     config = function() require("configs.ultimate-autopair") end,

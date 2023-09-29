@@ -1,5 +1,31 @@
 local autocmds = {
   {
+    { "FileType" },
+    {
+      group = "Editing",
+      pattern = { "gitcommit", "markdown", "txt" },
+      desc = "Enable spell checking and text wrapping for certain filetypes",
+      callback = function()
+        vim.opt_local.wrap = true
+        vim.opt_local.spell = true
+      end,
+    },
+  },
+
+  {
+    { "FileType" },
+    {
+      group = "Editing",
+      pattern = { "markdown" },
+      desc = "Prevent IndentLine from hidding ``` in markdown files",
+      callback = function()
+        vim.g["indentLine_enabled"] = 0
+        vim.g["markdown_syntax_conceal"] = 0
+      end,
+    },
+  },
+
+  {
     { "FocusGained", "TermClose", "TermLeave" },
     {
       group = "CheckTime",
@@ -7,6 +33,27 @@ local autocmds = {
       desc = "Check if we need to reload the file when it changed",
     },
   },
+
+  {
+    { "BufRead", "BufNewFile" },
+    {
+      group = "RubyCommands",
+      desc = "Set ActiveAdmin and slim files to ruby",
+      pattern = "*.html.arb,*.html.slim",
+      callback = function() vim.cmd("setfiletype ruby") end,
+    },
+  },
+
+  {
+    { "BufRead", "BufNewFile" },
+    {
+      group = "SkhdCommands",
+      desc = "Set skhd files to bash",
+      pattern = "skhdrc",
+      callback = function() vim.cmd("setfiletype bash") end,
+    },
+  },
+
   {
     { "TextYankPost" },
     {
