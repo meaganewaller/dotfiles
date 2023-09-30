@@ -82,8 +82,8 @@ ftplugin.extend_all({
       suffixesadd = ".md",
     },
     keys = {
-      { "<leader>td", require("markdown").task_mark_done },
-      { "<leader>tu", require("markdown").task_mark_undone },
+      -- { "<leader>td", require("markdown").task_mark_done },
+      -- { "<leader>tu", require("markdown").task_mark_undone },
     },
     callback = function(bufnr)
       require("markdown").update_code_highlights(bufnr)

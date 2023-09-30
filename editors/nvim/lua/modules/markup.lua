@@ -17,9 +17,9 @@ return {
     ft = "csv",
   },
   {
-    "dhruvasagar/vim-table-mode",
-    cmd = "TableModToggle",
-    event = { "BufReadPost", "BufNew" },
-    config = function() require("configs.vim-table-mode") end,
+    "kiran94/edit-markdown-table.nvim",
+    config = true,
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    cmd = "EditMarkdownTable",
   },
 }

@@ -11,81 +11,104 @@ return {
     config = function() require("configs.telescope") end,
     keys = {
       {
-        "<Leader>f",
-        "<cmd>Telescope builtin<CR>",
-        desc = "find: Finders",
+        "<Leader><Leader>",
+        "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>",
+        desc = "Find files",
       },
       {
-        "<Leader>F",
-        "<cmd>Telescope builtin<CR>",
-        desc = "find: Finders",
+        "<Leader>r",
+        "<cmd>Telescope frecency theme=dropdown previewer=false<cr>",
+        desc = "Recent files",
+      },
+      {
+        "<Leader>pn",
+        "<cmd>Telescope notify<CR>",
+        desc = "Notifications",
+      },
+      {
+        "<Leader>go",
+        "<cmd>Telescope git_status<CR>",
+        desc = "Open changed file",
+      },
+      {
+        "<Leader>gb",
+        "<cmd>Telescope git_branches<CR>",
+        desc = "Checkout branch",
+      },
+      {
+        "<Leader>gc",
+        "<cmd>Telescope git_commits<CR>",
+        desc = "Checkout commit",
+      },
+      {
+        "<Leader>ld",
+        "<cmd>Telescope diagnostics bufnr=0<CR>",
+        desc = "Buffer diagnostics",
+      },
+      {
+        "<Leader>ls",
+        "<cmd>Telescope lsp_document_symbols<CR>",
+        desc = "Document symbols",
+      },
+      {
+        "<Leader>lS",
+        "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>",
+        desc = "Workspace symbols",
       },
       {
         "<Leader>ff",
-        "<cmd>Telescope find_files<CR>",
-        desc = "find: Files",
-      },
-      {
-        "<Leader>fo",
-        "<cmd>Telescope oldfiles<CR>",
-        desc = "find: Recent files",
-      },
-      {
-        "<Leader>fw",
-        "<cmd>Telescope live_grep<CR>",
-        desc = "find: Words",
-      },
-      {
-        "<Leader>fb",
-        "<Cmd>Telescope buffers<CR>",
-        desc = "find: Buffers",
-      },
-      {
-        "<Leader>fk",
-        "<Cmd>Telescope keymaps<CR>",
-        desc = "find: Key maps",
-      },
-      {
-        "<Leader>fh",
-        "<Cmd>Telescope help_tags<CR>",
-        desc = "find: Help pages",
-      },
-      {
-        "<Leader>fc",
-        "<cmd>Telescope colorscheme<CR>",
-        desc = "find: Colorschemes",
+        "<cmd>Telescope find_files theme=dropdown previewer=false<cr>",
+        desc = "Find files",
       },
       {
         "<Leader>fg",
-        "<cmd>Telescope git_status<CR>",
-        desc = "find: Git status",
+        "<cmd>Telescope live_grep<cr>",
+        desc = "Live grep",
       },
       {
-        "<Leader>fe",
-        "<Cmd>Telescope diagnostics<CR>",
-        desc = "find: Diagnostics",
+        "<Leader>fb",
+        "<cmd>Telescope git_branches<cr>",
+        desc = "Checkout branch",
       },
       {
-        "<Leader>fr",
-        "<Cmd>Telescope lsp_references<CR>",
-        desc = "find: LSP references",
+        "<Leader>fh",
+        "<cmd>Telescope help_tags<CR>",
+        desc = "Help",
       },
       {
-        "<Leader>fd",
-        "<Cmd>Telescope lsp_definitions<CR>",
-        desc = "find: LSP definitions",
+        "<Leader>fl",
+        "<cmd>Telescope resume<cr>",
+        desc = "Last search",
       },
       {
-        "<Leader>fs",
-        "<Cmd>Telescope lsp_document_symbols<CR>",
-        desc = "find: LSP document symbols",
+        "<Leader>fM",
+        "<cmd>Telescope man_pages<cr>",
+        desc = "Man pages",
       },
-
-      { "<Leader>fu", "<Cmd>Telescope undo<CR>", desc = "find: Undoes" },
       {
-        "<Leader>fn",
-        "<Cmd>Telescope notify<CR>",
-        desc = "find: Notifications",
+        "<Leader>fR",
+        "<cmd>Telescope registers<cr>",
+        desc = "Registers",
+      },
+      {
+        "<Leader>fk",
+        "<cmd>Telescope keymaps<cr>",
+        desc = "Keymaps",
+      },
+      {
+        "<Leader>fC",
+        "<cmd>Telescope commands<cr>",
+        desc = "Commands",
+      },
+      {
+        "<Leader>fy",
+        "<cmd>Telescope yank_history<cr>",
+        desc = "Yank History",
+      },
+      {
+        "<Leader>fG",
+        "<cmd>GrepAppInput<CR>",
+        desc = "Web Grep",
       },
     },
   },
@@ -257,21 +280,6 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
   },
   {
-    "ekickx/clipboard-image.nvim",
-    ft = "markdown",
-    event = "VeryLazy",
-    commands = { "PasteImg" },
-    init = function() vim.keymap.set("n", "<Leader>mp", "<cmd>PasteImg<CR>") end,
-    keys = {
-      {
-        "<Leader>mp",
-        "<cmd>PasteImg<CR>",
-        desc = "markdown: Paste image",
-      },
-    },
-    config = function() require("configs.clipboard-image") end,
-  },
-  {
     "Exafunction/codeium.vim",
     init = function()
       vim.keymap.set(
@@ -342,5 +350,15 @@ return {
       { "<leader>os", "<cmd>OverseerTaskAction<CR>", mode = "n", desc = "[overseer] Task action" },
     },
     config = function() require("configs.overseer") end,
+  },
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- required
+      "nvim-telescope/telescope.nvim", -- optional
+      "sindrets/diffview.nvim", -- optional
+      "ibhagwan/fzf-lua", -- optional
+    },
+    config = true,
   },
 }

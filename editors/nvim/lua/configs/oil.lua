@@ -97,8 +97,8 @@ oil.setup({
   },
 })
 
-vim.keymap.set("n", "_", oil.open, { desc = "Open parent directory" })
-vim.keymap.set("n", "-", function() oil.open(vim.fn.getcwd()) end, { desc = "Open cwd" })
+vim.keymap.set("n", "-", oil.open, { desc = "Open parent directory" })
+vim.keymap.set("n", "_", function() oil.open(vim.fn.getcwd()) end, { desc = "Open cwd" })
 
 local function find_files()
   local dir = oil.get_current_dir()
@@ -117,10 +117,6 @@ local ok, ftplugin = pcall(require, "ftplugin")
 if not ok then return end
 
 ftplugin.set("oil", {
-  keys = {
-    { "<Leader>ff", find_files, desc = "[F]ind [F]iles in dir" },
-    { "<Leader>fg", livegrep, desc = "[F]ind by [G]rep in dir" },
-  },
   opt = {
     conceallevel = 3,
     concealcursor = "n",

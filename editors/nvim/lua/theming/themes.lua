@@ -35,16 +35,28 @@ local M = {
       end,
     },
     hardhacker = {
-      style = { "dark", "darker" },
+      style = { "soft", "hard", "light-soft", "light-hard", "light" },
       transparent = false,
       activate = function(style, _)
-        if style == "darker" then
-          vim.g.hardhacker_darker = 1
-        else
-          vim.g.hardhacker_darker = 0
-        end
+        local hardhacker = require("hardhacker")
+        hardhacker.setup({
+          show_end_of_buffer = true,
+          italic_comment = true,
+        })
 
-        vim.cmd.colorscheme("hardhacker")
+        if style == "soft" then
+          vim.cmd.colorscheme("hardhacker-soft")
+        elseif style == "hard" then
+          vim.cmd.colorscheme("hardhacker-hard")
+        elseif style == "light" then
+          vim.cmd.colorscheme("hardhacker-light")
+        elseif style == "light-soft" then
+          vim.cmd.colorscheme("hardhacker-light-soft")
+        elseif style == "light-hard" then
+          vim.cmd.colorscheme("hardhacker-light-hard")
+        else
+          vim.cmd.colorscheme("hardhacker")
+        end
       end,
     },
     monokai = {
@@ -110,4 +122,3 @@ function M.activate_theme(theme, style, transparent)
 end
 
 return M
-

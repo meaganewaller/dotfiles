@@ -1,5 +1,4 @@
 return {
-  { "nvim-lua/lsp-status.nvim" },
   {
     "neovim/nvim-lspconfig",
     event = "VeryLazy",
@@ -25,13 +24,8 @@ return {
     config = function() require("configs.glance") end,
   },
 
-  { "ekalinin/Dockerfile.vim" },
-  { "cespare/vim-toml" },
-  { "mtdl9/vim-log-highlighting" },
-  { "folke/neodev.nvim" },
   {
-    "cuducos/yaml.nvim",
-    ft = { "yaml" },
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    "hrsh7th/nvim-gtd",
+    config = function() require("configs.gtd") end,
   },
 }

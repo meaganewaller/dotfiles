@@ -2,11 +2,14 @@ local border = require("settings").border
 
 require("dressing").setup({
   input = {
+    enabled = true,
+    start_in_insert = false,
     insert_only = false,
     border = border,
     win_options = {
       sidescrolloff = 4,
       winblend = 0,
+      wrap = true,
     },
     get_config = function()
       if vim.api.nvim_win_get_width(0) < 50 then return {

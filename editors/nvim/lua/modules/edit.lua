@@ -110,4 +110,18 @@ return {
     build = ":Copilot auth",
     config = function() require("configs.copilot") end,
   },
+
+  {
+    "nacro90/numb.nvim",
+    event = "VeryLazy",
+    config = true,
+  },
+
+  {
+    "gbprod/yanky.nvim",
+    dependencies = {
+      "kkharji/sqlite.lua",
+    },
+    config = function() require("configs.yanky") end,
+  },
 }

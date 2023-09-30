@@ -1,7 +1,7 @@
 local M = {
   theme = {
     name = "hardhacker",
-    style = "dark",
+    style = "soft",
     transparent = false,
   },
   langs = {
@@ -9,7 +9,7 @@ local M = {
       ft = "sh",
       lsp_server = "bashls",
       dap = "bashdb",
-      formatters = { " shfmt" },
+      formatters = { "shfmt" },
     },
     c = {
       ts = "c",
@@ -31,6 +31,9 @@ local M = {
       lsp_server = "cssls",
       formatters = { "prettier" },
     },
+    graphql = {
+      formatters = { "prettier" },
+    },
     help = {
       ts = "vimdoc",
       ft = "help",
@@ -39,6 +42,9 @@ local M = {
       ts = "html",
       ft = "html",
       lsp_server = "html",
+      formatters = { "prettier" },
+    },
+    jsx = {
       formatters = { "prettier" },
     },
     javascript = {
@@ -108,6 +114,10 @@ local M = {
       ts = "yaml",
       ft = "yaml",
       lsp_server = "yamlls",
+      formatters = { "prettier" },
+    },
+    vue = {
+      ft = "vue",
       formatters = { "prettier" },
     },
     vim = {

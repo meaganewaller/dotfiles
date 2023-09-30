@@ -1,20 +1,19 @@
 return {
-  'rebelot/kanagawa.nvim',
+  "rebelot/kanagawa.nvim",
   {
-    'catppuccin/nvim',
-    name = 'catppuccin',
+    "catppuccin/nvim",
+    name = "catppuccin",
   },
-  'folke/tokyonight.nvim',
+  "folke/tokyonight.nvim",
   {
-    'rose-pine/neovim',
-    name = 'rose-pine',
+    "rose-pine/neovim",
+    name = "rose-pine",
   },
-  'sainnhe/everforest',
+  "sainnhe/everforest",
   {
-    'hardhackerlabs/theme-vim',
+    "meaganewaller/hardhacker.nvim",
+    dev = true,
     lazy = false,
     priority = 1000,
-    name = 'hardhacker',
   },
-
 }

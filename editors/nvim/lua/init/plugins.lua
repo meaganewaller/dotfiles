@@ -52,6 +52,10 @@ end
 --- @param module_names string[]
 local function enable_modules(module_names)
   local config = {
+    dev = {
+      path = "~/code/neovim-plugins",
+      fallback = false,
+    },
     defaults = { lazy = true },
     root = vim.g.plugin_path,
     lockfile = vim.g.plugin_lock,
@@ -118,6 +122,7 @@ if vim.g.vscode then
 else
   enable_modules({
     "base",
+    "coding",
     "colorschemes",
     "completion",
     "edit",

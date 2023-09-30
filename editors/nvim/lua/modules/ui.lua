@@ -69,4 +69,9 @@ return {
     event = "VeryLazy",
     config = function() require("configs.pqf") end,
   },
+  {
+    "linty-org/key-menu.nvim",
+    event = "VeryLazy",
+    config = function() require("configs.key-menu") end,
+  },
 }

@@ -44,6 +44,7 @@ neotest.setup({
       pytest_discovery = true,
     }),
     require("neotest-plenary"),
+    require("neotest-rspec"),
   },
 })
 
@@ -66,29 +67,13 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function() vim.cmd("norm G") end,
 })
 
-local mappings = {
-  ["<leader>nr"] = function() neotest.run.run({ vim.fn.expand("%:p"), env = get_env() }) end,
-  ["<leader>ns"] = function()
-    for _, adapter_id in ipairs(neotest.state.adapter_ids()) do
-      neotest.run.run({ suite = true, adapter = adapter_id, env = get_env() })
-    end
-  end,
-  ["<leader>nx"] = function() neotest.run.stop() end,
-  ["<leader>nn"] = function() neotest.run.run({ env = get_env() }) end,
-  ["<leader>nd"] = function() neotest.run.run({ strategy = "dap", env = get_env() }) end,
-  ["<leader>nl"] = neotest.run.run_last,
-  ["<leader>nD"] = function() neotest.run.run_last({ strategy = "dap" }) end,
-  ["<leader>na"] = neotest.run.attach,
-  ["<leader>no"] = function() neotest.output.open({ enter = true, last_run = true }) end,
-  ["<leader>ni"] = function() neotest.output.open({ enter = true }) end,
-  ["<leader>nO"] = function() neotest.output.open({ enter = true, short = true }) end,
-  ["<leader>np"] = neotest.summary.toggle,
-  ["<leader>nm"] = neotest.summary.run_marked,
-  ["<leader>ne"] = neotest.output_panel.toggle,
-  ["[n"] = function() neotest.jump.prev({ status = "failed" }) end,
-  ["]n"] = function() neotest.jump.next({ status = "failed" }) end,
-}
-
-for keys, mapping in pairs(mappings) do
-  vim.api.nvim_set_keymap("n", keys, "", { callback = mapping, noremap = true })
-end
+vim.keymap.set("n", "<Leader>no", function() require("neotest").summary.toggle() end)
+vim.keymap.set("n", "<Leader>nn", function() require("neotest").run.run() end)
+vim.keymap.set("n", "<Leader>nf", function() require("neotest").run.run(vim.fn.expand("%")) end)
+vim.keymap.set("n", "<Leader>nl", function() require("neotest").run.run_last() end)
+vim.keymap.set("n", "<Leader>ns", function()
+  local ntest = require("neotest")
+  for _, adapter_id in ipairs(ntest.state.adapter_ids()) do
+    ntest.run.run({ suite = true, adapter = adapter_id })
+  end
+end)

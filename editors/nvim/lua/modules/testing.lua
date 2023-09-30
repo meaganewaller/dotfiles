@@ -9,6 +9,7 @@ return {
       { "nvim-neotest/neotest-python" },
       { "nvim-neotest/neotest-plenary" },
       { "rouge8/neotest-rust" },
+      { "olimorris/neotest-rspec" },
       {
         "mfussenegger/nvim-dap",
         lazy = true,
