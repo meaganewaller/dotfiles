@@ -46,7 +46,6 @@ if status is-interactive
   thefuck --alias | source
   starship init fish --print-full-init | source
   enable_transience
-  source /usr/local/opt/asdf/libexec/asdf.fish
 end
 
 fnm env --use-on-cd | source
@@ -55,3 +54,4 @@ set -gx PNPM_HOME "$HOME/Library/pnpm"
 if not string match -q -- $PNPM_HOME $PATH
   set -gx PATH "$PNPM_HOME" $PATH
 end
+source ~/.asdf/asdf.fish

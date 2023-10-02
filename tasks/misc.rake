@@ -48,45 +48,55 @@ namespace :install do
     end
   end
 
+  desc 'Install asdf'
+  task :asdf do
+    unless testing?
+      run %(git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1)
+      File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts "source ~/.asdf/asdf.fish" }
+      run %(mkdir -p ~/.config/fish/completions; and ln -s ~/.asdf/completions/asdf.fish ~/.config/fish/completions)
+    end
+  end
+
+  namespace :asdf do
+    desc 'Install asdf plugins'
+    task :plugins do
+      section "Installing asdf plugins"
+
+      unless testing?
+        run %( asdf plugin add python )
+        run %( asdf install python 2.7.18 )
+        run %( asdf install python 3.10.0 )
+        run %( asdf global python 3.10.0 2.7.18 )
+        run %( ~/.asdf/shims/python -m pip install --upgrade pip )
+        run %( ~/.asdf/shims/python -m pip install pynvim )
+        run %( ~/.asdf/shims/python2 -m pip install --upgrade pip )
+        run %( ~/.asdf/shims/python2 -m pip install pynvim )
+
+        run %( asdf plugin add ruby )
+        run %( asdf install ruby 3.1.1 )
+        run %( asdf global ruby 3.1.1 )
+
+        run %( asdf plugin add lua )
+        run %( asdf install lua 5.4.3 )
+        run %( asdf global lua 5.4.3 )
+
+        run %( asdf plugin add postgres )
+        run %( asdf install postgres 14.0 )
+        run %( asdf global postgres 14.0 )
+        run %( ~/.asdf/installs/postgres/14.0/bin/pg_ctl -D ~/.asdf/installs/postgres/14.0/data -l logfile start )
+
+        run %( asdf plugin add nodejs )
+        run %( asdf install nodejs latest )
+        run %( asdf global nodejs latest )
+      end
+    end
+  end
+
   desc 'Install macOS Configurations'
   task :macos do
     section 'Installing macOS Configurations'
 
     run %( sh ./commands/macos )
-  end
-
-  desc 'Install Servers'
-  task :servers do
-    section 'Installing servers'
-
-    unless testing?
-      run %( asdf plugin add python )
-      run %( asdf install python 2.7.18 )
-      run %( asdf install python 3.10.0 )
-      run %( asdf global python 3.10.0 2.7.18 )
-      run %( ~/.asdf/shims/python -m pip install --upgrade pip )
-      run %( ~/.asdf/shims/python -m pip install pynvim )
-      run %( ~/.asdf/shims/python2 -m pip install --upgrade pip )
-      run %( ~/.asdf/shims/python2 -m pip install pynvim )
-
-      run %( asdf plugin add ruby )
-      run %( asdf install ruby 3.1.1 )
-      run %( asdf install ruby 2.7.4 )
-      run %( asdf global ruby 3.1.1 )
-
-      run %( asdf plugin add lua )
-      run %( asdf install lua 5.4.3 )
-      run %( asdf global lua 5.4.3 )
-
-      run %( asdf plugin add postgres )
-      run %( asdf install postgres 14.0 )
-      run %( asdf global postgres 14.0 )
-      run %( ~/.asdf/installs/postgres/14.0/bin/pg_ctl -D ~/.asdf/installs/postgres/14.0/data -l logfile start )
-
-      run %( asdf plugin add nodejs )
-      run %( asdf install nodejs latest )
-      run %( asdf global nodejs latest )
-    end
   end
 
   desc 'Install Neovim'

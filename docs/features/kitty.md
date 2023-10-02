@@ -1,1 +1,0 @@
-# 🐱 kitty terminal emulator

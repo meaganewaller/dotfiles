@@ -1,7 +1,7 @@
 local M = {
   theme = {
-    name = "hardhacker",
-    style = "soft",
+    name = "rosepine",
+    style = "dawn",
     transparent = false,
   },
   langs = {

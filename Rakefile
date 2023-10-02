@@ -42,6 +42,7 @@ task :install do
       Rake::Task['install:mackup'].invoke
     end
 
+    Rake::Task['install:asdf'].invoke
     Rake::Task['install:dotbot'].invoke
     Rake::Task['install:fonts'].invoke
     Rake::Task['install:macos'].invoke if macos?

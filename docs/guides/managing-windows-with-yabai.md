@@ -1,1 +1,0 @@
-# managing windows with yabai

@@ -1,1 +1,0 @@
-# ⚙️  skhd shortcut daemon

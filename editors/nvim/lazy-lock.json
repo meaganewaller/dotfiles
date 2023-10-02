@@ -32,6 +32,7 @@
   "git-conflict.nvim": { "branch": "main", "commit": "896261933afe2fddf6fb043d9cd4d88301b151a9" },
   "gitsigns.nvim": { "branch": "main", "commit": "bdeba1cec3faddd89146690c10b9a87949c0ee66" },
   "glance.nvim": { "branch": "master", "commit": "8ed5cf3b3b1231ea696d88c9efd977027429d869" },
+  "hardhacker": { "branch": "main", "commit": "2d7beee9a08560ee9574002f7b7b719bad53b0e5" },
   "hop.nvim": { "branch": "master", "commit": "f2508f415b9fe34082696009574ca26f57a66531" },
   "indent-blankline.nvim": { "branch": "v3", "commit": "b9b0e7c3fcfdad9860d43321eddc9b4f06d7fdd7" },
   "inline-fold.nvim": { "branch": "main", "commit": "d0a24dd55c2fe9477e2636a589499fb7d530e9a3" },
