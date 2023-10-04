@@ -5,10 +5,14 @@ return {
     cmd = { "LspInfo", "LspStart" },
     config = function() require("configs.nvim-lspconfig") end,
     keys = {
-      { "<Leader>li", "<cmd>LspInfo<CR>", desc = "lsp: Server information" },
-      { "<Leader>lr", "<cmd>LspRestart<CR>", desc = "lsp: Restart server" },
-      { "<Leader>ls", "<cmd>LspStart<CR>", desc = "lsp: Start server" },
-      { "<Leader>lp", "<cmd>LspStop<CR>", desc = "lsp: Stop server" },
+      { "<Leader>li", "<cmd>LspInfo<CR>", desc = "LSP Server information" },
+      { "<Leader>lr", "<cmd>LspRestart<CR>", desc = "Restart LSP server" },
+      { "<Leader>ls", "<cmd>LspStart<CR>", desc = "Start LSP server" },
+      { "<Leader>lp", "<cmd>LspStop<CR>", desc = "Stop LSP server" },
+    },
+    dependencies = {
+      { "williamboman/mason.nvim" },
+      { "williamboman/mason-lspconfig.nvim" },
     },
   },
 

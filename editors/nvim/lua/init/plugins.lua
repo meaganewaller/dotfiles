@@ -116,8 +116,8 @@ if vim.env.NVIM_MANPAGER or not bootstrap() then return end
 if vim.g.vscode then
   enable_modules({
     "base",
-    "treesitter",
     "edit",
+    "treesitter",
   })
 else
   enable_modules({

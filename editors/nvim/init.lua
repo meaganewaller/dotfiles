@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dotfiles
-# Last edited: September 27th, 2023
+# Last edited: October 4th, 2023
 --]]
 
 -- Compile lua to bytecode if the nvim version supports it.
