@@ -1,42 +1,283 @@
 local M = {
   theme = {
-    name = "hardhacker",
-    style = "dark",
+    name = "rosepine",
+    style = "dawn",
     transparent = false,
   },
+  langs = {
+    sh = {
+      ft = "sh",
+      lsp_server = "bashls",
+      dap = "bashdb",
+      formatters = { "shfmt" },
+    },
+    c = {
+      ts = "c",
+      ft = "c",
+      lsp_server = "clangd",
+      dap = "codelldb",
+      formatters = { "clang-format" },
+    },
+    cpp = {
+      ts = "cpp",
+      ft = "cpp",
+      lsp_server = "clangd",
+      dap = "codelldb",
+      formatters = { "clang-format" },
+    },
+    css = {
+      ts = "css",
+      ft = { "css", "scss", "less" },
+      lsp_server = "cssls",
+      formatters = { "prettier" },
+    },
+    graphql = {
+      formatters = { "prettier" },
+    },
+    help = {
+      ts = "vimdoc",
+      ft = "help",
+    },
+    html = {
+      ts = "html",
+      ft = "html",
+      lsp_server = "html",
+      formatters = { "prettier" },
+    },
+    jsx = {
+      formatters = { "prettier" },
+    },
+    javascript = {
+      ts = "javascript",
+      ft = "js",
+      lsp_server = "tsserver",
+      formatters = { "prettier" },
+    },
+    json = {
+      ts = "json",
+      ft = { "json", "jsonc" },
+      lsp_server = "jsonls",
+      formatters = { "prettier" },
+    },
+    typescript = {
+      ts = "typescript",
+      ft = "ts",
+      lsp_server = "tsserver",
+      formatters = { "prettier" },
+    },
+    lua = {
+      ts = "lua",
+      ft = "lua",
+      lsp_server = "lua_ls",
+      formatters = { "stylua" },
+    },
+    ruby = {
+      ts = "ruby",
+      ft = "ruby",
+      lsp_server = "solargraph",
+      formatters = { "standardrb" },
+    },
+    rust = {
+      ts = "rust",
+      ft = "rust",
+      lsp_server = "rust_analyzer",
+      formatters = { "rustfmt" },
+    },
+    make = {
+      ts = "make",
+      ft = "make",
+    },
+    markdown = {
+      ts = {
+        "markdown_inline",
+        "markdown",
+      },
+      lsp_server = "marksman",
+    },
+    nix = {
+      ts = "nix",
+      lsp_server = "nil_ls",
+      formatters = { "nixfmt" },
+    },
+    python = {
+      ts = "python",
+      ft = "python",
+      lsp_server = {
+        "pylsp",
+        "pyright",
+        "jedi_language_server",
+      },
+      dap = "debugpy",
+      formatters = { "black" },
+    },
+    yaml = {
+      ts = "yaml",
+      ft = "yaml",
+      lsp_server = "yamlls",
+      formatters = { "prettier" },
+    },
+    vue = {
+      ft = "vue",
+      formatters = { "prettier" },
+    },
+    vim = {
+      ts = "vim",
+      ft = "vim",
+      lsp_server = "vimls",
+    },
+    tex = {
+      ft = "tex",
+      ts = "latex",
+      lsp_server = "texlab",
+      formatters = { "latexindent" },
+    },
+  },
+  transparent = false,
+  border = "rounded",
+  icons = {
+    debug = {
+      StackFrame = " ",
+      StackFrameCurrent = " ",
+    },
+    diagnostics = {
+      Error = "󰅚 ",
+      Hint = "󰌶 ",
+      Info = "󰋽 ",
+      Ok = " ",
+      Warn = "󰀪 ",
+    },
+    kinds = {
+      Array = "󰅪 ",
+      Boolean = " ",
+      BreakStatement = "󰙧 ",
+      Calculator = "󰃬 ",
+      Call = "󰃷 ",
+      CaseStatement = "󱃙 ",
+      Class = " ",
+      Color = "󰸌 ",
+      Constant = "󰏿 ",
+      Constructor = "󰢻 ",
+      ContinueStatement = "→ ",
+      Copilot = " ",
+      Declaration = "󰙠 ",
+      Delete = "󰩺 ",
+      Desktop = "󰟀 ",
+      DoStatement = "󰑖 ",
+      Enum = " ",
+      EnumMember = " ",
+      Event = "󱐋 ",
+      Field = " ",
+      File = "󰈔 ",
+      Folder = "󰉋 ",
+      ForStatement = "󰑖 ",
+      Format = "󰗈 ",
+      Function = "󰊕 ",
+      GitBranch = " ",
+      H1Marker = "󰉫 ",
+      H2Marker = "󰉬 ",
+      H3Marker = "󰉭 ",
+      H4Marker = "󰉮 ",
+      H5Marker = "󰉯 ",
+      H6Marker = "󰉰 ",
+      Identifier = "󰀫 ",
+      IfStatement = "󰇉 ",
+      Interface = " ",
+      Keyword = "󰌋 ",
+      List = "󰅪 ",
+      Log = "󰦪 ",
+      Lsp = " ",
+      Macro = "󰁌 ",
+      MarkdownH1 = "󰉫 ",
+      MarkdownH2 = "󰉬 ",
+      MarkdownH3 = "󰉭 ",
+      MarkdownH4 = "󰉮 ",
+      MarkdownH5 = "󰉯 ",
+      MarkdownH6 = "󰉰 ",
+      Method = "󰆧 ",
+      Module = "󰏗 ",
+      Namespace = "󰅩 ",
+      Null = "󰢤 ",
+      Number = "󰎠 ",
+      Object = "󰅩 ",
+      Operator = "󰆕 ",
+      Package = "󰏖 ",
+      Pair = "󰅪 ",
+      Property = "󰓼 ",
+      Reference = "󰦾 ",
+      Regex = " ",
+      Repeat = "󰑖 ",
+      Scope = "󰅩 ",
+      Snippet = "󰩫 ",
+      Specifier = "󰦪 ",
+      Statement = "󰅩 ",
+      String = "󰉾 ",
+      Struct = " ",
+      SwitchStatement = "󰺟 ",
+      Terminal = "󰆍 ",
+      Text = " ",
+      Type = "󰠲 ",
+      TypeParameter = "󰆩 ",
+      Unit = "󰑭 ",
+      Value = "󰎠 ",
+      Variable = "󰀫 ",
+      WhileStatement = "󰑖 ",
+    },
+    git = {
+      Add = "󰜄 ",
+      Mod = "󱗝 ",
+      Rename = "󰜶 ",
+      Remove = "󰛲 ",
+      Unmerged = " ",
+      Untracked = "󰘥 ",
+    },
+    ui = {
+      AngleDown = "󰅀 ",
+      AngleLeft = "󰅁 ",
+      AngleRight = "󰅂 ",
+      AngleUp = "󰅃 ",
+      ArrowDown = "󰁅 ",
+      ArrowLeft = "󰁍 ",
+      ArrowRight = "󰁔 ",
+      ArrowUp = "󰁝 ",
+      Bug = "󰨰",
+      Code = "󰅴 ",
+      Cog = "󰢻 ",
+      Command = "󰘳 ",
+      Cross = "󰅖 ",
+      Check = "󰄬 ",
+      CheckCircle = "󰗠 ",
+      CheckList = "󰗇 ",
+      Circle = "󰝥 ",
+      CircleUnfilled = "󰝦 ",
+      CircleSmall = "󰧞 ",
+      ClockFast = "󰅒 ",
+      Diamond = "󰣏 ",
+      Ellipsis = "… ",
+      FileDocument = "󰈙 ",
+      Flag = "󰈼 ",
+      FolderEmpty = "󰉖 ",
+      FolderEmptyOpen = "󰷏 ",
+      FolderLink = "󰉒 ",
+      FolderOpen = "󰝰 ",
+      Forward = "▻ ",
+      Ghost = "󰊠 ",
+      Import = "󰋺 ",
+      Keyboard = "󰌌 ",
+      Magnify = "󰍉 ",
+      Note = "󱇗 ",
+      Pencil = "󰲶 ",
+      Pin = "󰐃 ",
+      Sleep = "󰒲 ",
+      Square = "󰝤 ",
+      Telescope = "🔭 ",
+      TriangleDown = "▼ ",
+      TriangleLeft = "◀ ",
+      TriangleRight = "▶ ",
+      Modified = "✥",
+      TriangleUp = "▲ ",
+      Vim = " ",
+    },
+  },
 }
-
-function M.setup()
-  vim.g.mapleader = " "
-  vim.g.maplocalleader = ","
-
-  vim.g.loaded_netrw = 1
-  vim.g.loaded_netrwPlugin = 1
-
-  _G.folds_render = require('fold').render
-  vim.cmd([[filetype indent off]])
-  vim.cmd([[set fillchars=eob:\ ,]])
-  vim.cmd([[set shortmess+=c]])
-  vim.cmd([[set undofile]])
-
-  require("options")
-
-  vim.api.nvim_create_user_command("Wqa", "wa | qa", { force = true })
-  vim.cmd "cabbrev wqa Wqa"
-  vim.cmd "cabbrev bda 1,$bd"
-
-  -- Undercurl
-  vim.cmd([[let &t_Cs = "\e[4:3m"]])
-  vim.cmd([[let &t_Ce = "\e[4:0m"]])
-
-  -- Turn off paste mode when leaving insert
-  vim.api.nvim_create_autocmd("InsertLeave", {
-    pattern = '*',
-    command = "set nopaste"
-  })
-
-  -- Add asterisks in block comments
-  vim.opt.formatoptions:append { 'r' }
-end
 
 return M

@@ -1,72 +1,72 @@
 return {
   {
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
     cmd = {
-      'TSInstall',
-      'TSInstallSync',
-      'TSInstallInfo',
-      'TSUninstall',
-      'TSUpdate',
-      'TSUpdateSync',
-      'TSBufEnable',
-      'TSBufToggle',
-      'TSEnable',
-      'TSToggle',
-      'TSModuleInfo',
-      'TSEditQuery',
-      'TSEditQueryUserAfter',
+      "TSInstall",
+      "TSInstallSync",
+      "TSInstallInfo",
+      "TSUninstall",
+      "TSUpdate",
+      "TSUpdateSync",
+      "TSBufEnable",
+      "TSBufToggle",
+      "TSEnable",
+      "TSToggle",
+      "TSModuleInfo",
+      "TSEditQuery",
+      "TSEditQueryUserAfter",
     },
-    event = 'FileType',
-    config = function()
-      require('configs.nvim-treesitter')
-    end,
+    event = "BufReadPost",
+    config = function() require("configs.nvim-treesitter") end,
     dependencies = {
-      'nvim-treesitter-textobjects',
-      'nvim-ts-context-commentstring',
-      'nvim-treesitter-endwise',
+      "ts-node-action",
+      "nvim-ts-autotag",
+      "nvim-treesitter-textobjects",
+      "nvim-ts-context-commentstring",
+      "nvim-treesitter-endwise",
     },
   },
 
   {
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    lazy = true,
-    dependencies = 'nvim-treesitter',
-  },
-
-  {
-    'JoosepAlviste/nvim-ts-context-commentstring',
-    lazy = true,
-    dependencies = 'nvim-treesitter',
-  },
-
-  {
-    'Wansmer/treesj',
-    cmd = { 'TSJToggle', 'TSJSplit', 'TSJJoin' },
+    "CKolkey/ts-node-action",
+    dependencies = "nvim-treesitter",
+    config = function() require("configs.ts-node-action") end,
     keys = {
-      '<Leader>j',
-      '<Leader>J',
-      '<Leader>s',
-      '<Leader>S',
-      '<Leader>t',
-      '<Leader>T',
+      {
+        "<Leader><Leader>",
+        function() require("ts-node-action").node_action() end,
+        desc = "treesitter: Do node action",
+      },
     },
-    dependencies = 'nvim-treesitter',
-    config = function()
-      require('configs.treesj')
-    end,
   },
 
   {
-    'Eandrju/cellular-automaton.nvim',
-    event = 'FileType',
-    cmd = 'CellularAutomaton',
-    dependencies = 'nvim-treesitter',
+    "windwp/nvim-ts-autotag",
+    dependencies = "nvim-treesitter",
   },
 
   {
-    'RRethy/nvim-treesitter-endwise',
-    event = 'FileType',
-    dependencies = 'nvim-treesitter',
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    lazy = true,
+    dependencies = "nvim-treesitter",
+  },
+
+  {
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    lazy = true,
+    dependencies = "nvim-treesitter",
+  },
+
+  {
+    "Eandrju/cellular-automaton.nvim",
+    cmd = "CellularAutomaton",
+    dependencies = "nvim-treesitter",
+  },
+
+  {
+    "RRethy/nvim-treesitter-endwise",
+    event = "FileType",
+    dependencies = "nvim-treesitter",
   },
 }

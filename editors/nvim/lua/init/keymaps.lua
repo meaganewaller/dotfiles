@@ -1,125 +1,186 @@
-local utils = require('utils')
+local term_opts = { silent = true }
+local opts = { noremap = true, silent = true }
+local keymap = vim.api.nvim_set_keymap
 
-vim.keymap.set({ 'n', 'x' }, '<Space>', '<Ignore>')
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ','
+keymap("", "<Space>", "<Nop>", opts)
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 
--- Multi-window operations
--- stylua: ignore start
-vim.keymap.set({ 'x', 'n' }, '<M-W>',      '<C-w>W')
-vim.keymap.set({ 'x', 'n' }, '<M-H>',      '<C-w>H')
-vim.keymap.set({ 'x', 'n' }, '<M-J>',      '<C-w>J')
-vim.keymap.set({ 'x', 'n' }, '<M-K>',      '<C-w>K')
-vim.keymap.set({ 'x', 'n' }, '<M-L>',      '<C-w>L')
-vim.keymap.set({ 'x', 'n' }, '<M-=>',      '<C-w>=')
-vim.keymap.set({ 'x', 'n' }, '<M-_>',      '<C-w>_')
-vim.keymap.set({ 'x', 'n' }, '<M-|>',      '<C-w>|')
-vim.keymap.set({ 'x', 'n' }, '<M-<>',      '<C-w><')
-vim.keymap.set({ 'x', 'n' }, '<M->>',      'v:count ? "<C-w>>" : "4<C-w>>"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<M-<>',      'v:count ? "<C-w><" : "4<C-w><"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<M-+>',      'v:count ? "<C-w>+" : "2<C-w>+"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<M-->',      'v:count ? "<C-w>-" : "2<C-w>-"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<M-p>',      '<C-w>p')
-vim.keymap.set({ 'x', 'n' }, '<M-r>',      '<C-w>r')
-vim.keymap.set({ 'x', 'n' }, '<M-v>',      '<C-w>v')
-vim.keymap.set({ 'x', 'n' }, '<M-s>',      '<C-w>s')
-vim.keymap.set({ 'x', 'n' }, '<M-x>',      '<C-w>x')
-vim.keymap.set({ 'x', 'n' }, '<M-z>',      '<C-w>z')
-vim.keymap.set({ 'x', 'n' }, '<M-c>',      '<C-w>c')
-vim.keymap.set({ 'x', 'n' }, '<M-n>',      '<C-w>n')
-vim.keymap.set({ 'x', 'n' }, '<M-o>',      '<C-w>o')
-vim.keymap.set({ 'x', 'n' }, '<M-t>',      '<C-w>t')
-vim.keymap.set({ 'x', 'n' }, '<M-T>',      '<C-w>T')
-vim.keymap.set({ 'x', 'n' }, '<M-]>',      '<C-w>]')
-vim.keymap.set({ 'x', 'n' }, '<M-^>',      '<C-w>^')
-vim.keymap.set({ 'x', 'n' }, '<M-b>',      '<C-w>b')
-vim.keymap.set({ 'x', 'n' }, '<M-d>',      '<C-w>d')
-vim.keymap.set({ 'x', 'n' }, '<M-f>',      '<C-w>f')
-vim.keymap.set({ 'x', 'n' }, '<M-}>',      '<C-w>}')
-vim.keymap.set({ 'x', 'n' }, '<M-g>]',     '<C-w>g]')
-vim.keymap.set({ 'x', 'n' }, '<M-g>}',     '<C-w>g}')
-vim.keymap.set({ 'x', 'n' }, '<M-g>f',     '<C-w>gf')
-vim.keymap.set({ 'x', 'n' }, '<M-g>F',     '<C-w>gF')
-vim.keymap.set({ 'x', 'n' }, '<M-g>t',     '<C-w>gt')
-vim.keymap.set({ 'x', 'n' }, '<M-g>T',     '<C-w>gT')
-vim.keymap.set({ 'x', 'n' }, '<M-w>',      '<C-w><C-w>')
-vim.keymap.set({ 'x', 'n' }, '<M-h>',      '<C-w><C-h>')
-vim.keymap.set({ 'x', 'n' }, '<M-j>',      '<C-w><C-j>')
-vim.keymap.set({ 'x', 'n' }, '<M-k>',      '<C-w><C-k>')
-vim.keymap.set({ 'x', 'n' }, '<M-l>',      '<C-w><C-l>')
-vim.keymap.set({ 'x', 'n' }, '<M-g><M-]>', '<C-w>g<C-]>')
-vim.keymap.set({ 'x', 'n' }, '<M-g><Tab>', '<C-w>g<Tab>')
+keymap("n", "<C-h>", "<C-w>h", opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
 
-vim.keymap.set({ 'x', 'n' }, '<C-w>>', 'v:count ? "<C-w>>" : "4<C-w>>"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<C-w><', 'v:count ? "<C-w><" : "4<C-w><"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<C-w>+', 'v:count ? "<C-w>+" : "2<C-w>+"', { expr = true })
-vim.keymap.set({ 'x', 'n' }, '<C-w>-', 'v:count ? "<C-w>-" : "2<C-w>-"', { expr = true })
--- stylua: ignore end
+keymap("n", "<C-Up>", ":resize -2<CR>", opts)
+keymap("n", "<C-Down>", ":resize +2<CR>", opts)
+keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
--- Up/down motions
-vim.keymap.set({ 'n', 'x', 'o' }, 'j', 'v:count ? "j" : "gj"', { expr = true })
-vim.keymap.set({ 'n', 'x', 'o' }, 'k', 'v:count ? "k" : "gk"', { expr = true })
+keymap("n", "<S-l>", ":bnext<CR>", { desc = "Buffer next" })
+keymap("n", "<S-h>", ":bprevious<CR>", { desc = "Buffer previous" })
 
--- Buffer navigation
-vim.keymap.set('n', ']b', '<Cmd>exec v:count1 . "bn"<CR>')
-vim.keymap.set('n', '[b', '<Cmd>exec v:count1 . "bp"<CR>')
+keymap("n", "<Leader>tc", "<cmd>tabclose<cr>", { desc = "Close tab" })
+keymap("n", "<Leader>th", "<cmd>-tabmove<cr>", { desc = "Move tab left" })
+keymap("n", "<Leader>tj", "<cmd>tabnext<CR>", { desc = "Next tab" })
+keymap("n", "<Leader>tk", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
+keymap("n", "<Leader>tl", "<cmd>+tabmove<cr>", { desc = "Move tab right" })
+keymap("n", "<Leader>tt", "<cmd>tab sb %<cr>", { desc = "Move buffer to a new tab" })
+keymap("n", "<A-l>", ":tabnext<CR>", { desc = "Tab next" })
+keymap("n", "<A-h>", ":tabprevious<CR>", { desc = "Tab previous" })
 
--- Correct misspelled word / mark as correct
-vim.keymap.set('i', '<C-S-L>', '<Esc>[szg`]a')
-vim.keymap.set('i', '<C-l>', '<C-G>u<Esc>[s1z=`]a<C-G>u')
+keymap("n", "<A-j>", "<Esc>:m .+1<CR>==", opts)
+keymap("n", "<A-k>", "<Esc>:m .-2<CR>==", opts)
 
--- Only clear highlights and message area and don't redraw if search
--- highlighting is on to avoid flickering
-vim.keymap.set('n', '<C-l>', function()
-  return vim.v.hlsearch == 1 and '<Cmd>nohlsearch<Bar>diffupdate<Bar>echo<CR>'
-    or '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-l><CR>'
-end, { expr = true })
+keymap("n", "gx", [[:silent execute '!open ' . shellescape(expand('<cfile>'), 1)<CR>]], opts)
+keymap("n", "gX", "<cmd>GrepAppCursorLine<cr>", opts)
+keymap("n", "gy", "<cmd>GrepAppClipboard<cr>", opts)
 
--- Don't include extra spaces around quotes
-vim.keymap.set({ 'o', 'x' }, 'a"', '2i"', { noremap = false })
-vim.keymap.set({ 'o', 'x' }, "a'", "2i'", { noremap = false })
-vim.keymap.set({ 'o', 'x' }, 'a`', '2i`', { noremap = false })
+keymap("n", "gf", "<cmd>lua require('gtd').exec({ command = 'edit' })<cr>", opts)
 
--- Close all floating windows
-vim.keymap.set('n', 'q', function()
-  local count = 0
-  local current_win = vim.api.nvim_get_current_win()
-  -- close current win only if it's a floating window
-  if vim.api.nvim_win_get_config(current_win).relative ~= '' then
-    vim.api.nvim_win_close(current_win, true)
-    return
-  end
-  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    if vim.api.nvim_win_is_valid(win) then
-      local config = vim.api.nvim_win_get_config(win)
-      -- close floating windows that can be focused
-      if config.relative ~= '' and config.focusable then
-        vim.api.nvim_win_close(win, false) -- do not force
-        count = count + 1
-      end
-    end
-  end
-  if count == 0 then -- Fallback
-    vim.api.nvim_feedkeys(
-      vim.api.nvim_replace_termcodes('q', true, true, true),
-      'n',
-      false
-    )
-  end
-end)
+-- Substitute
+keymap("n", "su", "<cmd>lua require('substitute').operator()<cr>", { noremap = true })
+keymap("x", "su", "<cmd>lua require('substitute').visual()<cr>", { noremap = true })
+keymap("n", "X", "<cmd>lua require('substitute.exchange').operator()<cr>", { noremap = true })
+keymap("x", "X", "<cmd>lua require('substitute.exchange').visual()<cr>", { noremap = true })
 
--- Text object: current buffer
--- stylua: ignore start
-vim.keymap.set('x', 'af', ':<C-u>silent! keepjumps normal! ggVG<CR>', { silent = true, noremap = false })
-vim.keymap.set('x', 'if', ':<C-u>silent! keepjumps normal! ggVG<CR>', { silent = true, noremap = false })
-vim.keymap.set('o', 'af', '<Cmd>silent! normal m`Vaf<CR><Cmd>silent! normal! ``<CR>', { silent = true, noremap = false })
-vim.keymap.set('o', 'if', '<Cmd>silent! normal m`Vif<CR><Cmd>silent! normal! ``<CR>', { silent = true, noremap = false })
--- stylua: ignore end
+-- Treesitter Node Action
+keymap("n", "<A-n>", ":NodeAction<cr>", opts)
 
--- Abbreviations
-utils.keymap.command_abbrev('S', '%s')
-utils.keymap.command_abbrev(':', 'lua')
-utils.keymap.command_abbrev('qa', 'qa!')
-utils.keymap.command_abbrev('bw', 'bw!')
-utils.keymap.command_abbrev('mks', 'mks!')
-utils.keymap.command_abbrev('man', 'Man')
+-- Yanky
+-- default mappings
+keymap("n", "p", "<Plug>(YankyPutAfter)", opts)
+keymap("n", "P", "<Plug>(YankyPutBefore)", opts)
+keymap("n", "gp", "<Plug>(YankyGPutAfter)", opts)
+keymap("n", "gP", "<Plug>(YankyGPutBefore)", opts)
+-- yank-ring
+keymap("n", "<C-n>", "<Plug>(YankyCycleForward)", opts)
+keymap("n", "<C-p>", "<Plug>(YankyCycleBackward)", opts)
+-- preserve cut position on yank
+keymap("n", "y", "<Plug>(YankyYank)", opts)
+-- special put moves (inspired by Unimpaired)
+keymap("n", "]p", "<Plug>(YankyPutIndentAfterLinewise)", opts)
+keymap("n", "[p", "<Plug>(YankyPutIndentBeforeLinewise)", opts)
+keymap("n", "]P", "<Plug>(YankyPutIndentAfterLinewise)", opts)
+keymap("n", "[P", "<Plug>(YankyPutIndentBeforeLinewise)", opts)
+keymap("n", ">p", "<Plug>(YankyPutIndentAfterShiftRight)", opts)
+keymap("n", "<p", "<Plug>(YankyPutIndentAfterShiftLeft)", opts)
+keymap("n", ">P", "<Plug>(YankyPutIndentBeforeShiftRight)", opts)
+keymap("n", "<P", "<Plug>(YankyPutIndentBeforeShiftLeft)", opts)
+keymap("n", "=p", "<Plug>(YankyPutAfterFilter)", opts)
+keymap("n", "=P", "<Plug>(YankyPutBeforeFilter)", opts)
+
+-- Unimpaired
+keymap("n", "[A", ":first<cr>", opts)
+keymap("n", "]A", ":last<cr>", opts)
+keymap("n", "[B", ":bfirst<cr>", opts)
+keymap("n", "]B", ":blast<cr>", opts)
+keymap("n", "[l", ":lprevious<cr>", opts)
+keymap("n", "]l", ":lnext<cr>", opts)
+keymap("n", "[L", ":lfirst<cr>", opts)
+keymap("n", "]L", ":llast<cr>", opts)
+keymap("n", "[<C-L>", ":lpfile<cr>", opts)
+keymap("n", "]<C-L>", ":lnfile<cr>", opts)
+keymap("n", "[q", ":cprevious<cr>", opts)
+keymap("n", "]q", ":cnext<cr>", opts)
+keymap("n", "[Q", ":cfirst<cr>", opts)
+keymap("n", "]Q", ":clast<cr>", opts)
+keymap("n", "[<C-Q>", ":cpfile<cr>", opts)
+keymap("n", "]<C-Q>", ":cnfile<cr>", opts)
+keymap("n", "[t", ":tprevious<cr>", opts)
+keymap("n", "]t", ":tnext<cr>", opts)
+keymap("n", "[T", ":tfirst<cr>", opts)
+keymap("n", "]T", ":tlast<cr>", opts)
+keymap("n", "[<C-T>", ":ptprevious<cr>", opts)
+keymap("n", "]<C-T>", ":ptnext<cr>", opts)
+
+-- Gitsign
+keymap("n", "<Leader>gg", "<cmd>lua require('neogit').open({ kind = 'split' })<cr>", { desc = "Neogit" })
+keymap("n", "<Leader>gj", "<cmd>lua require('gitsigns').next_hunk()<cr>", { desc = "Next hunk" })
+keymap("n", "<Leader>gk", "<cmd>lua require('gitsigns').prev_hunk()<cr>", { desc = "Prev hunk" })
+keymap("n", "<Leader>gl", "<cmd>lua require('gitsigns').blame_line()<cr>", { desc = "Blame line" })
+keymap("n", "<Leader>gp", "<cmd>lua require('gitsigns').preview_hunk()<cr>", { desc = "Preview hunk" })
+keymap("n", "<Leader>gR", "<cmd>lua require('gitsigns').reset_buffer()<cr>", { desc = "Reset buffer" })
+keymap("n", "<Leader>gr", "<cmd>lua require('gitsigns').reset_hunk()<cr>", { desc = "Reset hunk" })
+keymap("n", "<Leader>gs", "<cmd>lua require('gitsigns').stage_hunk()<cr>", { desc = "Stage hunk" })
+keymap("n", "<Leader>gu", "<cmd>lua require('gitsigns').undo_stage_hunk()<cr>", { desc = "Undo stage hunk" })
+keymap("n", "<Leader>gd", "<cmd>Gitsigns diffthis HEAD<cr>", { desc = "Diff" })
+keymap("n", "<Leader>gO", "<cmd>GitBlameOpenCommitURL<cr>", { desc = "Open in browser" })
+keymap("n", "<Leader>gh", "<cmd>GitBlameCopySHA<cr>", { desc = "Copy hash" })
+
+keymap("n", "<Leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", { desc = "Code Action" })
+keymap("n", "<Leader>lA", "<cmd>lua vim.lsp.codelens.run()<cr>", { desc = "CodeLens Action" })
+keymap("n", "<Leader>ld", "<cmd>Telescope diagnostics bufnr=0 theme=cursor<cr>", { desc = "Buffer Diagnostics" })
+keymap("n", "<Leader>lD", "<cmd>Telescope diagnostics<cr>", { desc = "Diagnostics" })
+keymap("n", "<Leader>lf", "<cmd>lua vim.lsp.buf.format { async = true }<cr>", { desc = "Format" })
+keymap("n", "<Leader>lq", "<cmd>lua vim.diagnostic.setloclist()<cr>", { desc = "Quickfix" })
+keymap("n", "<Leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", { desc = "Rename" })
+keymap("n", "<Leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", { desc = "Document Symbols" })
+keymap("n", "<Leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", { desc = "Workspace Symbols" })
+
+-- Center screen
+keymap("n", "<C-u>", "<C-u>zz", opts)
+keymap("n", "<C-d>", "<C-d>zz", opts)
+keymap("n", "<C-o>", "<C-o>zz", opts)
+keymap("n", "<C-i>", "<C-i>zz", opts)
+
+-- Keep cursor in place when joining
+keymap("n", "J", "mzJ`z", opts)
+keymap("n", "gJ", "mzgJ`z", opts)
+
+-- Repeat last macro with single key
+keymap("n", ",", ":lua REPEAT_LAST_MACRO_OR_Q()<CR>", opts)
+
+-- Insert --
+-- Make Control+Backspace delete whole words
+keymap("i", "<C-H>", "<C-W>", opts)
+
+-- Visual --
+-- Stay in indent mode
+keymap("v", "<", "<gv", opts)
+keymap("v", ">", ">gv", opts)
+
+-- Move text up and down
+keymap("v", "<A-j>", ":m .+1<CR>==", opts)
+keymap("v", "<A-k>", ":m .-2<CR>==", opts)
+keymap("v", "p", '"_dP', opts)
+
+-- Sort selection
+keymap("v", "&", ":Sort u<CR>", opts)
+
+-- Visual Block --
+-- Move text up and down
+keymap("x", "J", ":m '>+1<CR>gv-gv", opts)
+keymap("x", "K", ":m '<-2<CR>gv-gv", opts)
+keymap("x", "<A-j>", ":m '>+1<CR>gv-gv", opts)
+keymap("x", "<A-k>", ":m '<-2<CR>gv-gv", opts)
+
+-- Yanky
+-- default mappings
+keymap("x", "p", "<Plug>(YankyPutAfter)", opts)
+keymap("x", "P", "<Plug>(YankyPutBefore)", opts)
+keymap("x", "gp", "<Plug>(YankyGPutAfter)", opts)
+keymap("x", "gP", "<Plug>(YankyGPutBefore)", opts)
+-- preserve cut position on yank
+keymap("x", "y", "<Plug>(YankyYank)", opts)
+
+-- Terminal --
+-- Better terminal navigation
+keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
+keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
+keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
+keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
+
+keymap("n", "<Leader>po", "<cmd>lua require('lazy').home()<CR>", { desc = "Home" })
+keymap("n", "<Leader>pi", "<cmd>lua require('lazy').install()<CR>", { desc = "Install" })
+keymap("n", "<Leader>pu", "<cmd>lua require('lazy').update()<CR>", { desc = "Update" })
+keymap("n", "<Leader>ps", "<cmd>lua require('lazy').sync()<CR>", { desc = "Sync" })
+keymap("n", "<Leader>px", "<cmd>lua require('lazy').clean()<CR>", { desc = "Clean" })
+keymap("n", "<Leader>pc", "<cmd>lua require('lazy').check()<CR>", { desc = "Check" })
+keymap("n", "<Leader>pL", "<cmd>lua require('lazy').log()<CR>", { desc = "Log" })
+keymap("n", "<Leader>pR", "<cmd>lua require('lazy').restore()<CR>", { desc = "Restore" })
+keymap("n", "<Leader>pp", "<cmd>lua require('lazy').profile()<CR>", { desc = "Profile" })
+keymap("n", "<Leader>pD", "<cmd>lua require('lazy').debug()<CR>", { desc = "Debug" })
+keymap("n", "<Leader>pH", "<cmd>lua require('lazy').help()<CR>", { desc = "Help" })
+keymap("n", "<Leader>pB", "<cmd>lua require('lazy').clear()<CR>", { desc = "Clear" })
+keymap("n", "<Leader>pn", "<cmd>Telescope notify<CR>", { desc = "Notifications" })
+keymap("n", "<Leader>pm", "<cmd>Mason<CR>", { desc = "Mason" })

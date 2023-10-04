@@ -1,1 +1,0 @@
-/Users/meagan/Library/CloudStorage/Dropbox/Mackup/.config/fish/conf.d

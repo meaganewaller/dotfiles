@@ -34,142 +34,18 @@ function langs_mt:map(field)
   return result
 end
 
-M.langs = setmetatable({
-  sh = {
-    ft = 'sh',
-    lsp_server = { 'bashls', 'efm' },
-    dap = 'bashdb',
-  },
-  c = {
-    ts = 'c',
-    ft = 'c',
-    lsp_server = 'clangd',
-    dap = 'codelldb',
-  },
-  cpp = {
-    ts = 'cpp',
-    ft = 'cpp',
-    lsp_server = 'clangd',
-    dap = 'codelldb',
-  },
-  fish = {
-    ts = 'fish',
-    ft = 'fish',
-    lsp_server = 'efm',
-  },
-  help = {
-    ts = 'vimdoc',
-    ft = 'help',
-  },
-  lua = {
-    ts = 'lua',
-    ft = 'lua',
-    lsp_server = { 'lua_ls', 'efm' },
-  },
-  rust = {
-    ts = 'rust',
-    ft = 'rust',
-    lsp_server = 'rust_analyzer',
-  },
-  make = {
-    ts = 'make',
-    ft = 'make',
-  },
-  markdown = {
-    ts = {
-      'markdown_inline',
-      'markdown',
-    },
-    lsp_server = 'marksman',
-  },
-  python = {
-    ts = 'python',
-    ft = 'python',
-    lsp_server = { 'jedi_language_server', 'efm' },
-    dap = 'debugpy',
-  },
-  vim = {
-    ts = 'vim',
-    ft = 'vim',
-    lsp_server = 'vimls',
-  },
-  tex = {
-    ft = 'tex',
-    ts = 'latex',
-    lsp_server = 'texlab',
-  },
-}, langs_mt)
+M.langs = setmetatable(require('settings').langs, langs_mt)
 
--- Box drawing characters
-M.box = {
-  single = {
-    tl = '┌',
-    tr = '┐',
-    bl = '└',
-    br = '┘',
-    hr = '─',
-    vt = '│',
-  },
-  double = {
-    tl = '╔',
-    tr = '╗',
-    bl = '╚',
-    br = '╝',
-    hr = '═',
-    vt = '║',
-  },
-  rounded = {
-    tl = '╭',
-    tr = '╮',
-    bl = '╰',
-    br = '╯',
-    hr = '─',
-    vt = '│',
-  },
-  bold = {
-    tl = '┏',
-    tr = '┓',
-    bl = '┗',
-    br = '┛',
-    hr = '━',
-    vt = '┃',
-  },
-  vintage = {
-    tl = '+',
-    tr = '+',
-    bl = '+',
-    br = '+',
-    hr = '-',
-    vt = '|',
-  },
-}
-
--- stylua: ignore start
 M.borders = {
   rounded               = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
   single                = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
-  double                = { '═', '║', '═', '║', '╔', '╗', '╝', '╚' },
-  double_header         = { '═', '│', '─', '│', '╒', '╕', '┘', '└' },
-  double_bottom         = { '─', '│', '═', '│', '┌', '┐', '╛', '╘' },
-  double_horizontal     = { '═', '│', '═', '│', '╒', '╕', '╛', '╘' },
-  double_left           = { '─', '│', '─', '│', '╓', '┐', '┘', '╙' },
-  double_right          = { '─', '│', '─', '│', '┌', '╖', '╜', '└' },
-  double_vertical       = { '─', '│', '─', '│', '╓', '╖', '╜', '╙' },
   vintage               = { '-', '|', '-', '|', '+', '+', '+', '+' },
   rounded_clc           = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
   single_clc            = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
-  double_clc            = { '╔', '═', '╗', '║', '╝', '═', '╚', '║' },
-  double_header_clc     = { '╒', '═', '╕', '│', '┘', '─', '└', '│' },
-  double_bottom_clc     = { '┌', '─', '┐', '│', '╛', '═', '╘', '│' },
-  double_horizontal_clc = { '╒', '═', '╕', '│', '╛', '═', '╘', '│' },
-  double_left_clc       = { '╓', '─', '┐', '│', '┘', '─', '╙', '│' },
-  double_right_clc      = { '┌', '─', '╖', '│', '╜', '─', '└', '│' },
-  double_vertical_clc   = { '╓', '─', '╖', '│', '╜', '─', '╙', '│' },
   vintage_clc           = { '+', '-', '+', '|', '+', '-', '+', '|' },
   solid                 = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
   none                  = { '', '', '', '', '', '', '', '' },
 }
--- stylua: ignore end
 
 local icons_mt = {}
 
@@ -193,117 +69,9 @@ function icons_mt:flatten()
   return result
 end
 
--- stylua: ignore start
-M.icons = setmetatable({
-  debug = {
-    StackFrame          = ' ',
-    StackFrameCurrent   = ' ',
-  },
-  diagnostics = {
-    DiagnosticSignError = '󰅚 ',
-    DiagnosticSignHint  = '󰌶 ',
-    DiagnosticSignInfo  = '󰋽 ',
-    DiagnosticSignOk    = '󰄬 ',
-    DiagnosticSignWarn  = '󰀪 ',
-  },
-  kinds = {
-    Array               = '󰅪 ',
-    Boolean             = ' ',
-    BreakStatement      = '󰙧 ',
-    Calculator          = '󰃬 ',
-    Call                = '󰃷 ',
-    CaseStatement       = '󱃙 ',
-    Class               = ' ',
-    Color               = '󰏘 ',
-    Constant            = '󰏿 ',
-    Constructor         = ' ',
-    ContinueStatement   = '→ ',
-    Copilot             = ' ',
-    Declaration         = '󰙠 ',
-    Delete              = '󰩺 ',
-    Desktop             = '󰟀 ',
-    DoStatement         = '󰑖 ',
-    Enum                = ' ',
-    EnumMember          = ' ',
-    Event               = ' ',
-    Field               = ' ',
-    File                = '󰈔 ',
-    Folder              = '󰉋 ',
-    ForStatement        = '󰑖 ',
-    Format              = '󰗈 ',
-    Function            = '󰊕 ',
-    GitBranch           = ' ',
-    H1Marker            = '󰉫 ',
-    H2Marker            = '󰉬 ',
-    H3Marker            = '󰉭 ',
-    H4Marker            = '󰉮 ',
-    H5Marker            = '󰉯 ',
-    H6Marker            = '󰉰 ',
-    Identifier          = '󰀫 ',
-    IfStatement         = '󰇉 ',
-    Interface           = ' ',
-    Keyword             = '󰌋 ',
-    List                = '󰅪 ',
-    Log                 = '󰦪 ',
-    Lsp                 = ' ',
-    Macro               = '󰁌 ',
-    MarkdownH1          = '󰉫 ',
-    MarkdownH2          = '󰉬 ',
-    MarkdownH3          = '󰉭 ',
-    MarkdownH4          = '󰉮 ',
-    MarkdownH5          = '󰉯 ',
-    MarkdownH6          = '󰉰 ',
-    Method              = '󰆧 ',
-    Module              = '󰏗 ',
-    Namespace           = '󰅩 ',
-    Null                = '󰢤 ',
-    Number              = '󰎠 ',
-    Object              = '󰅩 ',
-    Operator            = '󰆕 ',
-    Package             = '󰆦 ',
-    Pair                = '󰅪 ',
-    Property            = ' ',
-    Reference           = '󰦾 ',
-    Regex               = ' ',
-    Repeat              = '󰑖 ',
-    Scope               = '󰅩 ',
-    Snippet             = '󰩫 ',
-    Specifier           = '󰦪 ',
-    Statement           = '󰅩 ',
-    String              = '󰉾 ',
-    Struct              = ' ',
-    SwitchStatement     = '󰺟 ',
-    Terminal            = ' ',
-    Text                = ' ',
-    Type                = ' ',
-    TypeParameter       = '󰆩 ',
-    Unit                = ' ',
-    Value               = '󰎠 ',
-    Variable            = '󰀫 ',
-    WhileStatement      = '󰑖 ',
-  },
-  ui = {
-    AngleDown           = ' ',
-    AngleLeft           = ' ',
-    AngleRight          = ' ',
-    AngleUp             = ' ',
-    ArrowDown           = '↓ ',
-    ArrowLeft           = '← ',
-    ArrowRight          = '→ ',
-    ArrowUp             = '↑ ',
-    Cross               = '󰅖 ',
-    Ok                  = '󰄬 ',
-    Diamond             = '◆ ',
-    Dot                 = '• ',
-    DotLarge            = ' ',
-    Ellipsis            = '… ',
-    Pin                 = '󰐃 ',
-    TriangleDown        = '▼ ',
-    TriangleLeft        = '◀ ',
-    TriangleRight       = '▶ ',
-    TriangleUp          = '▲ ',
-  },
-}, icons_mt)
--- stylua: ignore end
+M.icons = setmetatable(
+  require('settings').icons,
+  icons_mt
+)
 
 return M

@@ -1,16 +1,22 @@
-local km = require('key-menu')
+local km = require("key-menu")
 vim.o.timeoutlen = 500
 
-km.set('n', '<Space>')
-km.set('n', '<Space>f', { desc = 'Telescope' })
-km.set('n', '<Space>fn', { desc = 'npm' })
-km.set('n', '<Space>d', { desc = 'Debug' })
-km.set('n', '<Space>h', { desc = 'Git' })
-km.set('n', '<Space>x', { desc = 'Trouble' })
-km.set('n', '<Space>t', { desc = 'Testing' })
-km.set('n', '<Space>n', { desc = 'File explorers' })
-km.set('n', '<Space>r', { desc = 'Reach' })
-km.set('n', 'g')
-km.set('n', '[')
-km.set('n', ']')
-km.set('n', 'z')
+local setkey = km.set
+
+vim.o.timeoutlen = 300
+
+setkey("n", "<Leader>")
+setkey("n", "<LocalLeader>")
+setkey("n", "[")
+setkey("n", "]")
+setkey("n", "g")
+setkey("n", "<Leader>j", { desc = "Jump Tabs" })
+setkey("n", "<Leader>p", { desc = "Plugins" })
+setkey("n", "<Leader>g", { desc = "Git" })
+setkey("n", "<Leader>l", { desc = "LSP" })
+setkey("n", "<Leader>f", { desc = "Search" })
+setkey("n", "<Leader>t", { desc = "Tabs" })
+setkey("n", "<Leader>n", { desc = "Neotest" })
+setkey("v", "<Leader>g", { desc = "Git" })
+setkey("n", "<Leader>r", { desc = "Refactoring" })
+setkey("n", "<Leader>o", { desc = "Overseer" })

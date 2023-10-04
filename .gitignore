@@ -53,6 +53,7 @@
 !os/macos/LaunchAgents/**/*
 
 # Other files
+!version.txt
 !.tool-versions
 !.config/.color_mode
 !Rakefile

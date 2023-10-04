@@ -1,7 +1,8 @@
-* [Overview](/)
-* [Guides](/guides/)
-
----
-
-* [Attributions](/attributions/)
-* [Changelog](/changelog/)
+- [<div class="ps-icon ps-icon-arrow-right"></div> home](home.md)
+- [<div class="ps-icon ps-icon-download"></div> installation](installation.md)
+- [<div class="ps-icon ps-icon-gift"></div> features](features.md)
+- [<div class="ps-icon ps-icon-row-setting"></div> options](options.md)
+- [<div class="ps-icon ps-icon-wand"></div> themes](themes.md)
+- [<div class="ps-icon ps-icon-keyboard"></div> keymaps](keymaps.md)
+- [<div class="ps-icon ps-icon-compass"></div> guides](guides.md)
+- [<div class="ps-icon ps-icon-image"></div> gallery](gallery.md)

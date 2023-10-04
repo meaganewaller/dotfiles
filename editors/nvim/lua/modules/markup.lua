@@ -1,28 +1,25 @@
 return {
   {
-    'lervag/vimtex',
-    ft = { 'tex', 'markdown' },
-    config = function()
-      require('configs.vimtex')
-    end,
+    "lervag/vimtex",
+    ft = { "tex" },
+    config = function() require("configs.vimtex") end,
   },
   {
-    'iamcco/markdown-preview.nvim',
+    "iamcco/markdown-preview.nvim",
     lazy = true,
-    build = ':call mkdp#util#install()',
-    ft = 'markdown',
+    build = "cd app && npm install",
+    ft = "markdown",
+    cmd = { "MarkdownPreview" },
   },
   {
-    'chrisbra/csv.vim',
+    "chrisbra/csv.vim",
     lazy = true,
-    ft = 'csv',
+    ft = "csv",
   },
   {
-    'dhruvasagar/vim-table-mode',
-    cmd = 'TableModToggle',
-    event = { 'BufReadPost', 'BufNew' },
-    config = function()
-      require('configs.vim-table-mode')
-    end,
+    "kiran94/edit-markdown-table.nvim",
+    config = true,
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    cmd = "EditMarkdownTable",
   },
 }

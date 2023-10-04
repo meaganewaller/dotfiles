@@ -1,74 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>meagan's dotfiles - aesthetics & productivity</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="meagan waller's dotfiles & workspace configurations">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <title>my dotfiles</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Description" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"
+    />
+    <link rel="stylesheet" href="_assets/style.css" />
+    <link rel="stylesheet" href="_assets/ps-icon-pack.min.css" />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Fira+Code:wght@400;600&family=IBM+Plex+Mono:ital,wght@1,400;1,600&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/css">
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .sidebar-nav,
+      nav,
+      button {
+        font-family: "Press Start 2P", cursive;
+      }
+      .cover {
+        background: url("_media/bg.png") !important;
+      }
 
-  <!-- Themes (light + dark) -->
-  <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css"/>
-  <link rel="stylesheet" media="(prefers-color-scheme: light)" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css"/>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="app"></div>
+      .markdown-section pre > code {
+        font-family: "Fira Code", monospace;
+      }
 
-  <script>
-    window.$docsify = {
-      name: "meagan's dotfiles",
-      repo: 'https://github.com/meaganewaller/dotfiles',
-      formatUpdated: '{MM}/{DD} {HH}:{mm}',
-      routerMode: 'history',
-      loadFooter: true,
-      loadSidebar: true,
-      search: {
-        placeholder: 'find something...',
-      },
-      subMaxLevel: 0,
-      auto2top: true,
-      nativeEmoji: true,
-      copyCode: {
-        buttonText: 'Copy',
-        errorText: 'Error',
-        successText: 'Copied',
-      },
-      pagination: {
-        crossChapter: true,
-        crossChapterText: true,
-      },
-    }
-  </script>
+      .sidebar li {
+        margin: 0 0 0 24px;
+      }
 
-  <!-- Docsify v4 -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+      .text-center {
+        text-align: center;
+      }
 
-  <!-- docsify-themeable -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
+      .app-nav li ul {
+        padding: 0;
+      }
 
-  <!-- docsify-search -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
+      .app-sub-sidebar .section-link:before {
+        content: " ";
+      }
 
-    <!-- docsify-zoom-image -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+      a.edit-this-page {
+        float: right;
+        color: #444;
+      }
 
-  <!-- docsify-copy-code -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+      @media screen and (max-width: 500px) {
+        a.edit-this-page {
+          float: none;
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.$docsify = {
+        auto2top: true,
+        loadSidebar: true,
+        maxLevel: 4,
+        subMaxLevel: 1,
+        themeColor: "#FF75ED",
+        executeScript: true,
+        loadNavbar: true,
+        homepage: "home.md",
+        autoHeader: true,
+        mergeNavbar: true,
+        formatUpdated: "{MM}/{DD} {HH}:{mm}",
+        name: "my dotfiles",
+        repo: "https://github.com/meaganewaller/dotfiles",
+        coverpage: true,
+        plugins: [
+          function (hook, vm) {
+            hook.beforeEach(function (html) {
+              var url =
+                "https://github.com/meaganewaller/dotfiles/blob/main/docs/" +
+                vm.route.file;
+              var editHtml =
+                '<a class="edit-this-page" href="' +
+                url +
+                '">Edit this page on GitHub<\/a>\n';
+              var footer = [""];
 
-  <!-- docsify-pagination -->
-  <script src="https://unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
-
-  <!-- docsify-footer -->
-  <script src="https://cdn.jsdelivr.net/npm/@alertbox/docsify-footer/dist/docsify-footer.min.js"></script>
-
-    <!-- docsify-zoom-image -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
-
-  <!-- docsify-copy-code -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
-
-  <!-- docsify-pagination -->
-  <script src="https://unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
-</body>
+              return (
+                html +
+                "\n----\n" +
+                "Last modified {docsify-updated} " +
+                editHtml +
+                "\n----\n" +
+                footer.join("")
+              );
+            });
+          },
+        ],
+      };
+    </script>
+    <!-- Docsify v4 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+    <script src="//unpkg.com/docsify/lib/plugins/emoji.min.js"></script>
+    <script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+  </body>
 </html>
