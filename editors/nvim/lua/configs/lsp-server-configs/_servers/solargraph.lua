@@ -1,6 +1,6 @@
 local function solargraph_cmd()
   local ret_code = nil
-  local jid = vim.fn.jobstart("grep -o solargraph Gemfile.lock", {
+  local jid = vim.fn.jobstart("grep -rl solargraph --include Gemfile --include Gemfile.lock --include *.gemspec .", {
     on_exit = function(_, data) ret_code = data end,
   })
   vim.fn.jobwait({ jid }, 5000)
@@ -17,14 +17,18 @@ return {
   root_dir = require("lspconfig/util").root_pattern("Gemfile", ".git"),
   settings = {
     solargraph = {
-      autoformat = false,
       completion = true,
-      diagnostic = true,
-      folding = true,
-      references = true,
-      rename = true,
+      hover = true,
       symbols = true,
+      definitions = true,
+      rename = true,
+      references = true,
+      autoformat = false,
       diagnostics = true,
+      formatting = false,
+      folding = true,
+      highlights = true,
+      logLevel = 'warn'
     },
   },
 }

@@ -5,34 +5,32 @@ local M = {
     transparent = false,
   },
   langs = {
-    sh = {
-      dap = "bashdb",
-      formatters = { "shfmt" },
-      ft = "sh",
-      lsp_server = {"bashls", 'efm'},
-    },
     c = {
-      dap = "codelldb",
       formatters = { "clang-format" },
       ft = "c",
       lsp_server = "clangd",
       ts = "c",
     },
     cpp = {
-      dap = "codelldb",
       formatters = { "clang-format" },
       ft = "cpp",
       lsp_server = "clangd",
       ts = "cpp",
     },
     css = {
-      ft = { "css", "scss", "less" },
       formatters = { "prettier" },
-      lsp_server = "cssls",
+      ft = { "css", "scss", "less" },
+      lsp_server = {"cssls", "tailwindcss"},
       ts = "css",
     },
+    scss = {
+      formatters = { "prettier" },
+      ft = { "scss" },
+      lsp_server = { "cssls", "tailwindcss" },
+      ts = "scss"
+    },
     fish = {
-      ft = 'fihs',
+      ft = 'fish',
       lsp_server = 'efm',
       ts = 'fish',
     },
@@ -48,7 +46,7 @@ local M = {
     },
     javascript = {
       formatters = { "prettier" },
-      ft = { "javascript", "javscriptreact", "javascript.jsx" },
+      ft = { "javascript", "javscriptreact", "jsx" },
       lsp_server = { "efm", "tsserver" },
       ts = "javascript",
     },
@@ -56,13 +54,22 @@ local M = {
       formatters = { "prettier" },
       ft = { "json", "jsonc" },
       lsp_server = "jsonls",
-      ts = "json",
+      ts = {
+        "json",
+        "json5",
+        "jsonc",
+      },
     },
     typescript = {
       formatters = { "prettier" },
       ft = { "typescript", "typescriptreact", "typescript.tsx" },
       lsp_server = { "efm", "tsserver" },
-      ts = "typescript",
+      ts = {"typescript", "tsx"},
+    },
+    sh = {
+      formatters = { "shfmt" },
+      ft = "sh",
+      lsp_server = {"bashls", 'efm'},
     },
     lua = {
       formatters = { "stylua" },
@@ -73,7 +80,7 @@ local M = {
     ruby = {
       formatters = { "standardrb", "rubocop" },
       ft = "ruby",
-      lsp_server = "solargraph",
+      lsp_server = {"solargraph", "sorbet", "ruby_ls"},
       ts = "ruby",
     },
     rust = {
@@ -99,7 +106,6 @@ local M = {
       ts = "nix",
     },
     python = {
-      dap = "debugpy",
       formatters = { "black" },
       ft = "python",
       lsp_server = {

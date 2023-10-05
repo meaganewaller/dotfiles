@@ -53,6 +53,9 @@ local capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_c
 local default_config = {
   on_attach = on_attach,
   capabilities = capabilities,
+  flags = {
+    debounce_text_changes = 150,
+  },
 }
 
 return default_config

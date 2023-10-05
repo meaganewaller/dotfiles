@@ -1,7 +1,7 @@
 return {
-  cmd = { "css-languageserver", "--stdio" },
+  cmd = { "vscode-css-language-server", "--stdio" },
   filetypes = { "css", "scss", "less" },
-  root_dir = require("lspconfig").util.root_pattern("package.json"),
+  root_dir = require("lspconfig").util.root_pattern("package.json", ".git"),
   settings = {
     css = {
       validate = true,

@@ -10,10 +10,6 @@ return {
       { "<Leader>ls", "<cmd>LspStart<CR>", desc = "Start LSP server" },
       { "<Leader>lp", "<cmd>LspStop<CR>", desc = "Stop LSP server" },
     },
-    dependencies = {
-      { "williamboman/mason.nvim" },
-      { "williamboman/mason-lspconfig.nvim" },
-    },
   },
 
   {
