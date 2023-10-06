@@ -1,20 +1,18 @@
 local M = {}
 
 function M.setup()
-  require('init.general')
-  require('init.keymaps')
-  require('init.autocmds')
+  require("init.general")
+  require("init.keymaps")
+  require("init.autocmds")
 end
 
-function M.activate_plugins()
-  require('init.plugins')
-end
+function M.activate_plugins() require("init.plugins") end
 
 function M.activate_theme()
   local settings = require("settings")
   local theme = settings.theme
 
-  local themes = require('theming.themes')
+  local themes = require("theming.themes")
 
   themes.activate_theme(theme.name, theme.style, theme.transparent)
 end

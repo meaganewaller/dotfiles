@@ -14,7 +14,7 @@ if vim.loader and vim.fn.has("nvim-0.9.1") == 1 then vim.loader.enable() end
 -- bootstrap lazy package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
-if not vim.loop.fs_stat(lazypath) then
+if not vim.fn.resolve(lazypath) then
   vim.fn.system({
     "git",
     "clone",

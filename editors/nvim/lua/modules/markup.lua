@@ -22,4 +22,5 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     cmd = "EditMarkdownTable",
   },
+  "rhysd/vim-grammarous",
 }

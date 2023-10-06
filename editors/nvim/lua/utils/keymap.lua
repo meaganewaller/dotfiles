@@ -12,10 +12,10 @@ function M.command_abbrev(trig, command, opts)
     local trig_escaped = vim.pesc(trig)
     -- stylua: ignore start
     return vim.fn.getcmdtype() == ':'
-    and (cmdline_before:find('^%s*' .. trig_escaped .. '$')
-    or cmdline_before:find('|%s*' .. trig_escaped .. '$'))
-    and command
-    or trig
+      and (cmdline_before:find('^%s*' .. trig_escaped .. '$')
+      or cmdline_before:find('|%s*' .. trig_escaped .. '$'))
+      and command
+      or trig
     -- stylua: ignore end
   end, vim.tbl_deep_extend('keep', { expr = true }, opts or {}))
 end
@@ -144,7 +144,7 @@ function M.count_wrap(fn, count)
     for _ = 1, vim.v.count1 do
       vim.list_extend(result, { fn() })
     end
-    return unpack(result)
+    return table.unpack(result)
   end
 end
 

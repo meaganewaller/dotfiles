@@ -1,6 +1,3 @@
-local options = require("nvim.options")
-local option = options.scope.option
-
 local M = {
   themes = {
     catppuccin = {
@@ -112,6 +109,7 @@ local M = {
       transparent = false,
       activate = function(style, transparent)
         require("rose-pine").setup({
+          transparent = transparent,
           variant = style,
           dark_variant = "moon",
           bold_vert_split = false,
@@ -209,7 +207,6 @@ local M = {
         vim.cmd.colorscheme("tokyonight")
       end,
     },
-
   },
 }
 
@@ -218,9 +215,9 @@ function M.activate_theme(theme, style, transparent)
   entry.activate(style, transparent)
 
   if transparent then
-    options.set(option, "cursorline", false)
+    vim.o.cursorline = false
   else
-    options.set(option, "cursorline", true)
+    vim.o.cursorline = true
   end
 end
 

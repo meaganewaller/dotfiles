@@ -74,4 +74,23 @@ return {
     event = "VeryLazy",
     config = function() require("configs.key-menu") end,
   },
+  {
+    "princejoogie/chafa.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "m00qek/baleia.nvim",
+    },
+    config = function() require("configs.chafa") end,
+  },
+
+  {
+    "gorbit99/codewindow.nvim",
+    config = function()
+      local codewindow = require("codewindow")
+      codewindow.setup({
+        window_border = "none",
+      })
+      codewindow.apply_default_keybinds()
+    end,
+  }
 }

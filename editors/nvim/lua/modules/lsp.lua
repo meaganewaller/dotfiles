@@ -28,4 +28,13 @@ return {
     "hrsh7th/nvim-gtd",
     config = function() require("configs.gtd") end,
   },
+
+  {
+    "weilbith/nvim-code-action-menu",
+    cmd = "CodeActionMenu",
+    keys = {
+      -- stylua: ignore
+      { "<leader>lc", "<cmd>CodeActionMenu<cr>", desc = "Code Action Menu" },
+    },
+  },
 }

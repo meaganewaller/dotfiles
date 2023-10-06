@@ -1,8 +1,6 @@
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 
-local function t(str) return vim.api.nvim_replace_termcodes(str, true, true, true) end
-
 local function has_words_before()
   if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
   local line, col = vim.F.unpack_len(vim.api.nvim_win_get_cursor(0))
@@ -11,12 +9,6 @@ end
 
 cmp.setup({
   view = { entries = "custom" },
-  window = {
-    documentation = {
-      max_width = 80,
-      max_height = 20,
-    },
-  },
   snippet = {
     expand = function(args) require("luasnip").lsp_expand(args.body) end,
   },

@@ -22,17 +22,26 @@ local function bootstrap()
   vim.g.package_path = datapath .. "/lazy"
   vim.g.package_lock = confpath .. "/lazy-lock.json"
   local lazy_path = vim.g.package_path .. "/lazy.nvim"
-  vim.opt.rtp:prepend(lazy_path)
-  vim.opt.rtp:prepend(lazy_path)
-  if vim.uv.fs_stat(lazy_path) then return true end
 
+  -- Prepend the package path to the runtimepath
+  vim.opt.rtp:prepend(lazy_path)
+  vim.opt.rtp:prepend(lazy_path)
+
+  -- Check if the package is already installed
+  if vim.fn.isdirectory(lazy_path) == 1 then return true end
+
+  -- Read the lock file for commit information
   local lock = read_file(vim.g.package_lock)
   local lock_data = lock and vim.json.decode(lock) or nil
-
   local commit = lock_data and lock_data["lazy.nvim"] and lock_data["lazy.nvim"].commit or nil
   local url = "https://github.com/folke/lazy.nvim.git"
-  vim.notify("[plugins] installing lazy.nvim...", vim.log.levels.INFO)
+
+  vim.notify("[plugins] Installing lazy.nvim...", vim.log.levels.INFO)
+
+  -- Create the package path directory
   vim.fn.mkdir(vim.g.package_path, "p")
+
+  -- Clone the repository
   if
     not git.execute({
       "clone",
@@ -43,7 +52,10 @@ local function bootstrap()
   then
     return false
   end
+
+  -- Checkout the specified commit (if available)
   if commit then git.dir_execute(lazy_path, { "checkout", commit }, vim.log.levels.INFO) end
+
   vim.notify("[plugins] lazy.nvim cloned to " .. lazy_path, vim.log.levels.INFO)
   return true
 end
@@ -107,12 +119,17 @@ local function enable_modules(module_names)
 
   local modules = {}
   for _, module_name in ipairs(module_names) do
+    -- Load modules based on the provided module name
     vim.list_extend(modules, require("modules." .. module_name))
   end
+
+  -- Set up lazy loading with the specified modules and config
   require("lazy").setup(modules, config)
 end
 
 if vim.env.NVIM_MANPAGER or not bootstrap() then return end
+
+-- Enable modules based on the environment (e.g., VSCode or regular Neovim)
 if vim.g.vscode then
   enable_modules({
     "base",

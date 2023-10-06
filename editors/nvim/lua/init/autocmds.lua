@@ -1,7 +1,7 @@
-local autocmds = {
+local autocmd_groups = {
   {
-    { "FileType" },
-    {
+    events = { "FileType" },
+    definition = {
       group = "Editing",
       pattern = { "gitcommit", "markdown", "txt" },
       desc = "Enable spell checking and text wrapping for certain filetypes",
@@ -13,8 +13,8 @@ local autocmds = {
   },
 
   {
-    { "FileType" },
-    {
+    events = { "FileType" },
+    definition = {
       group = "Editing",
       pattern = { "markdown" },
       desc = "Prevent IndentLine from hidding ``` in markdown files",
@@ -26,8 +26,8 @@ local autocmds = {
   },
 
   {
-    { "FocusGained", "TermClose", "TermLeave" },
-    {
+    events = { "FocusGained", "TermClose", "TermLeave" },
+    definition = {
       group = "CheckTime",
       command = "checktime",
       desc = "Check if we need to reload the file when it changed",
@@ -35,8 +35,8 @@ local autocmds = {
   },
 
   {
-    { "BufRead", "BufNewFile" },
-    {
+    events = { "BufRead", "BufNewFile" },
+    definition = {
       group = "RubyCommands",
       desc = "Set ActiveAdmin and slim files to ruby",
       pattern = "*.html.arb,*.html.slim",
@@ -45,8 +45,8 @@ local autocmds = {
   },
 
   {
-    { "BufRead", "BufNewFile" },
-    {
+    events = { "BufRead", "BufNewFile" },
+    definition = {
       group = "SkhdCommands",
       desc = "Set skhd files to bash",
       pattern = "skhdrc",
@@ -55,8 +55,8 @@ local autocmds = {
   },
 
   {
-    { "TextYankPost" },
-    {
+    events = { "TextYankPost" },
+    definition = {
       pattern = "*",
       group = "YankHighlight",
       desc = "Highlight the selection on yank.",
@@ -67,8 +67,8 @@ local autocmds = {
   -- Append system clipboard to clipboard settings here because setting it on
   -- startup dramatically slows down startup time
   {
-    { "TextYankPost" },
-    {
+    events = { "TextYankPost" },
+    definition = {
       group = "YankToSystemClipboard",
       once = true,
       desc = "Yank into system clipboard.",
@@ -82,8 +82,8 @@ local autocmds = {
 
   -- Last position jump
   {
-    { "BufReadPost" },
-    {
+    events = { "BufReadPost" },
+    definition = {
       pattern = "*",
       group = "LastPosJmp",
       desc = "Last position jump.",
@@ -95,35 +95,10 @@ local autocmds = {
     },
   },
 
-  -- Automatically change local current directory
-  {
-    { "BufReadPost", "BufWinEnter", "FileChangedShellPost" },
-    {
-      pattern = "*",
-      group = "AutoCwd",
-      desc = "Automatically change local current directory.",
-      callback = function(info)
-        if info.file == "" or not vim.bo[info.buf].ma then return end
-        local current_dir = vim.fn.getcwd()
-        local proj_dir = require("utils").fs.proj_dir(info.file)
-        -- Prevent unnecessary directory change, which triggers
-        -- DirChanged autocmds that may update winbar unexpectedly
-        if current_dir == proj_dir then return end
-        if proj_dir then
-          vim.cmd.lcd(proj_dir)
-          return
-        end
-        local dirname = vim.fs.dirname(info.file)
-        local stat = vim.uv.fs_stat(dirname)
-        if stat and stat.type == "directory" and proj_dir ~= current_dir then vim.cmd.lcd(dirname) end
-      end,
-    },
-  },
-
   -- Restore dark/light background and colorscheme from ShaDa
   {
-    { "BufReadPre", "UIEnter" },
-    {
+    events = { "BufReadPre", "UIEnter" },
+    definition = {
       group = "RestoreBackground",
       once = true,
       desc = "Restore dark/light background and colorscheme from ShaDa.",
@@ -141,8 +116,8 @@ local autocmds = {
 
   -- Change background on receiving signal SIGUSR1
   {
-    { "Signal" },
-    {
+    events = { "Signal" },
+    definition = {
       nested = true,
       pattern = "SIGUSR1",
       group = "SwitchBackground",
@@ -172,8 +147,8 @@ local autocmds = {
 
   -- Spawn setbg/setcolors on colorscheme change
   {
-    { "Colorscheme" },
-    {
+    events = { "Colorscheme" },
+    definition = {
       group = "SwitchBackground",
       desc = "Spawn setbg/setcolors on colorscheme change.",
       callback = function()
@@ -208,8 +183,8 @@ local autocmds = {
 
   -- Autosave on focus change
   {
-    { "BufLeave", "WinLeave", "FocusLost" },
-    {
+    events = { "BufLeave", "WinLeave", "FocusLost" },
+    definition = {
       pattern = "*",
       group = "Autosave",
       desc = "Autosave on focus change.",
@@ -219,8 +194,8 @@ local autocmds = {
   },
 
   {
-    { "TermOpen" },
-    {
+    events = { "TermOpen" },
+    definition = {
       group = "TermOptions",
       pattern = { "term://*" },
       desc = "Terminal options.",
@@ -235,8 +210,8 @@ local autocmds = {
   },
 
   {
-    { "TermClose" },
-    {
+    events = { "TermClose" },
+    definition = {
       group = "TermOptions",
       pattern = { "term://*" },
       desc = "Close terminal buffer",
@@ -245,21 +220,21 @@ local autocmds = {
   },
 
   {
-    { "BufWritePre" },
-    {
+    events = { "BufWritePre" },
+    definition = {
       group = "AutoCreateDir",
       desc = "Auto create dir when saving a file",
       callback = function(event)
         if event.match:match("^%w%w+://") then return end
-        local file = vim.loop.fs_realpath(event.match) or event.match
+        local file = vim.fn.resolve(event.match) or event.match
         vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
       end,
     },
   },
 
   {
-    { "QuickFixCmdPost" },
-    {
+    events = { "QuickFixCmdPost" },
+    definition = {
       group = "QuickFixAutoOpen",
       desc = "Open quickfix window if there are results.",
       callback = function(info)
@@ -273,8 +248,8 @@ local autocmds = {
   },
 
   {
-    { "VimResized" },
-    {
+    events = { "VimResized" },
+    definition = {
       group = "EqualWinSize",
       desc = "Make window equal size on VimResized.",
       command = "wincmd =",
@@ -282,8 +257,8 @@ local autocmds = {
   },
 
   {
-    { "User" },
-    {
+    events = { "User" },
+    definition = {
       desc = "When there is no buffer left show Alpha dashboard",
       pattern = "BDeletePost*",
       group = "AlphaOnEmpty",
@@ -302,8 +277,8 @@ local autocmds = {
 
   -- Show cursor line and cursor column only in current window
   {
-    { "WinEnter" },
-    {
+    events = { "WinEnter" },
+    definition = {
       once = true,
       group = "AutoHlCursorLine",
       desc = "Initialize cursorline winhl.",
@@ -325,8 +300,8 @@ local autocmds = {
     },
   },
   {
-    { "BufWinEnter", "WinEnter", "InsertLeave" },
-    {
+    events = { "BufWinEnter", "WinEnter", "InsertLeave" },
+    definition = {
       group = "AutoHlCursorLine",
       callback = function()
         vim.defer_fn(function()
@@ -365,8 +340,8 @@ local autocmds = {
     },
   },
   {
-    { "InsertEnter" },
-    {
+    events = { "InsertEnter" },
+    definition = {
       group = "AutoHlCursorLine",
       callback = function()
         vim.opt_local.winhl:append({
@@ -378,8 +353,8 @@ local autocmds = {
   },
 
   {
-    { "BufWinEnter" },
-    {
+    events = { "BufWinEnter" },
+    definition = {
       group = "UpdateFolds",
       desc = "Update folds on BufEnter.",
       callback = function(info)
@@ -391,16 +366,16 @@ local autocmds = {
     },
   },
   {
-    { "BufUnload" },
-    {
+    events = { "BufUnload" },
+    definition = {
       group = "UpdateFolds",
       callback = function(info) vim.b[info.buf].foldupdated = nil end,
     },
   },
 
   {
-    { "OptionSet" },
-    {
+    events = { "OptionSet" },
+    definition = {
       pattern = "diff",
       group = "DisableWinBarInDiffMode",
       desc = "Disable winbar in diff mode.",
@@ -427,8 +402,8 @@ local autocmds = {
   },
 
   {
-    { "BufWritePre" },
-    {
+    events = { "BufWritePre" },
+    definition = {
       group = "UpdateTimestamp",
       desc = "Update timestamp automatically.",
       callback = function(info)
@@ -462,10 +437,12 @@ local autocmds = {
 }
 
 if not vim.g.loaded_autocmds then
-  for _, au in ipairs(autocmds) do
-    local audef = au[2]
-    if audef.group and vim.fn.exists("#" .. audef.group) == 0 then vim.api.nvim_create_augroup(audef.group, {}) end
-    vim.api.nvim_create_autocmd(unpack(au))
+  for _, group in ipairs(autocmd_groups) do
+    local definition = group.definition
+    if definition.group and vim.fn.exists("#" .. definition.group) == 0 then
+      vim.api.nvim_create_augroup(definition.group, {})
+    end
+    vim.api.nvim_create_autocmd(group.events, definition)
   end
   vim.g.loaded_autocmds = true
 end

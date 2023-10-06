@@ -2,6 +2,7 @@ return {
   {
     "nvim-telescope/telescope.nvim",
     cmd = "Telescope",
+    version = false,
     dependencies = {
       "plenary.nvim",
       "telescope-undo.nvim",
@@ -10,106 +11,42 @@ return {
     },
     config = function() require("configs.telescope") end,
     keys = {
+      { "<Leader>,", "<cmd>Telescope buffers show_all_buffers=true<Cr>", desc = "Switch Buffer" },
+      { "<Leader>/", "<cmd>Telescope live_grep<CR>", desc = "Grep (root dir)" },
+      { "<Leader>:", "<cmd>Telescope command_history<CR>", desc = "Command History" },
       {
         "<Leader><Leader>",
         "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>",
         desc = "Find files",
       },
-      {
-        "<Leader>r",
-        "<cmd>Telescope frecency theme=dropdown previewer=false<cr>",
-        desc = "Recent files",
-      },
-      {
-        "<Leader>pn",
-        "<cmd>Telescope notify<CR>",
-        desc = "Notifications",
-      },
-      {
-        "<Leader>go",
-        "<cmd>Telescope git_status<CR>",
-        desc = "Open changed file",
-      },
-      {
-        "<Leader>gb",
-        "<cmd>Telescope git_branches<CR>",
-        desc = "Checkout branch",
-      },
-      {
-        "<Leader>gc",
-        "<cmd>Telescope git_commits<CR>",
-        desc = "Checkout commit",
-      },
-      {
-        "<Leader>ld",
-        "<cmd>Telescope diagnostics bufnr=0<CR>",
-        desc = "Buffer diagnostics",
-      },
-      {
-        "<Leader>ls",
-        "<cmd>Telescope lsp_document_symbols<CR>",
-        desc = "Document symbols",
-      },
-      {
-        "<Leader>lS",
-        "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>",
-        desc = "Workspace symbols",
-      },
-      {
-        "<Leader>ff",
-        "<cmd>Telescope find_files theme=dropdown previewer=false<cr>",
-        desc = "Find files",
-      },
-      {
-        "<Leader>fg",
-        "<cmd>Telescope live_grep<cr>",
-        desc = "Live grep",
-      },
-      {
-        "<Leader>fb",
-        "<cmd>Telescope git_branches<cr>",
-        desc = "Checkout branch",
-      },
-      {
-        "<Leader>fh",
-        "<cmd>Telescope help_tags<CR>",
-        desc = "Help",
-      },
-      {
-        "<Leader>fl",
-        "<cmd>Telescope resume<cr>",
-        desc = "Last search",
-      },
-      {
-        "<Leader>fM",
-        "<cmd>Telescope man_pages<cr>",
-        desc = "Man pages",
-      },
+
+      { '<Leader>f"', "<cmd>Telescope registers<cr>", desc = "Registers" },
+      { "<Leader>fa", "<cmd>Telescope autocommands<CR>", desc = "Autocmds" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+      { "<Leader>fC", "<cmd>Telescope commands<cr>", desc = "Commands" },
+      { "<leader>fF", "<cmd>Telescope find_files cwd=false<CR>", desc = "Find Files (cwd)" },
+      { "<Leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+      { "<Leader>fG", "<cmd>GrepAppInput<CR>", desc = "Web Grep" },
+      { "<Leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help" },
+      { "<Leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
+      { "<Leader>fl", "<cmd>Telescope resume<cr>", desc = "Last search" },
+      { "<Leader>fM", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
+      { "<Leader>fn", "<cmd>Telescope notify<CR>", desc = "Notifications" },
+      { "<Leader>fr", "<cmd>Telescope oldfiles theme=dropdown previewer=false<cr>", desc = "Recent files" },
       {
         "<Leader>fR",
-        "<cmd>Telescope registers<cr>",
-        desc = "Registers",
+        "<cmd>Telescope oldfiles theme=dropdown previewer=false cwd=vim.loop.cwd()<CR>",
+        desc = "Recent files (cwd)",
       },
-      {
-        "<Leader>fk",
-        "<cmd>Telescope keymaps<cr>",
-        desc = "Keymaps",
-      },
-      {
-        "<Leader>fC",
-        "<cmd>Telescope commands<cr>",
-        desc = "Commands",
-      },
-      {
-        "<Leader>fy",
-        "<cmd>Telescope yank_history<cr>",
-        desc = "Yank History",
-      },
-      {
-        "<Leader>fG",
-        "<cmd>GrepAppInput<CR>",
-        desc = "Web Grep",
-      },
+      { "<Leader>fy", "<cmd>Telescope yank_history<cr>", desc = "Yank History" },
+
+      { "<Leader>gb", "<cmd>Telescope git_branches<CR>", desc = "Checkout branch" },
+      { "<Leader>gc", "<cmd>Telescope git_commits<CR>", desc = "Commits" },
+      { "<Leader>gs", "<cmd>Telescope git_status<CR>", desc = "Status" },
+
+      { "<Leader>ld", "<cmd>Telescope diagnostics bufnr=0<CR>", desc = "Buffer diagnostics" },
+      { "<Leader>ls", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Document symbols" },
+      { "<Leader>lS", "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>", desc = "Workspace symbols" },
     },
   },
   {
@@ -361,4 +298,5 @@ return {
     },
     config = true,
   },
+  { "rhysd/committia.vim" },
 }

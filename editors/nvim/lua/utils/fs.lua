@@ -25,15 +25,11 @@ function M.proj_dir(fpath, patterns)
     return nil
   end
   patterns = patterns or M.root_patterns
-  local dirpath = vim.fs.dirname(fpath)
+  local dirpath = vim.fn.fnamemodify(fpath, ":h")
   for _, pattern in ipairs(patterns) do
-    local root = vim.fs.find(pattern, {
-      path = dirpath,
-      upward = true,
-      type = pattern:match('/$') and 'directory' or 'file',
-    })[1]
-    if root and vim.uv.fs_stat(root) then
-      return vim.fs.dirname(root)
+    local root = vim.fn.finddir(pattern, dirpath .. ';')
+    if root ~= '' then
+      return root
     end
   end
 end
