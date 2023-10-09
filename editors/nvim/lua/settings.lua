@@ -20,38 +20,38 @@ local M = {
     css = {
       formatters = { "prettier" },
       ft = { "css", "scss", "less" },
-      lsp_server = {"cssls", "tailwindcss"},
+      lsp_server = { "cssls", "tailwindcss" },
       ts = "css",
     },
     scss = {
       formatters = { "prettier" },
       ft = { "scss" },
       lsp_server = { "cssls", "tailwindcss" },
-      ts = "scss"
+      ts = "scss",
     },
     fish = {
-      ft = 'fish',
-      lsp_server = 'efm',
-      ts = 'fish',
+      ft = "fish",
+      lsp_server = "efm",
+      ts = "fish",
     },
     help = {
       ft = "help",
       ts = "vimdoc",
     },
     html = {
-      formatters = { "prettier" },
+      formatters = { "prettier", "prettierd" },
       ft = "html",
       lsp_server = "efm",
       ts = "html",
     },
     javascript = {
-      formatters = { "prettier" },
+      formatters = { "prettier", "prettierd" },
       ft = { "javascript", "javscriptreact", "jsx" },
       lsp_server = { "efm", "tsserver" },
       ts = "javascript",
     },
     json = {
-      formatters = { "prettier" },
+      formatters = { "prettier", "prettierd" },
       ft = { "json", "jsonc" },
       lsp_server = "jsonls",
       ts = {
@@ -61,15 +61,15 @@ local M = {
       },
     },
     typescript = {
-      formatters = { "prettier" },
+      formatters = { "prettier", "prettierd" },
       ft = { "typescript", "typescriptreact", "typescript.tsx" },
       lsp_server = { "efm", "tsserver" },
-      ts = {"typescript", "tsx"},
+      ts = { "typescript", "tsx" },
     },
     sh = {
       formatters = { "shfmt" },
       ft = "sh",
-      lsp_server = {"bashls", 'efm'},
+      lsp_server = { "bashls", "efm" },
     },
     lua = {
       formatters = { "stylua" },
@@ -80,7 +80,7 @@ local M = {
     ruby = {
       formatters = { "standardrb", "rubocop" },
       ft = "ruby",
-      lsp_server = {"solargraph", "sorbet", "ruby_ls"},
+      lsp_server = { "solargraph", "sorbet", "ruby_ls" },
       ts = "ruby",
     },
     rust = {
@@ -122,7 +122,7 @@ local M = {
       ts = "yaml",
     },
     vue = {
-      formatters = { "prettier" },
+      formatters = { "prettier", "prettierd" },
       ft = "vue",
       lsp_server = { "efm" },
       ts = "vue",

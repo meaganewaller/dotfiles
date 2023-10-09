@@ -1,4 +1,21 @@
 return {
+  "folke/neodev.nvim",
+  { "ray-x/lsp_signature.nvim" },
+  {
+    "Maan2003/lsp_lines.nvim",
+    keys = {
+      { "<Leader>ll", "<cmd>LspLinesToggle<CR>", desc = "Toggle LSP lines plugin" },
+    },
+    event = "LspAttach",
+    config = function()
+      require("lsp_lines").setup()
+      vim.api.nvim_create_user_command(
+      "LspLinesToggle",
+      require("lsp_lines").toggle,
+      { desc = "Toggle lsp_lines.nvim plugin" }
+      )
+    end
+  },
   {
     "neovim/nvim-lspconfig",
     event = "VeryLazy",
@@ -14,7 +31,7 @@ return {
 
   {
     "stevearc/conform.nvim",
-    event = "VeryLazy",
+    event = { "BufReadPost", "BufNewFile" },
     config = function() require("configs.conform") end,
   },
 

@@ -113,7 +113,7 @@ return {
   },
   {
     "lewis6991/gitsigns.nvim",
-    event = "BufReadPre",
+    event = "VeryLazy",
     dependencies = "plenary.nvim",
     keys = {
       { "]g", "<Cmd>Gitsigns next_hunk<CR>", desc = "git: Next hunk" },
@@ -206,6 +206,7 @@ return {
   },
   {
     "akinsho/git-conflict.nvim",
+    lazy = false,
     event = "BufReadPre",
     config = function() require("configs.git-conflict") end,
   },
@@ -244,11 +245,6 @@ return {
         { expr = true, desc = "Codeium: Accept current completion" }
       )
     end,
-  },
-  {
-    "linty-org/key-menu.nvim",
-    event = "VeryLazy",
-    config = function() require("configs.key-menu") end,
   },
   {
     "toppair/reach.nvim",
@@ -293,7 +289,6 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim", -- required
       "nvim-telescope/telescope.nvim", -- optional
-      "sindrets/diffview.nvim", -- optional
       "ibhagwan/fzf-lua", -- optional
     },
     config = true,

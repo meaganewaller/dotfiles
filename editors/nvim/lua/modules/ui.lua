@@ -70,11 +70,6 @@ return {
     config = function() require("configs.pqf") end,
   },
   {
-    "linty-org/key-menu.nvim",
-    event = "VeryLazy",
-    config = function() require("configs.key-menu") end,
-  },
-  {
     "princejoogie/chafa.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -92,5 +87,20 @@ return {
       })
       codewindow.apply_default_keybinds()
     end,
-  }
+  },
+
+  {
+    "lcheylus/overlength.nvim",
+    ft = { "norg", "markdown" },
+    config = function()
+      require("overlength").setup()
+
+      -- Set custom hl for OverLength
+      vim.api.nvim_set_hl(0, "OverLength", { bg = "#ff6c6b", fg = "#5b6268" })
+    end,
+  },
+  {
+    "shortcuts/no-neck-pain.nvim",
+    cmd = { "NoNeckPain", "NoNeckPainResize", "NoNeckPainWidthUp", "NoNeckPainWidthDown" },
+  },
 }
