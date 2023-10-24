@@ -1,5 +1,2 @@
----
 - link:
-    ~/.config/yabai:
-      glob: true
-      path: gui/yabai
+    ~/.config/yabai/yabairc: gui/yabai/yabairc
