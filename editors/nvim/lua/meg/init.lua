@@ -94,6 +94,7 @@ local modules = {
   { "WhoIsSethDaniel/toggle-lsp-diagnostics.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-toggle" },
   "b0o/SchemaStore.nvim",
   { "RRethy/vim-illuminate", dependencies = "nvim-treesitter/nvim-treesitter" },
+  { "smjonas/inc-rename.nvim", branch = "main", config = "plugins.inc-rename" },
   -- Mason
   { "williamboman/mason.nvim", config = "lsp.plugins.mason" },
   -- stylua: ignore
@@ -166,9 +167,15 @@ local modules = {
   { "tpope/vim-surround", event = "VeryLazy" },
   "mg979/vim-visual-multi", -- needs to be loaded outside of lazy.nvim for its global variable config values to work
   { "folke/which-key.nvim", lazy = true, config = "plugins.which-key" },
+  { "smjonas/live-command.nvim", lazy = true, config = "plugins.live-command" },
+  { "tamton-aquib/zone.nvim", lazy = true, config = "plugins.zone" },
+  { "samodostal/image.nvim", lazy = true, config = true },
 
   "dracula/vim",
   "folke/tokyonight.nvim",
+  "olivercederborg/poimandres.nvim",
+  { "spaceduck-theme/nvim", as = "spaceduck" },
+  { "daschw/leaf.nvim" },
 }
 
 -- { == Transform to LazySpec Table ==> =======================================

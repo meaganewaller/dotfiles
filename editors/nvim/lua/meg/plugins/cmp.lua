@@ -5,6 +5,16 @@ require("luasnip.loaders.from_vscode").lazy_load()
 
 -- { == Configuration ==> ====================================================
 
+local function has_words_before()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
+
+require("luasnip.loaders.from_vscode").lazy_load()
+
 local cmp_kinds = {
   Text = "",
   Method = "",
@@ -34,24 +44,95 @@ local cmp_kinds = {
 }
 
 local config = {
+  window = {
+    completion = {
+      border = nx.opts.float_win_border,
+      winhighlight = "Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpCursorLine",
+      side_padding = 1,
+    },
+    documentation = {
+      border = nx.opts.float_win_border,
+      winhighlight = "Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpCursorLine",
+    },
+  },
   snippet = {
     expand = function(args) require("luasnip").lsp_expand(args.body) end,
   },
-  sources = {
+  sources = cmp.config.sources({
     { name = "nvim_lsp" },
-    { name = "nvim_lua" },
     { name = "luasnip" },
+  }, {
     { name = "buffer" },
-    { name = "cmp_tabnine" },
     { name = "path" },
-    { name = "nerdfont" },
-    -- { name = "copilot" },
-    -- { name = "emoji" },
+    { name = "nvim_lsp_signature_help" },
+  }),
+}
+
+-- <== }
+
+-- { == Keymaps ==> ==========================================================
+
+config.mapping = {
+  ["<C-u>"] = cmp.mapping.scroll_docs(-4),
+  ["<C-d>"] = cmp.mapping.scroll_docs(4),
+  ["<C-f>"] = cmp.mapping.scroll_docs(10),
+  ["<C-b>"] = cmp.mapping.scroll_docs(-10),
+  ["<C-Space>"] = cmp.mapping.complete(),
+  ["<C-e>"] = cmp.mapping.close(),
+  ["<CR>"] = cmp.mapping.confirm({ select = true }),
+  ["<C-n>"] = cmp.mapping(function(fallback)
+    if cmp.visible() then
+      cmp.select_next_item()
+    elseif has_words_before() then
+      cmp.complete()
+    else
+      fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+    end
+  end, { "i", "s" }),
+
+  ["<Tab>"] = cmp.mapping(function(fallback)
+    if cmp.visible() then
+      cmp.select_next_item()
+    elseif has_words_before() then
+      cmp.complete()
+    else
+      fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+    end
+  end, { "i", "s" }),
+
+  ["<S-Tab>"] = cmp.mapping(function()
+    if cmp.visible() then cmp.select_prev_item() end
+  end, { "i", "s" }),
+
+  ["<C-p>"] = cmp.mapping(function()
+    if cmp.visible() then cmp.select_prev_item() end
+  end, { "i", "s" }),
+}
+
+-- <== }
+
+cmp.setup(config)
+cmp.setup.filetype("gitcommit", {
+  sources = cmp.config.sources({
+    { name = "git" },
+  }, {
+    { name = "buffer" },
+  }),
+})
+
+cmp.setup.cmdline("/", {
+  sources = {
+    { name = "buffer" },
   },
-  confirm_opts = {
-    behavior = cmp.ConfirmBehavior.Replace,
-    select = false,
+})
+
+cmp.setup.cmdline("?", {
+  sources = {
+    { name = "buffer" },
   },
+})
+
+cmp.setup({
   formatting = {
     fields = { "kind", "abbr", "menu" },
     format = function(entry, item)
@@ -66,84 +147,4 @@ local config = {
       return item
     end,
   },
-  window = {
-    completion = {
-      border = nx.opts.float_win_border,
-      scrollbar = "║",
-      winhighlight = "Normal:Normal", -- transparent bg
-    },
-    documentation = {
-      border = nx.opts.float_win_border,
-      scrollbar = "║",
-      winhighlight = "Normal:Normal",
-    },
-  },
-  experimental = {
-    ghost_text = false,
-    -- native_menu = false,
-  },
-  mapping = {},
-}
--- <== }
-
--- { == Keymaps ==> ==========================================================
-
-config.mapping = {
-  -- Navigation completion suggestion
-  -- ["<C-n>"] = cmp.mapping.select_next_item(), -- use for snippet navigation
-  -- ["<C-p>"] = cmp.mapping.select_prev_item(), -- use for snippet navigation
-  ["<C-j>"] = cmp.mapping.select_next_item(),
-  ["<C-k>"] = cmp.mapping.select_prev_item(),
-  ["<Down>"] = cmp.mapping.select_next_item(),
-  ["<Up>"] = cmp.mapping.select_prev_item(),
-
-  -- Misc
-  ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-  ["<C-f>"] = cmp.mapping.scroll_docs(4),
-  ["<C-e>"] = cmp.mapping.close(),
-
-  -- Invoke completion manually
-  ["<C-Space>"] = cmp.mapping.complete(),
-
-  -- Confrim completion
-  ["<C-l>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }),
-  ["<CR>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = false }),
-  -- ["<Tab>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }),
-  -- Use tab for codeium and it should fall back to cmp when it's inactive
-  ["<Tab>"] = cmp.mapping(function(fallback)
-    if cmp.visible() and vim.g.codeium_enabled ~= 1 then
-      cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true })
-    else
-      fallback()
-    end
-  end, { "i", "s" }),
-
-  -- Use tab to cycles through completion suggestions
-  --[[ ["<Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif require("luasnip").expand_or_jumpable() then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true), "")
-      else
-        fallback()
-      end
-    end, {
-      "i",
-      "s",
-    }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif require("luasnip").jumpable(-1) then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
-      else
-        fallback()
-      end
-    end, {
-      "i",
-      "s",
-    }), ]]
-}
--- <== }
-
-cmp.setup(config)
+})
