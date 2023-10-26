@@ -136,11 +136,9 @@ cmp.setup({
   formatting = {
     fields = { "kind", "abbr", "menu" },
     format = function(entry, item)
-      if entry.source.name == "cmp_tabnine" then item.kind = "Tabnine" end
       item.menu = item.kind
 
       local icon = cmp_kinds[item.kind]
-      if entry.source.name == "cmp_tabnine" then icon = "" end -- "󰛡" "⌬" "󰋙"
       if entry.source.name == "copilot" then icon = "" end
       item.kind = icon
 

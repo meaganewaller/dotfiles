@@ -48,9 +48,7 @@ M.auto_maximize, M.auto_width = false, false
 ---Switch windows back and forth to trigger resize
 local function pseudo_switch()
   vim.schedule(
-  function()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>w<C-w><C-p>", true, false, true), "n", false)
-  end
+    function() vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>w<C-w><C-p>", true, false, true), "n", false) end
   )
 end
 
@@ -134,12 +132,12 @@ nx.au({
         if timer then
           timer:stop()
           timer:start(
-          250,
-          0,
-          vim.schedule_wrap(function()
-            vim.cmd("WindowsEnableAutowidth")
-            pseudo_switch()
-          end)
+            250,
+            0,
+            vim.schedule_wrap(function()
+              vim.cmd("WindowsEnableAutowidth")
+              pseudo_switch()
+            end)
           )
         end
       elseif M.auto_maximize then
