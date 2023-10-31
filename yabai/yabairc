@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #  ┬ ┬┌─┐┌┐ ┌─┐┬
 #  └┬┘├─┤├┴┐├─┤│
 #   ┴ ┴ ┴└─┘┴ ┴┴
@@ -7,17 +7,18 @@
 # Dotfiles Repo: github.com/meaganewaller/dots
 # Last edited: July 01, 2023
 
-yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
+# shellcheck source=/dev/null
 source "${HOME}"/.config/yabai/scripts/helper
 
-# Signal Hooks
-yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
-yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
-yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
-yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
-yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
+# # Signal Hooks
+# yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
+# yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
+# yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
+# yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
+# yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
 
 BAR_HEIGHT=$(sketchybar -m --query bar | jq -r '.height')
 create_spaces 9
@@ -175,7 +176,7 @@ CENTERED=(
 )
 
 for ((i = 1; i <= "${#CENTERED[@]}"; i++)); do
-	yabai -m rule --add label="centered_${CENTERD[(($i - 1))]}" app="^${CENTERED[(($i - 1))]}.*$" sticky=on grid=4:4:1:0:2:4
+	yabai -m rule --add label="centered_${CENTERED[(($i - 1))]}" app="^${CENTERED[(($i - 1))]}.*$" sticky=on grid=4:4:1:0:2:4
 done
 
 
@@ -213,10 +214,22 @@ for ((i = 1; i <= "${#DOC[@]}"; i++)); do
 done
 
 TOOL=(
-  Beekeeper Studio Ultimate
   Postman
   Postico
 )
 for ((i = 1; i <= "${#TOOL[@]}"; i++)); do
 	yabai -m rule --add label="tool_${TOOL[(($i - 1))]}" app="^${TOOL[(($i - 1))]}.*$" space=tool
 done
+
+yabai -m signal --add event=display_added action="sleep 1 && $HOME/.config/yabai/scripts/create_spaces.sh"
+yabai -m signal --add event=display_removed action="sleep 1 && $HOME/.config/yabai/scripts/create_spaces.sh"
+yabai -m signal --add event=space_changed action='~/.config/yabai/scripts/space_changed.sh'
+yabai -m signal --add event=window_created action='~/.config/yabai/scripts/wnd_created.sh'
+yabai -m signal --add event=window_destroyed action="~/.config/yabai/scripts/wnd_destroyed.sh"
+yabai -m signal --add event=window_focused action="~/.config/yabai/scripts/wnd_focused.sh"
+yabai -m signal --add event=application_launched action='~/.config/yabai/scripts/app_launched.sh'
+yabai -m signal --add event=application_visible action='~/.config/yabai/scripts/app_visible.sh'
+
+echo "yabai configuration loaded.."
+
+brew services restart sketchybar
