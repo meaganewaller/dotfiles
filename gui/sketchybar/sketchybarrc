@@ -1,21 +1,28 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
-# Last Updated: 2023-08-01
+# Last Updated: 2023-10-31
 
 export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
 
+
+# shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/colors.sh"
+# shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/icons.sh"
+# shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/vars.sh"
+# shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/helper/helper.sh"
 
 export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
 export EVENT_DIR="$HOME/.config/sketchybar/events"
-export DISPLAY_COUNT="$(yabai -m query --displays | jq -r 'length')"
+displays=$(yabai -m query --displays)
+displays_length=$(echo "$displays" | jq -r 'length')
+export DISPLAY_COUNT=$displays_length
 
 # Unload the macOS on screen indicator overlay for volume change
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
@@ -122,28 +129,32 @@ sketchybar --add item label_template left \
   --add item sep_template left \
   --set sep_template "${sep_template[@]}"
 
+. "$HOME"/.config/sketchybar/scripts/create_bars.sh
+
 ############## BAR SETUP ###############
 # Hidden by default
 # source "$ITEM_DIR/lock.sh"
 
 # Left
-source "$ITEM_DIR/apple.sh"
+# source "$ITEM_DIR/apple.sh"
 source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/window_manager.sh"
-# source "$ITEM_DIR/front_app.sh"
-
-# Center
-source "$ITEM_DIR/music.sh"
-
-# Right
-source "$ITEM_DIR/calendar.sh"
-source "$ITEM_DIR/control_center.sh"
-# source "$ITEM_DIR/package.sh"
-# source "$ITEM_DIR/cpu.sh"
+# source "$ITEM_DIR/yabai.sh"
+# # source "$ITEM_DIR/front_app.sh"
+#
+# # Center
+# source "$ITEM_DIR/music.sh"
+#
+# # Right
+# source "$ITEM_DIR/calendar.sh"
 # source "$ITEM_DIR/control_center.sh"
-# source "$ITEM_DIR/meeting.sh"
+# # source "$ITEM_DIR/package.sh"
+# # source "$ITEM_DIR/cpu.sh"
+# # source "$ITEM_DIR/control_center.sh"
+# # source "$ITEM_DIR/meeting.sh"
+# shellcheck disable=SC1091
 source "$ITEM_DIR/theme.sh"
 ###################### FINALIZE ###################
+sketchybar --hotload on
 sketchybar -m --update
 
 echo "sketchybar configuration loaded.."

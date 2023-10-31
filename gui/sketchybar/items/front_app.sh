@@ -30,12 +30,9 @@ separator=(
 
 sketchybar --add event window_title_changed  \
            --add event window_focused        \
+           --add event windows_on_spaces     \
            --add item front_app left         \
            --set front_app "${front_app[@]}" \
            --subscribe front_app front_app_switched \
-                                 window_title_changed \
-                                 window_focused \
-           --add bracket front_app_bracket front_app \
-           --set front_app_bracket "${front_app_bracket[@]}" \
            --add item separator left \
            --set separator "${separator[@]}"

@@ -3,31 +3,31 @@
 toggle_layout() {
   LAYOUT=$(yabai -m query --spaces --space | jq .type)
 
-    if [[ $LAYOUT =~ "bsp" ]]; then
-      yabai -m space --layout stack
-        elif [[ $LAYOUT =~ "stack" ]]; then
-        yabai -m space --layout float
-        elif [[ $LAYOUT =~ "float" ]]; then
-        yabai -m space --layout bsp
-        fi
+  if [[ "$LAYOUT" =~ "bsp" ]]; then
+    yabai -m space --layout stack
+  elif [[ "$LAYOUT" =~ "stack" ]]; then
+    yabai -m space --layout float
+  elif [[ "$LAYOUT" =~ "float" ]]; then
+    yabai -m space --layout bsp
+  fi
 }
 
 opacity_up() {
-	OPACITY=$(yabai -m query --windows --window | jq .opacity)
-	if [[ "$OPACITY" -eq 1.0 ]]; then
-		yabai -m window --opacity 0.1
-	else
-		OPACITY=$(echo "$OPACITY" + 0.1 | bc)
-		yabai -m window --opacity "$OPACITY"
-	fi
+  OPACITY=$(yabai -m query --windows --window | jq .opacity)
+  if [[ "$OPACITY" = "1.0" ]]; then
+    yabai -m window --opacity 0.1
+  else
+    OPACITY=$(echo "$OPACITY + 0.1" | bc)
+    yabai -m window --opacity "$OPACITY"
+  fi
 }
 
 opacity_down() {
 	OPACITY=$(yabai -m query --windows --window | jq .opacity)
-	if [[ "$OPACITY" -eq 0.1 ]]; then
+	if [[ "$OPACITY" = "0.1" ]]; then
 		yabai -m window --opacity 1.0
 	else
-		OPACITY=$(echo "$OPACITY" - 0.1 | bc)
+		OPACITY=$(echo "$OPACITY - 0.1" | bc)
 		yabai -m window --opacity "$OPACITY"
 	fi
 }
@@ -60,32 +60,38 @@ toggle_border() {
 
 increase_gaps() {
 	GAP=$(yabai -m config window_gap)
-	yabai -m config window_gap $(echo "$GAP" + 1 | bc)
+  GAP=$(echo "$GAP + 1" | bc)
+  yabai -m config window_gap "$GAP"
 }
 
 decrease_gaps() {
 	GAP=$(yabai -m config window_gap)
-	yabai -m config window_gap $(echo "$GAP" - 1 | bc)
+  GAP=$(echo "$GAP - 1" | bc)
+	yabai -m config window_gap "$GAP"
 }
 
 increase_padding_top() {
 	PADDING=$(yabai -m config top_padding)
-	yabai -m config top_padding $(echo "$PADDING" + 1 | bc)
+  PADDING=$(echo "$PADDING + 1" | bc)
+  yabai -m config top_padding "$PADDING"
 }
 
 increase_padding_bottom() {
 	PADDING=$(yabai -m config bottom_padding)
-	yabai -m config bottom_padding $(echo "$PADDING" + 1 | bc)
+  PADDING=$(echo "$PADDING + 1" | bc)
+  yabai -m config bottom_padding "$PADDING"
 }
 
 increase_padding_left() {
 	PADDING=$(yabai -m config left_padding)
-	yabai -m config left_padding $(echo "$PADDING" + 1 | bc)
+  PADDING=$(echo "$PADDING + 1" | bc)
+  yabai -m config left_padding "$PADDING"
 }
 
 increase_padding_right() {
 	PADDING=$(yabai -m config right_padding)
-	yabai -m config right_padding $(echo "$PADDING" + 1 | bc)
+  PADDING=$(echo "$PADDING + 1" | bc)
+  yabai -m config right_padding "$PADDING"
 }
 
 increase_padding_all() {
@@ -95,31 +101,41 @@ increase_padding_all() {
 	PADDING_RIGHT=$(yabai -m config right_padding)
 	WINDOW_GAP=$(yabai -m config window_gap)
 
-	yabai -m config top_padding $(echo "$PADDING"_TOP + 10 | bc)
-	yabai -m config bottom_padding $(echo "$PADDING"_BOTTOM + 10 | bc)
-	yabai -m config left_padding $(echo "$PADDING"_LEFT + 10 | bc)
-	yabai -m config right_padding $(echo "$PADDING"_RIGHT + 10 | bc)
-	yabai -m config window_gap $(echo "$window"_GAP + 10 | bc)
+  PADDING_TOP=$(echo "$PADDING"_TOP + 1 | BC)
+  PADDING_BOTTOM=$(echo "$PADDING"_BOTTOM + 1 | BC)
+  PADDING_LEFT=$(echo "$PADDING"_LEFT + 1 | BC)
+  PADDING_RIGHT=$(echo "$PADDING"_RIGHT + 1 | BC)
+  WINDOW_GAP=$(echo "$window"_GAP + 1 | BC)
+
+  yabai -m config top_padding "$PADDING_TOP"
+  yabai -m config bottom_padding "$PADDING_BOTTOM"
+  yabai -m config left_padding "$PADDING_LEFT"
+  yabai -m config right_padding "$PADDING_RIGHT"
+  yabai -m config window_gap "$WINDOW_GAP"
 }
 
 decrease_padding_top() {
 	PADDING=$(yabai -m config top_padding)
-	yabai -m config top_padding $(echo "$PADDING" - 1 | bc)
+  PADDING=$(echo "$PADDING" - 1 | bc)
+  yabai -m config top_padding "$PADDING"
 }
 
 decrease_padding_bottom() {
 	PADDING=$(yabai -m config bottom_padding)
-	yabai -m config bottom_padding $(echo "$PADDING" - 1 | bc)
+  PADDING=$(echo "$PADDING" - 1 | bc)
+  yabai -m config bottom_padding "$PADDING"
 }
 
 decrease_padding_left() {
 	PADDING=$(yabai -m config left_padding)
-	yabai -m config left_padding $(echo "$PADDING" - 1 | bc)
+  PADDING=$(echo "$PADDING" - 1 | bc)
+  yabai -m config left_padding "$PADDING"
 }
 
 decrease_padding_right() {
 	PADDING=$(yabai -m config right_padding)
-	yabai -m config right_padding $(echo "$PADDING" - 1 | bc)
+  PADDING=$(echo "$PADDING" - 1 | BC)
+  yabai -m config right_padding "$PADDING"
 }
 
 decrease_padding_all() {
@@ -129,16 +145,21 @@ decrease_padding_all() {
 	PADDING_RIGHT=$(yabai -m config right_padding)
 	WINDOW_GAP=$(yabai -m config window_gap)
 
-	yabai -m config top_padding $(echo "$PADDING"_TOP - 10 | bc)
-	yabai -m config bottom_padding $(echo "$PADDING"_BOTTOM - 10 | bc)
-	yabai -m config left_padding $(echo "$PADDING"_LEFT - 10 | bc)
-	yabai -m config right_padding $(echo "$PADDING"_RIGHT - 10 | bc)
-	yabai -m config window_gap $(echo "$window"_GAP - 10 | bc)
+  PADDING_TOP=$(echo "$PADDING"_TOP - 1 | BC)
+  PADDING_BOTTOM=$(echo "$PADDING"_BOTTOM - 1 | BC)
+  PADDING_LEFT=$(echo "$PADDING"_LEFT - 1 | BC)
+  PADDING_RIGHT=$(echo "$PADDING"_RIGHT - 1 | BC)
+  WINDOW_GAP=$(echo "$window"_GAP - 1 | BC)
+
+  yabai -m config top_padding "$PADDING_TOP"
+  yabai -m config bottom_padding "$PADDING_BOTTOM"
+  yabai -m config left_padding "$PADDING_LEFT"
+  yabai -m config right_padding "$PADDING_RIGHT"
+  yabai -m config window_gap "$WINDOW_GAP"
 }
 
 new_window() {
 	APP_TO_OPEN="$1"
-	CURRENT_APP=$(yabai -m query --windows --window | jq -r '.app')
 
 	click_menu_bar() {
 		osascript -e 'tell application "System Events"' \
@@ -168,9 +189,6 @@ new_window() {
 
 	if [[ $APP_TO_OPEN = "Code" ]]; then
 		click_menu_bar 1
-	elif [[ $APP_TO_OPEN = "Firefox" ]]; then
-		# HACK: Yabai fails to allow firefox window to open running from command line works though
-		/Applications/Firefox.app/Contents/MacOS/firefox-bin --new-window
 	else
 		click_menu_bar 0
 	fi
@@ -183,11 +201,11 @@ create_spaces() {
 
 	if [[ $1 == "a" ]]; then
 		yabai -m space --create
-		yabai -m space last --label $2
+		yabai -m space last --label "$2"
 		if [ -n "$YABAI_WINDOW_ID" ]; then
-			yabai -m window $YABAI_WINDOW_ID --space $2
+			yabai -m window "$YABAI_WINDOW_ID" --space "$2"
 		fi
-		yabai -m space --focus $2
+		yabai -m space --focus "$2"
 		# set_wallpaper "$HOME/.local/share/wallpapers/catppuccin/$(/bin/ls ~/.local/share/wallpapers/catppuccin | shuf -n 1)"
 		return 0
 	fi
@@ -195,15 +213,13 @@ create_spaces() {
 	if [[ "$CURRENT_SPACES" -ge "$NEEDED_SPACES" ]]; then
 		return
 	fi
-	SPACES_TO_CREATE=$(($NEEDED_SPACES - $CURRENT_SPACES))
 
 	for i in $(seq $((1 + CURRENT_SPACES)) "$NEEDED_SPACES"); do
-		echo $i
+		echo "$i"
 		yabai -m space --create
-		yabai -m space --focus $i
-		# set_wallpaper "$HOME/.local/share/wallpapers/catppuccin/$(/bin/ls ~/.local/share/wallpapers/catppuccin | shuf -n 1)"
+		yabai -m space --focus "$i"
 	done
-	yabai -m space $CURRENT_SPACE --focus
+	yabai -m space "$CURRENT_SPACE" --focus
 
 }
 
@@ -244,8 +260,8 @@ get_pixel_color() {
 	# Color R G or B will be 1 digit less than the actual.
 
 	COLOR=$(
-		screencapture -R $X,$Y,1,1 -t bmp $TMPDIR/pixel_color.bmp
-		xxd -p -l 3 -s 54 $TMPDIR/pixel_color.bmp |
+		screencapture -R "$X","$Y",1,1 -t bmp "$TMPDIR"/pixel_color.bmp
+		xxd -p -l 3 -s 54 "$TMPDIR"/pixel_color.bmp |
 			sed 's/\(..\)\(..\)\(..\)/\3\2\1/'
 	)
 
@@ -258,10 +274,9 @@ get_pixel_color() {
     on run argv
       display notification "#" & item 1 of argv
     end run
-  ' $COLOR
+  ' "$COLOR"
 
-	/opt/homebrew/bin/skhd -k 'escape'
-
+  /usr/local/bin/skhd -k 'escape'
 }
 
 cycle_windows() {
@@ -279,24 +294,25 @@ cycle_windows() {
     | map( $first.id, .id )
     | .[]' |
 		tail -n +3 |
-		xargs -n2 sh -c 'echo $1 $2; yabai -m window $1 --swap $2' sh
+		xargs -n2 sh -c "echo $1 $2; yabai -m window $1 --swap $2" sh
 }
 
 float_reset() {
-	ids=($(yabai -m query --windows --space | jq -re '.[].id'))
+  mapfile -t ids < <(yabai -m query --windows --space | jq -re '.[].id')
 
-	for window in $ids; do
+	for window in "${ids[@]}"; do
 		top=$(yabai -m query --windows --window "$window" | jq -re '."is-topmost"')
 		floating=$(yabai -m query --windows --window "$window" | jq -re '."is-floating"')
 
-		if $top; then
-			if $floating; then
+		if [[ $top == true ]]; then
+			if [[ $floating == true ]]; then
 				continue
 			fi
 			yabai -m window "$window" --toggle topmost
 		fi
 	done
 }
+
 
 float_signal() {
 	QUERY=$(yabai -m query --windows --window "$1" | jq -re '."is-topmost",."is-floating"')

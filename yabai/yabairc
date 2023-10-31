@@ -5,7 +5,7 @@
 # Author: Meagan Waller
 # Github: github.com/meaganwaller
 # Dotfiles Repo: github.com/meaganewaller/dots
-# Last edited: July 01, 2023
+# Last edited: October 31, 2023
 
 sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
@@ -13,12 +13,8 @@ yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 # shellcheck source=/dev/null
 source "${HOME}"/.config/yabai/scripts/helper
 
-# # Signal Hooks
-# yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
-# yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
-# yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
-# yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
-# yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
+# source "${HOME}"/.config/yabai/scripts/helper
+"${HOME}"/.config/yabai/scripts/create_spaces.sh
 
 BAR_HEIGHT=$(sketchybar -m --query bar | jq -r '.height')
 create_spaces 9
