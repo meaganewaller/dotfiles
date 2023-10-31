@@ -176,6 +176,7 @@ local modules = {
   "olivercederborg/poimandres.nvim",
   { "spaceduck-theme/nvim", as = "spaceduck" },
   { "daschw/leaf.nvim" },
+  { "slim-template/vim-slim", event = "FileType", ft = "slim" },
 }
 
 -- { == Transform to LazySpec Table ==> =======================================
