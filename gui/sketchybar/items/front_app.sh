@@ -1,38 +1,35 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-source "$HOME/.config/sketchybar/vars.sh"
+FRONT_APP_SCRIPT='sketchybar --set $NAME label="$INFO"'
+
+yabai=(
+  associated_display=active
+  icon.color="$GOLD"
+  icon.font="$DEFAULT_ICON_FONT"
+  icon.width=30
+  icon="$YABAI_GRID"
+  label.drawing=off
+  script="$PLUGIN_DIR/yabai.sh"
+  updates=on
+)
 
 front_app=(
-  icon.drawing=on
-  icon.padding_left=10
-  icon.font="$DEFAULT_LABEL_FONT"
-  label.font="$DEFAULT_ICON_FONT"
-  icon.align="center"
-  script="$PLUGIN_DIR/front_app.sh"
   associated_display=active
+  icon.drawing=off
+  padding_left=0
+  label.color="$GOLD"
+  label.font="$DEFAULT_LABEL_FONT"
+  script="$FRONT_APP_SCRIPT"
 )
 
-front_app_bracket=(
-  background.corner_radius=5
-  background.height=25
-  associated_display=active
-)
-
-separator=(
-  icon=􀆊
-  icon.font="$ICON_FONT:SemiBold:16.0"
-  padding_left=$PADDINGS
-  padding_right=$PADDINGS
-  label.drawing=off
-  associated_display=active
-  click_script='yabai -m space --create && sketchybar --trigger space_change'
-)
-
-sketchybar --add event window_title_changed  \
-           --add event window_focused        \
-           --add event windows_on_spaces     \
-           --add item front_app left         \
-           --set front_app "${front_app[@]}" \
-           --subscribe front_app front_app_switched \
-           --add item separator left \
-           --set separator "${separator[@]}"
+sketchybar --add event window_focus            \
+           --add event windows_on_spaces       \
+           --add item yabai left               \
+           --set yabai "${yabai[@]}"           \
+           --subscribe yabai window_focus      \
+                             windows_on_spaces \
+                             mouse.clicked     \
+                                               \
+           --add item front_app left           \
+           --set front_app "${front_app[@]}"   \
+           --subscribe front_app front_app_switched

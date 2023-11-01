@@ -3,6 +3,7 @@
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
 # Last Updated: 2023-10-31
+#!/bin/bash
 
 export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
@@ -14,8 +15,6 @@ source "$HOME/.config/sketchybar/colors.sh"
 source "$HOME/.config/sketchybar/icons.sh"
 # shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/vars.sh"
-# shellcheck disable=SC1091
-source "$HOME/.config/sketchybar/helper/helper.sh"
 
 export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
@@ -24,65 +23,51 @@ displays=$(yabai -m query --displays)
 displays_length=$(echo "$displays" | jq -r 'length')
 export DISPLAY_COUNT=$displays_length
 
-# Unload the macOS on screen indicator overlay for volume change
-launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
+launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist > /dev/null 2>&1 &
 
-bar_config=(
-  position=top
+bar=(
+  blur_radius=20
+  border_width=1
+  corner_radius=25
+  display=all
+  font_smoothing=false
   height=35
   margin=10
-  y_offset=10
-  corner_radius=25
-  border_width=1
-  blur_radius=20
+  notch_offset=0
+  notch_width=0
   padding_left=10
   padding_right=10
-  notch_width=0
-  notch_offset=0
-  display=all
-  hidden=off
-  topmost=off
-  sticky=off
-  font_smoothing=false
+  position=top
   shadow.drawing="$SHADOW"
+  shadow=off
+  sticky=off
+  topmost=off
+  y_offset=10
 )
 
 icon_defaults=(
+  icon.align="center"
+  icon.background.drawing=off
+  icon.background.height="$SEGMENT_HEIGHT"
   icon.drawing=on
+  icon.font="$ICON_FONT:Bold:15.0"
   icon.highlight=off
   icon.padding_left="$PADDINGS"
   icon.padding_right="$PADDINGS"
-  icon.y_offset=0
-  icon.font="$ICON_FONT:Bold:15.0"
-  icon.align="center"
   icon.shadow.drawing=off
-  icon.background.drawing=off
-  icon.background.height="$SEGMENT_HEIGHT"
-)
-
-label_defaults=(
-  label.drawing=on
-  label.highlight=off
-  label.padding_right="$PADDINGS"
-  label.padding_left="$PADDINGS"
-  label.y_offset=0
-  label.font.family="$LABEL_FONT"
-  label.font.style="Regular"
-  label.font.size=13.0
-  label.align="left"
-  label.shadow.drawing=off
+  icon.y_offset=0
 )
 
 background_defaults=(
-  drawing=on
   background.border_width="$SEGMENT_BORDER_WIDTH"
-  background.height="$SEGMENT_HEIGHT"
+  background.clip=0.0
   background.corner_radius="$CORNER_RADIUS"
+  background.height="$SEGMENT_HEIGHT"
   background.padding_left="$PADDINGS"
   background.padding_right="$PADDINGS"
-  background.y_offset=0
-  background.clip=0.0
   background.shadow.drawing=off
+  background.y_offset=0
+  drawing=on
 )
 
 popup_defaults=(
@@ -96,15 +81,13 @@ popup_defaults=(
   popup.background.shadow.drawing="$SHADOW"
 )
 
-sketchybar --bar "${bar_config[@]}"
+sketchybar --bar "${bar[@]}"
 sketchybar --add event float_change
 
-# Setting up the general bar appearance and default values
 sketchybar --default \
   drawing=on \
   updates=when_shown \
   "${icon_defaults[@]}" \
-  "${label_defaults[@]}" \
   "${background_defaults[@]}" \
   "${popup_defaults[@]}"
 
@@ -128,8 +111,6 @@ sketchybar --add item label_template left \
   --set label_template "${label_template[@]}" \
   --add item sep_template left \
   --set sep_template "${sep_template[@]}"
-
-. "$HOME"/.config/sketchybar/scripts/create_bars.sh
 
 ############## BAR SETUP ###############
 # Hidden by default
@@ -156,7 +137,26 @@ source "$ITEM_DIR/theme.sh"
 ###################### FINALIZE ###################
 sketchybar --hotload on
 sketchybar -m --update
+=======
+# Left
+source "$ITEM_DIR/spaces.sh"
+source "$ITEM_DIR/yabai.sh"
+source "$ITEM_DIR/front_app.sh"
+#
+# # Center
+# source "$ITEM_DIR/spotify.sh"
+#
+# # Right
+# source "$ITEM_DIR/calendar.sh"
+# source "$ITEM_DIR/brew.sh"
+# source "$ITEM_DIR/github.sh"
+# source "$ITEM_DIR/battery.sh"
 
-echo "sketchybar configuration loaded.."
+source "$ITEM_DIR/theme.sh"
+>>>>>>> Stashed changes
 
-#exit 0
+# Forcing all item scripts to run (never do this outside of sketchybarrc)
+sketchybar --hotload on
+sketchybar --update
+
+echo "sketchybar configuation loaded.."
