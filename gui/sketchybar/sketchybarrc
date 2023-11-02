@@ -2,12 +2,11 @@
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
-# Last Updated: 2023-10-31
+# Last Updated: 2023-11-01
 #!/bin/bash
 
 export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 export ITEM_DIR="$HOME/.config/sketchybar/items"
-
 
 # shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/colors.sh"
@@ -16,12 +15,10 @@ source "$HOME/.config/sketchybar/icons.sh"
 # shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/vars.sh"
 
-export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
-export ITEM_DIR="$HOME/.config/sketchybar/items"
-export EVENT_DIR="$HOME/.config/sketchybar/events"
-displays=$(yabai -m query --displays)
-displays_length=$(echo "$displays" | jq -r 'length')
-export DISPLAY_COUNT=$displays_length
+# Setting up and starting the helper process
+HELPER=git.felix.helper
+killall helper
+$HOME/.config/sketchybar/helper/helper $HELPER > /dev/null 2>&1 &
 
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist > /dev/null 2>&1 &
 
@@ -58,6 +55,19 @@ icon_defaults=(
   icon.y_offset=0
 )
 
+label_defaults=(
+  label.drawing=on
+  label.highlight=off
+  label.padding_right="$PADDINGS"
+  label.padding_left="$PADDINGS"
+  label.y_offset=0
+  label.font.family="$LABEL_FONT"
+  label.font.style="Regular"
+  label.font.size=13.0
+  label.align="left"
+  label.shadow.drawing=off
+)
+
 background_defaults=(
   background.border_width="$SEGMENT_BORDER_WIDTH"
   background.clip=0.0
@@ -82,13 +92,13 @@ popup_defaults=(
 )
 
 sketchybar --bar "${bar[@]}"
-sketchybar --add event float_change
+# sketchybar --add event float_change
 
 sketchybar --default \
-  drawing=on \
   updates=when_shown \
   "${icon_defaults[@]}" \
   "${background_defaults[@]}" \
+  "${label_defaults[@]}" \
   "${popup_defaults[@]}"
 
 label_template=(
@@ -96,15 +106,13 @@ label_template=(
   label.font="$LABEL_FONT:Regular:12.0"
   label.padding_right=5
   label.background.height="$SEGMENT_HEIGHT"
-  click_script="$PLUGIN_DIR/toggle_bracket.sh"
   background.padding_left="$SEGMENT_SPACING"
   background.padding_right=0
-  drawing=off
 )
 
 sep_template=(
-  icon=" "
-  drawing=off
+  icon="🌸"
+  drawing=on
 )
 
 sketchybar --add item label_template left \
@@ -115,12 +123,15 @@ sketchybar --add item label_template left \
 ############## BAR SETUP ###############
 # Hidden by default
 # source "$ITEM_DIR/lock.sh"
-
 # Left
-# source "$ITEM_DIR/apple.sh"
+# shellcheck disable=SC1091
 source "$ITEM_DIR/spaces.sh"
+# shellcheck disable=SC1091
+source "$ITEM_DIR/front_app.sh"
+
+# source "$ITEM_DIR/apple.sh"
+# source "$ITEM_DIR/spaces.sh"
 # source "$ITEM_DIR/yabai.sh"
-# # source "$ITEM_DIR/front_app.sh"
 #
 # # Center
 # source "$ITEM_DIR/music.sh"
@@ -137,26 +148,4 @@ source "$ITEM_DIR/theme.sh"
 ###################### FINALIZE ###################
 sketchybar --hotload on
 sketchybar -m --update
-=======
-# Left
-source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/yabai.sh"
-source "$ITEM_DIR/front_app.sh"
-#
-# # Center
-# source "$ITEM_DIR/spotify.sh"
-#
-# # Right
-# source "$ITEM_DIR/calendar.sh"
-# source "$ITEM_DIR/brew.sh"
-# source "$ITEM_DIR/github.sh"
-# source "$ITEM_DIR/battery.sh"
-
-source "$ITEM_DIR/theme.sh"
->>>>>>> Stashed changes
-
-# Forcing all item scripts to run (never do this outside of sketchybarrc)
-sketchybar --hotload on
-sketchybar --update
-
 echo "sketchybar configuation loaded.."

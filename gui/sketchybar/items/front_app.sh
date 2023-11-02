@@ -10,13 +10,11 @@ yabai=(
   icon="$YABAI_GRID"
   label.drawing=off
   script="$PLUGIN_DIR/yabai.sh"
-  updates=on
 )
 
 front_app=(
   associated_display=active
   icon.drawing=off
-  padding_left=0
   label.color="$GOLD"
   label.font="$DEFAULT_LABEL_FONT"
   script="$FRONT_APP_SCRIPT"
