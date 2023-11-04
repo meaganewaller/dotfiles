@@ -1,6 +1,4 @@
+---
 - link:
-    ~/.config/skhd:
-        glob: true
-        path: wm/skhd/
-        exclude: [ wm/skhd/README.md ]
+    ~/.config/skhd: gui/skhd
 # vim: set filetype=yaml ts=4 sw=4 tw=0 et :
