@@ -38,9 +38,6 @@ export YABAI_PARENT_ZOOM=􀥃
 export YABAI_FLOAT=􀢌
 export YABAI_GRID=􀧍
 
-export WIFI_ON=
-export WIFI_OFF=󰖪
-
 # Music Icons
 export MUSIC_BACK=􀊎
 export MUSIC_PLAY_PAUSE=􀊈
@@ -49,9 +46,21 @@ export MUSIC_SHUFFLE=􀊝
 export MUSIC_REPEAT=􀊞
 
 # Battery Icons
-BATTERY_100="􀛨  "
-BATTERY_75="􀺸  "
-BATTERY_50="􀺶  "
-BATTERY_25="􀛩  "
-BATTERY_0="􀛪  "
-BATTERY_CHARGING="􀢋  "
+BATTERY_100=􀛨
+BATTERY_75=􀺸
+BATTERY_50=􀺶
+BATTERY_25=􀛩
+BATTERY_0=􀛪
+BATTERY_CHARGING=􀢋
+
+# Volume Icons
+VOLUME_100=􀊩
+VOLUME_66=􀊧
+VOLUME_33=􀊥
+VOLUME_10=􀊡
+VOLUME_0=􀊣
+
+# WiFi
+WIFI_CONNECTED=􀙇
+WIFI_DISCONNECTED=􀙈
+MAIL=􀈠

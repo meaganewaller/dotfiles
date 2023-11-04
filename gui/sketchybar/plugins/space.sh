@@ -1,28 +1,22 @@
 #!/usr/bin/env bash
 
-update() {
-  WIDTH="dynamic"
-  if [ "$SELECTED" = "true" ]; then
-    WIDTH="0"
-  fi
+source "$CONFIG_DIR/colors.sh"
 
-  sketchybar --animate tanh 20 --set $NAME \
-    icon.highlight="$SELECTED" \
-    label.width="$WIDTH"
-}
+args=()
+if [ "$NAME" != "space_template" ]; then
+  args+=(--set $NAME label=$NAME \
+    icon= \
+    icon.font="Hack Nerd Font:Regular:14.5" \
+    icon.color=$TRANSPARENT_WHITE
+      icon.y_offset=0
+    )
+fi
 
-mouse_clicked() {
-  if [ "$BUTTON" = "right" ]; then
-    yabai -m space --destroy $SID
-    sketchybar --trigger windows_on_spaces --trigger space_change
-  else
-    yabai -m space --focus $SID 2>/dev/null
-  fi
-}
+if [ "$SELECTED" = "true" ]; then
+  args+=(--set spaces_$DID.label label=${NAME#"spaces_$DID"})
+  args+=(--set $NAME icon=  icon.color=$ACCENT_COLOR icon.font="Hack Nerd Font:Regular:13.0" icon.y_offset=0)
+else
+  args+=(--set $NAME)
+fi
 
-case "$SENDER" in
-  "mouse.clicked") mouse_clicked
-  ;;
-  *) update
-  ;;
-esac
+sketchybar -m --animate tanh 20 "${args[@]}"
