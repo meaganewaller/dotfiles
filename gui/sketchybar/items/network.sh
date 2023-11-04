@@ -1,41 +1,29 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-sketchybar --clone     network.label      label_template                                \
-           --set       network.label      label=net                                     \
-                                          associated_space=1                            \
-                                          position=left                                 \
-                                          drawing=on                                    \
-                                                                                        \
-           --add       item               network.vpn left                              \
-           --set       network.vpn        update_freq=15                                \
-                                          associated_space=1                            \
-                                          icon.font="$ICON_FONT:Bold:16.0"                   \
-                                          script="$PLUGIN_DIR/vpn.sh"                   \
-                                                                                        \
-           --add       item               network.up left                               \
-           --set       network.up         label.font="$FONT:9"                    \
-                                          icon.font="$ICON_FONT:Bold:9"                     \
-                                          icon=􀅃                                        \
-                                          icon.highlight_color=0xff8b0a0d               \
-                                          width=0                                       \
-                                          y_offset=5                                    \
-                                          associated_space=1                            \
-                                          update_freq=2                                 \
-                                          script="$PLUGIN_DIR/network.sh"               \
-                                          lazy=on                                       \
-                                                                                        \
-           --add       item               network.down left                             \
-           --set       network.down       label.font="$FONT:9"                    \
-                                          icon.font="$ICON_FONT:Bold:9"                     \
-                                          icon=􀅄                                        \
-                                          icon.highlight_color=0xff10528c               \
-                                          y_offset=-5                                   \
-                                          associated_space=1                            \
-                                                                                        \
-           --add       bracket            network                                       \
-                                          network.label                                 \
-                                          network.vpn                                   \
-                                          network.up                                    \
-                                          network.down                                  \
-                                                                                        \
-           --set       network            background.drawing=on
+source "$CONFIG_DIR/icons.sh"
+
+wifi=(
+    script="$PLUGIN_DIR/wifi.sh"
+    icon=􀙇
+    icon.font="$FONT:Bold:13.0"
+    icon.padding_right=4
+    icon.padding_left=4
+    icon.y_offset=0
+)
+
+wifi_dot=(
+  icon=􀀁
+  icon.color=$TRANSPARENT_ACCENT
+  icon.font="$FONT:Black:6.0"
+  icon.padding_right=10
+  icon.padding_left=10
+  icon.y_offset=0
+)
+
+sketchybar --add item network right \
+           --set network "${wifi[@]}" \
+           --add item wificon right \
+           --set wificon "${wifi_icon[@]}" \
+
+sketchybar --add item wifi_dot right \
+           --set wifi_dot "${wifi_dot[@]}"

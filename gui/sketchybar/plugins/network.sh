@@ -1,21 +1,28 @@
-#!/usr/bin/env sh
-UPDOWN=$(ifstat -i "en0" -b 0.1 1 | tail -n1)
-DOWN=$(echo $UPDOWN | awk "{ print \$1 }" | cut -f1 -d ".")
-UP=$(echo $UPDOWN | awk "{ print \$2 }" | cut -f1 -d ".")
+#!/usr/bin/env bash
 
-DOWN_FORMAT=""
-if [ "$DOWN" -gt "999" ]; then
-  DOWN_FORMAT=$(echo $DOWN | awk '{ printf "%.0f Mbps", $1 / 1000}')
-else
-  DOWN_FORMAT=$(echo $DOWN | awk '{ printf "%.0f kbps", $1}')
-fi
+update() {
+  source "$HOME/.config/sketchybar/icons.sh"
+  INFO="$(/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -I | awk -F ' SSID: '  '/ SSID: / {print $2}')"
+  LABEL="$INFO ($(ipconfig getifaddr en0))"
+  ICON="$([ -n "$INFO" ] && echo "$WIFI_CONNECTED" || echo "$WIFI_DISCONNECTED")"
 
-UP_FORMAT=""
-if [ "$UP" -gt "999" ]; then
-  UP_FORMAT=$(echo $UP | awk '{ printf "%.0f Mbps", $1 / 1000}')
-else
-  UP_FORMAT=$(echo $UP | awk '{ printf "%.0f kbps", $1}')
-fi
+  sketchybar --set $NAME icon="$ICON" label="$LABEL"
+}
 
-sketchybar --set network.down label="$DOWN_FORMAT" icon.highlight=$(if [ "$DOWN" -gt "0" ]; then echo "on"; else echo "off"; fi) \
-           --set network.up label="$UP_FORMAT" icon.highlight=$(if [ "$UP" -gt "0" ]; then echo "on"; else echo "off"; fi)
+click() {
+  CURRENT_WIDTH="$(sketchybar --query $NAME | jq -r .label.width)"
+
+  WIDTH=0
+  if [ "$CURRENT_WIDTH" -eq "0" ]; then
+    WIDTH=dynamic
+  fi
+
+  sketchybar --animate sin 20 --set $NAME label.width="$WIDTH"
+}
+
+case "$SENDER" in
+  "wifi_change") update
+    ;;
+  "mouse.clicked") click
+    ;;
+esac

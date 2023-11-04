@@ -3,14 +3,18 @@
 POPUP_CLICK_SCRIPT="sketchybar --set \$NAME popup.drawing=toggle"
 
 github_bell=(
-  update_freq=180
   icon=$BELL
-  icon.font="$ICON_FONT:Bold:15.0"
+  icon.font="$FONT:Bold:13.0"
+  icon.padding_left=10
+  icon.y_offset=0
   label=$LOADING
+  label.padding_left=6
+  label.padding_right=6
+  label.font="Fira Code:Medium:13.0"
+  label.y_offset=0
   popup.align=right
   script="$PLUGIN_DIR/github.sh"
   click_script="$POPUP_CLICK_SCRIPT"
-  associated_display=1
 )
 
 github_template=(
@@ -20,7 +24,6 @@ github_template=(
   padding_right=7
   icon.background.height=2
   icon.background.y_offset=-12
-  associated_display=1
 )
 
 sketchybar --add item github.bell right                 \
@@ -28,5 +31,6 @@ sketchybar --add item github.bell right                 \
            --subscribe github.bell  mouse.entered       \
                                     mouse.exited        \
                                     mouse.exited.global \
+                                                        \
            --add item github.template popup.github.bell \
            --set github.template "${github_template[@]}"

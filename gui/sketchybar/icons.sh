@@ -46,21 +46,21 @@ export MUSIC_SHUFFLE=􀊝
 export MUSIC_REPEAT=􀊞
 
 # Battery Icons
-BATTERY_100=􀛨
-BATTERY_75=􀺸
-BATTERY_50=􀺶
-BATTERY_25=􀛩
-BATTERY_0=􀛪
-BATTERY_CHARGING=􀢋
+export BATTERY_100=􀛨
+export BATTERY_75=􀺸
+export BATTERY_50=􀺶
+export BATTERY_25=􀛩
+export BATTERY_0=􀛪
+export BATTERY_CHARGING=􀢋
 
 # Volume Icons
-VOLUME_100=􀊩
-VOLUME_66=􀊧
-VOLUME_33=􀊥
-VOLUME_10=􀊡
-VOLUME_0=􀊣
+export VOLUME_100=􀊩
+export VOLUME_66=􀊧
+export VOLUME_33=􀊥
+export VOLUME_10=􀊡
+export VOLUME_0=􀊣
 
 # WiFi
-WIFI_CONNECTED=􀙇
-WIFI_DISCONNECTED=􀙈
-MAIL=􀈠
+export WIFI_CONNECTED=􀙇
+export WIFI_DISCONNECTED=􀙈
+export MAIL=􀈠

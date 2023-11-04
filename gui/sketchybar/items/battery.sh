@@ -1,21 +1,19 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
-source "$HOME/.config/sketchybar/icons.sh"
-source "$HOME/.config/sketchybar/vars.sh"
-
-battery_details=(
-  background.corner_radius=12
-  background.padding_left=5
-  background.padding_right=10
-  icon.background.height=2
-  icon.background.y_offset=-12
+battery=(
+  script="$PLUGIN_DIR/battery.sh"
+  icon.font="Hack Nerd Font:Regular:16.0"
+  icon.padding_left=8
+  icon.y_offset=0
+  label.padding_left=4
+  label.drawing=off
+  label.font="Fira Code:Medium:13.0"
+  label.y_offset=0
+  update_freq=120
+  updates=on
 )
 
-sketchybar --add item battery right \
-           --set battery update_freq=1 \
-                         script="$PLUGIN_DIR/battery.sh" \
-           --subscribe   battery           mouse.entered                  \
-                                           mouse.exited                   \
-                                           mouse.exited.global            \
-           --add         item              battery.details popup.battery  \
-           --set         battery.details   "${battery_details[@]}"
+sketchybar --add event battery_update \
+           --add item battery right \
+           --set battery "${battery[@]}" \
+           --subscribe battery battery_update power_source_change system_woke
