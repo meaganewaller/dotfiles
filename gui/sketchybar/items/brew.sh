@@ -28,5 +28,5 @@ sketchybar --add event brew_update \
            --set brew "${brew[@]}" \
            --subscribe brew brew_update
 
-sketchybar --add bracket right_bracket volume battery github.bell mail time power brew \
+sketchybar --add bracket right_bracket brew \
            --set right_bracket "${right_bracket[@]}"
