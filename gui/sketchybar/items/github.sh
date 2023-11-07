@@ -13,6 +13,7 @@ github_bell=(
   label.font="Fira Code:Medium:13.0"
   label.y_offset=0
   popup.align=right
+  popup.background.color=$POPUP_BACKGROUND_COLOR
   script="$PLUGIN_DIR/github.sh"
   click_script="$POPUP_CLICK_SCRIPT"
 )

@@ -7,9 +7,6 @@ PERCENTAGE=$(echo "$BATTERY_INFO" | grep -Eo "\d+%" | cut -d% -f1)
 CHARGING=$(pmset -g batt | grep 'AC Power')
 COLOR=$WHITE
 
-if [ -z $PERCENTAGE = "" ]; then
-  exit 0
-fi
 
 if [[ $CHARGING != "" ]]; then
   case ${PERCENTAGE} in
@@ -22,7 +19,7 @@ if [[ $CHARGING != "" ]]; then
     [1-2][0-9]) ICON="󰂇" COLOR=$RED
     ;;
     *) ICON="󰢜"; COLOR=$RED
-    esac
+  esac
 else
   case ${PERCENTAGE} in
     9[0-9]|100) ICON="󰁹"

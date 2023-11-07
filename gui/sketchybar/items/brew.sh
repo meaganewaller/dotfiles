@@ -1,8 +1,3 @@
-#!/usr/bin/env sh
-
-# Trigger the brew_udpate event when brew update or upgrade is run from cmdline
-# e.g. via function in .zshrc or fish function
-
 #!/bin/bash
 
 brew=(
@@ -33,5 +28,5 @@ sketchybar --add event brew_update \
            --set brew "${brew[@]}" \
            --subscribe brew brew_update
 
-sketchybar --add bracket right_bracket volume battery github.bell mail time power network brew \
+sketchybar --add bracket right_bracket volume battery github.bell mail time power brew \
            --set right_bracket "${right_bracket[@]}"
