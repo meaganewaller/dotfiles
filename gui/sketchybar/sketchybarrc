@@ -1,20 +1,20 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
 # Last Updated: 2023-11-07
 #!/bin/bash
+# shellcheck disable=SC1091
 
-export CONFIG_DIR="$HOME/.config/sketchybar"
-source "$CONFIG_DIR/colors.sh"
-source "$CONFIG_DIR/icons.sh"
+. "$CONFIG_DIR/colors.sh"
+. "$CONFIG_DIR/icons.sh"
 
-source $HOME/.config/sketchybar/grant_permissions.sh
+. "$HOME"/.config/sketchybar/grant_permissions.sh
 
 export ITEM_DIR="$CONFIG_DIR/items"
 export PLUGIN_DIR="$CONFIG_DIR/plugins"
 
-# source $HOME/.config/sketchybar/create_bars.sh
+# . $HOME/.config/sketchybar/create_bars.sh
 
 FONT="SF Pro"
 PADDINGS=3
@@ -29,9 +29,9 @@ launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/d
 
 bar=(
   height=36
-  color=$BAR_COLOR
+  color="$BAR_COLOR"
   border_width=2
-  border_color=$BAR_BORDER_COLOR
+  border_color="$BAR_BORDER_COLOR"
   shadow=off
   position=top
   sticky=on
@@ -48,50 +48,50 @@ defaults=(
   updates=when_shown
   icon.font="$ICON_FONT:Bold:14.0"
   icon.color="$ICON_COLOR"
-  icon.padding_left=$PADDINGS
-  icon.padding_right=$PADDINGS
+  icon.padding_left="$PADDINGS"
+  icon.padding_right="$PADDINGS"
   label.font="$FONT:Semibold:13.0"
-  label.color=$LABEL_COLOR
-  label.padding_left=$PADDINGS
-  label.padding_right=$PADDINGS
-  padding_right=$PADDINGS
-  padding_left=$PADDINGS
+  label.color="$LABEL_COLOR"
+  label.padding_left="$PADDINGS"
+  label.padding_right="$PADDINGS"
+  padding_right="$PADDINGS"
+  padding_left="$PADDINGS"
   background.height=26
   background.corner_radius=9
-  popup.background.border_color=$POPUP_BORDER_COLOR
-  popup.background.color=$POPUP_BACKGROUND_COLOR
+  popup.background.border_color="$POPUP_BORDER_COLOR"
+  popup.background.color="$POPUP_BACKGROUND_COLOR"
   popup.blur_radius=20
   popup.background.shadow.drawing=on
 )
 
 sketchybar --default "${defaults[@]}"
 
-source "$ITEM_DIR/terminal.sh"
-source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/yabai.sh"
 
-# source "$ITEM_DIR/apple.sh"
-# source "$ITEM_DIR/yabai.sh"
-source "$ITEM_DIR/front_app.sh"
+. "$ITEM_DIR/terminal.sh"
+. "$ITEM_DIR/spaces.sh"
+. "$ITEM_DIR/yabai.sh"
 
-source "$ITEM_DIR/music.sh"
-# source "$ITEM_DIR/prompt.sh"
+# . "$ITEM_DIR/apple.sh"
+# . "$ITEM_DIR/yabai.sh"
+. "$ITEM_DIR/front_app.sh"
 
-# source "$ITEM_DIR/calendar.sh"
-source "$ITEM_DIR/brew.sh"
-source "$ITEM_DIR/github.sh"
-source "$ITEM_DIR/battery.sh"
-# source "$ITEM_DIR/volume.sh"
-# source "$ITEM_DIR/ticktick.sh"
-# source "$ITEM_DIR/focus.sh"
-# source "$ITEM_DIR/power.sh"
-source "$ITEM_DIR/time.sh"
-# source "$ITEM_DIR/wifi.sh"
-# source "$ITEM_DIR/mail.sh"
-# source "$ITEM_DIR/github.sh"
-# source "$ITEM_DIR/battery.sh"
-# source "$ITEM_DIR/volume.sh"
-# source "$ITEM_DIR/brew.sh"
+. "$ITEM_DIR/music.sh"
+# . "$ITEM_DIR/prompt.sh"
+
+. "$ITEM_DIR/time.sh"
+. "$ITEM_DIR/calendar.sh"
+. "$ITEM_DIR/battery.sh"
+. "$ITEM_DIR/brew.sh"
+. "$ITEM_DIR/github.sh"
+# . "$ITEM_DIR/volume.sh"
+# . "$ITEM_DIR/ticktick.sh"
+# . "$ITEM_DIR/focus.sh"
+# . "$ITEM_DIR/power.sh"
+# . "$ITEM_DIR/wifi.sh"
+# . "$ITEM_DIR/mail.sh"
+# . "$ITEM_DIR/github.sh"
+# . "$ITEM_DIR/battery.sh"
+# . "$ITEM_DIR/volume.sh"
 
 # ###################### FINALIZE ###################
 sketchybar --update
