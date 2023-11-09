@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-#!/bin/bash
-
 # shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/themes/gruvbox.sh"
 
