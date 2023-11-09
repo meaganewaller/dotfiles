@@ -7,15 +7,15 @@ COUNT=$(brew outdated | wc -l | tr -d ' ')
 COLOR=$RED
 
 case "$COUNT" in
-  [3-5][0-9]) COLOR=$RED
+  [3-5][0-9]) COLOR=$ORANGE
   ;;
-  [1-2][0-9]) COLOR=$ACCENT_COLOR
+  [1-2][0-9]) COLOR=$YELLOW
   ;;
-  [1-9]) COLOR=$ACCENT_COLOR
+  [1-9]) COLOR=$WHITE
   ;;
-  0) COLOR=$TRANSPARENT_WHITE
+  0) COLOR=$GREEN
      COUNT=􀆅
   ;;
 esac
 
-sketchybar --set $NAME label="$COUNT updates" icon.color=$COLOR label.color=$COLOR
+sketchybar --set $NAME label="$COUNT" icon.color=$COLOR label.color=$COLOR
