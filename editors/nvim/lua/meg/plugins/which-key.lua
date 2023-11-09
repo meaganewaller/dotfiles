@@ -130,6 +130,10 @@ wk.register({
 }, { prefix = "<C-w>" })
 
 wk.register({
+  s = { name = "Silicon" },
+}, { prefix = "<LocalLeader>" })
+
+wk.register({
   c = "which_key_ignore",
   b = "which_key_ignore",
 }, { prefix = "g", mode = { "n", "v" } })

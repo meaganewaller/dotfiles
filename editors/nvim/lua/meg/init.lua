@@ -177,6 +177,27 @@ local modules = {
   { "spaceduck-theme/nvim", as = "spaceduck" },
   { "daschw/leaf.nvim" },
   { "slim-template/vim-slim", event = "FileType", ft = "slim" },
+  {
+    "0oAstro/silicon.lua",
+    lazy = true,
+    config = function()
+      require("silicon").setup({
+        font = "FiraCode Nerd Font Mono=34;Noto Emoji",
+        theme = "Nord",
+        linePad = 2,
+        bgColor = "#2E3440",
+        windowControls = false,
+        lineNumber = true,
+        padHoriz = 10,
+        padVert = 10,
+        shadowBlurRadius = 0,
+        shadowOffsetX = 0,
+        shadowOffsetY = 0,
+        gobble = true,
+        debug = false,
+      })
+    end,
+  },
 }
 
 -- { == Transform to LazySpec Table ==> =======================================
