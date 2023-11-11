@@ -9,35 +9,36 @@ local hooks = require("ibl.hooks")
 local indent_char = "▏"
 if vim.g.loaded_gui then indent_char = "│" end
 
+local highlight = {
+  "RainbowRed",
+  "RainbowYellow",
+  "RainbowBlue",
+  "RainbowOrange",
+  "RainbowGreen",
+  "RainbowViolet",
+  "RainbowCyan",
+}
+
 local config = {
-	indent = { char = indent_char },
+	indent = { char = indent_char, highlight = highlight },
 	scope = {},
 }
 -- <== }
 
 -- { == Highlights ==> ========================================================
 
-config.scope.highlight = {
-	"IndentLvlOne",
-	"IndentLvlTwo",
-	"IndentLvlThree",
-	"IndentLvlFour",
-	"IndentLvlFive",
-	"IndentLvlSix",
-	"IndentLvlSeven",
-}
 
 hooks.register(
 	hooks.type.HIGHLIGHT_SETUP,
 	function()
-		nx.hl({
-			{ "IndentLvlOne", fg = "LineNr:fg" },
-			{ "IndentLvlTwo", fg = "@attribute:fg" },
-			{ "IndentLvlThree", fg = "@character:fg" },
-			{ "IndentLvlFour", fg = "@constructor:fg" },
-			{ "IndentLvlFive", fg = "@annotation:fg" },
-			{ "IndentLvlSix", fg = "@label:fg" },
-			{ "IndentLvlSeven", fg = "@field:fg" },
+    nx.hl({
+      { "RainbowRed", fg = "#E06C75" },
+      { "RainbowYellow",  fg = "#E5C07B" },
+      { "RainbowBlue",  fg = "#61AFEF" },
+      { "RainbowOrange",  fg = "#D19A66" },
+      { "RainbowGreen",  fg = "#98C379" },
+      { "RainbowViolet",  fg = "#C678DD" },
+      { "RainbowCyan",  fg = "#56B6C2" },
 		})
 	end
 )

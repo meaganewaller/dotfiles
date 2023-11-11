@@ -7,6 +7,11 @@ require("noice").setup({
     signature = {
       enabled = false,
     },
+    override = {
+      ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+      ["vim.lsp.util.stylize_markdown"] = true,
+      ["cmp.entry.get_documentation"] = true,
+    },
     hover = { enabled = true },
     progress = {
       enabled = false, -- using fidget instead as it feel less intrusive
@@ -88,8 +93,14 @@ require("noice").setup({
     enabled = false,
   },
   presets = {
-    bottom_search = true,
+    command_palette = true,
+    long_message_to_split = true,
+    inc_rename = false,
     lsp_doc_border = nx.opts.float_win_border ~= "none" and true or false,
+  },
+  popupmenu = {
+    enabled = true,
+    backend = "cmp",
   },
 })
 

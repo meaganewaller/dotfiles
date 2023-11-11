@@ -58,13 +58,51 @@ local config = {
   snippet = {
     expand = function(args) require("luasnip").lsp_expand(args.body) end,
   },
+  preselect = require("cmp").PreselectMode.None,
+  formatting = {
+    format = require("lspkind").cmp_format({
+      maxwidth = 50,
+      ellipsis_char = "...",
+      mode = "symbol_text",
+      preset = "codicons",
+    }),
+  },
   sources = cmp.config.sources({
-    { name = "nvim_lsp" },
-    { name = "luasnip" },
+    {
+      name = "nvim_lsp",
+      keyword_length = 3,
+      priority = 10,
+      group_index = 1,
+    },
+    {
+      name = "luasnip",
+      option = {
+        use_show_condition = true,
+        show_autosnippets = true,
+      },
+      priority = 9,
+      group_index = 1,
+    },
+    {
+      name = "nvim_lua",
+      priority = 10,
+      group_index = 1,
+    },
+    {
+      name = "buffer",
+      keyword_length = 3,
+      priority = 6,
+      group_index = 2,
+    },
+    {
+      name = "path",
+      priority = 5,
+      group_index = 2,
+    }
   }, {
-    { name = "buffer" },
-    { name = "path" },
-    { name = "nvim_lsp_signature_help" },
+      { name = "buffer" },
+      { name = "path" },
+      { name = "nvim_lsp_signature_help" },
   }),
 }
 

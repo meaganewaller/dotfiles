@@ -55,7 +55,7 @@ local function toggle_format_on_save(silent)
 end
 
 -- enable format on save by default
-toggle_format_on_save("silent")
+-- toggle_format_on_save("silent")
 
 nx.cmd({
   { "LspFormat", function() vim.lsp.buf.format({ async = true }) end, bang = true },
@@ -67,14 +67,21 @@ nx.cmd({
 --- { == Keymaps ==> ===========================================================
 
 nx.map({
-  { "<leader>q", vim.diagnostic.setloclist, desc = "Buffer Diagnostics", wk_label = "Quickfix" },
-  { "<leader>db", vim.diagnostic.setloclist, desc = "Buffer Diagnostics" },
-  { "gl", function() vim.diagnostic.open_float({ border = border }) end, desc = "Show Diagnostics" },
-  {
-    "gL",
-    function() vim.diagnostic.open_float({ scope = "cursor", border = border }) end,
-    desc = "Show Diagnostics",
-  },
+  { "<Leader>lgr", "<cmd>Lspsaga finder tyd+ref+imp+def<cr>", desc = "Show references" },
+  { "<Leader>lgd", "<cmd>Lspsaga peek_definition<cr>", desc = "Peek definition" },
+  { "<Leader>lgD", "<cmd>lua vim.lsp.buf.declaration()<cr>", desc = "Show declaration" },
+  { "<Leader>lgi", "<cmd>lua vim.lsp.buf.implementation()<cr>", desc = "Show implementation" },
+  { "<Leader>lgy", "<cmd>Lspsaga peek_type_definition<cr>", desc = "Show type definition" },
+  { "<Leader>lr", "<cmd>Lspsaga rename<CR>", desc = "Rename" },
+  { "<Leader>la", "<cmd>Lspsaga code_action<CR>", desc = "Code actions" },
+  { "<Leader>lk", "<cmd>Lspsaga hover_doc<CR>", desc = "Show documentation" },
+  { "<Leader>ls", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Show workspace symbols" },
+  { "<Leader>lo", "<cmd>Lspsaga outline<CR>", desc = "Show outline" },
+  { "<Leader>td", "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>", desc = "Show dynamic workspace symbols" },
+  { "<Leader>dl", "<cmd>Lspsaga show_line_diagnostics<CR>", desc = "Show line diagnostics" },
+  { "<Leader>dc", "<cmd>Lspsaga show_cursor_diagnostics<CR>", desc = "Show cursor diagnostics" },
+  { "<Leader>dn", "<cmd>Lspsaga diagnostic_jump_next<CR>", desc = "Jump to next error" },
+  { "<Leader>dp", "<cmd>Lspsaga diagnostic_jump_prev<CR>", desc = "Jump to previous error" },
   -- Keymaps for user commands
   { "<leader>dtt", "<Cmd>ToggleBufferDiagnostics<CR>", desc = "Toggle Buffer Diagnostics" },
   { "<leader>tdt", "<Cmd>ToggleBufferDiagnostics<CR>", desc = "Toggle ", wk_label = "Buffer Diagnostics" },
@@ -83,48 +90,63 @@ nx.map({
 })
 
 ---@param bufnr number
-function M.on_attach(_, bufnr)
-  nx.map({
-    { "K", vim.lsp.buf.hover, desc = "LSP Hover" },
-    { "gh", vim.lsp.buf.signature_help, desc = "Signatrue Help" },
-    -- Use mostly saga
-    -- { "gr", vim.lsp.buf.references, desc = "List References" },
-    -- { "<C-.>", vim.lsp.buf.code_action, desc = "Code action" },
-    -- { "gd", vim.lsp.buf.definition, desc = "Go to Definition" },
-    -- { "gD", vim.lsp.buf.declaration, desc = "Goto declaration" },
-    -- { "<leader>lr", vim.lsp.buf.references, desc = "List References" },
-    -- { "<F11>", vim.lsp.buf.references, desc = "List References" },
-    -- { "<F12>", vim.lsp.buf.definition, desc = "Go to Definition" },
-    -- { "<leader>ld", vim.lsp.buf.definition, desc = "Definitions" },
-    -- { "<leader>li", vim.lsp.buf.implementation, desc = "Goto implementation" },
-    {
-      "<F2>",
-      function()
-        nx.au({
-          "FileType",
-          pattern = "DressingInput",
-          once = true,
-          callback = function()
-            -- Start rename input dialog with selected content
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>^vE", true, false, true), "n", false)
-          end,
-        })
-        vim.lsp.buf.rename()
-      end,
-      { "i", "n" },
-      desc = "Rename",
+function M.on_attach(client, bufnr)
+  local opts = { noremap = true, silent = true, buffer = bufnr }
+  local bufmap = function(mode, lhs, rhs) vim.keymap.set(mode, lhs, rhs, opts) end
+
+  vim.api.nvim_buf_set_option(0, "formatexpr", "v:lua.vim.lsp.formatexpr()")
+
+  bufmap("n", "K", "<cmd>Lspsaga hover_doc<CR>")
+  bufmap("n", "gd", "<cmd>Lspsaga peek_definition<CR>")
+  bufmap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")
+  bufmap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>")
+  bufmap("n", "gy", "<cmd>Lspsaga peek_type_definition<CR>")
+  bufmap("n", "gr", "<cmd>Lspsaga finder tyd+ref+imp+def<CR>")
+  bufmap("n", "rn", "<cmd>Lspsaga rename<CR>")
+  bufmap("n", "<C-a>", "<cmd>Lspsaga code_action<CR>")
+  bufmap("n", "gl", "<cmd>Lspsaga show_line_diagnostics<CR>")
+  bufmap(
+    "n",
+    "[d",
+    function() require("lspsaga.diagnostic").goto_prev({ severity = vim.diagnostic.severity.ERROR }) end
+  )
+  bufmap(
+    "n",
+    "]d",
+    function() require("lspsaga.diagnostic").goto_next({ severity = vim.diagnostic.severity.ERROR }) end
+  )
+
+  if client.name == "tsserver" then bufmap("n", "<Leader>rf", "<cmd>TypescriptRenameFile<CR>") end
+
+  require("lsp_signature").on_attach({
+    bind = true,
+    handler_opts = {
+      border = "rounded",
     },
-
-    -- Telescope
-    { "<leader>ls", "<Cmd>Telescope lsp_document_symbols<CR>", desc = "Document Symbols" },
-    { "<leader>lS", "<Cmd>Telescope lsp_dynamic_workspace_symbols<CR>", desc = "Workspace Symbols" },
-
-    -- Keymaps for user commands
-    { { "<leader>fF", "<leader>lf" }, "<Cmd>LspFormat<CR>", desc = "Format Buffer" },
-    -- stylua: ignore
-    { { "<leader>tF", "<leader>lF" }, "<Cmd>LspToggleAutoFormat<CR>", desc = "Toggle Format on Save", wk_label = "Format on Save" },
-  }, { buffer = bufnr })
+  }, bufnr)
 end
--- <== }
+
+local cmp_nvim_lsp = require("cmp_nvim_lsp")
+local capabilities = cmp_nvim_lsp.default_capabilities()
+
+local ih = require("inlay-hints")
+ih.setup({
+  only_current_line = true,
+  eol = {
+    right_align = true,
+  },
+})
+
+local signature_config = {
+  log_path = vim.fn.expand("$HOME") .. "/tmp/sig.log",
+  debug = false,
+  hint_enable = true,
+  noice = true,
+  handler_opts = { border = "single" },
+  max_width = 80,
+}
+
+local signature = require("lsp_signature")
+signature.setup(signature_config)
 
 return M

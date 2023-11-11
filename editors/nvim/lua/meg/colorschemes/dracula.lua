@@ -66,7 +66,7 @@ function M.set_hl()
 
 		-- Diff text
 		-- remove bg for diffdelte indicator in SignColumn
-		{ "DraculaDiffDelete", fg = "DraculaDiffDelete:fg" },
+		-- { "DraculaDiffDelete", fg = "DraculaDiffDelete:fg" },
 
 		-- LSP
 		{ "LspReferenceText", link = "StatusLineTermNC" },

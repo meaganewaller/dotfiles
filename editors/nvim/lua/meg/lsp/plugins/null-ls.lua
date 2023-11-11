@@ -2,60 +2,38 @@
 
 local null_ls = require("null-ls")
 local fmt = null_ls.builtins.formatting
--- local diag = null_ls.builtins.diagnostics
--- local ca = null_ls.builtins.code_actions
--- local cmp = null_ls.builtins.completion.spell,
-
-null_ls.register({
-  name = "nimpretty_t",
-  method = null_ls.methods.FORMATTING,
-  filetypes = { "nim" },
-  generator = null_ls.formatter({
-    command = "nimpretty_t",
-    args = { "$FILENAME", "--maxLineLen=100" },
-    to_temp_file = true,
-  }),
-})
-
-null_ls.register({
-  name = "vfmt",
-  method = null_ls.methods.FORMATTING,
-  filetypes = { "v", "vlang" },
-  generator = null_ls.formatter({
-    command = "v",
-    args = { "fmt", "-w", "$FILENAME" },
-    to_temp_file = true,
-  }),
-})
+local diag = null_ls.builtins.diagnostics
 
 -- { == Configuration ==> =====================================================
-
 null_ls.setup({
-  debug = false,
   sources = {
-    -- requires prettierd `pnpm i -g @fsouza/prettierd`
     fmt.prettierd.with({
       filetypes = {
         "markdown",
         "json",
         "jsonc",
-        -- "typescript",
-        -- "typescriptreact",
-        -- "javascript",
-        -- "javascriptreact",
-        -- "vue",
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact",
+        "vue",
         "yaml",
-        -- "html",
+        "html",
         "css",
         "scss",
-        "liquid",
-        "njk",
+        "liquid"
       },
-      extra_args = { "--use-tabs", "--printWidth: 100", "--semi", "--single-quote" },
+      extra_args = { "--use-tabs", "printWidth: 100" },
     }),
-    fmt.rustfmt,
     fmt.stylua,
-    fmt.yapf,
-  },
+    fmt.shfmt,
+    fmt.beautysh,
+    fmt.eslint,
+  }
 })
+
 -- <== }
+
+nx.map({
+  { "<Leader>lf", "<cmd>lua vim.lsp.buf.format()<CR>", desc = "Format file using LSP" },
+})

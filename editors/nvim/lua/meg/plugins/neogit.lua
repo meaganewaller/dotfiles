@@ -100,7 +100,7 @@ nx.au({
 if vim.g.colors_name == "dracula" then
 	nx.hl({ "NeogitDiffAddHighlight", fg = "DiffAdd:fg", bg = "StatusLineTermNC:bg" })
 	-- fix blue difftext in Neogit
-	nx.hl({ "NeogitDiffDeleteHighlight", fg = "DraculaDiffDelete:fg", bg = "StatusLineTermNC:bg" })
+	nx.hl({ "NeogitDiffDeleteHighlight", fg = "DiffDelete:fg", bg = "StatusLineTermNC:bg" })
 end
 -- <== }
 

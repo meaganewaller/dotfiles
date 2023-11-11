@@ -1,4 +1,7 @@
 local ts_configs = require("nvim-treesitter.configs")
+local ts_context = require("treesitter-context")
+
+ts_context.setup()
 
 -- { == Configuration ==> =====================================================
 
@@ -16,12 +19,17 @@ local config = {
   highlight = {
     enable = true,
     disable = { "css", "html", "help", "json" },
-    additional_vim_regex_highlighting = false,
+    additional_vim_regex_highlighting = true,
+  },
+  rainbow = {
+    enable = true,
+    extended_mode = true,
+    max_file_lines = nil,
   },
   autopairs = {
     enable = true,
   },
-  indent = { enable = true, disable = { "yaml", "python", "css" } },
+  indent = { enable = true, disable = { "yaml", "python" } },
   context_commentstring = {
     enable = true,
     enable_autocmd = false,
@@ -32,11 +40,21 @@ local config = {
   },
   playground = {
     enable = true,
-  },
-  illuminate = {
-    -- Helps with heavy performance bottlenecks in large files.
-    -- This does not disable illuminate since it uses lsp as provider.
-    enable = false,
+    disable = {},
+    updatetime = 25,
+    persist_queries = false,
+    keybindings = {
+      toggle_query_editor = "o",
+      toggle_hl_groups = "i",
+      toggle_injected_languages = "t",
+      toggle_anonymous_nodes = "a",
+      toggle_language_display = "I",
+      focus_language = "f",
+      unfocus_language = "F",
+      update = "R",
+      goto_node = "<cr>",
+      show_help = "?",
+    },
   },
   matchup = {
     enable = true, -- mandatory, false will disable the whole extension

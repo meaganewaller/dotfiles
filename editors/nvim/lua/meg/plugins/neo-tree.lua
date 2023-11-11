@@ -342,11 +342,11 @@ local function set_hls()
 		local colors = require("meg.colorschemes.dracula").palette
 
 		nx.hl({
-			{ "NeoTreeRootName", fg = "DraculaPurple:fg", italic = true },
+			-- { "NeoTreeRootName", fg = "DraculaPurple:fg", italic = true },
 			{ "NeoTreeFileName", fg = colors.tree_file_name },
 			{ "NeoTreeTabActive", fg = colors.tree_file_name },
-			{ "NeoTreeTabInactive", fg = "NeoTreeDimText:fg", bg = "DraculaBgDark:bg" },
-			{ "NeoTreeTabSeparatorInactive", bg = "DraculaBgDark:bg", fg = "DraculaBgDarker:bg" },
+			-- { "NeoTreeTabInactive", fg = "NeoTreeDimText:fg", bg = "DraculaBgDark:bg" },
+			-- { "NeoTreeTabSeparatorInactive", bg = "DraculaBgDark:bg", fg = "DraculaBgDarker:bg" },
 			-- Fix over-sized circle icon due to italicizing
 			{ "NeoTreeGitUnstaged", fg = "NeoTreeGitUnstaged:fg" },
 		})
