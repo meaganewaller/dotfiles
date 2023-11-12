@@ -16,7 +16,7 @@ if [[ ! $APP_STATE ]]; then
 fi
 
 PLAYER_STATE=$(osascript -e "tell application \"Music\" to set playerState to (get player state) as text")
-if [[ $PLAYER_STATE == "stopped" ]]; then
+if [[ $PLAYER_STATE = "stopped" ]]; then
   sketchybar --set "$NAME" drawing=off
   exit 0
 fi

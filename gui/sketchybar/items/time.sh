@@ -39,5 +39,5 @@ sketchybar --add item time right \
 sketchybar --add item time_dot right \
            --set time_dot "${time_dot[@]}"
 
-sketchybar --add bracket time \
-           --set time "${time_bracket[@]}"
+sketchybar --add bracket time_bracket \
+           --set time_bracket "${time_bracket[@]}"

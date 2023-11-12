@@ -2,14 +2,14 @@
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
-# Last Updated: 2023-11-07
+# Last Updated: 2023-11-12
 #!/bin/bash
 # shellcheck disable=SC1091
 
 . "$CONFIG_DIR/colors.sh"
 . "$CONFIG_DIR/icons.sh"
 
-# . "$HOME"/.config/sketchybar/grant_permissions.sh
+. "$HOME"/.config/sketchybar/grant_permissions.sh
 
 export ITEM_DIR="$CONFIG_DIR/items"
 export PLUGIN_DIR="$CONFIG_DIR/plugins"
@@ -67,12 +67,11 @@ defaults=(
 sketchybar --default "${defaults[@]}"
 
 
-. "$ITEM_DIR/terminal.sh"
 . "$ITEM_DIR/spaces.sh"
+. "$ITEM_DIR/terminal.sh"
 . "$ITEM_DIR/yabai.sh"
 
 # . "$ITEM_DIR/apple.sh"
-# . "$ITEM_DIR/yabai.sh"
 . "$ITEM_DIR/front_app.sh"
 
 . "$ITEM_DIR/music.sh"
