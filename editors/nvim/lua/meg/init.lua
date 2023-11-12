@@ -237,7 +237,7 @@ local modules = {
   --  { "slim-template/vim-slim", event = "FileType", ft = "slim" },
   {
     "michaelrommel/nvim-silicon",
-    lazy = true,
+    event = "VeryLazy",
     cmd = "Silicon",
     config = "plugins.silicon",
   },
