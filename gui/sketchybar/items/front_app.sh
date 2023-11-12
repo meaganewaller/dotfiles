@@ -3,7 +3,7 @@
 front_app=(
   label.font="$FONT:Black:12.0"
   icon.background.drawing=on
-  icon.background.height=18
+  icon.background.height=12
   associated_display=active
   script="$PLUGIN_DIR/front_app.sh"
 )
