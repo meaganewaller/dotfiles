@@ -12,6 +12,7 @@
 !shells/fish/*
 !tools/vcs/git/**/*
 !gui/hammerspoon/**/*
+!gui/sketchybar/**/*
 !tools/keys/karabiner/karabiner.json
 !terminals/kitty/**/*
 !tools/mackup/**/*

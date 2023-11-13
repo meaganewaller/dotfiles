@@ -1,22 +1,40 @@
 #!/usr/bin/env bash
 
-update() {
-  WIDTH="dynamic"
-  if [ "$SELECTED" = "true" ]; then
-    WIDTH="0"
-  fi
+ICON_ARRAY=(🏠  💻  💬  📧  📅  📄  🎵  🛠️ 🧹)
+UNSELECTED_ICON_ARRAY=(🏚️ 💽 🚫 📪 📆 📂 🎧 🧰 🏁)
 
-  sketchybar --animate tanh 20 --set $NAME \
-    icon.highlight="$SELECTED" \
-    label.width="$WIDTH"
+update() {
+  if [ "$SELECTED" = "true" ]; then
+    sketchybar -m --set "$NAME" icon="${ICON_ARRAY[$SID-1]}" \
+      background.border_color="$YABAI_SPACE_BACKGROUND_BORDER_COLOR_ACTIVE" \
+      label.highlight="$SELECTED"
+  else
+    sketchybar -m --set "$NAME" icon="${UNSELECTED_ICON_ARRAY[$SID-1]}" \
+      label.highlight="$SELECTED" \
+      background.border_color="$YABAI_SPACE_BACKGROUND_BORDER_COLOR"
+  fi
+}
+
+set_space_label() {
+  sketchybar --set "$NAME" icon="$@"
 }
 
 mouse_clicked() {
   if [ "$BUTTON" = "right" ]; then
-    yabai -m space --destroy $SID
-    sketchybar --trigger windows_on_spaces --trigger space_change
+    yabai -m space --destroy "$SID" && sketchybar --trigger windows_on_spaces
   else
-    yabai -m space --focus $SID 2>/dev/null
+    if [ "$MODIFIER" = "shift" ]; then
+      SPACE_LABEL="$(osascript -e "return (text returned of (display dialog \"Give a name to space $NAME:\" default answer \"\" with icon note buttons {\"Cancel\", \"Continue\"} default button \"Continue\"))")"
+      if [ $? -eq 0 ]; then
+        if [ "$SPACE_LABEL" = "" ]; then
+          set_space_label "${NAME:6}"
+        else
+          set_space_label "${NAME:6} ($SPACE_LABEL)"
+        fi
+      fi
+    else
+      yabai -m space --focus "$SID" 2>/dev/null
+    fi
   fi
 }
 

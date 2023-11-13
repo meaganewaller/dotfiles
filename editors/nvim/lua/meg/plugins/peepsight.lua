@@ -1,0 +1,17 @@
+require("peepsight").setup({
+  "function_declaration",
+  "method_declaration",
+  "func_literal",
+  "class_declaration",
+  "method_definition",
+  "arrow_function",
+  "function_declaration",
+  "generator_function_declaration",
+  "function_call",
+  "variable_declaration",
+  "function_definition",
+  "compound_statement",
+  "class_specifier",
+  "class_definition",
+  "block",
+})

@@ -1,151 +1,99 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #  ┌─┐┬┌─┌─┐┌┬┐┌─┐┬ ┬┬ ┬┌┐ ┌─┐┬─┐
 #  └─┐├┴┐├┤  │ │  ├─┤└┬┘├┴┐├─┤├┬┘
 #  └─┘┴ ┴└─┘ ┴ └─┘┴ ┴ ┴ └─┘┴ ┴┴└─
-# Last Updated: 2023-08-01
+# Last Updated: 2023-11-12
+#!/bin/bash
+# shellcheck disable=SC1091
 
-export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
-export ITEM_DIR="$HOME/.config/sketchybar/items"
+. "$CONFIG_DIR/colors.sh"
+. "$CONFIG_DIR/icons.sh"
 
-source "$HOME/.config/sketchybar/colors.sh"
-source "$HOME/.config/sketchybar/icons.sh"
-source "$HOME/.config/sketchybar/vars.sh"
-source "$HOME/.config/sketchybar/helper/helper.sh"
+. "$HOME"/.config/sketchybar/grant_permissions.sh
 
-export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
-export ITEM_DIR="$HOME/.config/sketchybar/items"
-export EVENT_DIR="$HOME/.config/sketchybar/events"
-export DISPLAY_COUNT="$(yabai -m query --displays | jq -r 'length')"
+export ITEM_DIR="$CONFIG_DIR/items"
+export PLUGIN_DIR="$CONFIG_DIR/plugins"
+
+# . $HOME/.config/sketchybar/create_bars.sh
+
+FONT="SF Pro"
+PADDINGS=3
+
+HELPER=git.felix.helper
+killall helper
+(cd "$HOME/.config/sketchybar/helper" && make)
+"$HOME/.config/sketchybar/helper/helper" "$HELPER" >/dev/null 2>&1 &
 
 # Unload the macOS on screen indicator overlay for volume change
 launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
 
-bar_config=(
+bar=(
+  height=36
+  color="$BAR_COLOR"
+  border_width=2
+  border_color="$BAR_BORDER_COLOR"
+  shadow=off
   position=top
-  height=35
-  margin=10
-  y_offset=10
-  corner_radius=25
-  border_width=1
-  blur_radius=20
-  padding_left=10
+  sticky=on
   padding_right=10
-  notch_width=0
-  notch_offset=0
-  display=all
-  hidden=off
-  topmost=off
-  sticky=off
-  font_smoothing=false
-  shadow.drawing="$SHADOW"
+  padding_left=10
+  y_offset=5
+  corner_radius=12
+  margin=10
 )
 
-icon_defaults=(
-  icon.drawing=on
-  icon.highlight=off
+sketchybar --bar "${bar[@]}"
+
+defaults=(
+  updates=when_shown
+  icon.font="$ICON_FONT:Bold:14.0"
+  icon.color="$ICON_COLOR"
   icon.padding_left="$PADDINGS"
   icon.padding_right="$PADDINGS"
-  icon.y_offset=0
-  icon.font="$ICON_FONT:Bold:15.0"
-  icon.align="center"
-  icon.shadow.drawing=off
-  icon.background.drawing=off
-  icon.background.height="$SEGMENT_HEIGHT"
-)
-
-label_defaults=(
-  label.drawing=on
-  label.highlight=off
-  label.padding_right="$PADDINGS"
+  label.font="$FONT:Semibold:13.0"
+  label.color="$LABEL_COLOR"
   label.padding_left="$PADDINGS"
-  label.y_offset=0
-  label.font.family="$LABEL_FONT"
-  label.font.style="Regular"
-  label.font.size=13.0
-  label.align="left"
-  label.shadow.drawing=off
-)
-
-background_defaults=(
-  drawing=on
-  background.border_width="$SEGMENT_BORDER_WIDTH"
-  background.height="$SEGMENT_HEIGHT"
-  background.corner_radius="$CORNER_RADIUS"
-  background.padding_left="$PADDINGS"
-  background.padding_right="$PADDINGS"
-  background.y_offset=0
-  background.clip=0.0
-  background.shadow.drawing=off
-)
-
-popup_defaults=(
-  popup.height=35
-  popup.horizontal=false
+  label.padding_right="$PADDINGS"
+  padding_right="$PADDINGS"
+  padding_left="$PADDINGS"
+  background.height=26
+  background.corner_radius=9
+  popup.background.border_color="$POPUP_BORDER_COLOR"
+  popup.background.color="$POPUP_BACKGROUND_COLOR"
   popup.blur_radius=20
-  popup.y_offset=0
-  popup.background.drawing=on
-  popup.background.border_width="$POPUP_BORDER_WIDTH"
-  popup.background.corner_radius="$POPUP_CORNER_RADIUS"
-  popup.background.shadow.drawing="$SHADOW"
+  popup.background.shadow.drawing=on
 )
 
-sketchybar --bar "${bar_config[@]}"
-sketchybar --add event float_change
+sketchybar --default "${defaults[@]}"
 
-# Setting up the general bar appearance and default values
-sketchybar --default \
-  drawing=on \
-  updates=when_shown \
-  "${icon_defaults[@]}" \
-  "${label_defaults[@]}" \
-  "${background_defaults[@]}" \
-  "${popup_defaults[@]}"
 
-label_template=(
-  icon.drawing=off
-  label.font="$LABEL_FONT:Regular:12.0"
-  label.padding_right=5
-  label.background.height="$SEGMENT_HEIGHT"
-  click_script="$PLUGIN_DIR/toggle_bracket.sh"
-  background.padding_left="$SEGMENT_SPACING"
-  background.padding_right=0
-  drawing=off
-)
+. "$ITEM_DIR/spaces.sh"
+. "$ITEM_DIR/terminal.sh"
+. "$ITEM_DIR/yabai.sh"
 
-sep_template=(
-  icon=" "
-  drawing=off
-)
+# . "$ITEM_DIR/apple.sh"
+. "$ITEM_DIR/front_app.sh"
 
-sketchybar --add item label_template left \
-  --set label_template "${label_template[@]}" \
-  --add item sep_template left \
-  --set sep_template "${sep_template[@]}"
+. "$ITEM_DIR/music.sh"
+# . "$ITEM_DIR/prompt.sh"
 
-############## BAR SETUP ###############
-# Hidden by default
-# source "$ITEM_DIR/lock.sh"
+. "$ITEM_DIR/time.sh"
+. "$ITEM_DIR/calendar.sh"
+. "$ITEM_DIR/battery.sh"
+. "$ITEM_DIR/brew.sh"
+. "$ITEM_DIR/github.sh"
+# . "$ITEM_DIR/volume.sh"
+# . "$ITEM_DIR/ticktick.sh"
+# . "$ITEM_DIR/focus.sh"
+# . "$ITEM_DIR/power.sh"
+# . "$ITEM_DIR/wifi.sh"
+# . "$ITEM_DIR/mail.sh"
+# . "$ITEM_DIR/github.sh"
+# . "$ITEM_DIR/battery.sh"
+# . "$ITEM_DIR/volume.sh"
 
-# Left
-source "$ITEM_DIR/apple.sh"
-source "$ITEM_DIR/spaces.sh"
-source "$ITEM_DIR/window_manager.sh"
-# source "$ITEM_DIR/front_app.sh"
-
-# Center
-source "$ITEM_DIR/music.sh"
-
-# Right
-source "$ITEM_DIR/calendar.sh"
-source "$ITEM_DIR/control_center.sh"
-# source "$ITEM_DIR/package.sh"
-# source "$ITEM_DIR/cpu.sh"
-# source "$ITEM_DIR/control_center.sh"
-# source "$ITEM_DIR/meeting.sh"
-source "$ITEM_DIR/theme.sh"
-###################### FINALIZE ###################
-sketchybar -m --update
+# ###################### FINALIZE ###################
+sketchybar --update
+sketchybar --hotload true
 
 echo "sketchybar configuration loaded.."
-
-#exit 0

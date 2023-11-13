@@ -1,10 +1,8 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
-data=$(yabai -m query --windows --window)
-
-window_title=$(echo $data | jq -r '.title')
-app=$(echo $data | jq -r '.app')
-
-[ "${#window_title}" -gt 40 ] && window_title="$(echo $window_title | head -c 40)…"
-
-sketchybar --set $NAME icon="$app"
+if [ "$SENDER" = "front_app_switched" ]; then
+  BUNDLE_ID="$(osascript -e "id of app \"$INFO\"")"
+  sketchybar --set $NAME label="$INFO" \
+    icon.background.image="app.$BUNDLE_ID" \
+    icon.background.image.scale=0.5
+fi

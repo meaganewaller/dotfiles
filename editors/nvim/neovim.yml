@@ -1,8 +1,0 @@
----
-base: lua
-
-globals:
-  vim:
-    any: true
-  api:
-    any: true

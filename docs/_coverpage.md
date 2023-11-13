@@ -1,4 +1,4 @@
-# meagan's dotfiles
+# Meagan's Dotfiles
 
 ```
   ┌┬┐┬ ┬┌─┐┬─┐┌─┐┌─┐  ┌┐┌┌─┐  ┌─┐┬  ┌─┐┌─┐┌─┐  ┬  ┬┬┌─┌─┐

@@ -1,8 +1,0 @@
-dots_filder: ".dotfiles"
-directory_name: <%= File.dirname(__dir__) %>
-skip_tests_for: []
-backup_dirs:
-  dev: dev
-  workspace: workspace
-  code: code
-  .dotfiles: .dotfiles

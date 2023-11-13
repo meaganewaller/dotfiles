@@ -1,78 +1,82 @@
 <p align="center">
-🌷 <sup><sub><samp> welcome to my dotfiles! </samp></sub></sup>
+🌷 <sup><sub><samp> Welcome to My Dotfiles! </samp></sub></sup>
 </p>
 
-my full automated development environment is built to ✨spark joy✨. aesthetics **and** performance are prioritized.
+My fully automated development environment is built to ✨spark joy✨. aesthetics **_and_** performance are prioritized.
 
 <br />
+This is my digital home. I hope you find it useful.
+<hr />
 
-## tools & resources
 
-allow me to introduce you to my trusted accomplices. keep in mind that my loyalty to any given tool is fickle and subject to change at any moment a shiny new one catches my eye. but for now, here's the current ensemble:
+## Tools and Resources
 
-### kitty terminal emulator
+Allow me to introduce you to my trusted accomplices. Keep in mind that my loyalty to any given tool is fickle and subject to change the moment a shiny new one catches my eye. But for now, here's the current ensemble:
 
-- **github**: [kitty](https://github.com/kovidgoyal/kitty)
-- **description**: the kitty terminal emulator is the cat's meow when it comes to terminal experiences. it's fast, it's customizable, and it's got a cute name with a cute icon. what more could you want? it's purr-fectly suited for my daily coding antics.
+### Kitty Terminal Emulator
 
-### neovim code editor
+- **GitHub**: [Kitty](https://github.com/kovidgoyal/kitty)
+- **Description**: The Kitty terminal emulator is the cat's meow when it comes to terminal experiences. It's fast, customizable, and has a cute name with a cute icon. What more could you want? It's purr-fectly suited for my daily coding antics.
 
-- **website:** [neovim](https://neovim.io/)
-- **description:** neovim is my code sanctuary. it's like a swiss army knife for text editing but with more shortcuts and fewer corkscrews. vim enthusiasts, rejoice!
+### Neovim Code Editor
 
-### fish shell
+- **Website:** [Neovim](https://neovim.io/)
+- **Description**: Neovim is my code sanctuary. It's like a Swiss army knife for text editing but with more shortcuts and fewer corkscrews. Vim enthusiasts, rejoice!
 
-- **website:** [fish](https://fishshell.com/)
-- **description:** the Fish shell is my trusty sidekick in the command-line world. it's user-friendly, intuitive, and always ready to lend a helping fin.
+### Fish Shell
 
-### asdf version manager
+- **Website:** [Fish](https://fishshell.com/)
+- **Description**: The Fish shell is my trusty sidekick in the command-line world. It's user-friendly, intuitive, and always ready to lend a helping fin.
 
-- **website:** [asdf](https://asdf-vm.com/)
-- **description:** asdf is the wizard behind the curtain, managing my development environment with ease. it's like having a magic wand for installing and switching between programming languages.
 
-### sketchybar menubar
+### ASDF Version Manager
 
-- **github:** [sketchybar](https://github.com/FelixKratz/SketchyBar)
-- **description:** like a chameleon for your desktop, sketchybar changes hues to match my mood and serves as a trusty heads-up display for key information.
+- **Website:** [ASDF](https://asdf-vm.com/)
+- **Description**: ASDF is the wizard behind the curtain, managing my development environment with ease. It's like having a magic wand for installing and switching between programming languages.
 
-### skhd shortcut daemon
+### SketchyBar Menubar
 
-- **github:** [skhd](https://github.com/koekeishiya/skhd)
-- **description:** a silent conductor orchestrating my custom keyboard shortcuts, working tirelessly behind the scenes.
+- **GitHub**: [SketchyBar](https://github.com/FelixKratz/SketchyBar)
+- **Description**: Like a chameleon for your desktop, SketchyBar changes hues to match my mood and serves as a trusty heads-up display for key information.
 
-### homebrew package manager
+### Skhd Shortcut Daemon
 
-- **website:** [homebrew](https://brew.sh/)
-- **description:** homebrew is the bartender of my system, serving up all the software i need with a simple command. it keeps my system well-hydrated with the latest apps.
+- **GitHub**: [Skhd](https://github.com/koekeishiya/skhd)
+- **Description**: A silent conductor orchestrating my custom keyboard shortcuts, working tirelessly behind the scenes.
 
-### fira code nerd font
+### Homebrew Package Manager
 
-- **github:** [fira code nerd font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/firacode)
-- **description:** fira code nerd font is the font of choice for my code. it's like the perfect pair of jeans—it just fits right and makes everything look good.
+- **Website:** [Homebrew](https://brew.sh/)
+- **Description**: Homebrew is the bartender of my system, serving up all the software I need with a simple command. It keeps my system well-hydrated with the latest apps.
 
-### ibm plex typeface
+### Fira Code Nerd Font
 
-- **website:** [ibm plex](https://www.ibm.com/plex/)
-- **description:** ibm plex is my typographic muse. it's clean, modern, and adds a touch of class to my monitor. i pretty much only use it for italics.
+- **GitHub**: [Fira Code Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/firacode)
+- **Description**: Fira Code Nerd Font is the font of choice for my code. It's like the perfect pair of jeans—it just fits right and makes everything look good.
 
-### bigblue terminal font
+### IBM Plex Typeface
 
-- **website:** [bigblue terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
-- **description:** bigblue terminal font takes me back to the good old days of computing. it's retro, it's fixed-width, and it's just plain cool.
+- **Website:** [IBM Plex](https://www.ibm.com/plex/)
+- **Description**: IBM Plex is my typographic muse. It's clean, modern, and adds a touch of class to my monitor. I pretty much only use it for italics.
 
-### hammerspoon automation tool
+### BigBlue Terminal Font
 
-- **website:** [hammerspoon](https://www.hammerspoon.org/)
-- **description:** hammerspoon is my digital butler, automating tasks and making my life easier. it's like having a personal assistant in code form.
+- **Website:** [BigBlue Terminal](https://int10h.org/blog/2015/12/bigblue-terminal-oldschool-fixed-width-font/)
+- **Description**: BigBlue Terminal Font takes me back to the good old days of computing. It's retro, fixed-width, and just plain cool.
 
-### karabiner elements keyboard customizer
+### Hammerspoon Automation Tool
 
-- **github:** [karabiner elements](https://github.com/tekezo/Karabiner-Elements)
-- **description:** karabiner elements is my key manipulator, shaping keyboard behaviors to adapt effortlessly to different layouts and key combinations. it's a versatile tool for customizing key functions to suit my needs.
+- **Website:** [Hammerspoon](https://www.hammerspoon.org/)
+- **Description**: Hammerspoon is my digital butler, automating tasks and making my life easier. It's like having a personal assistant in code form.
 
-### yabai window manager
+### Karabiner Elements Keyboard Customizer
 
-- **github:** [yabai](https://github.com/koekeishiya/yabai)
-- **description:** yabai is the artist of my screen, painting windows with the brush of my keyboard. it's a tiling window manager that keeps my desktop tidy and my workflow efficient.
+- **GitHub**: [Karabiner Elements](https://github.com/tekezo/Karabiner-Elements)
+- **Description**: Karabiner Elements is my key manipulator, shaping keyboard behaviors to adapt effortlessly to different layouts and key combinations. It's a versatile tool for customizing key functions to suit my needs.
 
-now that you've met the crew, feel free to explore their individual quirks and see how they contribute to the symphony of my digital life.
+### Yabai Window Manager
+
+- **GitHub**: [Yabai](https://github.com/koekeishiya/yabai)
+- **Description**: Yabai is the artist of my screen, painting windows with the brush of my keyboard. It's a tiling window manager that keeps my desktop tidy and my workflow efficient.
+
+Now that you've met the crew, feel free to explore their individual quirks and see how they contribute to the symphony of my digital life.
