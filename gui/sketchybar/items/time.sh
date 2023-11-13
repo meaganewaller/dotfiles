@@ -49,4 +49,3 @@ sketchybar --add bracket time_bracket time time_dot calendar \
 
 sketchybar --move calendar after time
 sketchybar --move time_dot after time
-
