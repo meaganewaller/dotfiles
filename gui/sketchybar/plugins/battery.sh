@@ -10,28 +10,28 @@ COLOR=$WHITE
 
 if [[ $CHARGING != "" ]]; then
   case ${PERCENTAGE} in
-    9[0-9]|100) ICON="󰂅"
+    9[0-9]|100) ICON="󰂅" COLOR=$GV_CHARGER_CONNECTED
     ;;
-    [6-8][0-9]) ICON="󰢞"
+    [6-8][0-9]) ICON="󰢞" COLOR=$GV_CHARGER_CONNECTED
     ;;
-    [3-5][0-9]) ICON="󰢝"
+    [3-5][0-9]) ICON="󰢝" COLOR=$GV_CHARGER_CONNECTED
     ;;
-    [1-2][0-9]) ICON="󰂇" COLOR=$RED
+    [1-2][0-9]) ICON="󰂇" COLOR=$GV_CHARGER_CONNECTED
     ;;
-    *) ICON="󰢜"; COLOR=$RED
+    *) ICON="󰢜"; COLOR=$GV_CHARGER_CONNECTED
   esac
 else
   case ${PERCENTAGE} in
-    9[0-9]|100) ICON="󰁹"
+    9[0-9]|100) ICON="󰁹" COLOR=$GREEN
       ;;
-    [6-8][0-9]) ICON="󰂀"
+    [6-8][0-9]) ICON="󰂀" COLOR=$GV_BATTERY_MEDIUM
       ;;
-    [3-5][0-9]) ICON="󰁾"
+    [3-5][0-9]) ICON="󰁾" COLOR=$GV_BATTERY_LOW
       ;;
-    [1-2][0-9]) ICON="󰁼" COLOR=$RED
+    [1-2][0-9]) ICON="󰁼" COLOR=$GV_BATTERY_SUPERLOW
       ;;
-    *) ICON="󰁺"; COLOR=$RED
+    *) ICON="󰁺"; COLOR=$GV_BATTERY_SUPERLOW
   esac
 fi
 
-sketchybar --set $NAME icon="$ICON" label="${PERCENTAGE}%" label.color=$WHITE label.drawing=on icon.color=$COLOR
+sketchybar --set $NAME icon="$ICON" label="${PERCENTAGE}%" label.color=$LABEL_COLOR label.drawing=on icon.color=$COLOR

@@ -33,5 +33,6 @@ sketchybar --add item github.bell right                 \
                                     mouse.exited        \
                                     mouse.exited.global \
                                                         \
+                                                        --add item github.notifications \
            --add item github.template popup.github.bell \
            --set github.template "${github_template[@]}"
