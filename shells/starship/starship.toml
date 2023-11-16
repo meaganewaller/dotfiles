@@ -7,16 +7,16 @@ add_newline = true
 command_timeout = 10_000
 palette = 'hardhacker'
 
-aws.disabled = true
+aws.disabled = false
 c.disabled = true
 cmake.disabled = true
 haskell.disabled = true
-python.disabled = true
+python.disabled = false
 rust.disabled = true
 perl.disabled = true
 package.disabled = true
-lua.disabled = true
-nodejs.disabled = true
+lua.disabled = false
+nodejs.disabled = false
 java.disabled = true
 golang.disabled = true
 conda.disabled = true
@@ -25,7 +25,7 @@ gcloud.disabled = true
 localip.disabled = true
 php.disabled = true
 vagrant.disabled = true
-git_metrics.disabled = true
+git_metrics.disabled = false
 
 [palettes.hardhacker]
 background = "#282433"
@@ -58,6 +58,7 @@ yellow_light = "#f3ec9a"
 blue_light = "#c9cde6"
 purple_light = "#f1d9f6"
 cyan_light = "#c9f1f0"
+darkest_pink = "#B00544"
 
 [palettes.rainbow]
 red = "#F77976"
@@ -78,7 +79,6 @@ lavendar = "#D883FF"
 dark_lavendar = "#9336FD"
 pink = "#FFC8DD"
 dark_pink = "#F050AE"
-darkest_pink = "#B00544"
 baby_blue = "#BDE0FE"
 
 [ruby]
@@ -88,8 +88,8 @@ style = "fg:foreground bg:purple_light"
 
 [character]
 format = "\n╰╴$symbol "
-success_symbol = "[](green bold)"
-error_symbol = "[](red)"
+success_symbol = "[⟶](green bold)"
+error_symbol = "[](red)"
 vicmd_symbol = "[](yellow)"
 
 [username]
@@ -102,7 +102,7 @@ disabled = true
 ssh_only = true
 format = "[](fg:blue bg:none)[$ssh_symbol](fg:blue_dark bg:blue)[](fg:blue bg:blue)[ $hostname]($style)[](fg:blue bg:none) "
 style = "fg:bold blue_dark bg:blue"
-ssh_symbol = " "
+ssh_symbol = ""
 trim_at = "-"
 disabled = false
 
@@ -121,18 +121,18 @@ format = "[ $hash$tag]($style) "
 
 [git_status]
 # format = "([ $all_status$ahead_behind]($style) )"
-format = "[](fg:purple bg:none)[$all_status$ahead_behind]($style)[ ](fg:purple bg:none)"
+format = "[](fg:purple bg:none)[$all_status$ahead_behind]($style)[](fg:purple bg:none)"
 conflicted = "="
 ahead =	"⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-up_to_date = ""
+up_to_date = "✓"
 untracked = "?${count}"
-stashed = ""
+stashed = ""
 modified = "!${count}"
 staged = "+${count}"
 renamed = "»${count}"
-deleted = "${count}"
+deleted = "${count}"
 style = "bg:purple fg:foreground"
 # style = "bold yellow"
 ignore_submodules = true
@@ -150,8 +150,11 @@ ignore_submodules = true
 
 [git_state]
 merge = " MERGING"
-cherry_pick = "🍒 PICKING"
+rebase = " REBASING"
+cherry_pick =  " PICKING"
 style = "bold red"
+revert = " REVERTING"
+bisect = " BISECTING"
 
 [directory]
 read_only = " "
@@ -166,7 +169,7 @@ truncate_to_repo=false
 " ~/Downloads" = " ~/Downloads"
 " ~/Desktop"   = " ~/Desktop"
 " ~/Music"     = " ~/Music"
-" ~/Pictures"  = " ~/Pictures"
+" ~/Pictures"  = " ~/Pictures"
 " ~/Library"   = " ~/Library"
 " ~/Dropbox"   = " ~/Dropbox"
 " ~/code"      = " ~/code"
@@ -181,50 +184,50 @@ symbol = " "
 disabled = false
 format="[](fg:red_light bg:none)[💖](fg:red_light bg:red_light)[](fg:red_light bg:red_light)[ $time]($style)[](fg:red_light bg:none)"
 time_format = "%l:%m%p" #change to %R to only have HH:MM
-style="fg:#E2285C bg:red_light"
+style="fg:darkest_pink bg:red_light"
 
-# #     望
+
 [battery]
-full_symbol = " "
-charging_symbol = " "
-discharging_symbol = " "
+full_symbol = "󰂄 "
+charging_symbol = " "
+discharging_symbol = "󰂅 "
 
 [[battery.display]]
-threshold = 101
-style = "bold blue"
+threshold = 25
+style = "bold red"
 
 [[battery.display]]
 threshold = 50
 style = "bold yellow"
 
 [[battery.display]]
-threshold = 30
-style = "bold red"
+threshold = 101
+style = "green"
+
 
 [cmd_duration]
 min_time = 1
-# duration & style
-format = "[]($style)[[神](bg:background_light fg:foreground_light bold)$duration](bg:background_light fg:foreground_light)[ ]($style)"
+format = "[]($style)[[󰔟 ](bg:foreground_light fg:background_light bold)$duration](bg:foreground_light fg:background_light)[ ]($style)"
 disabled = false
 style = "bg:none fg:foreground_light"
 
 [os.symbols]
-Alpine = " "
-Arch = " "
-CentOS = " "
-Debian = " "
-Fedora = " "
-FreeBSD = " "
-Gentoo = " "
-Linux = " "
-Macos = " "
-Mint = " "
-NixOS = " "
-OpenBSD = " "
-openSUSE = " "
-Raspbian = " "
-Redhat = " "
-RedHatEnterprise = " "
-Ubuntu = " "
-Unknown = " "
-Windows = " "
+Alpine = ""
+Arch = ""
+CentOS = ""
+Debian = ""
+Fedora = ""
+FreeBSD = ""
+Gentoo = ""
+Linux = ""
+Macos = ""
+Mint = ""
+NixOS = ""
+OpenBSD = ""
+openSUSE = ""
+Raspbian = ""
+Redhat = ""
+RedHatEnterprise = ""
+Ubuntu = ""
+Unknown = ""
+Windows = ""
