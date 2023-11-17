@@ -7,7 +7,7 @@ add_newline = true
 command_timeout = 10_000
 palette = 'hardhacker'
 
-aws.disabled = false
+aws.disabled = true
 c.disabled = true
 cmake.disabled = true
 haskell.disabled = true
@@ -185,7 +185,6 @@ disabled = false
 format="[](fg:red_light bg:none)[💖](fg:red_light bg:red_light)[](fg:red_light bg:red_light)[ $time]($style)[](fg:red_light bg:none)"
 time_format = "%l:%m%p" #change to %R to only have HH:MM
 style="fg:darkest_pink bg:red_light"
-
 
 [battery]
 full_symbol = "󰂄 "
