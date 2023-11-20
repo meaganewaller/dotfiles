@@ -240,6 +240,7 @@ nx.map({
   { "<leader>`R", "<Cmd>ResetTerminal<CR>", desc = "Reset Terminal" },
   { "<C-c>", "<Esc>", desc = "Escape", "" },
   { "gV", "`[v`]", desc = "Select Last Pasted Text" },
+  { "<C-a>", "gg<S-v>G", desc = "Select all" },
   -- 's/S' are Utilized for Plugins Like Surround / Hop
   { "s", "<nop>", "v" },
   -- Preserve Selection on Increment / Decrement

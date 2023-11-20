@@ -10,5 +10,9 @@ nx.set({
 
 -- { == Events ==> ============================================================
 
-nx.map({ "<leader>tp", "<Cmd>MarkdownPreviewToggle<CR>", ft = "markdown", desc = "Toggle Markdown Preview" })
+nx.map({
+  { "<leader>tp", "<Cmd>MarkdownPreviewToggle<CR>", ft = "markdown", desc = "Toggle Markdown Preview" },
+  { "<leader>mp", "<cmd>MarkdownPreview<CR>", ft = "markdown", desc = "Markdown preview" },
+})
+
 -- <== }

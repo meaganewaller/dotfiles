@@ -3,19 +3,13 @@
 -- { == Configuration ==> =====================================================
 
 require("toggleterm").setup({
-  size = 20,
-  open_mapping = [[<C-\>]],
-  hide_numbers = false,
-  shade_filetypes = false,
-  shading_factor = 2,
-  start_in_insert = true,
-  insert_mappings = false,
-  persist_size = true,
+  open_mapping = "<C-t>",
+  hide_numbers = true,
   direction = "float",
-  close_on_exit = true,
-  auto_scroll = false,
+  start_in_insert = true,
   shell = vim.o.shell,
-  winbar = { enabled = true },
+  close_on_exit = true,
+  float_opts = { border = "rounded" },
 })
 -- <== }
 
@@ -42,5 +36,9 @@ function LAZYGIT_TOGGLE() lazygit:toggle() end
 -- <== }
 
 -- { == Keymaps ==> ===========================================================
+
+nx.map({
+  { "<C-t>", "<cmd>ToggleTerm<CR>", desc = "Toggle terminal" },
+})
 
 -- <== }

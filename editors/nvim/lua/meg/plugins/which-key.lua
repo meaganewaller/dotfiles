@@ -34,6 +34,7 @@ wk.setup({
     -- ["<CR>"] = "RET",
     -- ["<tab>"] = "TAB",
   },
+  disable = { filetypes = { "TelescopePrompt" } },
   icons = {
     breadcrumb = "»", -- symbol used in the command line area that shows your active key combo
     separator = "➜", -- symbol used between a key and it's label
@@ -66,7 +67,7 @@ wk.setup({
     -- list of mode / prefixes that should never be hooked by WhichKey
     -- this is mostly relevant for key maps that start with a native binding
     -- most people should not need to change this
-    n = { ";", "y" },
+    n = { "y" },
     v = { "j", "k" },
     i = { "j", "k", "<lt>" },
   },
@@ -78,63 +79,8 @@ wk.setup({
 
 -- Which-Key is configured to automatically set up triggers. The additional registration of labels is to
 -- assign labels to groups and to modify or ignore the labels of keymaps gathered automatically.
-wk.register({
-  ["/"] = { name = "Search" },
-  [","] = { name = "Config" },
-  ["`"] = { name = "Terminal", ["`"] = "Toggle" },
-  b = { name = "Buffers" },
-  d = { name = "Diagnostics" },
-  f = { name = "File" },
-  g = {
-    name = "Git",
-    y = "Link",
-    G = { name = "Gist" },
-  },
-  c = { name = "Comments" },
-  h = { name = "History" },
-  k = { name = "Kitty Runner" },
-  l = { name = "LSP" },
-  m = { name = "Bookmarks" },
-  R = { name = "SnipRun" },
-  s = { name = "Sessions" },
-  t = { name = "Toggle", d = { name = "Diagnostics" } },
-  T = { name = "Treesitter" },
-}, { prefix = "<leader>" })
-
-wk.register({
-  d = "Delete fold at cursor",
-  D = "Delete fold at cursor recursively",
-  E = "Eliminate all folds in window",
-  ["%"] = "which_key_ignore", -- ignore matchup key label
-}, { prefix = "z" })
-
-wk.register({
-  ["/"] = { name = "Search Marks" },
-  h = { name = "Harpoon" },
-  x = { name = "Delete Marks" },
-  ["0"] = "which_key_ignore",
-}, { prefix = "m" })
-
-wk.register({
-  ["<C-/>"] = "which_key_ignore",
-  ["<C-_>"] = "which_key_ignore",
-  ["`"] = "which_key_ignore",
-  j = "which_key_ignore",
-  k = "which_key_ignore",
-  g = { name = "Git" },
-  R = { name = "SnipRun" },
-}, { prefix = "<leader>", mode = "v" })
-
-wk.register({
-  t = { name = "Tabs" },
-}, { prefix = "<C-w>" })
-
-wk.register({
-  s = { name = "Silicon" },
-}, { prefix = "<LocalLeader>" })
-
-wk.register({
-  c = "which_key_ignore",
-  b = "which_key_ignore",
-}, { prefix = "g", mode = { "n", "v" } })
+local definitions = require("meg.keybindings").on_setup_wk
+for _, definition in ipairs(definitions) do
+  wk.register(definition.mappings, definition.opts)
+end
 -- <== }

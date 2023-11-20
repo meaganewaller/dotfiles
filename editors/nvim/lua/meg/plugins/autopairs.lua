@@ -21,7 +21,7 @@ local function init()
 
   -- { == Keymaps ==> ==========================================================
 
-  nx.map({ -- Autopairs Exeptions
+  nx.map({ -- Autopairs Exceptions
     { "<A-'>", "'", "i" },
     { "<A-S-'>", '"', "i" },
     { '<A-">', '"', "i" },

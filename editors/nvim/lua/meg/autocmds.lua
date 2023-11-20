@@ -27,7 +27,14 @@ nx.au({
 	{ "FileType", pattern = "vb", command = "setlocal et ts=4 sw=4" },
 	{ { "BufNewFile", "BufRead" }, pattern = { "*.njk", "*.vto" }, command = "set ft=html" },
 	{ { "BufNewFile", "BufRead" }, pattern = { "*.v", "*.vsh", ".vv" }, command = "set ft=v" },
+
 })
+
+nx.au({
+  { "BufNewFile", "BufRead" },
+  pattern = { "**/node_modules/**", "node_modules", "/node_modules/*" },
+  callback = function() vim.diagnostic.disable(0) end,
+}, { create_group = "DisableEslintOnNodeModules" })
 
 nx.au({ -- Remember folds
 	{ "BufWinLeave", pattern = "*.*", callback = function() vim.cmd("mkview") end },
@@ -39,6 +46,7 @@ nx.au({ -- Sync marks accross sessions
 	-- stylua: ignore
 	{ { "FocusGained", "UIEnter" }, callback = function() vim.schedule(function() vim.cmd("rshada") end) end },
 }, { create_group = "SyncMarks" })
+
 -- <== }
 
 -- { == Plugin Autocmds ==> ====================================================

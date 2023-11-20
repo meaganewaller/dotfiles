@@ -1,100 +1,154 @@
 local M = {}
+local api = vim.api
 
----@param hl_group string|number
----@param val string|"bg"|"fg"
-function M.get_hl(hl_group, val)
-  local api_get_hl = vim.api.nvim_get_hl_by_name
+function M.combine_plugins(sources_handler)
+  local plugins = {}
 
-  if type(hl_group) == "number" then api_get_hl = vim.api.nvim_get_hl_by_id end
+  local sources = sources_handler()
 
-  if val == "fg" then
-    val = "foreground"
-  elseif val == "bg" then
-    val = "background"
+  for _, source in pairs(sources) do
+    for _, plugin in ipairs(source) do
+      table.insert(plugins, plugin)
+    end
   end
 
-  local ok, hl = pcall(api_get_hl, hl_group, true)
-  if not ok then return nil end
-
-  return hl[val]
+  return plugins
 end
 
----@param input_path string
-function M.truc_path(input_path)
-  local home_path = vim.fn.expand("$HOME")
-  if string.match(input_path, home_path) then input_path = input_path:gsub(home_path, "~") end
+function M.has_words_before()
+  local line, col = unpack(api.nvim_win_get_cursor(0))
+  return col ~= 0
+  and api
+  .nvim_buf_get_lines(0, line - 1, line, true)[1]
+  :sub(col, col)
+  :match "%s"
+  == nil
+end
 
-  local config = {
-    max_dirs = 2,
-    shorten = true,
-    prefix = "…", -- "󰘍" ""
-    trunc_symbol = "…",
-  }
+function M.plugin_available(plugin_name)
+  local available = pcall(require, plugin_name)
 
-  local file_sep = package.config:sub(1, 1)
-  local file = vim.split(input_path, file_sep)
-  local path = ""
+  return available
+end
 
-  for dirs, _ in ipairs(file) do
-    if dirs <= config.max_dirs then
-      if config.max_dirs ~= 1 and dirs == 1 then
-        -- first level files (directly in project root)
-        if file[#file - config.max_dirs] == nil then
-          path = path .. file[#file - (#file - 1)]
-        else
-          path = path .. file[#file - config.max_dirs]
-        end
-      else
-        -- tip for debugging: use somthing like *test* inside "/"
-        if file[#file - dirs] == nil then
-          path = path .. "/" .. file[#file - (#file - dirs)]
-        else
-          -- middle position
-          path = path
-          .. "/"
-          .. (
-          (
-          config.shorten
-          and string.sub(file[#file - (config.max_dirs - (dirs - 1))], 1, 2)
-          .. config.trunc_symbol
-          ) or file[#file - (config.max_dirs - (dirs - 1))]
-          )
-        end
-      end
+function M.convert_command_center_opts(default_opts)
+  local opts = {}
+  local mode = "n"
+
+  for key, value in pairs(default_opts) do
+    if key == "mode" then
+      mode = value
     else
-      -- actual filename
-      if file[#file - dirs] == nil then
-        path = path .. "/" .. file[#file]
-        break
-      else
-        path = config.prefix .. path .. "/" .. file[#file]
-        break
+      opts[key] = value
+    end
+  end
+
+  return { mode = mode, opts = opts }
+end
+
+function M.flat_binding_resolver(mappings, previous_keys, opts)
+  local category = ""
+  local items = {}
+
+  if mappings.name ~= nil then
+    if type(mappings.name) ~= "string" then
+      error "category name must be a string"
+      return items
+    else
+      category = mappings.name
+    end
+  end
+
+  if type(mappings) ~= "table" then
+    error "mappings is not a table"
+
+    return items
+  else
+    for key, mapping in pairs(mappings) do
+      if key ~= "name" then
+        if #mapping == 2 and mapping.name == nil then
+          local cmd = mapping[1]
+          local desc = mapping[2]
+
+          if type(desc) ~= "string" then
+            error "item desc must be a string"
+
+            return items
+          end
+
+          local command_center_opts = M.convert_command_center_opts(opts)
+
+          local item = {
+            desc = desc,
+            cmd = cmd,
+            keys = {
+              {
+                command_center_opts.mode,
+                (previous_keys or "") .. key,
+                command_center_opts.opts,
+              },
+            },
+          }
+
+          if category ~= "" then
+            item.category = category
+          else
+            item.category = " Aliases"
+          end
+
+          table.insert(items, item)
+        else
+          local nested_items = M.flat_binding_resolver(
+          mapping,
+          (previous_keys or "") .. key,
+          opts
+          )
+
+          for _, item in ipairs(nested_items) do
+            table.insert(items, item)
+          end
+        end
       end
     end
   end
 
-  return path
+  return items
 end
 
--- Auto window height - use for qf lists
-vim.cmd([[
-fun! AdjustWindowHeight(minheight, maxheight)
-exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
-endfun
-]])
+function M.deep_extend_arrays(base, arr_tbl)
+  local result = vim.tbl_deep_extends("force", {}, base or {})
 
-nx.cmd({
-  { "ResetTerminal", function() vim.cmd("set scrollback=1 | sleep 10m | set scrollback=10000") end },
-  {
-    "WipeRegisters",
-    function()
-      for i = 34, 122 do
-        pcall(vim.fn.setreg, vim.fn.nr2char(i), "")
-      end
-      vim.cmd("wshada!")
-    end,
-    desc = "Clear All Registers",
-  },
-})
+  for _, tbl in ipairs(arr_tbl) do
+    result = vim.tbl_deep_extends("force", result, tbl)
+  end
+
+  return base
+end
+
+function M.get_icon(kind, padding)
+  local icon = require("meg.icons")[kind]
+
+  return icon and icon .. string.rep(" ", padding or 0) or ""
+end
+
+function M.empty_tbl(tbl)
+  if type(tbl) ~= "table" then return true end
+
+  local index = #tbl
+
+  return index == 0
+end
+
+function M.echo(v) print(vim.inspect(v)) end
+
+function M.file_exists(path)
+  local f = io.open(path, "r")
+  if f then
+    io.close(f)
+    return true
+  else
+    return false
+  end
+end
 
 return M
