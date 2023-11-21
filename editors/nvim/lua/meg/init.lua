@@ -1,5 +1,8 @@
-require('meg.base')
-require('meg.lazy')
-require('meg.options')
-require('meg.keymaps')
-require('meg.autocmds')
+local custom = require "meg.custom"
+
+require "meg.manager"
+require "meg.lsp"
+require "meg.keymaps"
+require "meg.autocmds"
+
+vim.cmd.colorscheme(custom.theme)

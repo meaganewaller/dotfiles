@@ -1,56 +1,49 @@
-nx.au({
-	-- Check if buffers were changed outside of Vim
-	-- { "FocusGained", pattern = "*.*", command = "checktime" },
-	-- Create parent dir if it doesn't exist
-	{ "BufWritePre", command = "call mkdir(expand('<afile>:p:h'), 'p')" },
-	-- Reload(execute) on save
-	{ "BufWritePost", pattern = "options.lua", command = "source <afile>" },
-	{ -- Filetypes to quick close with `q`
-		{ "Filetype", "CmdwinEnter" },
-		pattern = { "qf", "help", "man", "startuptime", "vim" },
-		callback = function() nx.map({ { "q", "<Cmd>close<CR>", buffer = 0 } }) end,
-	},
-	{ -- Disable auto commenting
-		"BufEnter",
-		command = "setlocal formatoptions-=cro",
-	},
-	-- Highlight on yank
-	{ "TextYankPost", callback = function() vim.highlight.on_yank({ higroup = "IncSearch", timeout = 150 }) end },
-	-- QFList - adapt window height to list item count(meg.utils function)
-	{ "FileType", pattern = "qf", command = "setlocal nobuflisted | call AdjustWindowHeight(3, 10)" },
+local group = vim.api.nvim_create_augroup("meaganewaller", {})
 
-	-- Filetype Specific ----------------------------------------------------------
-	{ "FileType", pattern = "markdown", command = "setlocal wrap ts=2 sw=2" },
-	-- { "FileType", pattern = "markdown", callback = function() vim.wo.foldlevel = 99 end },
-	{ "FileType", pattern = "teal", once = true, command = "LspToggleAutoFormat silent" },
-	{ "FileType", pattern = "python", command = "setlocal noet ts=3 sw=3" },
-	{ "FileType", pattern = "vb", command = "setlocal et ts=4 sw=4" },
-	{ { "BufNewFile", "BufRead" }, pattern = { "*.njk", "*.vto" }, command = "set ft=html" },
-	{ { "BufNewFile", "BufRead" }, pattern = { "*.v", "*.vsh", ".vv" }, command = "set ft=v" },
-
+vim.api.nvim_create_autocmd({
+  "FocusGained",
+  "BufEnter",
+  "CursorHold",
+}, {
+  group = group,
+  desc = "Reload buffer on focus",
+  callback = function()
+    if vim.fn.getcmdwintype() == "" then vim.cmd("checktime") end
+  end,
 })
 
-nx.au({
-  { "BufNewFile", "BufRead" },
-  pattern = { "**/node_modules/**", "node_modules", "/node_modules/*" },
-  callback = function() vim.diagnostic.disable(0) end,
-}, { create_group = "DisableEslintOnNodeModules" })
+local cursorGrp = vim.api.nvim_create_augroup("CursorLine", { clear = true })
+vim.api.nvim_create_autocmd(
+  { "InsertEnter", "WinLeave" },
+  { pattern = "*", command = "set nocursorline", group = cursorGrp }
+)
 
-nx.au({ -- Remember folds
-	{ "BufWinLeave", pattern = "*.*", callback = function() vim.cmd("mkview") end },
-	{ "BufWinEnter", pattern = "*.*", callback = function() vim.cmd("silent! loadview") end },
-}, { create_group = "RememberFolds" })
+vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
+  pattern = "*",
+  command = "wa",
+})
 
-nx.au({ -- Sync marks accross sessions
-	{ "FocusLost", command = "wshada" },
-	-- stylua: ignore
-	{ { "FocusGained", "UIEnter" }, callback = function() vim.schedule(function() vim.cmd("rshada") end) end },
-}, { create_group = "SyncMarks" })
+vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+  pattern = "*",
+  callback = function()
+    local opts = {
+      focusable = false,
+      close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+      border = "rounded",
+      source = "always",
+      prefix = " ",
+      scope = "cursor",
+    }
+    vim.diagnostic.open_float(nil, opts)
+  end,
+})
 
--- <== }
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  callback = function(args) require("conform").format({ bufnr = args.buf }) end,
+})
 
--- { == Plugin Autocmds ==> ====================================================
-
--- Autocmds that are specific to a module are set in that module's config file (`/meg/plugins/<modulename>.lua`).
--- This modular approach aims for an uncluttered keymap configuration in case plugins are removed or changed.
--- <== }
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  command = "call mkdir(expand('<afile>:p:h'), 'p')",
+})
