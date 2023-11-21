@@ -17,12 +17,33 @@ end
 
 function M.has_words_before()
   local line, col = unpack(api.nvim_win_get_cursor(0))
-  return col ~= 0
-  and api
-  .nvim_buf_get_lines(0, line - 1, line, true)[1]
-  :sub(col, col)
-  :match "%s"
-  == nil
+  return col ~= 0 and api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+
+function M.p(...)
+  local args = { ... }
+  local mods = {}
+  local first_mod
+  for _, arg in ipairs(args) do
+    if type(arg) == "function" then
+      arg(unpack(mods))
+      break
+    end
+    local ok, mod = pcall(require, arg)
+    if ok then
+      if not first_mod then first_mod = mode end
+      table.insert(mods, mod)
+    else
+      vim.notify_once(string.format("Missing module: %s", arg), vim.log.levels.WARN)
+      local dummy = {}
+      setmetatable(dummy, {
+        __call = function() return dummy end,
+        __index = function() return dummy end,
+      })
+      return dummy
+    end
+  end
+  return first_mod
 end
 
 function M.plugin_available(plugin_name)
@@ -52,7 +73,7 @@ function M.flat_binding_resolver(mappings, previous_keys, opts)
 
   if mappings.name ~= nil then
     if type(mappings.name) ~= "string" then
-      error "category name must be a string"
+      error("category name must be a string")
       return items
     else
       category = mappings.name
@@ -60,7 +81,7 @@ function M.flat_binding_resolver(mappings, previous_keys, opts)
   end
 
   if type(mappings) ~= "table" then
-    error "mappings is not a table"
+    error("mappings is not a table")
 
     return items
   else
@@ -71,7 +92,7 @@ function M.flat_binding_resolver(mappings, previous_keys, opts)
           local desc = mapping[2]
 
           if type(desc) ~= "string" then
-            error "item desc must be a string"
+            error("item desc must be a string")
 
             return items
           end
@@ -98,11 +119,7 @@ function M.flat_binding_resolver(mappings, previous_keys, opts)
 
           table.insert(items, item)
         else
-          local nested_items = M.flat_binding_resolver(
-          mapping,
-          (previous_keys or "") .. key,
-          opts
-          )
+          local nested_items = M.flat_binding_resolver(mapping, (previous_keys or "") .. key, opts)
 
           for _, item in ipairs(nested_items) do
             table.insert(items, item)

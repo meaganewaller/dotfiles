@@ -19,9 +19,6 @@
 -- { == Global Keymaps ==> ====================================================
 
 -- Leader key
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
-
 local bd = require("bufdelete")
 
 nx.map({
@@ -274,6 +271,17 @@ nx.map({
   { "<S-3-ScrollWheelUp>", "<3-ScrollWheelLeft>", "" },
   { "<S-4-ScrollWheelUp>", "<4-ScrollWheelLeft>", "" },
 }, { desc = "Fix: Scrolling with Acceleration" })
+
+local utils = require("meg.utils")
+
+utils.p("meg.tags", function(tags)
+  tags.setup({
+    on_attach = function(bufnr)
+      vim.keymap.set("n", "<C-]>", tags.goto_definition, { buffer = bufnr, desc = "Goto tag" })
+    end,
+  })
+end)
+
 -- <== }
 
 -- { == Filetype Keymaps ==> ==================================================

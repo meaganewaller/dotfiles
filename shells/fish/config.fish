@@ -55,3 +55,4 @@ if not string match -q -- $PNPM_HOME $PATH
   set -gx PATH "$PNPM_HOME" $PATH
 end
 source ~/.asdf/asdf.fish
+source /Users/meaganwaller/.config/op/plugins.sh

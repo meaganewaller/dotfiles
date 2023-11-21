@@ -4,6 +4,8 @@ local queries = require("nvim-treesitter.query")
 local parsers = require("nvim-treesitter.parsers")
 
 local disable_max_size = 2000000
+require("ts_context_commentstring").setup({})
+vim.g.skip_ts_context_commentstring_module = true
 
 local function should_disable(lang, bufnr)
   local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr or 0))
@@ -65,10 +67,10 @@ local config = {
     enable = true,
   },
   indent = { enable = true, disable = { "yaml", "python" } },
-  context_commentstring = {
-    enable = true,
-    enable_autocmd = false,
-  },
+  -- context_commentstring = {
+  --   enable = true,
+  --   enable_autocmd = false,
+  -- },
   autotag = {
     enable = true,
     enable_rename = true,

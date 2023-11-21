@@ -5,6 +5,17 @@ vim.g.multigrid = vim.api.nvim_list_uis()[1].ext_multigrid
 require("meg.plugins.visual-multi")
 
 local modules = {
+  { "stevearc/resession.nvim", opts = { extensions = { aerial = {} } } },
+  {
+    "stevearc/aerial.nvim",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+      "hrsh7th/nvim-cmp",
+    },
+    cmd = { "AerialToggle", "AerialOpen" },
+    config = "plugins.aerial",
+  },
   { "MunifTanjim/nui.nvim" },
   { "nvim-lua/popup.nvim" },
   { "nvim-lua/plenary.nvim" },
@@ -52,6 +63,136 @@ local modules = {
         desc = "Cook the duck",
       },
     },
+  },
+  { "docunext/closetag.vim", event = "InsertEnter *" },
+  "milisims/nvim-luaref",
+  {
+    "stevearc/pair-ls.nvim",
+    cmd = { "Pair", "PairConnect" },
+    config = true,
+    opts = {
+      cmd = { "pair-ls", "lsp" },
+    },
+  },
+  {
+
+    "folke/zen-mode.nvim",
+    cmd = "ZenMode",
+    opts = {
+      window = {
+        options = {
+          relativenumber = false,
+          number = false,
+        },
+      },
+      plugins = {
+        kitty = {
+          enabled = true,
+          font = "24",
+        },
+      },
+    },
+  },
+  {
+    "jackMort/ChatGPT.nvim",
+    cmd = {
+      "ChatGPT",
+      "ChatGPTActAs",
+      "ChatGPTCompleteCode",
+      "ChtGPTEditWithInstructions",
+      "ChatGPTRun",
+    },
+    keys = function()
+      local chatgpt = require("chatgpt")
+      local wk = require("which-key")
+
+      wk.register({
+        a = {
+          function() chatgpt.edit_with_instructions() end,
+          "Edit with instructions",
+        },
+      }, { prefix = "<Leader>", mode = "v" })
+
+      return {
+        { '<Leader>cc', '<Cmd>ChatGPT<Cr>', 'n', desc = 'ChatGPT' },
+        { '<Leader>ce', '<Cmd>ChatGPTEditWithInstruction<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTEditWithInstruction' },
+        { '<Leader>cg', '<Cmd>ChatGPTRun grammar_correction<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun grammar_correction' },
+        { '<Leader>ct', '<Cmd>ChatGPTRun translate<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun translate' },
+        { '<Leader>ck', '<Cmd>ChatGPTRun keywords<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun keywords' },
+        { '<Leader>cd', '<Cmd>ChatGPTRun docstring<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun docstring' },
+        { '<Leader>ca', '<Cmd>ChatGPTRun add_tests<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun add_tests' },
+        { '<Leader>co', '<Cmd>ChatGPTRun optimize_code<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun optimize_code' },
+        { '<Leader>cs', '<Cmd>ChatGPTRun summarize<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun summarize' },
+        { '<Leader>cf', '<Cmd>ChatGPTRun fix_bugs<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun fix_bugs' },
+        { '<Leader>cx', '<Cmd>ChatGPTRun explain_code<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun explain_code' },
+        { '<Leader>cr', '<Cmd>ChatGPTRun code_readability_analysis<Cr>', mode = { 'n', 'v' }, desc = 'ChatGPTRun code_readability_analysis' },
+      }
+    end,
+    event = "VeryLazy",
+    config = function()
+      require("chatgpt").setup({
+        api_key_cmd = 'op read -n op://Personal/ChatGPT/api_key'
+      })
+    end,
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+    },
+  },
+
+  { "stevearc/stickybuf.nvim", cmd = { "PinBuffer", "PinBuftype", "PinFiletype" }, opts = {} },
+
+  {
+    "willothy/flatten.nvim",
+    opts = {
+      window = {
+        open = "tab",
+      },
+      one_per = { kitty = false, wezterm = false },
+      block_for = {
+        gitcommit = true,
+        gitrebase = true,
+      },
+      post_open = function(bufnr, winnr, ft, is_blocking)
+        vim.w[winnr].is_remote = true
+        if is_blocking then
+          vim.bo[bufnr].bufhidden = "wipe"
+          local has_stickybuf, stickybuf = pcall(require, "stickybuf")
+          if has_stickybuf then stickybuf.pin(winnr) end
+          vim.api.nvim_create_autocmd("BufHidden", {
+            desc = "Close window when buffer is hidden",
+            callback = function()
+              if vim.api.nvim_win_is_valid(winnr) then vim.api.nvim_win_close(winnr, true) end
+            end,
+            buffer = bufnr,
+            once = true,
+          })
+        end
+      end,
+    },
+  },
+  {
+    "AckslD/nvim-FeMaco.lua",
+    cmd = "FeMaco",
+    config = true,
+  },
+  {
+    "ojroques/nvim-osc52",
+    -- Only change the clipboard if we're in a SSH session
+    cond = os.getenv("SSH_CLIENT") ~= nil and (os.getenv("TMUX") ~= nil or vim.fn.has("nvim-0.10") == 0),
+    config = function()
+      local osc52 = require("osc52")
+      local function copy(lines, _) osc52.copy(table.concat(lines, "\n")) end
+
+      local function paste() return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") } end
+
+      vim.g.clipboard = {
+        name = "osc52",
+        copy = { ["+"] = copy, ["*"] = copy },
+        paste = { ["+"] = paste, ["*"] = paste },
+      }
+    end,
   },
   {
     "sindrets/diffview.nvim",
@@ -163,11 +304,324 @@ local modules = {
     main = "pqf",
   },
   {
+    "mbbill/undotree",
+    lazy = false,
+    cmd = "UndotreeToggle",
+    keys = {
+      { "<Leader>uu", "<cmd>UndotreeToggle<CR>", desc = "Undotree Toggle" },
+    },
+  },
+  { "folke/twilight.nvim", opts = {} },
+  {
+    "nvim-neorg/neorg",
+    dependencies = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter", "jbyuki/venn.nvim" },
+    build = ":Neorg sync-parsers",
+    keys = {
+      { "<CR>", ":VBox<CR>", mode = "v" },
+    },
+    ft = "norg",
+    cmd = "Neorg",
+    opts = {
+      load = {
+        ["core.defaults"] = {}, -- Loads default behaviour
+        ["core.concealer"] = { -- Adds pretty icons to your documents
+          config = {
+            icons = {
+              todo = {
+                undone = {
+                  icon = " ",
+                },
+              },
+            },
+          },
+        },
+        ["core.completion"] = {
+          config = {
+            engine = "nvim-cmp",
+          },
+        },
+        -- This is deleting the non-empty contents of files
+        -- ["core.esupports.metagen"] = {
+        --   config = {
+        --     type = "auto",
+        --   },
+        -- },
+        ["core.presenter"] = {
+          config = {
+            zen_mode = "zen-mode",
+          },
+        },
+        ["core.keybinds"] = {
+          config = {
+            hook = function(keybinds)
+              keybinds.unmap("norg", "n", "<CR>")
+
+              keybinds.unmap("presenter", "n", "l")
+              keybinds.unmap("presenter", "n", "h")
+              keybinds.unmap("presenter", "n", "<CR>")
+              keybinds.unmap("presenter", "n", "q")
+
+              -- Unmaps any Neorg key from the `norg` mode
+              keybinds.remap_event("presenter", "n", "<Right>", "core.presenter.next_page")
+              keybinds.remap_event("presenter", "n", "<C-j>", "core.presenter.next_page")
+              keybinds.remap_event("presenter", "n", "<Left>", "core.presenter.previous_page")
+              keybinds.remap_event("presenter", "n", "<C-k>", "core.presenter.previous_page")
+              keybinds.remap_event("presenter", "n", "<Down>", "core.presenter.close")
+              keybinds.map("norg", "n", "<Up>", "<CMD>Neorg presenter start<CR>")
+            end,
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      local neorg = require("neorg")
+      neorg.setup(opts)
+
+      local utils = require("meg.utils")
+
+      utils.p("quick_action", function(quick_action)
+        quick_action.add("menu", {
+          name = "Toggle todo status",
+          condition = function()
+            if vim.bo.filetype ~= "norg" then return false end
+            local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+            local todo_module = neorg.modules.get_module("core.qol.todo_items")
+            local item = todo_module and todo_module.get_todo_item_from_cursor(0, lnum)
+            local row = item and item:start()
+            return row == lnum
+          end,
+          action = function() vim.cmd("Neorg keybind norg core.qol.todo_items.todo.task_cycle") end,
+        })
+      end)
+    end,
+  },
+
+  {
+    "mhanberg/output-panel.nvim",
+    keys = {
+      { "<leader>uo", "<cmd>OutputPanel<cr>", desc = "Toggle LSP output" },
+    },
+    config = true,
+  },
+  {
+    "pwntester/octo.nvim",
+    cmd = "Octo",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("octo").setup({ enable_builtin = true })
+      vim.treesitter.language.register("markdown", "octo")
+    end,
+    keys = {
+      { "<Leader>o", "<cmd>Octo<CR>", desc = "Octo" },
+    },
+  },
+
+  {
+    "roberte777/keep-it-secret.nvim",
+    eager = true,
+    opts = {
+      wildcards = { ".*(.env)$", ".*(.secret)$" },
+      enabled = false,
+    },
+  },
+
+  {
+    "epwalsh/obsidian.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "hrsh7th/nvim-cmp",
+      "nvim-telescope/telescope.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      -- "preservim/vim-markdown",
+    },
+
+    lazy = true,
+    event = {
+      "BufReadPre " .. vim.fn.expand("~") .. "/repos/second-brain/**.md",
+      "BufNewFile " .. vim.fn.expand("~") .. "/repos/second-brain/**.md",
+    },
+    commands = {
+      "ObsidianOpen",
+      "ObsidianNew",
+      "ObsidianQuickSwitch",
+      "ObsidianFollowLink",
+      "ObsidianBacklinks",
+      "ObsidianToday",
+      "ObsidianYesterday",
+      "ObsidianTemplate",
+      "ObsidianSearch",
+      "ObsidianLink",
+      "ObsidianLinkNew",
+    },
+
+    opts = {
+      dir = "~/repos/second-brain", -- no need to call 'vim.fn.expand' here
+      completion = { nvim_cmp = true },
+
+      daily_notes = {
+        folder = "Calendar 🗓️/Days 🌄",
+        -- Optional, if you want to change the date format for the ID of daily notes.
+        -- date_format = "%Y-%m-%d",
+        -- Optional, if you want to change the date format of the default alias of daily notes.
+        -- alias_format = "%B %-d, %Y",
+      },
+
+      -- Optional, alternatively you can customize the frontmatter data.
+      note_frontmatter_func = function(note)
+        -- This is equivalent to the default frontmatter function.
+        local out = { id = note.id, aliases = note.aliases, tags = note.tags }
+        -- `note.metadata` contains any manually added fields in the frontmatter.
+        -- So here we just make sure those fields are kept in the frontmatter.
+        if note.metadata ~= nil and require("obsidian").util.table_length(note.metadata) > 0 then
+          for k, v in pairs(note.metadata) do
+            out[k] = v
+          end
+        end
+        return out
+      end,
+
+      -- Optional, for templates (see below).
+      templates = {
+        subdir = "templates",
+        date_format = "%Y-%m-%d-%a",
+        time_format = "%H:%M",
+      },
+
+      follow_url_func = function(url) vim.fn.jobstart({ "open", url }) end,
+
+      -- Optional, set to true if you use the Obsidian Advanced URI plugin.
+      -- https://github.com/Vinzent03/obsidian-advanced-uri
+      use_advanced_uri = true,
+
+      -- Optional, set to true to force ':ObsidianOpen' to bring the app to the foreground.
+      open_app_foreground = true,
+    },
+
+    -- mappings = {
+    --   ["gf"] = require("obsidian.mapping").gf_passthrough(),
+    -- },
+
+    config = function(_, opts)
+      require("obsidian").setup(opts)
+      vim.keymap.set("n", "gd", function()
+        if require("obsidian").util.cursor_on_markdown_link() then
+          return "<cmd>ObsidianFollowLink<CR>"
+        else
+          return "gd"
+        end
+      end, { noremap = false, expr = true })
+    end,
+  },
+  {
+    "nvim-neotest/neotest",
+    dependencies = {
+      "nvim-neotest/neotest-python",
+      "nvim-neotest/neotest-plenary",
+      "nvim-neotest/neotest-jest",
+      "nvim-neotest/neotest-go",
+      "olimorris/neotest-rspec",
+      "stevearc/overseer.nvim",
+      "nvim-lua/plenary.nvim",
+    },
+    keys = {
+      { "<leader>ta", "<cmd>lua require('neotest').run.attach()<cr>", desc = "Attach to the nearest test" },
+      { "<leader>tl", "<cmd>lua require('neotest').run.run_last()<cr>", desc = "Toggle Test Summary" },
+      { "<leader>to", "<cmd>lua require('neotest').output_panel.toggle()<cr>", desc = "Toggle Test Output Panel" },
+      { "<leader>tp", "<cmd>lua require('neotest').run.stop()<cr>", desc = "Stop the nearest test" },
+      { "<leader>ts", "<cmd>lua require('neotest').summary.toggle()<cr>", desc = "Toggle Test Summary" },
+      { "<leader>tt", "<cmd>lua require('neotest').run.run()<cr>", desc = "Run the nearest test" },
+      {
+        "<leader>tT",
+        "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<cr>",
+        desc = "Run test the current file",
+      },
+    },
+    config = function()
+      local neotest = require("neotest")
+      -- require("neotest.logging"):set_level("trace")
+      neotest.setup({
+        adapters = {
+          require("neotest-rspec"),
+          require("neotest-python")({
+            dap = { justMyCode = false },
+          }),
+          require("neotest-plenary"),
+          require("neotest-go"),
+          require("neotest-jest")({
+            cwd = require("neotest-jest").root,
+          }),
+        },
+        discovery = {
+          enabled = false,
+        },
+        consumers = {
+          overseer = require("neotest.consumers.overseer"),
+        },
+        summary = {
+          mappings = {
+            attach = "a",
+            expand = "l",
+            expand_all = "L",
+            jumpto = "gf",
+            output = "o",
+            run = "<C-r>",
+            short = "p",
+            stop = "u",
+          },
+        },
+        icons = {
+          passed = " ",
+          running = " ",
+          failed = " ",
+          unknown = " ",
+          running_animated = vim.tbl_map(
+            function(s) return s .. " " end,
+            { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+          ),
+        },
+        diagnostic = {
+          enabled = true,
+        },
+        output = {
+          enabled = true,
+          open_on_run = false,
+        },
+        status = {
+          enabled = true,
+        },
+      })
+      vim.keymap.set("n", "<leader>tn", function() neotest.run.run({}) end)
+      vim.keymap.set("n", "<leader>tt", function() neotest.run.run({ vim.api.nvim_buf_get_name(0) }) end)
+      vim.keymap.set("n", "<leader>ta", function()
+        for _, adapter_id in ipairs(neotest.run.adapters()) do
+          neotest.run.run({ suite = true, adapter = adapter_id })
+        end
+      end)
+      vim.keymap.set("n", "<leader>tl", function() neotest.run.run_last() end)
+      vim.keymap.set("n", "<leader>td", function() neotest.run.run({ strategy = "dap" }) end)
+      vim.keymap.set("n", "<leader>tp", function() neotest.summary.toggle() end)
+      vim.keymap.set("n", "<leader>to", function() neotest.output.open({ short = true }) end)
+    end,
+  },
+  { "tpope/vim-abolish", keys = { { "cr", "<Plug>(abolish-coerce-word)", mode = "n" } } },
+  "gioele/vim-autoswap",
+  { "tpope/vim-eunuch", ft = { "sh" }, cmd = { "Remove", "Delete" } },
+  {
     "kylechui/nvim-surround",
     version = "*",
     allow_in_vscode = true,
     event = "BufReadPost",
     config = function() require("nvim-surround").setup({}) end,
+  },
+  {
+    "uga-rosa/ccc.nvim",
+    cmd = { "CccPick" },
+    ft = { "html", "css", "sass", "less", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+    config = "plugins.ccc",
   },
   {
     "jedrzejboczar/possession.nvim",
@@ -282,6 +736,7 @@ local modules = {
     config = true,
   },
   { "sQVe/sort.nvim", cmd = { "Sort" }, config = true },
+  "wellle/targets.vim",
   {
     "lambdalisue/suda.vim",
     cmd = {
@@ -310,6 +765,7 @@ local modules = {
     event = "BufReadPost",
     keys = { { "J", "<Plug>(jplus)", mode = { "n", "v" }, noremap = false } },
   },
+  { "tpope/vim-endwise", event = "InsertEnter" },
   {
     "andymass/vim-matchup",
     enabled = true,
@@ -354,41 +810,31 @@ local modules = {
     "vuki656/package-info.nvim",
     dependencies = { "MunifTanjim/nui.nvim" },
     ft = { "json" },
-    opts = { package_manager = "pnpm" },
-    keys = {
-      {
-        "<Leader>ns",
-        "<cmd>lua require('package-info').show()<CR>",
-        desc = "Show package info",
-        mode = "n",
-        silent = true,
-        noremap = true,
+    opts = {
+      package_manager = "pnpm",
+      colors = {
+        -- TODO: add to catppuccin
+        up_to_date = "#B1D99C", -- Text color for up to date dependency virtual text
+        outdated = "#EAAC86", -- Text color for outdated dependency virtual text
       },
-      {
-        "<leader>nd",
-        "<cmd>lua require('package-info').delete()<cr>",
-        desc = "Delete package",
-        mode = "n",
-        silent = true,
-        noremap = true,
-      },
-      {
-        "<leader>np",
-        "<cmd>lua require('package-info').change_version()<cr>",
-        desc = "Change package version",
-        mode = "n",
-        silent = true,
-        noremap = true,
-      },
-      {
-        "<leader>ni",
-        "<cmd>lua require('package-info').install()<cr>",
-        desc = "Install package",
-        mode = "n",
-        silent = true,
-        noremap = true,
-      },
+      autostart = true,
+      hide_up_to_date = true,
+      hide_unstable_versions = false,
     },
+    keys = function()
+      require("which-key").register({ n = { name = "+PackageInfo" } }, { prefix = "<leader>" })
+      local function map(key, cmd, desc)
+        vim.keymap.set({ "n" }, "<LEADER>n" .. key, cmd, { desc = desc, silent = true, noremap = true })
+      end
+      local pi = require("package-info")
+      map("s", pi.show, "Show package info")
+      map("h", pi.hide, "Hide package info")
+      map("n", pi.toggle, "Toggle package info")
+      map("u", pi.update, "Update package")
+      map("d", pi.delete, "Delete package")
+      map("i", pi.install, "Install package")
+      map("v", pi.change_version, "Change package version")
+    end,
   },
   {
     "stevearc/oil.nvim",
@@ -511,14 +957,8 @@ local modules = {
     build = ":TSUpdate",
     config = "plugins.treesitter",
   },
-
   { dir = "meg/colorschemes", priority = 90, config = "colorschemes", eager = true },
   { dir = "meg/client", priority = 95, config = "client", eager = true },
-  --    { dir = "meg/keymaps", priority = 80, config = "keymaps", eager = true },
-  --  { dir = "meg/autocmds", priority = 80, config = "autocmds", eager = true },
-  --  { dir = "meg/options", priority = 80, config = "options", eager = true },
-  --   { dir = "meg/lsp", priority = 80, config = "lsp" },
-  --
   { "Bekaboo/dropbar.nvim", event = "VeryLazy", config = "plugins.dropbar" },
   { "wakatime/vim-wakatime", priority = 90, eager = true },
   { "tenxsoydev/nx.nvim", priority = 100, config = function() _G.nx = require("nx") end, eager = true },
@@ -582,7 +1022,7 @@ local modules = {
           "nvim-treesitter/nvim-treesitter-textobjects",
         },
       },
-      "zbirenbaum/copilot-cmp",
+      -- "zbirenbaum/copilot-cmp",
     },
     config = "plugins.cmp",
   },
@@ -593,6 +1033,182 @@ local modules = {
       "stevearc/dressing.nvim",
       "nvim-telescope/telescope.nvim",
     },
+  },
+  {
+    "TobinPalmer/rayso.nvim",
+    cmd = "Rayso",
+    opts = {
+      base_url = "https://ray.so/", -- Default URL
+      open_cmd = "Arc", -- On MacOS, will open with open -a firefox.app. Other OS's are untested.
+      options = {
+        background = true, -- If the screenshot should have a background.
+        dark_mode = true, -- If the screenshot should be in dark mode.
+        logging_path = "", -- Path to create a log file in.
+        logging_file = "rayso", -- Name of log file, will be a markdown file, ex rayso.md.
+        logging_enabled = false, -- If you enable the logging file.
+        padding = 32, -- The default padding that the screenshot will have.
+        theme = "raindrop", -- Theme
+      },
+    },
+    keys = {
+      { "<leader>rs", "<cmd>Rayso<cr>", desc = "Share with Rayso" },
+    },
+  },
+  {
+    "ThePrimeagen/refactoring.nvim",
+    dependencies = {
+      { "nvim-lua/plenary.nvim" },
+      { "nvim-treesitter/nvim-treesitter" },
+    },
+  },
+  {
+    "joshmedeski/telescope-smart-goto.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "ThePrimeagen/harpoon",
+    },
+  },
+  {
+    "stevearc/dressing.nvim",
+    config = "plugins.dressing",
+  },
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "sindrets/diffview.nvim",
+    },
+    cmd = "Neogit",
+    opts = {
+      signs = {
+        hunk = { "", "" },
+        item = { "", "" },
+        section = { "", "" },
+      },
+      integrations = {
+        diffview = true,
+      },
+    },
+  },
+  {
+    "lmburns/lf.nvim",
+    cmd = "Lf",
+    dependencies = {
+      "akinsho/toggleterm.nvim",
+      "nvim-lua/plenary.nvim",
+    },
+    opts = {
+      border = "single",
+      escape_quit = true,
+      highlights = { NormalFloat = { guibg = "NONE" } },
+      winblend = 0,
+    },
+    keys = {
+      { "<leader>ff", "<cmd>Lf<cr>", desc = "Lf" },
+    },
+  },
+  { "tzachar/highlight-undo.nvim", opts = {} },
+  {
+    "AckslD/nvim-neoclip.lua",
+    dependencies = { "kkharji/sqlite.lua" },
+    keys = {
+      { "<leader>P", "<cmd>Telescope neoclip<cr>", desc = "Neoclip" },
+    },
+    opts = {
+      history = 1000,
+      enable_persistent_history = true,
+      length_limit = 1048576,
+      continuous_sync = false,
+      db_path = vim.fn.stdpath("data") .. "/databases/neoclip.sqlite3",
+      filter = nil,
+      preview = true,
+      prompt = nil,
+      default_register = '"',
+      default_register_macros = "q",
+      enable_macro_history = true,
+      content_spec_column = false,
+      disable_keycodes_parsing = false,
+      on_select = {
+        move_to_front = false,
+        close_telescope = true,
+      },
+      on_paste = {
+        set_reg = false,
+        move_to_front = false,
+        close_telescope = true,
+      },
+      on_replay = {
+        set_reg = false,
+        move_to_front = false,
+        close_telescope = true,
+      },
+      on_custom_action = {
+        close_telescope = true,
+      },
+      keys = {
+        telescope = {
+          i = {
+            select = "<cr>",
+            paste = "<c-p>",
+            paste_behind = "<c-k>",
+            replay = "<c-q>", -- replay a macro
+            delete = "<c-d>", -- delete an entry
+            edit = "<c-e>", -- edit an entry
+            custom = {},
+          },
+          n = {
+            select = "<cr>",
+            paste = "p",
+            --- It is possible to map to more than one key.
+            -- paste = { 'p', '<c-p>' },
+            paste_behind = "P",
+            replay = "q",
+            delete = "d",
+            edit = "e",
+            custom = {},
+          },
+        },
+      },
+    },
+  },
+  {
+    "tpope/vim-fugitive",
+    dependencies = {
+      "tpope/vim-rhubarb",
+      "rbong/vim-flog",
+    },
+    cmd = { "GitHistory", "Git", "GBrowse", "Gwrite", "Flog", "Flogsplit" },
+    keys = {
+      { "<leader>gg", "<cmd>Flog -all<CR>", { mode = "n", desc = "[G]it [G]raph" } },
+      { "<leader>gh", "<cmd>GitHistory<CR>", { mode = "n", desc = "[G]it [H]istory" } },
+      { "<leader>gb", "<cmd>Git blame<CR>", { mode = "n", desc = "[G]it [B]lame" } },
+      { "<leader>gc", "<cmd>GBrowse!<CR>", { mode = "n", desc = "[G]it [C]opy link" } },
+      { "<leader>gc", ":GBrowse!<CR>", { mode = "v", desc = "[G]it [C]opy link" } },
+    },
+    config = function() vim.cmd("command! GitHistory Git! log -- %") end,
+  },
+  {
+    "3rd/image.nvim",
+    ft = { "markdown", "norg", "oil" },
+    build = function()
+      local has_magic = pcall(require, "magick")
+      if not has_magick and vim.fn.executable("luarocks") == 1 then
+        if is_mac then
+          vim.fn.system("luarocks --lua-dir=$(brew --prefix)/opt/lua@5.1 --lua-version=5.1 install magick")
+        else
+          vim.fn.system("luarocks --local --lua-version=5.1 install magick")
+        end
+        if vim.v.shell_error ~= 0 then vim.notify("Error installing magick with luarocks", vim.log.levels.WARN) end
+      end
+    end,
+    opts = {
+      editor_only_render_when_focused = true,
+      tmux_show_only_in_active_window = true,
+    },
+    config = function(_, opts)
+      local has_magic = pcall(require, "magick")
+      if has_magick then require("image").setup(opts) end
+    end,
   },
   {
     "dnlhc/glance.nvim",
@@ -642,70 +1258,54 @@ local modules = {
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
+    config = "plugins.lsp",
     dependencies = {
       {
-        "williamboman/mason.nvim",
-        cmd = {
-          "Mason",
-          "MasonInstall",
-          "MasonUninstall",
-          "MasonUninstallAll",
-          "MasonLog",
-          "MasonUpdate",
-          "MasonUpdateAll",
-        },
-        opts = {
-          ui = {
-            icons = {
-              package_installed = "✓",
-              package_uninstalled = "✗",
-              package_pending = "⟳",
+        { "b0o/SchemaStore.nvim", eager = true },
+        {
+          "williamboman/mason.nvim",
+          cmd = {
+            "Mason",
+            "MasonInstall",
+            "MasonUninstall",
+            "MasonUninstallAll",
+            "MasonLog",
+            "MasonUpdate",
+            "MasonUpdateAll",
+          },
+          opts = {
+            ui = {
+              icons = {
+                package_installed = "✓",
+                package_uninstalled = "✗",
+                package_pending = "⟳",
+              },
             },
           },
+          build = ":MasonUpdate",
         },
-        build = ":MasonUpdate",
-        config = function(_, opts) require("mason").setup(opts) end,
       },
-      {
-        "williamboman/mason-lspconfig",
-        cmd = { "LspInstall", "LspUninstall" },
-      },
-      "simrat39/symbols-outline.nvim",
-      {
-        "p00f/clangd_extensions.nvim",
-        lazy = true,
-      },
-      { "simrat39/rust-tools.nvim", lazy = true },
-      "SmiteshP/nvim-navic",
-      "onsails/lspkind.nvim",
-      "hrsh7th/nvim-cmp",
-      "MunifTanjim/nui.nvim",
-      "jose-elias-alvarez/null-ls.nvim",
     },
-    config = function()
-      local mlc = require("mason-lspconfig")
-      mlc.setup({})
-
-      local lsp_config = require("meg.lsp.config")
-      lsp_config.setup_diagnostics()
-
-      local nvim_lsp_configs = require("lspconfig")
-      local user_opts = require("meg.lsp.sources").config()
-
-      local utils = require("meg.utils")
-
-      mlc.setup_handlers({
-        function(server_name)
-          local user_opt = user_opts[server_name]
-
-          local opt = user_opt
-          if user_opts == nil or utils.empty_tbl(user_opt) then opt = lsp_config.opt_builder() end
-
-          nvim_lsp_configs[server_name].setup(opt)
-        end,
-      })
-    end,
   },
+  { "williamboman/mason-lspconfig", cmd = { "LspInstall", "LspUninstall" } },
+  { "stevearc/flow-coverage.nvim", ft = { "javascript", "javascript.jsx", "javascriptreact" } },
+  {
+    "folke/neodev.nvim",
+    ft = "lua",
+    dependencies = {
+      "neovim/nvim-lspconfig",
+    },
+    config = "plugins.neodev",
+  },
+  {
+    "pmizio/typescript-tools.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "neovim/nvim-lspconfig",
+    },
+    config = "plugins.typescript",
+  },
+  { "simrat39/rust-tools.nvim", lazy = true },
   {
     "folke/trouble.nvim",
     dependencies = { "folke/lsp-colors.nvim" },
@@ -785,6 +1385,20 @@ local modules = {
           },
         },
       },
+      views = {
+        cmdline_popup = {
+          position = {
+            row = 7,
+            col = "55%",
+          },
+        },
+        cmdline_popupmenu = {
+          position = {
+            row = 7,
+            col = "55%",
+          },
+        },
+      },
       messages = { enabled = false },
       presets = {
         bottom_search = false,
@@ -798,165 +1412,13 @@ local modules = {
       vim.defer_fn(function() require("noice").setup(opts) end, 20)
     end,
   },
-
-  --   --  { "tenxsoydev/size-matters.nvim", lazy = true },
-  --   { "folke/lazy.nvim", tag = "v9.10.0" },
-  --   { "nvim-tree/nvim-web-devicons", config = "plugins.devicons", eager = true },
-  --   "nvim-lua/plenary.nvim",
-  --
   { "goolord/alpha-nvim", config = "plugins.alpha", eager = true },
-  --   --  { "windwp/windline.nvim", config = "plugins.windline", eager = true },
-  --   --  { "gelguy/wilder.nvim", dependencies = "romgrk/fzy-lua-native", event = "CmdlineEnter", config = "plugins.wilder" },
-  --   { "MunifTanjim/nui.nvim" },
-  --   { "folke/noice.nvim", config = not vim.g.multigrid and "plugins.noice" or false },
-  --   { "AckslD/messages.nvim", event = "VeryLazy", config = vim.g.multigrid and "plugins.messages" or false },
-  --   { "rcarriga/nvim-notify", config = "plugins.notify", eager = true },
-  --   --  { "nvim-neo-tree/neo-tree.nvim", dependencies = "MunifTanjim/nui.nvim", config = "plugins.neo-tree" },
-  --   { "akinsho/toggleterm.nvim", event = "VeryLazy", config = "plugins.toggleterm" },
-  --   { "willothy/flatten.nvim", priority = 100, config = "plugins.flatten" },
   { "numToStr/Comment.nvim", event = "VeryLazy", config = "plugins.comment" },
   { "folke/todo-comments.nvim", event = "VeryLazy", config = "plugins.todo-comments" },
-  --   { "LudoPinelli/comment-box.nvim", event = "VeryLazy", config = "plugins.comment-box" },
-  --   --  { "tversteeg/registers.nvim", event = "VeryLazy", config = "plugins.registers" },
-  --   --  { "tenxsoydev/karen-yank.nvim", event = "VeryLazy", config = true },
-  --   --
-  --   --  -- Buffer- & Window Management -----------------------------------------------
-  --   { "romgrk/barbar.nvim", event = "VeryLazy", config = "plugins.barbar" },
-  --   { "kwkarlwang/bufresize.nvim", event = "VeryLazy", config = true }, -- handle split window sizes on client resize
-  --   --  { "gorbit99/codewindow.nvim", event = "VeryLazy", config = "plugins.codewindow" },
   { "petertriho/nvim-scrollbar", event = "VeryLazy", config = "plugins.scrollbar" },
-  --   --  { "s1n7ax/nvim-window-picker", event = "VeryLazy", config = "plugins.window-picker" },
-  --   { "mrjones2014/smart-splits.nvim", event = "VeryLazy", config = "plugins.smart-splits" },
-  --   { "m4xshen/smartcolumn.nvim", opts = {}, eventt = "VeryLazy" },
-  --   --  {
-  --   --    "anuvyklack/windows.nvim",
-  --   --    dependencies = { "anuvyklack/middleclass", "anuvyklack/animation.nvim" },
-  --   --    event = "VeryLazy",
-  --   --    config = "plugins.windows",
-  --   --  },
-  --   --  { "christoomey/vim-tmux-navigator", event = "VeryLazy", config = function() vim.keymap.del("", "<C-Bslash>") end },
-  --   { "folke/zen-mode.nvim", event = "VeryLazy", config = "plugins.zen-mode" },
-  --   --  { "nvimtools/none-ls.nvim", event = "VeryLazy" },
-  --   --  { "sindrets/diffview.nvim", event = "VeryLazy", config = "plugins.diffview" },
-  --   { "akinsho/git-conflict.nvim", event = "VeryLazy", config = "plugins.git-conflict" },
-  --   { "f-person/git-blame.nvim", event = "VeryLazy" },
-  --   { "ruifm/gitlinker.nvim", event = "VeryLazy", config = true },
-  --   { "lewis6991/gitsigns.nvim", event = "VeryLazy", config = "plugins.gitsigns" },
-  --   { "tobealive/neogit", branch = "fix-noice-commit-confirm-message", event = "VeryLazy", config = "plugins.neogit" },
-  --   { "kair8m/git-worktree.nvim", event = "VeryLazy", config = "plugins.git-worktree" },
-  --   { "toppair/peek.nvim", build = "deno task --quiet build:fast", event = "VeryLazy", config = "plugins.peek-nvim" },
-  --   { "mattn/vim-gist", event = "VeryLazy", config = "plugins.gist" },
-  --   { "mattn/webapi-vim" },
-  --   --  { "chrisgrieser/nvim-spider", event = "VeryLazy" },
-  --   --  { "Wansmer/treesj", event = "VeryLazy" },
-  --   { "koenverburg/peepsight.nvim", event = "VeryLazy", config = "plugins.peepsight" },
-  --   { "ray-x/starry.nvim", event = "VeryLazy" },
-  --   {
-  --     "ethanholz/nvim-lastplace",
-  --     opts = {
-  --       lastplace_ignore_buftype = { "quickfix", "nofile", "help" },
-  --       lastplace_ignore_filetype = { "gitcommit", "gitrebase", "svn", "hgcommit" },
-  --       lastplace_open_folds = true,
-  --     },
-  --   },
-  --   {
-  --     "nvim-treesitter/nvim-treesitter",
-  --     build = ":TSUpdate",
-  --     config = "plugins.treesitter",
-  --   },
+  { "lewis6991/gitsigns.nvim", event = "VeryLazy", config = "plugins.gitsigns" },
   { "nvim-treesitter/nvim-treesitter-context" },
-  --   { "haringsrob/nvim_context_vt", dependencies = { "nvim-treesitter/nvim-treesitter" } },
-  --   { "nvim-treesitter/nvim-treesitter-textobjects", dependencies = { "nvim-treesitter/nvim-treesitter" } },
-  --   { "windwp/nvim-ts-autotag", dependencies = "nvim-treesitter/nvim-treesitter" },
-  --   { "JoosepAlviste/nvim-ts-context-commentstring", dependencies = "nvim-treesitter/nvim-treesitter" },
-  --   { "nvim-treesitter/playground", dependencies = "nvim-treesitter/nvim-treesitter" },
-  --   --  {
-  --   --    "mizlan/iswap.nvim",
-  --   --    event = "VeryLazy",
-  --   --    dependencies = "nvim-treesitter/nvim-treesitter",
-  --   --    config = "plugins.iswap",
-  --   --  },
-  --   { "HiPhish/rainbow-delimiters.nvim", config = "plugins.rainbow-delimiters" },
-  --   --  {
-  --   --    "aarondiel/spread.nvim",
-  --   --    event = "VeryLazy",
-  --   --    dependencies = "nvim-treesitter/nvim-treesitter",
-  --   --    config = "plugins.spread",
-  --   --  },
-  --   {
-  --     "nvim-telescope/telescope.nvim",
-  --     config = "plugins.telescope",
-  --     tag = "0.1.4",
-  --     dependencies = {
-  --       { "nvim-lua/plenary.nvim" },
-  --       { "nvim-lua/popup.nvim" },
-  --       { "nvim-telescope/telescope-fzy-native.nvim", dependencies = "romgrk/fzy-lua-native", lazy = true },
-  --       {
-  --         "nvim-telescope/telescope-live-grep-args.nvim",
-  --         version = "^1.0.0",
-  --       },
-  --     },
-  --   },
-  --   -- { "nvim-telescope/telescope-live-grep-args.nvim", lazy = true },
-  --   -- { "nvim-telescope/telescope-media-files.nvim", lazy = true },
-  --   -- { "gbrlsnchs/telescope-lsp-handlers.nvim", dependencies = { "nvim-telescope/telescope.nvim" }, lazy = true },
-  --   -- --  { "Maan2003/lsp_lines.nvim", lazy = true },
-  --   -- {
-  --   --   "nvim-telescope/telescope-file-browser.nvim",
-  --   --   dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
-  --   --   lazy = true,
-  --   -- },
-  --   -- { "kkharji/sqlite.lua", event = "VeryLazy" },
-  --   -- { "smartpde/telescope-recent-files", lazy = true },
-  --   -- { "nvim-telescope/telescope-smart-history.nvim", dependencies = { "kkharji/sqlite.lua" }, lazy = true },
-  --   -- { "tknightz/telescope-termfinder.nvim", lazy = true },
-  --   --  { "folke/neodev.nvim", config = true, lazy = true },
-  --   { "neovim/nvim-lspconfig", config = "lsp.plugins.lspconfig" },
-  --   { "jose-elias-alvarez/null-ls.nvim", config = "lsp.plugins.null-ls" }, -- inject external formatters and linters
-  --   { "glepnir/lspsaga.nvim", event = "VeryLazy", config = "lsp.plugins.lspsaga" },
-  --   --  { "j-hui/fidget.nvim", event = "VeryLazy", config = "lsp.plugins.fidget", tag = "legacy" },
-  --    { "ray-x/lsp_signature.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-signature" },
-  --   --  { "WhoIsSethDaniel/toggle-lsp-diagnostics.nvim", event = "VeryLazy", config = "lsp.plugins.lsp-toggle" },
-  --   "b0o/SchemaStore.nvim",
-  --   { "RRethy/vim-illuminate", dependencies = "nvim-treesitter/nvim-treesitter", config = "plugins.illuminate" },
-  --   { "smjonas/inc-rename.nvim", branch = "main", config = "plugins.inc-rename" },
-  --   --  -- Mason
-  --   { "williamboman/mason.nvim", config = "lsp.plugins.mason" },
-  --   --  -- stylua: ignore
-  --   { "williamboman/mason-lspconfig.nvim", dependencies = "williamboman/mason.nvim" },
-  --   { "jayp0521/mason-null-ls.nvim", dependencies = "williamboman/mason.nvim", config = true },
-  --   { "jay-babu/mason-nvim-dap.nvim" },
-  --   --  -- Language Specific
-  --   -- { "simrat39/rust-tools.nvim", config = "lsp.plugins.rust-tools" },
-  --   { "jose-elias-alvarez/typescript.nvim", lazy = true },
-  --   { "onsails/lspkind.nvim", lazy = true },
-  --   { "WhoIsSethDaniel/mason-tool-installer.nvim", event = "VeryLazy" },
-  --   -- { "linux-cultist/venv-selector.nvim", config = "plugins.venv-selector", event = "VeryLazy" },
-  --   { "kevinhwang91/nvim-bqf", event = "VeryLazy", config = "plugins.bqf" },
-  --   { "folke/trouble.nvim", event = "VeryLazy", config = "plugins.trouble" },
-  --   { "hrsh7th/nvim-cmp", event = "InsertEnter", config = "plugins.cmp" },
-  --   "hrsh7th/cmp-buffer",
-  --   "hrsh7th/cmp-path",
-  --   "hrsh7th/cmp-cmdline",
-  --   "hrsh7th/cmp-nvim-lsp",
-  --   "chrisgrieser/cmp-nerdfont",
-  --   "hrsh7th/cmp-nvim-lua",
-  --   "hrsh7th/cmp-nvim-lsp-signature-help",
-  --   "hrsh7th/cmp-nvim-lsp-document-symbol",
-  --   { "Exafunction/codeium.vim", event = "InsertEnter", config = "plugins.codeium" },
-  { "zbirenbaum/copilot.lua", config = "plugins.copilot" },
-  --   { "zbirenbaum/copilot-cmp", dependencies = "zbirenbaum/copilot.lua", config = true },
-  --   { "roobert/tailwindcss-colorizer-cmp.nvim", config = true },
-  --   -- Snippets
-  --   { "L3MON4D3/LuaSnip", event = "VeryLazy", config = "plugins.luasnip" }, --snippet engine
-  --   "saadparwaiz1/cmp_luasnip",
-  --   { "tomasky/bookmarks.nvim", config = "plugins.bookmarks" },
-  --   { "ThePrimeagen/harpoon", event = "VeryLazy", config = "plugins.harpoon" },
-  --   { "olimorris/persisted.nvim", config = "plugins.persisted" },
-  --   --  { "ahmedkhalf/project.nvim", config = "plugins.project" },
-  --   --  { "chentoast/marks.nvim", event = "VeryLazy", config = "plugins.marks" },
-  --   --  { "preservim/vim-markdown", config = "plugins.markdown", ft = "markdown" },
-  --   --  { "dkarter/bullets.vim", ft = "markdown", config = "plugins.bullets" },
+  { "zbirenbaum/copilot.lua", config = "plugins.copilot", event = "InsertEnter", cmd = "Copilot" },
   {
     "iamcco/markdown-preview.nvim",
     build = "cd app && npm install",
@@ -965,66 +1427,11 @@ local modules = {
     ft = { "markdown" },
     init = function() vim.g.mkdp_filetypes = { "markdown" } end,
   },
-  --   --  { "tenxsoydev/vim-markdown-checkswitch", ft = "markdown" },
-  --   --  -- use nvim for PKM / Zettelkasten
-  --   --  -- { "renerocksai/telekasten.nvim", config = "plugins.telekasten" },
-  --   --  -- { "epwalsh/obsidian.nvim", config = "plugins.obsidian" },
-  --   { "max397574/better-escape.nvim", event = "InsertEnter", config = "plugins.better-escape" }, -- remove delay from escape keys while typing in insert mode
-  --   { "nat-418/boole.nvim", event = "VeryLazy", config = "plugins.boole" }, -- extend increment / decrement to cycle through related words
-  --   { "stevearc/dressing.nvim", event = "VeryLazy", config = "plugins.dressing" },
-  --   { "NMAC427/guess-indent.nvim", event = "VeryLazy", config = true },
-  --   { "smoka7/hop.nvim", event = "VeryLazy", config = "plugins.hop" },
-  --   { "kevinhwang91/nvim-hlslens", event = "VeryLazy", config = "plugins.hlslens" },
-  --   { "edluffy/hologram.nvim", event = "VeryLazy" },
-  --   { "lukas-reineke/indent-blankline.nvim", event = "VeryLazy", config = "plugins.indentline" },
-  --   { "echasnovski/mini.nvim", config = "plugins.mini" },
-  --   { "karb94/neoscroll.nvim", config = "plugins.neoscroll" },
-  --   { "nacro90/numb.nvim", event = "VeryLazy", config = true },
   { "windwp/nvim-autopairs", event = "VeryLazy", config = "plugins.autopairs" },
-  --   { "NvChad/nvim-colorizer.lua", event = "VeryLazy", config = "plugins.colorizer" },
-  --   { "RaafatTurki/hex.nvim", opts = {}, event = "VeryLazy" },
   { "windwp/nvim-spectre", event = "VeryLazy", config = "plugins.spectre" },
-  --    { "kevinhwang91/nvim-ufo", dependencies = "kevinhwang91/promise-async", config = "plugins.ufo" },
-  --    { "michaelb/sniprun", event = "VeryLazy", build = "bash ./install.sh", config = "plugins.sniprun" },
-  --   { "luukvbaal/statuscol.nvim", config = "plugins.statuscol" },
-  --   { "levouh/tint.nvim", event = "VeryLazy", config = "plugins.tint" },
-  --    { "tenxsoydev/tabs-vs-spaces.nvim", config = true, event = "VeryLazy" },
-  --    { "andymass/vim-matchup", event = "VeryLazy", config = "plugins.matchup" }, -- highlight matching patterns and extend `%` navigation
-  --   { "shellRaining/hlchunk.nvim", event = { "UIEnter" }, lazy = true, config = "plugins.hlchunk" },
   { "tpope/vim-repeat", event = "VeryLazy", lazy = true },
-  --   { "tpope/vim-fugitive", lazy = true },
-  --   { "kylechui/nvim-surround", version = "*", lazy = true, config = "plugins.surround" },
-  --   { "andrewferrier/wrapping.nvim", lazy = true, config = "plugins.wrapping" },
-  --   "mg979/vim-visual-multi", -- needs to be loaded outside of lazy.nvim for its global variable config values to work
   { "folke/which-key.nvim", event = "VeryLazy", config = "plugins.which-key" },
-  --    { "smjonas/live-command.nvim", lazy = true, config = "plugins.live-command" },
-  --    { "tamton-aquib/zone.nvim", lazy = true, config = "plugins.zone" },
-  --   { "samodostal/image.nvim", lazy = true, config = true, config = "plugins.image" },
-  --    { "simrat39/inlay-hints.nvim", lazy = true },
-  --   { "mbbill/undotree", lazy = true, config = "plugins.undotree" },
-  --    {
-  --      "nvim-neotest/neotest",
-  --      lazy = true,
-  --      dependencies = {
-  --        "nvim-lua/plenary.nvim",
-  --        "nvim-treesitter/nvim-treesitter",
-  --        "antoinemadec/FixCursorHold.nvim",
-  --      },
-  --      config = "plugins.neotest",
-  --    },
-  --
   { "dracula/vim", as = "dracula" },
-  --   --  "folke/tokyonight.nvim",
-  --   --  "olivercederborg/poimandres.nvim",
-  --   --  { "spaceduck-theme/nvim", as = "spaceduck" },
-  --   --  { "daschw/leaf.nvim" },
-  --   --  { "slim-template/vim-slim", event = "FileType", ft = "slim" },
-  --   {
-  --     "michaelrommel/nvim-silicon",
-  --     event = "VeryLazy",
-  --     cmd = "Silicon",
-  --     config = "plugins.silicon",
-  --   },
   {
     "kristijanhusak/vim-carbon-now-sh",
     keys = {
@@ -1046,6 +1453,66 @@ local modules = {
     "stevearc/conform.nvim",
     event = "LspAttach",
     config = "plugins.conform",
+  },
+  {
+    "mfussenegger/nvim-lint",
+    ft = {
+      "javascript",
+      "javascriptreact",
+      "lua",
+      "python",
+      "rst",
+      "ruby",
+      "sh",
+      "typescript",
+      "typescriptreact",
+      "vim",
+      "yaml",
+    },
+    opts = {
+      linters_by_ft = {
+        javascript = { "eslint_d" },
+        javascriptreact = { "eslint_d" },
+        lua = { "luacheck" },
+        python = { "mypy", "pylint" },
+        rst = { "rstlint" },
+        sh = { "shellcheck" },
+        ruby = { "standardrb" },
+        typescript = { "eslint_d" },
+        typescriptreact = { "eslint_d" },
+        vim = { "vint" },
+        yaml = { "yamllint" },
+      },
+      linters = {},
+    },
+    config = function(_, opts)
+      local uv = vim.uv or vim.loop
+      local lint = require("lint")
+      lint.linters_by_ft = opts.linters_by_ft
+      for k, v in pairs(opts.linters) do
+        lint.linters[k] = v
+      end
+      local timer = assert(uv.new_timer())
+      local DEBOUNCE_MS = 500
+      local aug = vim.api.nvim_create_augroup("Lint", { clear = true })
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "TextChanged", "InsertLeave" }, {
+        group = aug,
+        callback = function()
+          local bufnr = vim.api.nvim_get_current_buf()
+          timer:stop()
+          timer:start(
+            DEBOUNCE_MS,
+            0,
+            vim.schedule_wrap(function()
+              if vim.api.nvim_buf_is_valid(bufnr) then
+                vim.api.nvim_buf_call(bufnr, function() lint.try_lint(nil, { ignore_errors = true }) end)
+              end
+            end)
+          )
+        end,
+      })
+      lint.try_lint(nil, { ignore_errors = true })
+    end,
   },
 }
 
