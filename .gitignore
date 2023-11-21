@@ -75,3 +75,4 @@ backup
 .repro
 tools/vcs/git/config.local
 *.bak
+*.env
