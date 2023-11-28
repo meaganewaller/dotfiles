@@ -25,4 +25,4 @@ repos:
     hooks:
       - id: prettier
 
-exclude: "^(lazy-lock.json)$"
+exclude: "^(/lazy-lock.json)$"
