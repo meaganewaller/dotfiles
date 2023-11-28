@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-sketchybar --set $NAME label=$(pmset -g batt)
+sketchybar --set "$NAME" label="$(pmset -g batt)"

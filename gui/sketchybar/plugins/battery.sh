@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 source "$HOME/.config/sketchybar/colors.sh"
 
 BATTERY_INFO="$(pmset -g batt)"
@@ -34,4 +35,4 @@ else
   esac
 fi
 
-sketchybar --set $NAME icon="$ICON" label="${PERCENTAGE}%" label.color=$LABEL_COLOR label.drawing=on icon.color=$COLOR
+sketchybar --set "$NAME" icon="$ICON" label="${PERCENTAGE}%" label.color="$LABEL_COLOR" label.drawing=on icon.color="$COLOR"

@@ -1,7 +1,9 @@
 #!/bin/bash
 
 window_state() {
+  # shellcheck disable=SC1091
   source "$CONFIG_DIR/colors.sh"
+  # shellcheck disable=SC1091
   source "$CONFIG_DIR/icons.sh"
 
   WINDOW=$(yabai -m query --windows --window)
@@ -26,7 +28,7 @@ window_state() {
     COLOR=$RED
   fi
 
-  args=(--bar border_color=$COLOR --animate sin 10 --set $NAME icon.color=$COLOR)
+  args=(--bar border_color="$COLOR" --animate sin 10 --set "$NAME" icon.color="$COLOR")
 
   [ -z "$LABEL" ] && args+=(label.width=0) \
                   || args+=(label="$LABEL" label.width=40)
@@ -49,17 +51,17 @@ windows_on_spaces () {
     for space in $line
     do
       icon_strip=" "
-      raw_apps=$(yabai -m query --windows --space $space | jq -r ".[].app")
+      raw_apps=$(yabai -m query --windows --space "$space" | jq -r ".[].app")
       if [ "${raw_apps}" != "" ]; then
         unique_apps="$(echo "${raw_apps}" | sort | uniq -i)"
         while read -r app
         do
-          icon_strip+=" $($CONFIG_DIR/plugins/icon_map.sh "$app")"
+          icon_strip+=" $("$CONFIG_DIR"/plugins/icon_map.sh "$app")"
         done <<< "${unique_apps}"
       else
         icon_strip=" —"
       fi
-      args+=(--set space.$space label="$icon_strip" label.drawing=on)
+      args+=(--set space."$space" label="$icon_strip" label.drawing=on)
     done
   done <<< "$CURRENT_SPACES"
 

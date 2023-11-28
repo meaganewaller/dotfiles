@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 source "$CONFIG_DIR/colors.sh"
 
 COUNT=$(brew outdated | wc -l | tr -d ' ')
@@ -18,4 +19,4 @@ case "$COUNT" in
   ;;
 esac
 
-sketchybar --set $NAME label="$COUNT" icon.color=$COLOR label.color=$COLOR
+sketchybar --set "$NAME" label="$COUNT" icon.color="$COLOR" label.color="$COLOR"

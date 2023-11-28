@@ -1,14 +1,16 @@
 #!/bin/bash
 
 update() {
+  # shellcheck disable=SC1091
   source "$CONFIG_DIR/colors.sh"
+  # shellcheck disable=SC1091
   source "$CONFIG_DIR/icons.sh"
 
   NOTIFICATIONS="$(gh api notifications)"
   COUNT="$(echo "$NOTIFICATIONS" | jq 'length')"
   args=()
   if [ "$NOTIFICATIONS" = "[]" ]; then
-    args+=(--set $NAME icon=$BELL label="0")
+    args+=(--set "$NAME" icon="$BELL" label="0")
   else
     args+=(--set $NAME icon=$BELL_DOT label="$COUNT")
   fi
@@ -64,19 +66,19 @@ update() {
       click_script="open $URL; sketchybar --set github.bell popup.drawing=off"
     )
 
-    args+=(--clone github.notification.$COUNTER github.template \
-           --set github.notification.$COUNTER "${notification[@]}")
+    args+=(--clone github.notification."$COUNTER" github.template \
+           --set github.notification."$COUNTER" "${notification[@]}")
   done <<< "$(echo "$NOTIFICATIONS" | jq -r '.[] | [.repository.name, .subject.latest_comment_url, .subject.type, .subject.title] | @sh')"
 
   sketchybar -m "${args[@]}" > /dev/null
 
-  if [ $COUNT -gt $PREV_COUNT ] 2>/dev/null || [ "$SENDER" = "forced" ]; then
+  if [ "$COUNT" -gt "$PREV_COUNT" ] 2>/dev/null || [ "$SENDER" = "forced" ]; then
     sketchybar --animate tanh 15 --set github.bell
   fi
 }
 
 popup() {
-  sketchybar --set $NAME popup.drawing=$1
+  sketchybar --set "$NAME" popup.drawing="$1"
 }
 
 case "$SENDER" in
