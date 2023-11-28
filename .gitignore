@@ -76,3 +76,4 @@ backup
 tools/vcs/git/config.local
 *.bak
 *.env
+node_modules/
