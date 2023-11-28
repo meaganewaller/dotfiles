@@ -55,7 +55,7 @@ My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and
 
 <h1>
   <a href="#---------1">
-    <img alt="" align="right" src="https://img.shields.io/github/commit-activity/m/meaganewaller/dotfiles/ng?style=flat-square&label=&color=000000&logo=gitbook&logoColor=white&labelColor=000000"/>
+    <img alt="" align="right" src="https://img.shields.io/github/commit-activity/m/meaganewaller/dotfiles/main?style=flat-square&label=&color=000000&logo=gitbook&logoColor=white&labelColor=000000"/>
   </a>
 </h1>
 
@@ -195,12 +195,12 @@ I use karabiner to bind certain keys to seldom-used function keys of F17, F18, F
 I then use skhd to bind the hyper key, as well as other key combinations to various actions. Using skhd, I've defined specific modes where certain keycodes will be available.
 
 | Key                     | Action                                                                         |
-|:------------------------|:-------------------------------------------------------------------------------|
+| :---------------------- | :----------------------------------------------------------------------------- |
 | <kbd>caps_lock</kbd>    | Remap to <kbd>left_control</kbd>; If pressed alone, remap to <kbd>escape</kbd> |
 | <kbd>left_control</kbd> | Remap to <kbd>f19</kbd>                                                        |
 
 | Mode and Keybinding | Description                                       |
-|---------------------|---------------------------------------------------|
+| ------------------- | ------------------------------------------------- |
 | <kbd>default</kbd>  | Default mode.                                     |
 | <kbd>resize @</kbd> | Activates `resize` mode with a custom appearance. |
 | <kbd>gaps @</kbd>   | Activates `gaps` mode with a custom appearance.   |
@@ -210,7 +210,7 @@ I then use skhd to bind the hyper key, as well as other key combinations to vari
 | <kbd>system @</kbd> | Activates `system` mode with a custom appearance. |
 
 | Keybinding                | Description                             |
-|---------------------------|-----------------------------------------|
+| ------------------------- | --------------------------------------- |
 | <kbd>ctrl + cmd - r</kbd> | Switch to `resize` mode.                |
 | <kbd>ctrl + cmd - o</kbd> | Switch to `layout` mode.                |
 | <kbd>ctrl + cmd - g</kbd> | Switch to `gaps` mode.                  |
@@ -220,55 +220,55 @@ I then use skhd to bind the hyper key, as well as other key combinations to vari
 | <kbd>escape</kbd>         | Return to `default` mode from any mode. |
 | <kbd>return</kbd>         | Return to `default` mode from any mode. |
 
-| Default Mode Keybindings    | Description                                         |
-|-----------------------------|-----------------------------------------------------|
-| <kbd>ctrl + cmd - h</kbd>   | Focus the window or display to the west.          |
-| <kbd>ctrl + cmd - j</kbd>   | Focus the window or display to the south.         |
-| <kbd>ctrl + cmd - k</kbd>   | Focus the window or display to the north.         |
-| <kbd>ctrl + cmd - l</kbd>   | Focus the window or display to the east.          |
-| <kbd>ctrl + cmd - n</kbd>   | Focus the next window in the stack.                |
-| <kbd>ctrl + cmd - p</kbd>   | Focus the previous window in the stack.            |
-| <kbd>hyper - 1</kbd>        | Focus space 1.                                      |
-| <kbd>hyper - 2</kbd>        | Focus space 2.                                      |
-| <kbd>hyper - 3</kbd>        | Focus space 3.                                      |
-| <kbd>hyper - 4</kbd>        | Focus space 4.                                      |
-| <kbd>hyper - 5</kbd>        | Focus space 5.                                      |
-| <kbd>hyper - 6</kbd>        | Focus space 6.                                      |
-| <kbd>hyper - 7</kbd>        | Focus space 7.                                      |
-| <kbd>hyper - 8</kbd>        | Focus space 8.                                      |
-| <kbd>hyper - 9</kbd>        | Focus space 9.                                      |
-| <kbd>cmd + alt - right</kbd>| Focus the next space or the first space if at the last. |
-| <kbd>cmd + alt - left</kbd> | Focus the previous space or the last space if at the first. |
+| Default Mode Keybindings     | Description                                                 |
+| ---------------------------- | ----------------------------------------------------------- |
+| <kbd>ctrl + cmd - h</kbd>    | Focus the window or display to the west.                    |
+| <kbd>ctrl + cmd - j</kbd>    | Focus the window or display to the south.                   |
+| <kbd>ctrl + cmd - k</kbd>    | Focus the window or display to the north.                   |
+| <kbd>ctrl + cmd - l</kbd>    | Focus the window or display to the east.                    |
+| <kbd>ctrl + cmd - n</kbd>    | Focus the next window in the stack.                         |
+| <kbd>ctrl + cmd - p</kbd>    | Focus the previous window in the stack.                     |
+| <kbd>hyper - 1</kbd>         | Focus space 1.                                              |
+| <kbd>hyper - 2</kbd>         | Focus space 2.                                              |
+| <kbd>hyper - 3</kbd>         | Focus space 3.                                              |
+| <kbd>hyper - 4</kbd>         | Focus space 4.                                              |
+| <kbd>hyper - 5</kbd>         | Focus space 5.                                              |
+| <kbd>hyper - 6</kbd>         | Focus space 6.                                              |
+| <kbd>hyper - 7</kbd>         | Focus space 7.                                              |
+| <kbd>hyper - 8</kbd>         | Focus space 8.                                              |
+| <kbd>hyper - 9</kbd>         | Focus space 9.                                              |
+| <kbd>cmd + alt - right</kbd> | Focus the next space or the first space if at the last.     |
+| <kbd>cmd + alt - left</kbd>  | Focus the previous space or the last space if at the first. |
 
-| Move Mode Keybinding | Description                                   |
-|----------------------|-----------------------------------------------|
-| <kbd>1</kbd>         | Move the window to space 1.                  |
-| <kbd>2</kbd>         | Move the window to space 2.                  |
-| <kbd>3</kbd>         | Move the window to space 3.                  |
-| <kbd>4</kbd>         | Move the window to space 4.                  |
-| <kbd>5</kbd>         | Move the window to space 5.                  |
-| <kbd>6</kbd>         | Move the window to space 6.                  |
-| <kbd>7</kbd>         | Move the window to space 7.                  |
-| <kbd>8</kbd>         | Move the window to space 8.                  |
-| <kbd>9</kbd>         | Move the window to space 9.                  |
-| <kbd>h</kbd>         | Swap the window to the west.                 |
-| <kbd>l</kbd>         | Swap the window to the east.                 |
-| <kbd>j</kbd>         | Swap the window to the south.                |
-| <kbd>k</kbd>         | Swap the window to the north.                |
-| <kbd>shift - h</kbd> | Warp the window to the west.                 |
-| <kbd>shift - l</kbd> | Warp the window to the east.                 |
-| <kbd>shift - j</kbd> | Warp the window to the south.                |
-| <kbd>shift - k</kbd> | Warp the window to the north.                |
+| Move Mode Keybinding | Description                   |
+| -------------------- | ----------------------------- |
+| <kbd>1</kbd>         | Move the window to space 1.   |
+| <kbd>2</kbd>         | Move the window to space 2.   |
+| <kbd>3</kbd>         | Move the window to space 3.   |
+| <kbd>4</kbd>         | Move the window to space 4.   |
+| <kbd>5</kbd>         | Move the window to space 5.   |
+| <kbd>6</kbd>         | Move the window to space 6.   |
+| <kbd>7</kbd>         | Move the window to space 7.   |
+| <kbd>8</kbd>         | Move the window to space 8.   |
+| <kbd>9</kbd>         | Move the window to space 9.   |
+| <kbd>h</kbd>         | Swap the window to the west.  |
+| <kbd>l</kbd>         | Swap the window to the east.  |
+| <kbd>j</kbd>         | Swap the window to the south. |
+| <kbd>k</kbd>         | Swap the window to the north. |
+| <kbd>shift - h</kbd> | Warp the window to the west.  |
+| <kbd>shift - l</kbd> | Warp the window to the east.  |
+| <kbd>shift - j</kbd> | Warp the window to the south. |
+| <kbd>shift - k</kbd> | Warp the window to the north. |
 
 | Launch Mode Keybinding | Description                             |
-|------------------------|-----------------------------------------|
+| ---------------------- | --------------------------------------- |
 | <kbd>f</kbd>           | Launch or focus the Kitty terminal.     |
 | <kbd>return</kbd>      | Create a new Kitty terminal window.     |
-| <kbd>o</kbd>           | Launch or focus Obsidian.                |
+| <kbd>o</kbd>           | Launch or focus Obsidian.               |
 | <kbd>hyper - o</kbd>   | Launch or focus Obsidian (using Hyper). |
 
-| Resize Mode Keybinding | Description                                         |
-|------------------------|-----------------------------------------------------|
+| Resize Mode Keybinding | Description                                       |
+| ---------------------- | ------------------------------------------------- |
 | <kbd>h</kbd>           | Resize the window to the left or increase width.  |
 | <kbd>j</kbd>           | Resize the window upwards or decrease height.     |
 | <kbd>k</kbd>           | Resize the window downwards or increase height.   |
@@ -278,44 +278,44 @@ I then use skhd to bind the hyper key, as well as other key combinations to vari
 | <kbd>shift - k</kbd>   | Resize the window upwards or decrease height.     |
 | <kbd>shift - l</kbd>   | Resize the window to the left or decrease width.  |
 
-| Gaps Mode Keybinding | Description                                            |
-|----------------------|--------------------------------------------------------|
-| <kbd>k</kbd>         | Increase the gap and padding values.                   |
-| <kbd>j</kbd>         | Decrease the gap and padding values.                   |
-| <kbd>y</kbd>         | Set the gap and padding values to predefined values.   |
-| <kbd>u</kbd>         | Remove all gaps and padding.                          |
-| <kbd>i</kbd>         | Set gaps and padding to specific values.               |
-| <kbd>p</kbd>         | Set gaps and padding to specific values.               |
-| <kbd>o</kbd>         | Set the right padding value to a predefined value.    |
-| <kbd>0x1E</kbd>      | Set the right padding value to a predefined value.    |
-| <kbd>0x21</kbd>      | Set the right padding value to a predefined value.    |
+| Gaps Mode Keybinding | Description                                          |
+| -------------------- | ---------------------------------------------------- |
+| <kbd>k</kbd>         | Increase the gap and padding values.                 |
+| <kbd>j</kbd>         | Decrease the gap and padding values.                 |
+| <kbd>y</kbd>         | Set the gap and padding values to predefined values. |
+| <kbd>u</kbd>         | Remove all gaps and padding.                         |
+| <kbd>i</kbd>         | Set gaps and padding to specific values.             |
+| <kbd>p</kbd>         | Set gaps and padding to specific values.             |
+| <kbd>o</kbd>         | Set the right padding value to a predefined value.   |
+| <kbd>0x1E</kbd>      | Set the right padding value to a predefined value.   |
+| <kbd>0x21</kbd>      | Set the right padding value to a predefined value.   |
 
-| Layout Mode Keybinding | Description                                  |
-|------------------------|----------------------------------------------|
-| <kbd>y</kbd>           | Mirror the layout along the y-axis.         |
-| <kbd>h</kbd>           | Warp the window to the west.                |
-| <kbd>j</kbd>           | Warp the window to the south.               |
-| <kbd>k</kbd>           | Warp the window to the north.               |
-| <kbd>l</kbd>           | Warp the window to the east.                |
-| <kbd>shift - h</kbd>   | Move the window to the west in a stack.     |
-| <kbd>shift - k</kbd>   | Move the window to the north in a stack.    |
-| <kbd>shift - j</kbd>   | Move the window to the south in a stack.    |
-| <kbd>shift - l</kbd>   | Move the window to the east in a stack.     |
-| <kbd>o</kbd>           | Balance the space's layout.                |
-| <kbd>i</kbd>           | Set the window ratio to 0.66.              |
-| <kbd>u</kbd>           | Set the window ratio to 0.33.              |
-| <kbd>p</kbd>           | Set the window ratio to 0.5.               |
-| <kbd>0x21</kbd>        | Set the window ratio to 0.25 (left square bracket). |
+| Layout Mode Keybinding | Description                                          |
+| ---------------------- | ---------------------------------------------------- |
+| <kbd>y</kbd>           | Mirror the layout along the y-axis.                  |
+| <kbd>h</kbd>           | Warp the window to the west.                         |
+| <kbd>j</kbd>           | Warp the window to the south.                        |
+| <kbd>k</kbd>           | Warp the window to the north.                        |
+| <kbd>l</kbd>           | Warp the window to the east.                         |
+| <kbd>shift - h</kbd>   | Move the window to the west in a stack.              |
+| <kbd>shift - k</kbd>   | Move the window to the north in a stack.             |
+| <kbd>shift - j</kbd>   | Move the window to the south in a stack.             |
+| <kbd>shift - l</kbd>   | Move the window to the east in a stack.              |
+| <kbd>o</kbd>           | Balance the space's layout.                          |
+| <kbd>i</kbd>           | Set the window ratio to 0.66.                        |
+| <kbd>u</kbd>           | Set the window ratio to 0.33.                        |
+| <kbd>p</kbd>           | Set the window ratio to 0.5.                         |
+| <kbd>0x21</kbd>        | Set the window ratio to 0.25 (left square bracket).  |
 | <kbd>0x1E</kbd>        | Set the window ratio to 0.75 (right square bracket). |
-| <kbd>0x27</kbd>        | Set the window ratio to 0.80 (single quote). |
-| <kbd>z</kbd>           | Toggle zoom for the parent container.      |
-| <kbd>0x2C</kbd>        | Toggle split for the current container.     |
-| <kbd>w</kbd>           | Toggle floating mode with a 1:6:1 grid.     |
-| <kbd>c</kbd>           | Toggle floating mode with a 6:8:2 grid.     |
-| <kbd>t</kbd>           | Toggle floating mode and sticky state.      |
-| <kbd>b</kbd>           | Set the space layout to bsp.                |
-| <kbd>f</kbd>           | Set the space layout to float.              |
-| <kbd>s</kbd>           | Set the space layout to stack.              |
+| <kbd>0x27</kbd>        | Set the window ratio to 0.80 (single quote).         |
+| <kbd>z</kbd>           | Toggle zoom for the parent container.                |
+| <kbd>0x2C</kbd>        | Toggle split for the current container.              |
+| <kbd>w</kbd>           | Toggle floating mode with a 1:6:1 grid.              |
+| <kbd>c</kbd>           | Toggle floating mode with a 6:8:2 grid.              |
+| <kbd>t</kbd>           | Toggle floating mode and sticky state.               |
+| <kbd>b</kbd>           | Set the space layout to bsp.                         |
+| <kbd>f</kbd>           | Set the space layout to float.                       |
+| <kbd>s</kbd>           | Set the space layout to stack.                       |
 
 [^2]: Evan Travers' [blog post about a Better Hyper Key](https://evantravers.com/articles/2020/06/08/hammerspoon-a-better-better-hyper-key/) is the inspiration behind this.
 
