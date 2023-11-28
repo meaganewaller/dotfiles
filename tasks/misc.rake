@@ -198,6 +198,20 @@ namespace :install do
 
     run %( defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua" )
   end
+
+  desc 'Install writing tools'
+  task :writing do
+    section 'Installing writing tools'
+
+    unless testing?
+      run %( curl -LSs https://github.com/errata-ai/proselint/releases/latest/download/proselint.zip --output /tmp/proselint.zip )
+      run %( unzip /tmp/proselint.zip && mv ./proselint/ ~/.config/vale/ && rm -rf /tmp/proselint* )
+      run %( curl -LSs https://github.com/errata-ai/alex/releases/latest/download/alex.zip --output /tmp/alex.zip)
+      run %( unzip /tmp/alex.zip && mv ./alex/ ~/.config/vale/ && rm -rf /tmp/alex* )
+      run %( curl -LSs https://github.com/errata-ai/write-good/releases/latest/download/write-good.zip --output /tmp/write-good.zip)
+      run %( unzip /tmp/write-good.zip && mv ./write-good/ ~/.config/vale/ && rm -rf /tmp/write-good* )
+    end
+  end
 end
 
 namespace :update do
@@ -308,6 +322,17 @@ namespace :update do
     section 'Updating servers'
 
     run %( asdf plugin update --all )
+  end
+
+  desc 'Update writing tools'
+  task :writing do
+    section 'Updating writing tools'
+
+    unless testing?
+      run %( cd ~/.config/vale/proselint && git pull )
+      run %( cd ~/.config/vale/alex && git pull )
+      run %( cd ~/.config/vale/write-good && git pull )
+    end
   end
 end
 

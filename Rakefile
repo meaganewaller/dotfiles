@@ -1,6 +1,9 @@
+# --------------------------------------------
 # frozen_string_literal: true
 # Inspired by: https://github.com/kevinjalbert/dotfiles &
 # https://github.com/olimorris/dotfiles
+# --------------------------------------------
+
 Dir.glob('./tasks/**/*').map { |file| load file }
 
 DOTS_FOLDER    = config['dots_folder']
@@ -58,6 +61,7 @@ task :install do
     Rake::Task['install:rails'].invoke
     Rake::Task['install:chmod_dots'].invoke
     Rake::Task['install:hammerspoon'].invoke if macos?
+    Rake::Task['install:writing'].invoke
   rescue => e
     log_error("Something went wrong! 😞")
     log_error(e.message)
@@ -82,6 +86,7 @@ task :update do
     Rake::Task['update:tmux'].invoke
     Rake::Task['update:rails'].invoke
     Rake::Task['update:servers'].invoke
+    Rake::Task['update:writing'].invoke
   rescue => e
     log_error("Something went wrong! 😞")
     log_error(e.message)
