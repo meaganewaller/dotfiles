@@ -2,29 +2,48 @@
 
 set -e
 
-BASE_CONFIG="base"
-CONFIG_SUFFIX=".yaml"
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIGDIR="${BASEDIR}/meta/configs"
+PROFILESDIR="${BASEDIR}/meta/profiles"
+DOTBOT="${BASEDIR}/meta/dotbot/bin/dotbot"
+PLUGINDIR="${BASEDIR}/meta/plugins"
 
-META_DIR="meta"
-CONFIG_DIR="configs"
-PROFILES_DIR="profiles"
+declare -a ARGS
+declare -a FLAGS
+while (( "$#" )); do
+  case "$1" in
+    -*)
+      FLAGS+=("$1")
+      ;;
+    *)
+      ARGS+=("$1")
+      ;;
+  esac
+  shift
+done
+set -- "${ARGS[@]}"
 
-DOTBOT_DIR="dotbot"
-DOTBOT_BIN="bin/dotbot"
-
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-cd "${BASE_DIR}"
-git submodule update --init --recursive --remote
-
+declare -a CONFIGS
 while IFS= read -r config; do
-  CONFIGS+=" ${config}"
-done <"${META_DIR}/${PROFILES_DIR}/$1"
-
+  if [[ -n "$config" ]]; then
+    CONFIGS+=("${config}")
+  fi
+done < "${PROFILESDIR}/$1"
 shift
 
-for config in ${CONFIGS} "${@}"; do
-	echo -e "\nConfigure $config"
-	configFile="$(mktemp)" ; echo -e "$(<"${BASE_DIR}/${META_DIR}/${BASE_CONFIG}${CONFIG_SUFFIX}")\n$(<"${BASE_DIR}/${META_DIR}/${CONFIG_DIR}/${config}${CONFIG_SUFFIX}")" > "$configFile"
-	"${BASE_DIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASE_DIR}" -c "$configFile" ; rm -f "$configFile"
+for config in "${CONFIGS[@]}" "${@}"; do
+  echo -e "Adding configuration $config"
+  CONFIGCONTENT="${CONFIGCONTENT}\n$(<"${CONFIGDIR}/${config}.yaml")"
 done
+
+declare -a PLUGINS
+PLUGINS=("--plugin-dir" "${PLUGINDIR}" \
+  "--plugin-dir" "${PLUGINDIR}/dotbot-ifplatform" \
+  "--plugin-dir" "${PLUGINDIR}/dotbot-template" \
+  "--plugin-dir" "${PLUGINDIR}/dotbot-sudo")
+
+if [[ "${#FLAGS[@]}" -gt 0 ]]; then
+  "${DOTBOT}" "${FLAGS[@]}" -d "${BASEDIR}" "${PLUGINS[@]}" -c <(echo -e "${CONFIGCONTENT}")
+else
+  "${DOTBOT}" -d "${BASEDIR}" "${PLUGINS[@]}" -c <(echo -e "${CONFIGCONTENT}")
+fi

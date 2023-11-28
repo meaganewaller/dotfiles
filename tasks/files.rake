@@ -99,7 +99,7 @@ namespace :update do
   desc 'Update Dotbot'
   task :dotbot do
     section 'Updating Dotbot'
-    run %( git submodule update --remote dotbot )
+    run %( git submodule update --remote meta/dotbot )
     run %( ./install )
   end
 end

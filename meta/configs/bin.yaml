@@ -1,11 +1,11 @@
+---
 # --- Dotfile Binaries Config ---
 - link:
     ~/.local/bin:
       glob: true
       path: bin/*
-      exclude: [ bin/lock-screen, bin/lyrics ]
+      exclude: [bin/lock-screen, bin/lyrics]
     ~/.local/bin/shim: scripts/shim.sh
-
 - ifmacos:
     - link:
         ~/.local/bin/lock-screen: bin/lock-screen

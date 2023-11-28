@@ -1,1 +1,1 @@
-DOTS_DIRECTORY=".dotfiles"
+dots_folder: ~/.dotfiles

@@ -1,14 +1,14 @@
 ---
-# --- Shell Configuration ---
-clean: [~/.config/fisherman, ~/.config/fish]
-link:
-  ~/.zshrc: shells/zsh/zshrc
-  ~/.config/starship:
-    path: shells/starship/*
-    glob: true
-    exclude: [shells/starship/README.md]
-  ~/.config/fish:
-    glob: true
-    path: shells/fish/*
-    exclude: [shells/fish/env, shells/fish/README.md]
-  ~/.env: shells/fish/env
+- clean: [~/.config/fisherman, ~/.config/fish]
+- link:
+    ~/.zshrc: shells/zsh/zshrc
+    ~/.config/starship:
+      path: shells/starship/*
+      glob: true
+      relink: true
+    ~/.config/fish:
+      glob: true
+      path: shells/fish/*
+      exclude: [shells/fish/env]
+      relink: true
+    ~/.env: shells/fish/env

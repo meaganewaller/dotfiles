@@ -1,3 +1,4 @@
+---
 # --- Git Configuration ---
 - link:
     ~/.gitconfig: tools/vcs/git/config
@@ -6,11 +7,6 @@
     ~/.gitignore_global: tools/vcs/git/ignore
     ~/.gitconfig.local: tools/vcs/git/config.local
     ~/.config/git:
-        glob: true
-        path: tools/vcs/git/*
-        exclude: [ tools/vcs/git/README.md ]
-
-- asdf:
-  - plugin: git
-    versions:
-      - latest
+      glob: true
+      path: tools/vcs/git/*
+      exclude: [tools/vcs/git/README.md]

@@ -1,3 +1,4 @@
+---
 # --- Base Configuration ---
 - defaults:
     link:
@@ -7,18 +8,21 @@
     shell:
       stdout: true
       stderr: true
-
-- create:
-  - ~/.config
-  - ~/dev
-  - ~/code
-  - ~/.bin
-  - ~/.cache
-  - ~/.ssh
-  - ~/.local/bin
-
 - clean:
-    $HOME:
+    ~/:
       force: true
-    $HOME/.config:
+    ~/.local/bin:
+      force: true
+    ~/.config:
       recursive: true
+- create:
+    - ~/.config
+    - ~/dev
+    - ~/code
+    - ~/.bin
+    - ~/.cache
+    - ~/.ssh
+    - ~/.local/bin
+- shell:
+    - description: Installing submodules
+      command: git submodule update --init --recursive
