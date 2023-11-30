@@ -3,13 +3,10 @@ return {
   opts = {
     snippet_engine = "luasnip",
   },
-  keys = {
-    {
-      "<leader>ia",
-      function()
-        require("neogen").generate()
-      end,
-      desc = "Annotations",
-    },
-  },
+  config = function(_, opts)
+    require('neogen').setup(opts)
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>ia", function() require("neogen").generate() end, "Annotations")
+  end,
 }

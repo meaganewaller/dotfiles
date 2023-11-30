@@ -1,77 +1,47 @@
 return {
-  "L3MON4D3/LuaSnip",
-  event = {
-    "InsertEnter",
-    "CmdlineEnter",
+  { "rafamadriz/friendly-snippets", event = "VeryLazy" },
+  {
+    "L3MON4D3/LuaSnip",
+    event = "VeryLazy",
+    config = function()
+      local snip = require "luasnip"
+      snip.config.set_config({
+        history = true,
+        updateevents = "TextChanged,TextChangedI",
+        enable_autosnippets = true,
+      })
+      local vsc = require("luasnip.loaders.from_vscode")
+
+      snip.filetype_extend("javascript", { "html" })
+      snip.filetype_extend("javascriptreact", { "html" })
+      snip.filetype_extend("typescript", { "html" })
+      snip.filetype_extend("typescriptreact", { "html" })
+
+      vsc.lazy_load()
+
+      local map = require("meg.utils").map
+
+      map({ "i", "s" }, "<c-n>", function()
+        if snip.expand_or_jumpable() then
+          snip.expand_or_jump()
+        end
+      end, "Expand current snippet or jump to next", { silent = true })
+
+      map({ "i", "s" }, "<c-p>", function()
+        if snip.jumpable(-1) then
+          snip.jump(-1)
+        end
+      end, "Jump to previous snippet", { silent = true })
+
+      map("i", "<c-l>", function()
+        if snip.choice_active() then
+          snip.change_choice(1)
+        end
+      end, "Show list of options")
+
+      require("luasnip.loaders.from_lua").lazy_load {
+        paths = vim.fn.stdpath "config" .. "/lua/snippets",
+      }
+    end,
   },
-  config = function()
-    local snip = require "luasnip"
-    local types = require "luasnip.util.types"
-
-    local i = snip.insert_node
-    local sn = snip.snippet_node
-
-    snip.setup {
-      update_events = { "TextChanged", "TextChangedI" },
-      ext_opts = {
-        [types.choiceNode] = {
-          active = {
-            virt_text = { { "●", "Operator" } },
-            virt_text_pos = "inline",
-          },
-          unvisited = {
-            virt_text = { { "●", "Comment" } },
-            virt_text_pos = "inline",
-          },
-        },
-        [types.insertNode] = {
-          active = {
-            virt_text = { { "●", "Keyword" } },
-            virt_text_pos = "inline",
-          },
-          unvisited = {
-            virt_text = { { "●", "Comment" } },
-            virt_text_pos = "inline",
-          },
-        },
-      },
-      snip_env = {
-        -- Same with text node, used for function nodes
-        text_same_with = function(args)
-          return args[1][1]
-        end,
-
-        -- Same with text node, used for dynamic nodes
-        insert_same_with = function(args)
-          return sn(nil, {
-            i(1, args[1][1]),
-          })
-        end,
-
-        -- Same with text node but append text, used for function nodes
-        text_same_with_and_append = function(args, _, user_arg1)
-          return args[1][1] .. user_arg1
-        end,
-
-        -- Same with text node but append text, used for dynamic nodes
-        insert_same_with_and_append = function(args, _, _, user_arg1)
-          return sn(nil, {
-            i(1, args[1][1] .. user_arg1),
-          })
-        end,
-      },
-    }
-
-    snip.filetype_extend("cpp", { "c" })
-
-    snip.filetype_extend("javascriptreact", { "javascript" })
-    snip.filetype_extend("typescript", { "javascript" })
-    snip.filetype_extend("typescriptreact", { "javascript" })
-
-    snip.filetype_extend("typescriptreact", { "javascriptreact" })
-
-    require("luasnip.loaders.from_lua").lazy_load {
-      paths = vim.fn.stdpath "config" .. "/lua/snippets",
-    }
-  end,
 }

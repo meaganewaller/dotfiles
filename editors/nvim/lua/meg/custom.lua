@@ -1,10 +1,24 @@
 local M = {}
 
-M.theme = "catppuccin"
+M.theme = "miasma"
 
 M.prefer_tabpage = true
 
 M.border = "rounded"
+
+M.borders = {
+  dashed = { "┄", "┊", "┄", "┊", "╭", "╮", "╯", "╰", },
+  double = { "═", "║", "═", "║", "╔", "╗", "╝", "╚", },
+  single = { "─", "│", "─", "│", "╭", "╮", "╯", "╰", },
+  blocks = { "▀", "▐", "▄", "▌", "▛", "▜", "▟", "▙", },
+  blocky = { "▀", "▐", "▄", "▌", "▄", "▄", "▓", "▀", },
+}
+
+M.telescope = {
+  prompt = { "┄", "┊", "┄", "┊", "╭", "╮", "╯", "╰", },
+  results = { "┄", " ", "┄", "┊", "╭", "┄", "┄", "╰", },
+  preview = { "┄", "┊", "┄", "┊", "┄", "╮", "╯", "╰", },
+}
 
 function M.width()
   local columns = vim.go.columns

@@ -40,6 +40,6 @@ local opts = {
 
 return {
   "navarasu/onedark.nvim",
-  lazy = true,
+  event = "VeryLazy",
   opts = opts,
 }

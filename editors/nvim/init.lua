@@ -4,7 +4,7 @@
 -- ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
 -- ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
 -- ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
--- Last updated: 2023-11-21
+-- Last updated: 2023-11-29
 -- https://github.com/meaganewaller/dotfiles
 
 vim.env.LAZYROOT = vim.fs.joinpath(vim.fn.stdpath "data", "lazy")
@@ -48,7 +48,7 @@ vim.o.pumheight = 12
 vim.o.fillchars = "diff:╱"
 vim.o.textwidth = 80
 vim.o.colorcolumn = "+1"
-vim.o.guifont = "Cascadia Code PL:h14"
+vim.o.guifont = "FiraCode Nerd Font:h14"
 
 -- Keymapping
 vim.g.mapleader = " "

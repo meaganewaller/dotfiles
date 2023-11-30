@@ -1,9 +1,12 @@
 return {
   "nvim-telescope/telescope.nvim",
+  event = 'VeryLazy',
   branch = "0.1.x",
   dependencies = {
     { "nvim-lua/popup.nvim" },
     { "nvim-lua/plenary.nvim" },
+    { "debugloop/telescope-undo.nvim" },
+    { "nvim-telescope/telescope-file-browser.nvim" },
     { "nvim-telescope/telescope-fzy-native.nvim" },
     { "nvim-telescope/telescope-live-grep-args.nvim" },
     { "nvim-telescope/telescope-dap.nvim" },
@@ -11,173 +14,102 @@ return {
   },
   config = function()
     local telescope = require "telescope"
+    local tele_actions = require "telescope.actions"
+    local lga_actions = require "telescope-live-grep-args.actions"
+    local lga_shortcuts = require "telescope-live-grep-args.shortcuts"
+    local undo_actions = require "telescope-undo.actions"
 
-    local function flash(prompt_bufnr)
-      require("flash").jump {
-        pattern = "^",
-        label = { after = { 0, 0 } },
-        search = {
-          mode = "search",
-          exclude = {
-            function(win)
-              return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "TelescopeResults"
-            end,
-          },
-        },
-        action = function(match)
-          local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
-          picker:set_selection(match.pos[1] - 1)
-        end,
-      }
-    end
+    local noremap = require("meg.utils").noremap
 
-    telescope.setup {
+    telescope.setup({
       defaults = {
+        layout_config = {
+          anchor = "center",
+          height = 0.8,
+          width = 0.9,
+          preview_width = 0.6,
+          prompt_position = "bottom",
+        },
+        borderchars = require("meg.custom").telescope,
         mappings = {
-          n = { s = flash },
-          i = { ["<c-s>"] = flash },
-        },
-        prompt_prefix = " ",
-        selection_caret = " ",
-      },
-      pickers = {
-        find_files = {
-          theme = "ivy",
-        },
-        oldfiles = {
-          theme = "ivy",
+          i = {
+            ['<esc>'] = tele_actions.close,
+          },
         },
       },
       extensions = {
+        undo = {
+          use_delta = true,
+          side_by_side = true,
+          entry_format = "󰣜  #$ID, $STAT, $TIME",
+          layout_strategy = "flex",
+          mappings = {
+            i = {
+              ["<cr>"] = undo_actions.yank_additions,
+              ["§"] = undo_actions.yank_deletions, -- term mapped to shift+enter
+              ["<c-\\>"] = undo_actions.restore,
+            },
+          },
+        },
         live_grep_args = {
-          theme = "dropdown",
+          auto_quoting = true,
+          mappings = {
+            i = {
+              ["<C-\\>"] = lga_actions.quote_prompt({ postfix = "--hidden" }),
+            },
+          },
+        },
+        file_browser = {
+          depth = 1,
+          auto_depth = false,
+          hidden = { file_browser = true, folder_browser = true },
+          hide_parent_dir = false,
+          collapse_dirs = false,
+          prompt_path = false,
+          quiet = false,
+          dir_icon = " ",
+          dir_icon_hl = "Default",
+          display_stat = { date = true, size = true, mode = true },
+          git_status = true,
         },
       },
-    }
-
-    local extensions = {
-      "dap",
-      "fzy_native",
-      "notify",
-      "live_grep_args",
-      "luasnip",
-    }
-
-    for _, ext in ipairs(extensions) do
-      local ok = pcall(telescope.load_extension, ext)
-      if not ok then
-        vim.print("Failed to load telescope extension: " .. ext)
-      end
-    end
+    })
+    noremap("n", "<Leader>u", ":Telescope undo<CR>", "Undo tree")
+    noremap("n", "\\", function()
+      telescope.extensions.live_grep_args.live_grep_args({
+        prompt_title = 'grep',
+        additional_args = '-i',
+      })
+    end, "Live grep")
+    noremap("n", "<Leader>o", ":Telescope oldfiles<CR>", "Old files")
+    noremap("n", "<Leader>gc", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden " })
+    end, "grep under cursor")
+    noremap("n", "<Leader>gC", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden --word-regexp " })
+    end, "grep under cursor (word)")
+    noremap("n", "<Leader>g/", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden --regexp " })
+    end, "grep under cursor (regexp)")
+    noremap("n", "<Leader>g?", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden --fixed-strings " })
+    end, "grep under cursor (fixed strings)")
+    noremap("n", "<Leader>g*", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden --fixed-strings --word-regexp " })
+    end, "grep under cursor (fixed strings, word)")
+    noremap("n", "<Leader>g#", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden --fixed-strings --regexp " })
+    end, "grep under cursor (fixed strings, regexp)")
+    noremap("n", "<Leader>g<space>", function()
+      lga_shortcuts.grep_word_under_cursor({ postfix = " --hidden --fixed-strings --word-regexp --regexp " })
+    end, "grep under cursor (fixed strings, word, regexp)")
+    noremap("n", "<Leader>.", function()
+      telescope.extensions.file_browser.file_browser({
+        path = vim.fn.stdpath("config")
+      })
+    end, "nvim dotfiles")
+    telescope.load_extension("undo")
+    telescope.load_extension("file_browser")
+    telescope.load_extension("live_grep_args")
   end,
-  cmd = {
-    "Telescope",
-  },
-  keys = {
-    {
-      "<leader>ff",
-      function()
-        require("telescope.builtin").find_files()
-      end,
-      desc = "Files",
-    },
-    {
-      "<leader>fb",
-      function()
-        require("telescope.builtin").buffers()
-      end,
-      desc = "Buffers",
-    },
-    {
-      "<leader>f?",
-      function()
-        require("telescope.builtin").help_tags()
-      end,
-      desc = "Help tags",
-    },
-    {
-      "<leader>fh",
-      function()
-        require("telescope.builtin").oldfiles()
-      end,
-      desc = "Old files",
-    },
-    {
-      "<leader>fm",
-      function()
-        require("telescope.builtin").marks()
-      end,
-      desc = "Marks",
-    },
-    {
-      "<leader>fs",
-      function()
-        require("telescope.builtin").lsp_document_symbols()
-      end,
-      desc = "Symbols",
-    },
-    {
-      "<leader>fS",
-      function()
-        require("telescope.builtin").lsp_workspace_symbols()
-      end,
-      desc = "Symbols",
-    },
-    {
-      "<leader>fc",
-      function()
-        require("telescope.builtin").colorscheme()
-      end,
-      desc = "Colorscheme",
-    },
-    {
-      "<leader>fg",
-      function()
-        require("telescope").extensions.live_grep_args.live_grep_args()
-      end,
-      desc = "Live grep",
-    },
-    {
-      "<leader>fn",
-      function()
-        require("telescope").extensions.notify.notify()
-      end,
-      desc = "Notify",
-    },
-    {
-      "<leader>fde",
-      function()
-        require("telescope").extensions.dap.commands()
-      end,
-      desc = "Commands",
-    },
-    {
-      "<leader>fdc",
-      function()
-        require("telescope").extensions.dap.configurations()
-      end,
-      desc = "Configurations",
-    },
-    {
-      "<leader>fdb",
-      function()
-        require("telescope").extensions.dap.list_breakpoints()
-      end,
-      desc = "Breakpoints",
-    },
-    {
-      "<leader>fdv",
-      function()
-        require("telescope").extensions.dap.variables()
-      end,
-      desc = "Variables",
-    },
-    {
-      "<leader>fdf",
-      function()
-        require("telescope").extensions.dap.frames()
-      end,
-      desc = "Frames",
-    },
-  },
 }

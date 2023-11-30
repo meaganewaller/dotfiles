@@ -1,6 +1,6 @@
 return {
   "rose-pine/neovim",
-  lazy = true,
+  event = "VeryLazy",
   name = "rose-pine",
   opts = {
     highlight_groups = {

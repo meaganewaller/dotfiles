@@ -4,26 +4,31 @@ return {
   "levouh/tint.nvim",
   event = "VeryLazy",
   config = function()
-    require("tint").setup {
-      highlight_ignore_patterns = {
-        "WinSeparator",
-        "EndOfBuffer",
-        "LineNr",
-        "IblWhitespace",
+    local tint = require('tint')
+    local transforms = require('tint.transforms')
+    tint.setup({
+      transforms = {
+        transforms.tint_with_threshold(-10, "#1a1a1a", 7),
+        transforms.saturate(0.65),
       },
-      window_ignore_function = function(win)
-        local buf = vim.api.nvim_win_get_buf(win)
-        return vim.bo[buf].modifiable ~= true
-      end,
-    }
-
-    vim.api.nvim_create_autocmd("ColorScheme", {
-      desc = "Refresh tint",
+      tint_background_colors = true,
+      highlight_ignore_patterns = {
+        "SignColumn",
+        "LineNr",
+        "CursorLine",
+        "WinSeparator",
+        "VertSplit",
+        "StatusLineNC",
+      },
+    })
+    vim.api.nvim_create_autocmd("FocusGained", {
       callback = function()
-        -- Timeout is needed for wait all colorscheme highlights applied
-        vim.defer_fn(function()
-          require("tint").refresh()
-        end, 100)
+        tint.untint(vim.api.nvim_get_current_win())
+      end,
+    })
+    vim.api.nvim_create_autocmd("FocusLost", {
+      callback = function()
+        tint.tint(vim.api.nvim_get_current_win())
       end,
     })
   end,

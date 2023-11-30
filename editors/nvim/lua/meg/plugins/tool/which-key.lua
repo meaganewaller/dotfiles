@@ -42,9 +42,10 @@ local opts = {
   window = {
     border = custom.border, -- none, single, double, shadow
     position = "bottom", -- bottom, top
-    margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
+    margin = { 1, 0, 1, 0.75 }, -- extra window margin [top, right, bottom, left]
     padding = { 2, 2, 2, 2 }, -- extra window padding [top, right, bottom, left]
     winblend = 0,
+    zindex = 1000,
   },
   layout = {
     height = { min = 4, max = 25 }, -- min and max height of the columns
@@ -55,7 +56,7 @@ local opts = {
   ignore_missing = false, -- enable this to hide mappings for which you didn't specify a label
   hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ ", "<Plug>", "require" }, -- hide mapping boilerplate
   show_help = true, -- show help message on the command line when the popup is visible
-  triggers = "auto", -- automatically setup triggers
+  triggers = { "<Leader>", "<LocalLeader>" },
   -- triggers = {"<leader>"} -- or specify a list manually
   triggers_blacklist = {
     -- list of mode / prefixes that should never be hooked by WhichKey
@@ -72,4 +73,8 @@ return {
   config = function()
     require("which-key").setup(opts)
   end,
+  init = function()
+    vim.o.timeout = true
+    vim.o.timeoutlen = 300
+  end
 }

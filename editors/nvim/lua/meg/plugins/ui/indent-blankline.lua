@@ -1,28 +1,20 @@
--- Highlight group from rainbow-delimiters
-local highlight = {
-  "RainbowDelimiterRed",
-  "RainbowDelimiterYellow",
-  "RainbowDelimiterBlue",
-  "RainbowDelimiterOrange",
-  "RainbowDelimiterGreen",
-  "RainbowDelimiterViolet",
-  "RainbowDelimiterCyan",
-}
-
 return {
   "lukas-reineke/indent-blankline.nvim",
   event = "VeryLazy",
   opts = {
     scope = {
-      -- Rely on treesitter, bad performance
-      enabled = false,
-      highlight = highlight,
+      show_start = false,
+    },
+    indent = {
+      char = "│",
+      tab_char = "┊",
+      smart_indent_cap = true,
+    },
+    whitespace = {
+      remove_blankline_trail = true,
     },
   },
   config = function(_, opts)
     require("ibl").setup(opts)
-
-    local hooks = require "ibl.hooks"
-    hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
   end,
 }

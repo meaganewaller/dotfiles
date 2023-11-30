@@ -2,6 +2,7 @@ local custom = require "meg.custom"
 
 return {
   "akinsho/nvim-toggleterm.lua",
+  event = "VeryLazy",
   version = "*",
   opts = {
     size = function(term)
@@ -12,6 +13,9 @@ return {
       end
     end,
     open_mapping = [[<c-\>]],
+    shade_filetypes = { "none" },
+    shade_terminals = true,
+    shading_factor = "1",
     shell = vim.uv.os_uname().sysname == "Windows_NT" and "pwsh" or "fish",
     float_opts = {
       border = custom.border,

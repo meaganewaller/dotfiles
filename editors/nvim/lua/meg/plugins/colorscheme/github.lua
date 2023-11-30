@@ -44,7 +44,7 @@ local opts = {
 
 return {
   "projekt0n/github-nvim-theme",
-  lazy = true,
+  event = "VeryLazy",
   config = function()
     require("github-theme").setup(opts)
   end,

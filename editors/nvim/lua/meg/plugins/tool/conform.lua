@@ -3,20 +3,13 @@ return {
   opts = {
     formatters_by_ft = {
       lua = { "stylua" },
-      python = { "isort", "black" },
-      go = { "gofumpt", "goimports" },
-
-      html = { "prettier" },
-      css = { "prettier" },
-      less = { "prettier" },
-      scss = { "prettier" },
-      javascript = { "prettier" },
-      typescript = { "prettier" },
-      javascriptreact = { "prettier" },
-      typescriptreact = { "prettier" },
-      vue = { "prettier" },
-      json = { "prettier" },
-      yaml = { "prettier" },
+      python = { "isort", "black", "ruff" },
+      javascript = { { "prettierd", "prettier" } },
+      typescript = { { "prettierd", "prettier" } },
+      typescriptreact = { { "prettierd", "prettier" } },
+      javascriptreact = { { "prettierd", "prettier" } },
+      go = { "gofmt", "goimports" },
+      elixir = { "mix" },
     },
   },
   keys = {

@@ -23,6 +23,6 @@ local opts = {
 
 return {
   "ellisonleao/gruvbox.nvim",
-  lazy = true,
+  event = "VeryLazy",
   opts = opts,
 }

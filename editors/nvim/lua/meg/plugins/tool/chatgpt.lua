@@ -2,6 +2,7 @@ local custom = require "meg.custom"
 
 return {
   "jackMort/ChatGPT.nvim",
+  event = "VeryLazy",
   cond = vim.env.OPENAI_API_KEY ~= nil,
   cmd = {
     "ChatGPT",
@@ -62,6 +63,17 @@ return {
         toggle_message_role = "<C-r>",
         toggle_system_role_open = "<C-s>",
         stop_generating = "<C-x>",
+      },
+    },
+    popup_layout = {
+      default = "center",
+      center = {
+        width = "80%",
+        height = "80%",
+      },
+      right = {
+        width = "30%",
+        width_settings_open = "50%",
       },
     },
     popup_window = {

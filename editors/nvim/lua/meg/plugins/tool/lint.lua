@@ -1,20 +1,13 @@
 return {
   "mfussenegger/nvim-lint",
-  enabled = false,
   config = function()
     require("lint").linters_by_ft = {
+      javascript = { "eslint_d" },
+      javascriptreact = { "eslint_d" },
+      typescript = { "eslint_d" },
+      typescriptreact = { "eslint_d" },
+      lua = { "luacheck" },
       python = { "pylint" },
     }
-
-    vim.api.nvim_create_autocmd({
-      "BufReadPost",
-      "BufWritePost",
-      "InsertLeave",
-    }, {
-      desc = "Lint",
-      callback = function()
-        require("lint").try_lint()
-      end,
-    })
   end,
 }
