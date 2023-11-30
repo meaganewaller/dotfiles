@@ -32,4 +32,11 @@ return {
     "Gwq",
     "Gwrite",
   },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>gs", "<cmd>G<CR>", "Git status")
+    map("n", "<Leader>gw", "<cmd>Gwrite<CR>", "Git write")
+    map("n", "<Leader>gd", "<cmd>Gdiffsplit<CR>", "Git diff split")
+  end
 }

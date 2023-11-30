@@ -7,32 +7,52 @@ return {
   },
   cmd = { "TroubleToggle", "Trouble" },
   config = function()
+    local icons = require("meg.custom").icons
+
     require("trouble").setup({
-      auto_fold = false,
+      position = "bottom",
+      height = 10,
+      width = 50,
+      icons = true,
+      mode = "workspace_diagnostics",
       fold_open = " ",
       fold_closed = " ",
-      height = 6,
-      indent_str = " ┊   ",
-      include_declaration = {
-        "lsp_references",
-        "lsp_implementations",
-        "lsp_definitions"
+      group = true,
+      padding = true,
+      action_keys = {
+        close = "q",
+        cancel = "<esc>",
+        refresh = "r",
+        jump = { "<cr>", "<tab>" },
+        open_split = { "<c-x>" },
+        open_vsplit = { "<c-v>" },
+        open_tab = { "<c-t>" }, -- open buffer in new tab
+        jump_close = { "o" }, -- jump to the diagnostic and close the list
+        toggle_mode = "m", -- toggle between "workspace" and "document" diagnostics mode
+        toggle_preview = "P", -- toggle auto_preview
+        hover = "K", -- opens a small popup with the full multiline message
+        preview = "p", -- preview the diagnostic location
+        close_folds = { "zM", "zm" }, -- close all folds
+        open_folds = { "zR", "zr" }, -- open all folds
+        toggle_fold = { "zA", "za" }, -- toggle fold of current file
+        previous = "k", -- preview item
+        next = "j", -- next item
       },
-      mode = "workspace_diagnostics",
-      multiline = true,
-      padding = false,
-      position = "bottom",
-      severity = nil,
-      signs = require("meg.custom").icons.diagnostics,
-      use_diagnostic_signs = true,
+      indent_lines = true, -- add an indent guide below the fold icons
+      auto_open = false, -- automatically open the list when you have diagnostics
+      auto_close = false, -- automatically close the list when you have no diagnostics
+      auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
+      auto_fold = false, -- automatically fold a file trouble list at creation
+      auto_jump = { "lsp_definitions" }, -- for the given modes, automatically jump if there is only a single result
+      signs = {
+        -- icons / text used for a diagnostic
+        error = icons.diagnostic.error,
+        warning = icons.diagnostic.warn,
+        hint = icons.diagnostic.hint,
+        information = icons.diagnostic.info,
+        other = "",
+      },
+      use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
     })
-
-    local noremap = require("meg.utils").noremap
-    noremap("n", "<leader>lr", "<cmd>TroubleToggle lsp_reference<cr>", "lsp references")
-    noremap("n", "<leader>le", "<cmd>TroubleToggle document_diagnostics<cr>", "diagnostics")
-    noremap("n", "<leader>t", function()
-      require("lsp_lines").toggle()
-      vim.cmd [[TroubleToggle workspace_diagnostics]]
-    end, "toggle trouble  ")
   end,
 }

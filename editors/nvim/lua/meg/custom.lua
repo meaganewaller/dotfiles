@@ -83,4 +83,8 @@ M.icons = {
   kind_with_space = append_space(kind_icons),
 }
 
+M.lsp = {
+  diagnostic_signs = false
+}
+
 return M

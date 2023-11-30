@@ -130,7 +130,7 @@ disabled = false
 [git_branch]
 symbol = ""
 # symbol = "🌱 "
-truncation_length = 4
+truncation_length = 7
 truncation_symbol = ""
 format = "[](fg:cyan bg:none)[$symbol](fg:blue_dark bg:cyan)[](fg:cyan bg:cyan)[$branch]($style)[](fg:cyan bg:none) "
 style = "fg:blue_dark bg:cyan"

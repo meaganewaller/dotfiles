@@ -3,15 +3,15 @@ local custom = require "meg.custom"
 return {
   "stevearc/oil.nvim",
   lazy = false,
-  keys = {
-    {
-      "-",
-      function()
-        require("oil").open()
-      end,
-      desc = "Open parent directory",
-    },
-  },
+  -- keys = {
+  --   {
+  --     "-",
+  --     function()
+  --       require("oil").open()
+  --     end,
+  --     desc = "Open parent directory",
+  --   },
+  -- },
   opts = {
     skip_confirm_for_simple_edits = true,
     cleanup_delay_ms = false,
@@ -29,4 +29,10 @@ return {
       ["<C-v>"] = "actions.select_vsplit",
     },
   },
+  config = function(_, opts)
+    require("oil").setup(opts)
+    local map = require("meg.utils").map
+
+    map("n", "-", function() require("oil").open() end, "Open parent directory")
+  end,
 }

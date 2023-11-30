@@ -9,6 +9,19 @@ function M.is_table(t)
   return type(t) == "table"
 end
 
+function M.find_first(t, predicate)
+  for _, entry in pairs(t) do
+    if predicate(entry) then
+      return entry
+    end
+  end
+  return nil
+end
+
+function M.table_contains(t, predicate)
+  return M.find_first(t, predicate) ~= nil
+end
+
 function M.on_attach(on_attach)
   vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(args)
@@ -161,7 +174,12 @@ function M.map(type, input, output, description, additional_opts)
     options = vim.tbl_deep_extend("force", options, additional_opts)
   end
   keymap.set(type, input, output, options)
+  local has_leader = string.find(input, "<leader>")
   M.check_duplicates(type, input, description)
+
+  if has_leader then
+    try_add_to_which_key_by_input(input, description)
+  end
 end
 
 function M.noremap(type, input, output, description, additional_options)

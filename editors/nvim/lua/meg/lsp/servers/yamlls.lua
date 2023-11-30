@@ -1,3 +1,7 @@
-return function(capabilities)
-	capabilities.textDocument.completion.completionItem.snippetSupport = true
-end
+return {
+  yaml = {
+    schemaStore = {
+      enable = true
+    }
+  }
+}

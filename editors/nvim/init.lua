@@ -4,8 +4,11 @@
 -- ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
 -- ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
 -- ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
--- Last updated: 2023-11-29
--- https://github.com/meaganewaller/dotfiles
+-- Last updated: 2023-11-30
+-- code: https://github.com/meaganewaller/dotfiles
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 
 vim.env.LAZYROOT = vim.fs.joinpath(vim.fn.stdpath "data", "lazy")
 
@@ -50,9 +53,8 @@ vim.o.textwidth = 80
 vim.o.colorcolumn = "+1"
 vim.o.guifont = "FiraCode Nerd Font:h14"
 
+
 -- Keymapping
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
 vim.keymap.set("c", "<C-p>", "<Up>")
 vim.keymap.set("c", "<C-n>", "<Down>")
 
