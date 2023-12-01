@@ -20,6 +20,7 @@ return {
         show_close_icon = false,
         offsets = {
           { filetype = "neo-tree", text = "Explorer", text_align = "center", saperator = true },
+          { filetype = "oil", text = "Explorer", text_align = "center", saperator = true },
           { filetype = "aerial", text = "Outline", text_align = "center", saperator = true },
           { filetype = "dbui", text = "Database Manager", text_align = "center", saperator = true },
           { filetype = "httpResult", text = "Http Result", text_align = "center", saperator = true },
@@ -33,6 +34,13 @@ return {
         sort_by = custom.prefer_tabpage and "tabs" or "insert_after_current",
       },
     }
+
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>bC", "<cmd>BufferLinePickClose<CR>", "Close")
+    map("n", "<Leader>bse", "<cmd>BufferLineSortByExtension<CR>", "By extension")
+    map("n", "<Leader>bsd", "<cmd>BufferLineSortByDirectory<CR>", "By directory")
+    map("n", "<Leader>bst", "<cmd>BufferLineSortByTabs<CR>", "By tabs")
   end,
   keys = {
     { "<M-1>", "<Cmd>BufferLineGoToBuffer 1<CR>", desc = "Go to " .. mode .. " 1" },
@@ -52,10 +60,5 @@ return {
 
     { "]b", "<cmd>BufferLineCycleNext<CR>", desc = utils.firstToUpper(mode) },
     { "[b", "<cmd>BufferLineCyclePrev<CR>", desc = utils.firstToUpper(mode) },
-
-    { "<leader>bc", "<cmd>BufferLinePickClose<CR>", desc = "Close" },
-    { "<leader>bse", "<cmd>BufferLineSortByExtension<CR>", desc = "By extension" },
-    { "<leader>bsd", "<cmd>BufferLineSortByDirectory<CR>", desc = "By directory" },
-    { "<leader>bst", "<cmd>BufferLineSortByTabs<CR>", desc = "By tabs" },
   },
 }

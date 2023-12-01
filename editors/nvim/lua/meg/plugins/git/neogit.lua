@@ -23,7 +23,11 @@ return {
       },
     },
   },
-  keys = {
-    { "<leader>gg", "<Cmd>Neogit<CR>", desc = "Open Neogit" },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>gg", function()
+      require("neogit").open()
+    end, "Open Neogit")
+  end,
 }

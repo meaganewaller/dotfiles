@@ -20,13 +20,11 @@ return {
       auto_attach = true,
     },
   },
-  keys = {
-    {
-      "<leader>n",
-      function()
-        require("nvim-navbuddy").open()
-      end,
-      desc = "Navigator",
-    },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>n", function()
+      require("nvim-navbuddy").open()
+    end, "Open Navigator (navbuddy)")
+  end,
 }

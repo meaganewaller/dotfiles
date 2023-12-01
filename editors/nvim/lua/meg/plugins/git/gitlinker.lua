@@ -4,21 +4,15 @@ return {
   opts = {
     mappings = nil,
   },
-  keys = {
-    {
-      "<leader>gy",
-      function()
-        require("gitlinker").get_buf_range_url "n"
-      end,
-      desc = "Create link",
-    },
-    {
-      "<leader>gy",
-      function()
-        require("gitlinker").get_buf_range_url "v"
-      end,
-      mode = "v",
-      desc = "Create link",
-    },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>gy", function()
+      require("gitlinker").get_repo_url_at_line(true)
+    end, "Create link")
+
+    map("v", "<Leader>gy", function()
+      require("gitlinker").get_buf_range_url "v"
+    end, "Create link")
+  end,
 }

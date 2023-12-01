@@ -233,7 +233,11 @@ local opts = {
 return {
   "stevearc/aerial.nvim",
   opts = opts,
-  keys = {
-    { "<leader>a", "<Cmd>AerialToggle<CR>", desc = "Outline" },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<leader>a", function()
+      require("aerial").toggle()
+    end, "Toggle Aerial")
+  end,
 }

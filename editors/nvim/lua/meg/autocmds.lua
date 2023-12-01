@@ -11,7 +11,6 @@ utils.noremap("n", "<leader><tab>]", "<cmd>tabnext<cr>", "Next Tab")
 utils.noremap("n", "<leader><tab>d", "<cmd>tabclose<cr>", "Close Tab")
 utils.noremap("n", "<leader><tab>[", "<cmd>tabprevious<cr>", "Previous Tab")
 
-utils.noremap("n", "<LocalLeader>fj", ":%!jq .<cr>", "jq format")
 utils.noremap("n", "<esc><esc>", ":nohlsearch<cr>", "remove highlighting", { silent = true })
 utils.cmd("Nows", ":%s/\\s\\+$//e", { desc = "Remove trailing whitespace" })
 utils.cmd("Nobl", "g/^\\s*$/d", { desc = "remove blank lines" })
@@ -25,7 +24,7 @@ utils.cmd("Tail", 'set autoread | au CursorHold * checktime | call feedkeys("G")
 
 -- make current buffer executable
 utils.cmd("Chmodx", "!chmod a+x %", { desc = "make current buffer executable" })
-utils.noremap("n", "<leader>x", ":Chmodx<cr>", "chmod +x buffer")
+utils.noremap("n", "<localleader>x", ":Chmodx<cr>", "chmod +x buffer")
 
 
 -- fix syntax highlighting

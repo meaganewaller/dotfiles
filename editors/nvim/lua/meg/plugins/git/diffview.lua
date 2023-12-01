@@ -295,9 +295,22 @@ return {
   "sindrets/diffview.nvim",
   event = "VeryLazy",
   config = config,
-  keys = {
-    { "<leader>gdo", "<Cmd>DiffviewOpen<CR>", desc = "Open" },
-    { "<leader>gdc", "<Cmd>DiffviewClose<CR>", desc = "Close" },
-    { "<leader>gdh", "<Cmd>DiffviewFileHistory<CR>", desc = "Open History" },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>gdo", function()
+      require("diffview").setup()
+      require("diffview").open()
+    end, "Open Diffview")
+
+    map("n", "<Leader>gdc", function()
+      require("diffview").setup()
+      require("diffview").close()
+    end, "Close Diffview")
+
+    map("n", "<Leader>gh", function()
+      require("diffview").setup()
+      require("diffview").open("git_file_history")
+    end, "Open Diffview File History")
+  end,
 }

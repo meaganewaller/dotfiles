@@ -8,10 +8,11 @@ return {
       desc = "Setup code action preview",
       callback = function(args)
         local bufnr = args.buf
+        local map = require("meg.utils").map
 
-        vim.keymap.set("n", "<leader>la", function()
-          require("actions-preview").code_actions()
-        end, { buffer = bufnr, desc = "LSP: Code action" })
+        map("n", "<Leader>la", function()
+          require('actions-preview').code_actions()
+        end, "LSP: Code action")
       end,
     })
   end,

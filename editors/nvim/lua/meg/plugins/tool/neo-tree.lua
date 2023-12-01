@@ -14,91 +14,48 @@ return {
     "s1n7ax/nvim-window-picker",
   },
   opts = {
-    default_source = "last",
-    popup_border_style = custom.border,
-    default_component_configs = {
-      icon = {
-        folder_closed = "",
-        folder_open = "",
-        folder_empty = "",
-      },
+    position = 'bottom',
+    height = 10,
+    icons = true,
+    mode = 'workspace_diagnostics',
+    fold_open = "",
+    fold_closed = "",
+    group= true,
+    padding=true,
+    action_keys={
+      cancel='<esc>',
+      close_folds='zM',
+      close='q',
+      jump={'<cr>', '<tab>'},
+      open_folds='zR',
+      open_split={'<c-x>', 'i'},
+      open_vsplit={'<c-v>', 's'},
+      preview='p',
+      refresh='R',
+      toggle_mode='m',
+      toggle_preview='P',
+      previous='k',
+      next='j',
     },
-    source_selector = {
-      winbar = true,
-      sources = {
-        {
-          source = "filesystem",
-          display_name = "  Files ",
-        },
-        {
-          source = "buffers",
-          display_name = "  Buffers ",
-        },
-        {
-          source = "git_status",
-          display_name = "  Git ",
-        },
-        {
-          source = "document_symbols",
-          display_name = "  Symbols",
-        },
-      },
-    },
-    window = {
-      width = custom.width,
-      mappings = {
-        ["<Space>"] = "none",
-        ["o"] = "system_open",
-        ["h"] = function(state)
-          local node = state.tree:get_node()
-          if node.type == "directory" and node:is_expanded() then
-            require("neo-tree.sources.filesystem").toggle_directory(state, node)
-          else
-            require("neo-tree.ui.renderer").focus_node(state, node:get_parent_id())
-          end
-        end,
-        ["l"] = function(state)
-          local node = state.tree:get_node()
-          if node.type == "directory" then
-            if not node:is_expanded() then
-              require("neo-tree.sources.filesystem").toggle_directory(state, node)
-            elseif node:has_children() then
-              require("neo-tree.ui.renderer").focus_node(state, node:get_child_ids()[1])
-            end
-          end
-        end,
-
-        -- Swap default split behavior
-        ["S"] = "open_vsplit",
-        ["s"] = "open_split",
-      },
-    },
-    commands = {
-      system_open = function(state)
-        local node = state.tree:get_node()
-        local path = node:get_id()
-        vim.ui.open(path)
-      end,
-    },
-    filesystem = {
-      group_empty_dirs = true,
-      follow_current_file = {
-        enabled = true,
-      },
-      window = {
-        mappings = {
-          ["[g"] = "none",
-          ["]g"] = "none",
-          ["[h"] = "prev_git_modified",
-          ["]h"] = "next_git_modified",
-        },
-      },
-    },
+    indent_lines=true,
+    auto_open=false,
+    auto_close=false,
+    auto_preview=false,
+    use_diagnostic_signs=true,
     document_symbols = {
       kinds = kinds,
     },
+    signs = {
+      error = custom.icons.diagnostic.error,
+      warning = custom.icons.diagnostic.warn,
+      information = custom.icons.diagnostic.info,
+      hint = custom.icons.diagnostic.hint,
+    },
+    use_lsp_diagnostic_signs = false,
   },
-  keys = {
-    { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "File Explorer" },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<leader>e", "<cmd>Neotree toggle<CR>", "Toggle File Explorer")
+  end,
 }

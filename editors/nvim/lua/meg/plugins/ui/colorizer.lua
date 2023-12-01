@@ -8,8 +8,7 @@ M.config = function()
   local colorizer = require("nvim-highlight-colors")
 
   colorizer.setup({})
-  utils.which_key("<Leader>tc", "Colorizer")
-  utils.noremap("n", "<Leader>tc", function() colorizer.toggle() end, "Toggle Colorizer")
+  utils.map("n", "<Leader>tC", function() colorize.toggle() end, "Toggle colorizer")
 end
 
 return M

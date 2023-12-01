@@ -267,4 +267,8 @@ function M.check_duplicates(type, input, description)
   check_and_set_duplicates(input, description, check_i, duplicates_i)
 end
 
+function M.run_in_terminal(cmd)
+  vim.cmd("terminal $SHELL -c " .. '"' .. cmd .. '"')
+end
+
 return M

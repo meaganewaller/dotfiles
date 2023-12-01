@@ -5,7 +5,7 @@ return {
     "nvim-tree/nvim-web-devicons",
     "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
   },
-  cmd = { "TroubleToggle", "Trouble" },
+  cmd = { "TroubleToggle", "Trouble", "TroubleRefresh" },
   config = function()
     local icons = require("meg.custom").icons
 
@@ -54,5 +54,9 @@ return {
       },
       use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
     })
+
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>x", "<cmd>TroubleToggle<CR>", "Toggle Trouble")
   end,
 }

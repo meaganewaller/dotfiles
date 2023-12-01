@@ -6,7 +6,9 @@ return {
   opts = {
     borders = custom.border,
   },
-  keys = {
-    { "<leader>r", "<Cmd>SnipRun<CR>", mode = { "n", "v" }, desc = "Run" },
-  },
+  init = function()
+    local map = require "meg.utils".map
+
+    map({"n", "v"}, "<Leader>r", "<cmd>SnipRun<CR>", "Run")
+  end,
 }

@@ -63,22 +63,17 @@ return {
   "s1n7ax/nvim-window-picker",
   version = "*",
   opts = opts,
-  keys = {
-    {
-      "<C-W>w",
-      function()
-        local window_id = require("window-picker").pick_window() or vim.api.nvim_get_current_win()
-        vim.api.nvim_set_current_win(window_id)
-      end,
-      desc = "Pick a window",
-    },
-    {
-      "<C-W><C-W>",
-      function()
-        local window_id = require("window-picker").pick_window() or vim.api.nvim_get_current_win()
-        vim.api.nvim_set_current_win(window_id)
-      end,
-      desc = "Pick a window",
-    },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<C-W>w", function()
+      local window_id = require("window-picker").pick_window() or vim.api.nvim_get_current_win()
+      vim.api.nvim_set_current_win(window_id)
+    end, "Pick a Window")
+
+    map("n", "<C-W><C-W>", function()
+      local window_id = require("window-picker").pick_window() or vim.api.nvim_get_current_win()
+      vim.api.nvim_set_current_win(window_id)
+    end, "Pick a Window")
+  end,
 }

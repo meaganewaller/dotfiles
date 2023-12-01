@@ -29,13 +29,14 @@ return {
         },
       },
     }
+
+    local map = require "meg.utils".map
+
+    map("n", "<leader>rr", "<cmd>OverseerRun<CR>", "Run", { noremap = true })
+    map("n", "<leader>rl", "<cmd>OverseerToggle<CR>", "List", { noremap = true })
+    map("n", "<leader>rn", "<cmd>OverseerBuild<CR>", "New", { noremap = true })
+    map("n", "<leader>ra", "<cmd>OverseerTaskAction<CR>", "Action", { noremap = true })
+    map("n", "<leader>ri", "<cmd>OverseerInfo<CR>", "Info", { noremap = true })
+    map("n", "<leader>rc", "<cmd>OverseerClearCache<CR>", "Clear cache", { noremap = true })
   end,
-  keys = {
-    { "<leader>rr", "<cmd>OverseerRun<CR>", desc = "Run" },
-    { "<leader>rl", "<cmd>OverseerToggle<CR>", desc = "List" },
-    { "<leader>rn", "<cmd>OverseerBuild<CR>", desc = "New" },
-    { "<leader>ra", "<cmd>OverseerTaskAction<CR>", desc = "Action" },
-    { "<leader>ri", "<cmd>OverseerInfo<CR>", desc = "Info" },
-    { "<leader>rc", "<cmd>OverseerClearCache<CR>", desc = "Clear cache" },
-  },
 }

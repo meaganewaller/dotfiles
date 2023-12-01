@@ -5,7 +5,7 @@ format = """╭╴$all """
 right_format = """$time $cmd_duration"""
 add_newline = true
 command_timeout = 10_000
-palette = 'hardhacker'
+palette = 'miasma'
 
 aws.disabled = true
 c.disabled = true
@@ -132,8 +132,8 @@ symbol = ""
 # symbol = "🌱 "
 truncation_length = 7
 truncation_symbol = ""
-format = "[](fg:cyan bg:none)[$symbol](fg:blue_dark bg:cyan)[](fg:cyan bg:cyan)[$branch]($style)[](fg:cyan bg:none) "
-style = "fg:blue_dark bg:cyan"
+format = "[](fg:cyan bg:none)[$symbol](fg:background bg:cyan)[](fg:cyan bg:cyan)[$branch]($style)[](fg:cyan bg:none) "
+style = "fg:background bg:cyan"
 
 [git_commit]
 tag_symbol = " "

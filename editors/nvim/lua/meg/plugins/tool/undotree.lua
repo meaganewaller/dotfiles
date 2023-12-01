@@ -10,8 +10,9 @@ return {
     vim.g.undotree_SetFocusWhenToggle = 1
     vim.g.undotree_ShortIndicators = 1
     vim.g.undotree_HelpLine = 0
+
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>u", "<cmd>UndotreeToggle<CR>", "Toggle Undotree")
   end,
-  keys = {
-    { "<leader>u", "<Cmd>UndotreeToggle<CR>", desc = "Undo Tree" },
-  },
 }

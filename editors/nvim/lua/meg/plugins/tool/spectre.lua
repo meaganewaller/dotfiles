@@ -1,8 +1,10 @@
 return {
   {
     "windwp/nvim-spectre",
-    keys = {
-      { "<Leader>sr", function() require("spectre").open() end, desc = "Replace in files (Spectre)" },
-    },
+    init = function()
+      local map = require "meg.utils".map
+
+      map("n", "<Leader>sr", "<cmd>lua require('spectre').open()<CR>", "Replace in files (Spectre)", { noremap = true })
+    end,
   },
 }

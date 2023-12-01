@@ -32,6 +32,15 @@ function M.config()
       border = require("meg.custom").border,
     },
   })
+
+  local map = require("meg.utils").map
+  map("n", "<Leader>rr", ":RunCode<CR>", "Run Code", { noremap = true, silent = false })
+  map("n", "<Leader>rf", ":RunFile<CR>", "Run File", { noremap = true, silent = false })
+  map("n", "<Leader>rft", ":RunFile tab<cr>", "Run File in Tab", { noremap = true, silent = false })
+  map("n", "<Leader>rp", ":RunProject<CR>", "Run Project", { noremap = true, silent = false })
+  map("n", "<Leader>rc", ":RunClose<CR>", "Run and Close", { noremap = true, silent = false })
+  map("n", "<Leader>crf", ":CRFiletype<CR>", "Run Filetype", { noremap = true, silent = false })
+  map("n", "<Leader>crp", ":CRProjects<CR>", "Run Project", { noremap = true, silent = false })
 end
 
 return M

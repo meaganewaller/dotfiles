@@ -12,13 +12,11 @@ return {
       elixir = { "mix" },
     },
   },
-  keys = {
-    {
-      "<leader>F",
-      function()
-        require("conform").format { lsp_fallback = true }
-      end,
-      desc = "Format Document",
-    },
-  },
+  init = function()
+    local map = require("meg.utils").map
+
+    map("n", "<Leader>ff", function()
+      require("conform").format { lsp_fallback = true }
+    end, "Format Document")
+  end,
 }
