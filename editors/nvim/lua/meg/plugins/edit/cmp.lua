@@ -1,116 +1,161 @@
-return {
-  { "onsails/lspkind-nvim", dependencies = { "famiu/bufdelete.nvim" } },
-  {
-    "hrsh7th/nvim-cmp",
-    event = {
-      "InsertEnter",
-      "CmdlineEnter",
+local cmdline = true
+local M = {
+  "hrsh7th/nvim-cmp",
+  event = { "InsertEnter", "CmdlineEnter" },
+  dependencies = {
+
+    "onsails/lspkind.nvim",
+    "windwp/nvim-autopairs",
+    "L3MON4D3/LuaSnip",
+    "rafamadriz/friendly-snippets",
+    "saadparwaiz1/cmp_luasnip",
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-buffer",
+    "hrsh7th/cmp-emoji",
+    "hrsh7th/cmp-nvim-lsp-signature-help",
+    { "hrsh7th/cmp-cmdline", enabled = cmdline },
+    { "dmitmel/cmp-cmdline-history", enabled = cmdline },
+    "hrsh7th/cmp-path",
+  },
+  enabled = true,
+}
+
+function M.config()
+  vim.o.completeopt = "menuone,noselect"
+
+  require("luasnip.loaders.from_vscode").lazy_load()
+  local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+  local cmp_status_ok, cmp = pcall(require, "cmp")
+  if not cmp_status_ok then
+    return
+  end
+  cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
+
+  local check_backspace = function()
+    local col = vim.fn.col(".") - 1
+    return col == 0 or vim.fn.getline("."):sub(col, col):match("%s")
+  end
+
+  local kind_icons = require("meg.custom").icons.kind
+
+  local luasnip = require("luasnip")
+  luasnip.config.setup({
+    history = true,
+    region_check_events = "InsertEnter",
+    delete_check_events = "TextChanged,InsertLeave",
+  })
+  cmp.setup({
+    completion = {
+      completeopt = "menu,menuone,noinsert",
     },
-    dependencies = {
-      { "hrsh7th/cmp-nvim-lsp-signature-help" },
-      { "hrsh7th/cmp-nvim-lsp" },
-      { "hrsh7th/cmp-buffer" },
-      { "hrsh7th/cmp-path" },
-      { "saadparwaiz1/cmp_luasnip" },
-      { "hrsh7th/cmp-nvim-lua" },
-      "windwp/nvim-autopairs",
-      { "hrsh7th/cmp-emoji" },
-      { "hrsh7th/cmp-cmdline" },
-      { "roobert/tailwindcss-colorizer-cmp.nvim", config = true },
-      { "lukas-reineke/cmp-under-comparator" },
-      -- {
-      --   "zbirenbaum/copilot-cmp",
-      --   after = { "copilot.lua" },
-      --   config = function()
-      --     local ok, copilot_cmp = pcall(require, 'copilot_cmp')
-      --     if not ok then
-      --       return
-      --     end
-      --     copilot_cmp.setup({})
-      --
-      --     require('meg.utils').on_attach(function(client)
-      --       copilot_cmp = require('copilot_cmp')
-      --
-      --       if client.name == 'copilot' then
-      --         copilot_cmp.on_insert_enter({})
-      --       end
-      --     end)
-      --   end,
-      -- },
+    snippet = {
+      expand = function(args)
+        luasnip.lsp_expand(args.body) -- For `luasnip` users.
+      end,
     },
-    config = function()
-      local cmp = require "cmp"
-      -- local luasnip = require "luasnip"
-      local lspkind = require "lspkind"
-      local cmp_next = function(fallback)
+
+    mapping = cmp.mapping.preset.insert({
+      ["<C-j>"] = cmp.mapping.select_next_item(),
+      ["<C-k>"] = cmp.mapping.select_prev_item(),
+      ["<C-n>"] = cmp.mapping.select_next_item(),
+      ["<C-p>"] = cmp.mapping.select_prev_item(),
+      ["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-1), { "i", "c" }),
+      ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(1), { "i", "c" }),
+      -- ["<C-Space>"] = cmp.mapping(cmp.mapping.complete({}), { "i", "c" }),
+      ["<C-y>"] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+      ["<C-e>"] = cmp.mapping({
+        i = cmp.mapping.abort(),
+        c = cmp.mapping.close(),
+      }),
+      -- Accept currently selected item. If none selected, `select` first item.
+      -- Set `select` to `false` to only confirm explicitly selected items.
+      ["<CR>"] = cmp.mapping.confirm({ select = true }),
+      ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-        elseif require("luasnip").expand_or_jumpable() then
-          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true), "")
+        elseif luasnip.expandable() then
+          luasnip.expand({})
+        elseif luasnip.expand_or_jumpable() then
+          luasnip.expand_or_jump()
+        elseif check_backspace() then
+          fallback()
         else
           fallback()
         end
-      end
-
-      local cmp_prev = function(fallback)
+      end, {
+          "i",
+          "s",
+        }),
+      ["<S-Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
-        elseif require("luasnip").jumpable(-1) then
-          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
+        elseif luasnip.jumpable(-1) then
+          luasnip.jump(-1)
         else
           fallback()
         end
-      end
+      end, {
+          "i",
+          "s",
+        }),
+    }),
+    formatting = {
+      fields = { "abbr", "kind", "menu" },
+      format = function(entry, vim_item)
+        vim_item.menu_hl_group = "CmpItemKind" .. vim_item.kind
+        vim_item.menu = vim_item.kind
+        vim_item.abbr = vim_item.abbr:sub(1, 30)
+        vim_item.kind = kind_icons[vim_item.kind]
+        return vim_item
+      end,
+    },
+    sources = {
+      { name = "nvim_lsp_signature_help" },
+      { name = "neorg" },
+      { name = "nvim_lsp" },
+      { name = "buffer" },
+      { name = "luasnip" },
+      { name = "path" },
+      { name = "emoji" },
+      -- { name = "nvim_lua" },
+    },
+    confirm_opts = {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = false,
+    },
+    experimental = {
+      ghost_text = false,
+      -- native_menu = true,
+    },
+    window = {
 
-      lspkind.init()
-      cmp.setup({
-        enabled = true,
-        preselect = cmp.PreselectMode.None,
-        window = {
-          completion = cmp.config.window.bordered({
-            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
-          }),
-          documentation = cmp.config.window.bordered({
-            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
-          }),
-        },
-        view = {
-          entries = "bordered",
-        },
-        snippet = {
-          expand = function(args)
-            require("luasnip").lsp_expand(args.body)
-          end,
-        },
-        mapping = {
-          ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-f>"] = cmp.mapping.scroll_docs(4),
-          ["<S-Space>"] = cmp.mapping.complete(),
-          ["<C-e>"] = cmp.mapping.close(),
-          ["<CR>"] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
-          }),
-          ["<tab>"] = cmp_next,
-          ["<down>"] = cmp_next,
-          ["<C-p>"] = cmp_prev,
-          ["<up>"] = cmp_prev,
-        },
-        sources = {
-          { name = "nvim_lsp_signature_help", group_index = 1 },
-          { name = "luasnip",                 max_item_count = 5,  group_index = 1 },
-          { name = "nvim_lsp",                max_item_count = 20, group_index = 1 },
-          { name = "nvim_lua",                group_index = 1 },
-          { name = "vim-dadbod-completion",   group_index = 1 },
-          { name = "path",                    group_index = 2 },
-          { name = "buffer",                  keyword_length = 2,  max_item_count = 5, group_index = 2 },
-        },
-      })
-      local presentAutopairs, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
-      if not presentAutopairs then
-        return
-      end
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
-    end,
-  },
-}
+      completion = cmp.config.window.bordered({
+        border = require('meg.custom').border,
+        winhighlight = 'NormalFloat:NormalFloat,FloatBorder:NormalFloat'
+      }),
+      documentation = cmp.config.window.bordered({
+        border = require('meg.custom').border,
+        winhighlight = 'NormalFloat:NormalFloat,FloatBorder:NormalFloat'
+      }),
+    },
+    -- view = { entries = "native" },
+  })
+
+  if cmdline then
+    cmp.setup.cmdline(":", {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = cmp.config.sources({
+        -- { name = "noice_popupmenu" },
+        { name = "path" },
+        { name = "cmdline" },
+        -- { name = "cmdline_history" },
+      }),
+    })
+  end
+
+  -- The nvim-cmp almost supports LSP's capabilities so You should advertise it to LSP servers..
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+end
+
+return M

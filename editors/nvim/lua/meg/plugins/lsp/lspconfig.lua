@@ -1,169 +1,44 @@
 return {
   {
     "neovim/nvim-lspconfig",
-    event = "BufReadPre",
+    event = "InsertEnter",
     dependencies = {
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim',
       "hrsh7th/cmp-nvim-lsp",
-      "simrat39/rust-tools.nvim",
-      "akinsho/flutter-tools.nvim",
     },
 
     config = function()
-      require("lspconfig.ui.windows").default_options.border = require("meg.custom").border
+      vim.diagnostic.config({
+        virtual_text = true,
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = false,
+      })
+      local signs={Error="", Warn="", Hint="", Info=""}
+      for type, icon in pairs(signs) do
+        local hl="DiagnosticSign" .. type
+        vim.fn.sign_define(hl, {text=icon, texthl=hl, numhl=hl})
+      end
 
-      -- local server_capabilities = function()
-      --   local active_clients = vim.lsp.get_clients()
-      --   local active_client_map = {}
-      --
-      --   for index, value in ipairs(active_clients) do
-      --     active_client_map[value.name] = index
-      --   end
-      --
-      --   vim.ui.select(vim.tbl_keys(active_client_map), {
-      --     prompt = "Select client:",
-      --     format_item = function(item)
-      --       return "capabilities for: " .. item
-      --     end,
-      --   }, function(choice)
-      --       print(
-      --         vim.inspect(
-      --           vim.lsp.get_clients()[active_client_map[choice]].server_capabilities.executeCommandProvider
-      --         )
-      --       )
-      --
-      --       vim.pretty_print(vim.lsp.get_clients()[active_client_map[choice]].server_capabilities)
-      --     end)
-      -- end
+      local mason = require 'mason'
+      local mason_lspconfig = require 'mason-lspconfig'
 
-      require("meg.lsp.handlers").setup()
+      mason.setup()
+
+      mason_lspconfig.setup({
+        ensure_installed = {
+          'bashls',
+          'clangd',
+          'dockerls',
+          'jsonls',
+          'pyright',
+          'ruby_ls',
+          'standardrb',
+          'lua_ls',
+        }
+      })
     end,
   },
-  -- {
-  --   "neovim/nvim-lspconfig",
-  --   dependencies = {
-  --     "folke/neodev.nvim",
-  --     "b0o/schemastore.nvim",
-  --     "williamboman/mason-lspconfig.nvim",
-  --     "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-  --   },
-  --   event = { "BufRead", "BufNewFile" },
-  --   config = function()
-  --     require("neodev").setup({})
-  --     require("lsp_lines").setup()
-  --     local lspconfig = require("lspconfig")
-  --     local remaps = require("meg.lsp.remaps")
-  --     local icons = require("meg.custom").icons
-  --
-  --     local presentCmpNvimLsp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-  --     local presentLspSignature, lsp_signture = pcall(require, "lsp_signature")
-  --
-  --     vim.lsp.set_log_level("error")
-  --
-  --     local function on_attach(client, bufnr)
-  --       remaps.set_default_on_buffer(client, bufnr)
-  --
-  --       if presentLspSignature then
-  --         lsp_signature.on_attach({ floating_window = false, timer_interval = 500 })
-  --       end
-  --     end
-  --
-  --     local signs = {
-  --       { name = "DiagnosticSignError", text = icons.diagnostic.error },
-  --       { name = "DiagnosticSignWarn", text = icons.diagnostic.warn },
-  --       { name = "DiagnosticSignInfo", text = icons.diagnostic.info },
-  --       { name = "DiagnosticSignHint", text = icons.diagnostic.hint },
-  --     }
-  --
-  --     for _, sign in ipairs(signs) do
-  --       vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
-  --     end
-  --
-  --     local config = {
-  --       virtual_text = false,
-  --       virtual_lines = false,
-  --       signs = {
-  --         active = signs,
-  --       },
-  --       flags = {
-  --         debounce_text_changes = 200,
-  --       },
-  --       update_in_insert = true,
-  --       underline = true,
-  --       severity_sort = true,
-  --       float = {
-  --         focus = false,
-  --         focusable = false,
-  --         style = "minimal",
-  --         border = "shadow",
-  --         source = "always",
-  --         header = "",
-  --         prefix = "",
-  --       },
-  --     }
-  --     lspconfig.util.default_config = vim.tbl_deep_extend('force', lspconfig.util.default_config, config)
-  --     vim.diagnostic.config(config)
-  --
-  --     local border = {
-  --       border = 'shadow',
-  --     }
-  --
-  --     vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.hover, border)
-  --     vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, border)
-  --
-  --     local capabilities
-  --     if presentCmpNvimLsp then
-  --       capabilities = cmp_lsp.default_capabilities(vim.lsp.protocol.make_client_capabilities())
-  --     else
-  --       capabilities = vim.lsp.protocol.make_client_capabilities()
-  --     end
-  --
-  --     local servers = {
-  --       bashls = require('meg.lsp.servers.bashls')(on_attach),
-  --       cssls = require('meg.lsp.servers.cssls')(on_attach),
-  --       dockerls = {},
-  --       html = {},
-  --       jsonls = {},
-  --       lua_ls = require("meg.lsp.servers.luals")(on_attach),
-  --       intelephense = require('meg.lsp.servers.phpls')(on_attach),
-  --       pylsp = {},
-  --       rust_analyzer = {},
-  --       tailwindcss = {},
-  --       terraformls = {},
-  --       tflint = {},
-  --       tsserver = require('meg.lsp.servers.tsserver')(on_attach),
-  --       yamlls = {},
-  --     }
-  --
-  --     local default_lsp_config = {
-  --       on_attach = on_attach,
-  --       capabilities = capabilities,
-  --       flags = {
-  --         debounce_text_changes = 200,
-  --         allow_incremental_sync = true,
-  --       },
-  --     }
-  --
-  --     local server_names = {}
-  --     for server_name, _ in pairs(servers) do
-  --       table.insert(server_names, server_name)
-  --     end
-  --
-  --     local preset_mason, mason = pcall(require, "mason-lspconfig")
-  --     if present_mason then
-  --       mason.setup({ ensure_installed = server_names })
-  --     end
-  --
-  --     for server_name, server_config in pairs(servers) do
-  --       local merged_config = vim.tbl_deep_extend("force", default_lsp_config, server_config)
-  --       lspconfig[server_name].setup(merged_config)
-  --
-  --       if server_name == "rust_analyzer" then
-  --         local present_rust_tools, rust_tools = pcall(require, "rust-tools")
-  --         if present_rust_tools then
-  --           rust_tools.setup({ server = merged_config })
-  --         end
-  --       end
-  --     end
-  --   end
-  -- }
 }

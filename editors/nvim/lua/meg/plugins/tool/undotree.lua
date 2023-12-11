@@ -13,6 +13,6 @@ return {
 
     local map = require("meg.utils").map
 
-    map("n", "<Leader>u", "<cmd>UndotreeToggle<CR>", "Toggle Undotree")
+    map("n", "<Leader>tu", "<cmd>UndotreeToggle<CR>", "Toggle Undotree")
   end,
 }

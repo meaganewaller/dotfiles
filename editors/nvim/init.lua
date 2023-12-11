@@ -4,78 +4,43 @@
 -- ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
 -- ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
 -- ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
--- Last updated: 2023-11-30
+-- Last updated: 2023-12-08
 -- code: https://github.com/meaganewaller/dotfiles
+
+vim.defer_fn(function()
+  if vim.fn.argc() > 0 then return end
+  for _, file in ipairs(vim.v.oldfiles) do
+    if vim.loop.fs_stat(file) and vim.fs.basename(file) ~= "COMMIT_EDITMSG" then
+      vim.cmd.edit(file)
+      return
+    end
+  end
+end, 1)
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
-vim.env.LAZYROOT = vim.fs.joinpath(vim.fn.stdpath "data", "lazy")
+local function safeRequire(module)
+  local success, result = pcall(require, module)
+  if success then return end
 
-vim.o.exrc = true
+  vim.defer_fn(
+    function() vim.notify(("Error loading %s\n%s"):format(module, result), vim.log.levels.ERROR) end,
+    1
+  )
+end
 
--- Edit
-vim.o.expandtab = true
-vim.o.softtabstop = 2
-vim.o.shiftwidth = 2
-vim.o.undofile = true
-vim.o.swapfile = false
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.list = true
-vim.o.completeopt = "menu,menuone,noselect"
-vim.o.includeexpr = "substitute(v:fname,'\\.','/','g')"
-vim.o.jumpoptions = "stack"
+safeRequire 'config.lazy'
+if vim.fn.has('gui_running') == 1 then safeRequire 'config.gui' end
 
--- Interface
-vim.o.confirm = true
-vim.o.splitkeep = "screen"
-vim.o.splitbelow = true
-vim.o.splitright = true
-vim.o.number = true
-vim.o.relativenumber = true
-vim.o.wrap = false
-vim.o.linebreak = true
-vim.o.showbreak = ">>"
-vim.o.mouse = "a"
-vim.o.termguicolors = true
-vim.o.title = true
-vim.o.signcolumn = "yes"
-vim.o.cursorline = true
-vim.o.cursorlineopt = "number"
-vim.o.conceallevel = 1
-vim.o.scrolloff = 2
-vim.o.sidescrolloff = 5
-vim.o.pumblend = 12
-vim.o.pumheight = 12
-vim.o.fillchars = "diff:╱"
-vim.o.textwidth = 80
-vim.o.colorcolumn = "+1"
-vim.o.guifont = "FiraCode Nerd Font:h14"
+safeRequire 'config.theme'
+safeRequire 'config.settings'
+safeRequire 'config.bindings'
+safeRequire 'config.leader-bindings'
+safeRequire 'config.diagnostics'
+safeRequire 'config.cmds'
+safeRequire 'config.spellfixes'
 
-
--- Keymapping
-vim.keymap.set("c", "<C-p>", "<Up>")
-vim.keymap.set("c", "<C-n>", "<Down>")
-
--- Auto commands
-vim.api.nvim_create_autocmd("TextYankPost", {
-  group = vim.api.nvim_create_augroup("highlight_on_yank", {}),
-  desc = "Briefly highlight yanked text",
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-})
-
--- Filetype specific
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "go",
-  desc = "Set indent for go",
-  callback = function()
-    vim.bo.tabstop = 4
-    vim.bo.shiftwidth = 4
-    vim.bo.expandtab = false
-  end,
-})
-
-require("meg")
+if vim.version().major == 0 and vim.version().minor >= 10 then
+  vim.notify("TODO version 0.10.md")
+end

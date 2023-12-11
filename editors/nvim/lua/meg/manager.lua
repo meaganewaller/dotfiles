@@ -1,17 +1,16 @@
-local root = vim.env.LAZYROOT
-local lazypath = vim.fs.joinpath(root, "lazy.nvim")
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 
-if not vim.uv.fs_stat(lazypath) then
-  vim.fn.system {
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "--single-branch",
-    "https://github.com/folke/lazy.nvim.git",
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    'git', 'clone', '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
     lazypath,
-  }
+  })
 end
-vim.opt.runtimepath:prepend(lazypath)
+vim.opt.rtp:prepend(lazypath)
+vim.g.mapleader=' '
+vim.g.maplocalleader=','
 
 local custom = require "meg.custom"
 
