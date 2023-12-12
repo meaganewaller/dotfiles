@@ -5,6 +5,11 @@
 ################################### ALLOW LIST ##################################
 
 # Config
+!.config/**/*
+!.fonts/**/*
+!.local/share/applications/**/*
+!other/**/*
+!usr/**/*
 !package-managers/asdf/**/*
 !shells/bash/**/*
 !programming/efm-langserver/*
@@ -28,6 +33,15 @@
 !editors/vim/**/*
 !tools/ui/vivid/**/*
 !shells/zsh/**/*
+!.Xresources
+!.bash_aliases
+!.bash_profile
+!.bashrc
+!.gitconfig
+!.gitignore
+!.inputrc
+!.whitesource
+!.xinitrc
 
 # Dotbot
 !meta/**/*
@@ -65,10 +79,6 @@
 ################################### DENY LIST ####################################
 
 # Config
-.config/nvim/plugin
-.config/fish/fish_variables
-.config/tmux/plugins
-.config/tmux/resurrect
 languages/ruby/enhance-rails-intellisense-in-solargraph
 .DS_Store
 backup
