@@ -31,7 +31,6 @@
 !languages/snippets/**/*
 !tools/ssh/config
 !shells/starship/**/*
-!terminals/tmux/**/*
 !editors/vim/**/*
 !tools/ui/vivid/**/*
 !shells/zsh/**/*
