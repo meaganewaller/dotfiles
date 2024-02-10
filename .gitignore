@@ -19,9 +19,6 @@
 !gui/hammerspoon/**/*
 !gui/sketchybar/**/*
 !tools/keys/karabiner/karabiner.json
-!terminals/kitty/**/*
-!terminals/alacritty/**/*
-!terminals/tmux/**/*
 !tools/mackup/**/*
 !tools/nix/**/*
 !tools/ranger/**/*
