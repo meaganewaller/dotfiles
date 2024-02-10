@@ -6,44 +6,37 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIGDIR="${BASEDIR}/meta/configs"
 PROFILESDIR="${BASEDIR}/meta/profiles"
 DOTBOT="${BASEDIR}/meta/dotbot/bin/dotbot"
-PLUGINDIR="${BASEDIR}/meta/plugins"
 
 declare -a ARGS
 declare -a FLAGS
-while (( "$#" )); do
-  case "$1" in
-    -*)
-      FLAGS+=("$1")
-      ;;
-    *)
-      ARGS+=("$1")
-      ;;
-  esac
-  shift
+while (("$#")); do
+    case "$1" in
+        -*)
+            FLAGS+=("$1")
+            ;;
+        *)
+            ARGS+=("$1")
+            ;;
+    esac
+    shift
 done
 set -- "${ARGS[@]}"
 
 declare -a CONFIGS
 while IFS= read -r config; do
-  if [[ -n "$config" ]]; then
-    CONFIGS+=("${config}")
-  fi
-done < "${PROFILESDIR}/$1"
+    if [[ -n "$config" ]]; then
+        CONFIGS+=("${config}")
+    fi
+done <"${PROFILESDIR}/$1"
 shift
 
 for config in "${CONFIGS[@]}" "${@}"; do
-  echo -e "Adding configuration $config"
-  CONFIGCONTENT="${CONFIGCONTENT}\n$(<"${CONFIGDIR}/${config}.yaml")"
+    echo -e "Adding configuration $config"
+    CONFIGCONTENT="${CONFIGCONTENT}\n$(<"${CONFIGDIR}/${config}.yaml")"
 done
 
-declare -a PLUGINS
-PLUGINS=("--plugin-dir" "${PLUGINDIR}" \
-  "--plugin-dir" "${PLUGINDIR}/dotbot-ifplatform" \
-  "--plugin-dir" "${PLUGINDIR}/dotbot-template" \
-  "--plugin-dir" "${PLUGINDIR}/dotbot-sudo")
-
 if [[ "${#FLAGS[@]}" -gt 0 ]]; then
-  "${DOTBOT}" "${FLAGS[@]}" -d "${BASEDIR}" "${PLUGINS[@]}" -c <(echo -e "${CONFIGCONTENT}")
+    "${DOTBOT}" "${FLAGS[@]}" -d "${BASEDIR}" -c <(echo -e "${CONFIGCONTENT}")
 else
-  "${DOTBOT}" -d "${BASEDIR}" "${PLUGINS[@]}" -c <(echo -e "${CONFIGCONTENT}")
+    "${DOTBOT}" -d "${BASEDIR}" -c <(echo -e "${CONFIGCONTENT}")
 fi

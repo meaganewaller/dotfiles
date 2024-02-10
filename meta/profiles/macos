@@ -1,6 +1,4 @@
 base
-ssh
-
-git
-shell
+alacritty
+tmux
 nvim

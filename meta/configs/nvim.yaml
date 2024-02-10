@@ -1,7 +1,4 @@
----
 - link:
-    ~/.editorconfig: editors/editorconfig
-    ~/.config/nvim:
-      glob: true
-      path: editors/neovim/*
-      relink: true
+    ~/.config/nvim: editors/nvim
+    ~/.vim: editors/vim
+    ~/.vimrc: editors/vim/vimrc

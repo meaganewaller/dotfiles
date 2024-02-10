@@ -1,5 +1,3 @@
----
-# --- SSH Configuration ---
 - create:
     ~/.ssh:
       mode: 0700
@@ -8,5 +6,11 @@
     ~/.config/systemd/user/ssh-agent.service: tools/ssh/ssh-agent.service
 - ifanylinux:
     - shell:
-        - [systemctl --user enable ssh-agent.service, Enabling ssh-agent.service]
-        - [systemctl --user start  ssh-agent.service, Starting ssh-agent.service]
+        - [
+            systemctl --user enable ssh-agent.service,
+            Enabling ssh-agent.service,
+          ]
+        - [
+            systemctl --user start  ssh-agent.service,
+            Starting ssh-agent.service,
+          ]

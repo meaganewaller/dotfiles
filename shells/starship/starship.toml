@@ -5,7 +5,7 @@ format = """╭╴$all """
 right_format = """$time $cmd_duration"""
 add_newline = true
 command_timeout = 10_000
-palette = 'miasma'
+palette = 'hardhacker'
 
 aws.disabled = true
 c.disabled = true

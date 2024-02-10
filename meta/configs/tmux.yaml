@@ -1,11 +1,4 @@
-# --- Tmux Config ---
-- asdf:
-    - plugin: tmux
-      global: latest
-      versions:
-        - latest
-
 - link:
     ~/.tmux.conf: terminals/tmux/tmux.conf
-    ~/.tmux/plugins/tpm: terminals/tmux/tpm
+    ~/.tmux/status: terminals/tmux/status
     ~/.tmux/scripts: terminals/tmux/scripts
