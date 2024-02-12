@@ -1,8 +1,0 @@
-- asdf:
-  - plugin: rust
-    global: latest
-    versions:
-      - latest
-
-- link:
-    ~/.default-cargo-crates: programming/rust/default-cargo-crates

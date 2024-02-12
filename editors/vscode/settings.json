@@ -1,5 +1,4 @@
 {
-  "editor.fontFamily": "'Fira Code', 'FiraCode Nerd Font', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontLigatures": "'ss02', 'ss03', 'ss05', 'ss07'",
   "editor.scrollBeyondLastLine": false,
   "files.associations": {
@@ -164,5 +163,8 @@
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
   },
   "redhat.telemetry.enabled": true,
-  "git.openRepositoryInParentFolders": "always"
+  "git.openRepositoryInParentFolders": "always",
+  "explorer.confirmDelete": false,
+  "editor.fontFamily": "SpaceMono Nerd Font Mono,SpaceMono Nerd Font",
+  "window.confirmSaveUntitledWorkspace": false
 }

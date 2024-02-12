@@ -1,3 +1,0 @@
-#!/bin/sh
-
-$HOME/.asdf/shims/python $HOME/.dotfiles/commands/color_mode.py $1

@@ -1,5 +1,0 @@
-- link:
-    ~/.config/starship:
-        path: shells/starship/*
-        glob: true
-        exclude: [shells/starship/README.md]

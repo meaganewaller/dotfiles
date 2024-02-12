@@ -1,9 +1,0 @@
-- link:
-    ~/Brewfile: package-managers/homebrew/Brewfile
-    /usr/local/bin/brewup: package-managers/homebrew/brewup
-
-- brewfile:
-    - ~/Brewfile
-
-- shell:
-    - [brewup, Updating Homebrew and installed packages]

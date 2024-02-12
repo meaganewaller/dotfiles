@@ -1,5 +1,0 @@
-- link:
-    ~/.config/fish:
-        glob: true
-        path: shells/fish
-        exclude: [ shells/fish/README.md ]

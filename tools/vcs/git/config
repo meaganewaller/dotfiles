@@ -21,6 +21,7 @@
   excludesfile = ~/.gitignore_global
 [gpg]
   format = "ssh"
+	program = gpg2.4.4
 [commit]
   gpgsign = true
 [gpg "ssh"]

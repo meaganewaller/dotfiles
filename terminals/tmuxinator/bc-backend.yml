@@ -1,0 +1,9 @@
+name: bc-backend
+root: ~/workspace/bright-finder
+
+windows:
+  - editor:
+    - nvim .
+  - terminal:
+  - server:
+    - git pull --rebase

@@ -1,0 +1,71 @@
+[colors.primary]
+foreground = "#575279"
+background = "#faf4ed"  # Lover's light background color
+dim_foreground = "#797593"
+bright_foreground = "#575279"
+
+[colors.cursor]
+text = "#575279"
+cursor = "#cecacd"
+
+[colors.vi_mode_cursor]
+text = "#575279"
+cursor = "#cecacd"
+
+[colors.search.matches]
+foreground = "#797593"
+background = "#6EB0E5"  # Lover's light 'Seagull' color
+
+[colors.search.focused_match]
+foreground = "#faf4ed"
+background = "#D4618F"  # Lover's light 'Charm' color
+
+[colors.hints.start]
+foreground = "#797593"
+background = "#fffaf3"
+
+[colors.hints.end]
+foreground = "#9893a5"
+background = "#fffaf3"
+
+[colors.line_indicator]
+foreground = "None"
+background = "None"
+
+[colors.footer_bar]
+foreground = "#575279"
+background = "#fffaf3"
+
+[colors.selection]
+text = "#575279"
+background = "#dfdad9"
+
+[colors.normal]
+black = "#faf4ed"  # Lover's light background color
+red = "#D4618F"    # Lover's light 'Charm' color
+green = "#286983"
+yellow = "#E8A378"  # Lover's light 'Apricot' color
+blue = "#56949f"
+magenta = "#CDAAD4"  # Lover's light 'Light Wisteria' color
+cyan = "#6EB0E5"   # Lover's light 'Seagull' color
+white = "#575279"
+
+[colors.bright]
+black = "#9893a5"
+red = "#D4618F"    # Lover's light 'Charm' color
+green = "#286983"
+yellow = "#E8A378"  # Lover's light 'Apricot' color
+blue = "#56949f"
+magenta = "#CDAAD4"  # Lover's light 'Light Wisteria' color
+cyan = "#6EB0E5"   # Lover's light 'Seagull' color
+white = "#575279"
+
+[colors.dim]
+black = "#9893a5"
+red = "#D4618F"    # Lover's light 'Charm' color
+green = "#286983"
+yellow = "#E8A378"  # Lover's light 'Apricot' color
+blue = "#56949f"
+magenta = "#CDAAD4"  # Lover's light 'Light Wisteria' color
+cyan = "#6EB0E5"   # Lover's light 'Seagull' color
+white = "#575279"

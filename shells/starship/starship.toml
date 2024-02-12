@@ -1,11 +1,15 @@
 # Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
-format = """╭╴$all """
+format = """
+[╭╴](bold green_dark)$all
+$battery
+[╰╴](bold green_dark)$character
+"""
 right_format = """$time $cmd_duration"""
 add_newline = true
 command_timeout = 10_000
-palette = 'hardhacker'
+palette = 'lover_light'
 
 aws.disabled = true
 c.disabled = true
@@ -25,19 +29,19 @@ gcloud.disabled = true
 localip.disabled = true
 php.disabled = true
 vagrant.disabled = true
-git_metrics.disabled = false
+git_metrics.disabled = true
 
-[palettes.hardhacker]
-background = "#282433"
-foreground = "#eee9fc"
-selection = "#3f3951"
-comment = "#938aad"
-red = "#e965a5"
-green = "#b1f2a7"
-yellow = "#ebde76"
-blue = "#b1baf4"
-purple = "#e192ef"
-cyan = "#b3f4f3"
+[palettes.lover_light]
+background = "#faf4ed"  # Lover's light background color
+foreground = "#575279"
+selection = "#dfdad9"
+comment = "#907aa9"
+red = "#D4618F"   # Lover's light 'Charm' color
+green = "#286983"
+yellow = "#F5E2B1"  # Lover's light 'Wheat' color
+blue = "#56949f"
+purple = "#CDAAD4"  # Lover's light 'Light Wisteria' color
+cyan = "#6EB0E5"    # Lover's light 'Seagull' color
 background_dark = "#1e1a27"
 foreground_dark = "#dcd6f4"
 selection_dark = "#2d283d"
@@ -60,58 +64,14 @@ purple_light = "#f1d9f6"
 cyan_light = "#c9f1f0"
 darkest_pink = "#B00544"
 
-[palettes.miasma]
-background = "#222222"
-background_light = "#2a2a2a"
-foreground = "#c2c2b0"
-foreground_light = "#e0e0d0"
-purple = "#bb7744"
-purple_light = "#ddaa88"
-blue = "#78824b"
-blue_light = "#99aa77"
-blue_dark = "#5f875f"
-green = "#5f875f"
-green_light = "#88aa88"
-yellow = "#b36d43"
-yellow_light = "#ddaa88"
-cyan = "#c9a554"
-cyan_light = "#ddaa88"
-white = "#c2c2b0"
-red = "#685742"
-red_light = "#5f875f"
-darkest_pink = "#c2c2b0"
-
-[palettes.rainbow]
-red = "#F77976"
-orange = "#FFAB00"
-yellow = "#FDF148"
-green  = "#A0E426"
-blue = "#52E3E1"
-indigo = "#AEA9FE"
-violet = "#D6B1FC"
-dark_red = "#FF5C90"
-dark_orange = "#FF964B"
-dark_yellow = "#FFEC5C"
-dark_green = "#4F871A"
-dark_blue = "#318AD8"
-dark_indigo = "#645AFD"
-dark_violet = "#AE62F9"
-lavendar = "#D883FF"
-dark_lavendar = "#9336FD"
-pink = "#FFC8DD"
-dark_pink = "#F050AE"
-baby_blue = "#BDE0FE"
-
-[ruby]
-symbol = " "
-format = "[](fg:purple bg:none)[$symbol](fg:foreground bg:purple)[](bg:purple_light fg:purple)[ $version]($style)[](fg:purple_light bg:none) "
-style = "fg:foreground bg:purple_light"
+[line_break]
+disabled = true
 
 [character]
-format = "\n╰╴$symbol "
-success_symbol = "[⟶](green bold)"
+format = "$symbol "
+success_symbol = "[󰔰](green_dark bold)"
 error_symbol = "[](red)"
-vicmd_symbol = "[](yellow)"
+vimcmd_symbol = "[  ](yellow)"
 
 [username]
 format = "[ $user]($style) "
@@ -127,47 +87,39 @@ ssh_symbol = ""
 trim_at = "-"
 disabled = false
 
+[ruby]
+symbol = " "
+format = "[](fg:purple bg:none)[$symbol](fg:foreground bg:purple)[](bg:purple_light fg:purple)[ $version]($style)[](fg:purple_light bg:none) "
+style = "fg:foreground bg:purple_light"
+
 [git_branch]
 symbol = ""
 # symbol = "🌱 "
 truncation_length = 7
 truncation_symbol = ""
-format = "[](fg:cyan bg:none)[$symbol](fg:background bg:cyan)[](fg:cyan bg:cyan)[$branch]($style)[](fg:cyan bg:none) "
-style = "fg:background bg:cyan"
+format = "[](fg:yellow bg:none)[$symbol](fg:yellow_dark bg:yellow)[](fg:yellow bg:yellow)[$branch]($style)[](fg:yellow bg:none) "
+style = "bold fg:yellow_dark bg:yellow"
 
 [git_commit]
+commit_hash_length = 7
+disabled = false
 tag_symbol = " "
 tag_disabled = false
 format = "[ $hash$tag]($style) "
 
 [git_status]
-# format = "([ $all_status$ahead_behind]($style) )"
-format = "[](fg:purple bg:none)[$all_status$ahead_behind]($style)[](fg:purple bg:none)"
-conflicted = "="
-ahead =	"⇡${count}"
-behind = "⇣${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-up_to_date = "✓"
-untracked = "?${count}"
-stashed = ""
-modified = "!${count}"
-staged = "+${count}"
-renamed = "»${count}"
-deleted = "${count}"
-style = "bg:purple fg:foreground"
-# style = "bold yellow"
 ignore_submodules = true
-# format="[](fg:#4da0ff bg:none)[$all_status$ahead_behind](fg:#282c34 bg:#4da0ff)[](fg:#4da0ff bg:none)"
-# conflicted = " 🐗 "
-# ahead = " 🐇${count} "
-# behind = " 🐢${count} "
-# diverged = " 🔱 🐇${ahead_count} 🐢${behind_count} "
-# untracked = " 🦅${count} "
-# stashed = " 🐫 "
-# modified = " 🐾${count} "
-# staged = " 🐴${count} "
-# renamed = " 🦋${count} "
-# deleted = " 🐚${count} "
+format="[](fg:cyan_light bg:none)[$all_status$ahead_behind](fg:cyan bg:cyan_light)[](fg:cyan_light bg:none)"
+conflicted = "⚔️"
+ahead = "🏎️💨×${count}"
+behind = "🐢×${count}"
+diverged = "🔱🏎️💨×${ahead_count}🐢×${behind_count}"
+untracked = "🛤️ ×${count}"
+stashed = "📦"
+modified = "📝×${count}"
+staged = "🗃️ ×${count}"
+renamed = "📛×${count}"
+deleted = "🗑️ ×${count}"
 
 [git_state]
 merge = " MERGING"
@@ -179,24 +131,24 @@ bisect = " BISECTING"
 
 [directory]
 read_only = " "
-format = "[](fg:foreground bg:none)[](fg:blue_dark bg:foreground)[](fg:foreground bg:foreground)[ $path]($style)[](fg:foreground bg:none) "
-style = "fg:blue_dark bg:foreground"
+format = "[](fg:purple_light bg:none)[](fg:purple_dark bg:purple_light)[](fg:purple_light bg:purple_light)[$path]($style)[](fg:purple_light bg:none) "
+style = "bold italic fg:purple_dark bg:purple_light"
 truncation_length = 3
 truncate_to_repo=false
 
 [directory.substitutions]
 "~" = " ~"
-" ~/Documents" = " ~/Documents"
+" ~/Documents" = "~/Documents"
 " ~/Downloads" = " ~/Downloads"
-" ~/Desktop"   = " ~/Desktop"
+" ~/Desktop"   = "󰇅~/Desktop"
 " ~/Music"     = " ~/Music"
 " ~/Pictures"  = " ~/Pictures"
 " ~/Library"   = " ~/Library"
 " ~/Dropbox"   = " ~/Dropbox"
-" ~/code"      = " ~/code"
-" ~/dev"       = " ~/dev"
-" ~/workspace" = " ~/workspace"
-" ~/.dotfiles" = " ~/.dotfiles"
+" ~/code"      = "👩‍💻~/code"
+" ~/dev"       = "👩‍💻~/dev"
+" ~/workspace" = "🛠️~/workspace"
+" ~/.dotfiles" = " dots"
 
 [docker_context]
 symbol = " "
@@ -207,6 +159,12 @@ format="[](fg:red_light bg:none)[💖](fg:red_light bg:red_light)[](fg:red
 time_format = "%l:%m%p" #change to %R to only have HH:MM
 style="fg:darkest_pink bg:red_light"
 
+[cmd_duration]
+min_time = 1
+format = "[]($style)[[󰔟 ](bg:green_light fg:green_dark)$duration](bg:green_light fg:green_dark)[ ]($style)"
+disabled = false
+style = "bg:none fg:green_light"
+
 [battery]
 full_symbol = "󰂄 "
 charging_symbol = " "
@@ -214,22 +172,15 @@ discharging_symbol = "󰂅 "
 
 [[battery.display]]
 threshold = 25
-style = "bold red"
+style = "red"
 
 [[battery.display]]
 threshold = 50
-style = "bold yellow"
+style = "yellow"
 
 [[battery.display]]
 threshold = 101
-style = "green"
-
-
-[cmd_duration]
-min_time = 1
-format = "[]($style)[[󰔟 ](bg:foreground_light fg:background_light bold)$duration](bg:foreground_light fg:background_light)[ ]($style)"
-disabled = false
-style = "bg:none fg:foreground_light"
+style = "cyan_dark"
 
 [os.symbols]
 Alpine = ""

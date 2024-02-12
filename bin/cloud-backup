@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cd $HOME/.dotfiles && $HOME/.asdf/shims/rake backup:files

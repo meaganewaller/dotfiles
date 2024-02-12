@@ -1,9 +1,0 @@
-- shell:
-    - description: Installing asdf
-      command: |
-        brew list asdf >/dev/null || brew install asdf
-      stdout: true
-      stderr: true
-
-- link:
-    ~/.asdfrc: package-managers/asdf/asdfrc

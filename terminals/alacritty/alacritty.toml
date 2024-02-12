@@ -1,8 +1,8 @@
-import = ["~/.config/alacritty/colors/lover-dark.toml"]
+import = ["~/.config/alacritty/colors/lover-light.toml"]
 live_config_reload = true
 
-[env]
-TERM = "xterm-256color"
+[cursor]
+style = "Beam"
 
 [font]
 normal = { family = "SpaceMono Nerd Font Mono", style = "Regular" }
@@ -17,8 +17,8 @@ y = 1
 
 [window]
 decorations = "none"
-dynamic_padding = false
-opacity = 0.9
+dynamic_padding = true
+opacity = 0.97
 option_as_alt = "Both"
 
 [window.padding]
@@ -26,5 +26,5 @@ x = 10
 y = 10
 
 [shell]
-args = ["new-session", "-A", "-D", "-s", "main"]
-program = "/usr/local/bin/tmux"
+program = "/usr/local/bin/fish"
+args = ['--login']

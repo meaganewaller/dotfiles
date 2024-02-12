@@ -1,5 +1,0 @@
-- asdf:
-  - plugin: golang
-    global: latest
-    versions:
-      - latest

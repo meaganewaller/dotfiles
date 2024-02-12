@@ -30,7 +30,6 @@ stylua 0.14.2
 yarn 1.22.19
 zig 0.10.1 system
 direnv 2.32.2
-
 awscli 2.12.6
 aws-sam-cli 1.89.0
 aws-vault 7.2.0

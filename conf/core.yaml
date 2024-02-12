@@ -1,0 +1,35 @@
+- defaults:
+    links:
+        create: true
+        force: true
+        relink: true
+- clean: ["~"]
+
+- link:
+    # Shell stuff
+    ~/.aliases: shells/bash/aliases
+    ~/.functions: shells/bash/functions
+    ~/.local/bin/tmux-sessionizer: bin/scripts/tmux-sessionizer
+    ~/.config/nvim: editors/nvim
+    ~/.config/fish: shells/fish
+    ~/.zshrc: shells/zsh/zshrc
+    ~/.zshenv: shells/zsh/zshenv
+    ~/.tmux.conf: terminals/tmux/tmux.conf
+    ~/.config/tmux/tmux-mac.conf: terminals/tmux/tmux-mac.conf
+    ~/.gitconfig: tools/vcs/git/config
+    ~/.asdfrc: package-managers/asdf/asdfrc
+    ~/.tool-versions: package-managers/asdf/tool-versions
+    ~/.default-gems: package-managers/asdf/default-gems
+    ~/.default-pnpm-packages: package-managers/asdf/default-pnpm-packages
+    ~/.default-python-packages: package-managers/asdf/default-python-packages
+    ~/.config/borders/bordersrc: gui/borders/bordersrc
+    ~/.config/yabai/yabairc: gui/yabai/yabairc
+    ~/.config/skhd/skhdrc: gui/skhd/skhdrc
+
+- create:
+    - ~/workspace
+    - ~/dev
+    - ~/code
+
+- shell:
+    - [git submodule update --init --recursive, Installing Submodules]

@@ -1,0 +1,122 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+      force: true
+    shell:
+      stdout: true
+      stderr: true
+- clean:
+    ~/:
+      force: true
+    ~/.local/bin:
+      force: true
+    ~/.config:
+      recursive: true
+- create:
+    - ~/.config
+    - ~/dev
+    - ~/code
+    - ~/.bin
+    - ~/.cache
+    - ~/.ssh
+    - ~/.local/bin
+- shell:
+    - description: Installing submodules
+      command: git submodule update --init --recursive
+
+- shell:
+    - description: Installing asdf
+      command: |
+        brew list asdf >/dev/null || brew install asdf
+
+- link:
+    ~/.asdfrc: package-managers/asdf/asdfrc
+    ~/.profile: shell/bash/profile
+    ~/.bashrc: shell/bash/bashrc
+    ~/.bash_aliases: shell/bash/bash_aliases
+    ~/.bash_profile: shell/bash/bash_profile
+    ~/.bash_logout: shell/bash/bash_logout
+    ~/.config/alacritty: terminals/alacritty
+    ~/.local/bin:
+        glob: true
+        path: bin/*
+        exclude: [bin/lock-screen, bin/lyrics]
+    ~/.gitconfig: tools/vcs/git/config
+    ~/.gitattributes: tools/vcs/git/attributes
+    ~/.gitmessage: tools/vcs/git/message
+    ~/.gitignore_global: tools/vcs/git/ignore
+    ~/.gitconfig.local: tools/vcs/git/config.local
+    ~/.config/git:
+        glob: true
+        path: tools/vcs/git/*
+        exclude: [tools/vcs/git/README.md]
+    ~/Brewfile: package-managers/homebrew/Brewfile
+    /usr/local/bin/brewup: package-managers/homebrew/brewup
+    ~/.config/karabiner/karabiner.json: tools/keys/karabiner/karabiner.json
+    ~/.config/lazygit/config.yml: tools/vcs/lazygit/config.yml
+    ~/.config/lazygit/state.yml: tools/vcs/lazygit/state.yml
+    ~/.mackup/my-files.cfg: tools/mackup/.mackup/my-files.cfg
+    ~/.mackup.cfg: tools/mackup/mackup.cfg
+    ~/.config/yabai/yabairc: gui/yabai/yabairc
+    ~/.config/yabai/scripts: gui/yabai/scripts
+    ~/.config/sketchybar:
+        force: true
+        glob: true
+        path: gui/sketchybar/*
+    ~/.hammerspoon: gui/
+    ~/.config/neofetch/config.conf: cli/utils/neofetch/config.conf
+    ~/.config/neofetch/image.png: cli/utils/neofetch/image.png
+    ~/.config/nvim: editors/nvim
+    ~/.vim: editors/vim
+    ~/.vimrc: editors/vim/vimrc
+    ~/.config/starship:
+        path: shells/starship/*
+        glob: true
+        relink: true
+    ~/.config/fish:
+        glob: true
+        path: shells/fish/*
+        exclude: [shells/fish/env]
+        relink: true
+    ~/.env: shells/fish/env
+    ~/.config/skhd: gui/skhd
+    ~/.tmux.conf: terminals/tmux/tmux.conf
+    ~/.tmux/status: terminals/tmux/status
+    ~/.tmux/scripts: terminals/tmux/scripts
+
+- shell:
+    - [mkdir -p ~/.gnupg, Creating gnupg config directory]
+    - [gh completion -s fish > ~/.local/share/fish/generated_completions/_gh, Configuring completion]
+    - [brewup, Updating homebrew and installed packages]
+
+- shell:
+    - description: Setting raycast scripts to executable
+      quiet: true
+      command: |
+            find launchers/raycast/scripts/ -type f -iname "*.sh" -exec chmod +x {} \;
+            find launchers/raycast/commands/ -type f -iname "*.applescript" -exec chmod +x {} \;
+- link:
+    ~/.gnupg/gpg.conf: tools/gnupg/gpg.conf
+    ~/.gnupg/gpg-agent.conf: tools/gnupg/gpg-agent-mac.conf
+
+- shell:
+    - description: Making scripts executable
+      quiet: true
+      command: >-
+          chmod +x bin/**/*;
+
+- link:
+    ~/.local/bin:
+        glob: true
+        path: bin
+        exclude: [ bin/**/*.md ]
+
+- link:
+    ~/bin:
+        glob: true
+        path: bin
+        exclude: [bin/**/*.md]
+
+
+

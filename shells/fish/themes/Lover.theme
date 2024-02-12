@@ -1,0 +1,56 @@
+# Lover Light Color Palette
+#
+# Foreground: #575279
+# Background: #faf4ed
+# Selection: #dfdad9
+# Comment: #907aa9
+# Red: #D4618F
+# Orange: #E8A378
+# Yellow: #F5E2B1
+# Green: #286983
+# Purple: #CDAAD4
+# Cyan: #6EB0E5
+# Pink: #F3AAD0
+
+# Syntax Highlighting Colors
+fish_color_normal "#575279"
+fish_color_command "#6EB0E5"  # Lover's 'Seagull' color
+fish_color_keyword "#F3AAD0"  # Lover's 'Illusion' color
+fish_color_quote "#F5E2B1"    # Lover's 'Wheat' color
+fish_color_redirection "#575279"
+fish_color_end "#E8A378"      # Lover's 'Apricot' color
+fish_color_error "#D4618F"    # Lover's 'Charm' color
+fish_color_param "#CDAAD4"    # Lover's 'Light Wisteria' color
+fish_color_comment "#907aa9"
+fish_color_selection --background="#dfdad9"
+fish_color_search_match --background="#dfdad9"
+fish_color_operator "#286983"
+fish_color_escape "#F3AAD0"   # Lover's 'Illusion' color
+fish_color_autosuggestion "#907aa9"
+fish_color_cancel "#D4618F" --reverse  # Lover's 'Charm' color
+fish_color_option "#E8A378"   # Lover's 'Apricot' color
+fish_color_history_current --bold
+fish_color_status "#D4618F"   # Lover's 'Charm' color
+fish_color_valid_path --underline
+
+# Default Prompt Colors
+fish_color_cwd "#286983"
+fish_color_cwd_root "#D4618F"  # Lover's 'Charm' color
+fish_color_host "#CDAAD4"      # Lover's 'Light Wisteria' color
+fish_color_host_remote "#CDAAD4"  # Lover's 'Light Wisteria' color
+fish_color_user "#6EB0E5"      # Lover's 'Seagull' color
+
+# Completion Pager Colors
+fish_pager_color_progress "#907aa9"
+fish_pager_color_background
+fish_pager_color_prefix "#6EB0E5"  # Lover's 'Seagull' color
+fish_pager_color_completion "#575279"
+fish_pager_color_description "#907aa9"
+fish_pager_color_selected_background --background="#dfdad9"
+fish_pager_color_selected_prefix "#6EB0E5"  # Lover's 'Seagull' color
+fish_pager_color_selected_completion "#575279"
+fish_pager_color_selected_description "#907aa9"
+fish_pager_color_secondary_background
+fish_pager_color_secondary_prefix "#6EB0E5"  # Lover's 'Seagull' color
+fish_pager_color_secondary_completion "#575279"
+fish_pager_color_secondary_description "#907aa9"

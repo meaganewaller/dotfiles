@@ -1,14 +1,3 @@
-[submodule "meta/dotbot"]
-  path = meta/dotbot
-  url = git@github.com:anishathalye/dotbot.git
-  branch = master
-  ignore = dirty
-[submodule "meta/plugins/dotbot-ifplatform"]
-	path = meta/plugins/dotbot-ifplatform
-	url = git@github.com:ssbanerje/dotbot-ifplatform.git
-[submodule "meta/plugins/dotbot-template"]
-	path = meta/plugins/dotbot-template
-	url = git@github.com:ssbanerje/dotbot-template.git
-[submodule "meta/plugins/dotbot-sudo"]
-	path = meta/plugins/dotbot-sudo
-	url = git@github.com:DrDynamic/dotbot-sudo.git
+[submodule "dotbot"]
+	path = dotbot
+	url = git@github.com:anishathalye/dotbot

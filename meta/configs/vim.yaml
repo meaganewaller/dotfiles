@@ -1,6 +1,0 @@
-- link:
-    ~/.vimrc: editors/vim/vimrc
-    ~/.vim:
-        glob: true
-        path: editors/vim/*
-        relink: true

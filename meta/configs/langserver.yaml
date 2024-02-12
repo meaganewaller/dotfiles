@@ -1,5 +1,0 @@
-- create:
-  - ~/.config/efm-langserver
-
-- link:
-    ~/.config/efm-langserver: programming/efm-langserver

@@ -1,4 +1,0 @@
-- link:
-    ~/.config/nvim: editors/nvim
-    ~/.vim: editors/vim
-    ~/.vimrc: editors/vim/vimrc

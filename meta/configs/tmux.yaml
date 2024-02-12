@@ -1,4 +1,0 @@
-- link:
-    ~/.tmux.conf: terminals/tmux/tmux.conf
-    ~/.tmux/status: terminals/tmux/status
-    ~/.tmux/scripts: terminals/tmux/scripts

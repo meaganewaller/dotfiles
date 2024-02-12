@@ -1,105 +1,98 @@
-alias src="source ~/.zshrc"
+#
+# Aliases
+#
 
-# cleans mule runtime temp files and apps
-alias cm=' \
-  rm ./logs/**/*.log 2>/dev/null; \
-  rm ./logs/**/*.json 2>/dev/null; \
-  rm -rf ./.mule/* 2>/dev/null; \
-  rm -rf ./apps/* 2> /dev/null'
+# System
+alias s="ssh"
+alias ec="echo"
+alias ls="ls -B"
+alias l="ls -lah"
+alias ll="ls -lah"
+alias duh="du -h"
 
-# builds mule-uber extensions
-alias bme='\
-  mvn clean install \
-    -f mule-build-maven-plugins/pom.xml \
-    -DskipTests \
-    -Dinvoker.skip \
-    -Puber -T0.5C \
-    -DskipTests \
-    -DskipMunitTests'
+# Helpers
+alias reload="exec $SHELL -l"
 
-# builds mule-uber
-alias bm='\
-  mvn clean install \
-    -DskipTests \
-    -DskipMunitTests \
-    -T0.5C'
+# Editors
+alias t="mate"
+alias e="$DOTBIN/emacsclient-wrapper"
+alias eg="$DOTBIN/emacs-gui-client"
+alias egs="$DOTBIN/emacs-gui-server"
 
-# builds mule-uber and skips revapi validation
-alias bmn='\
-  mvn clean install \
-    -DskipTests \
-    -DskipMunitTests \
-    -T0.5C \
-    -Drevapi.skip'
+# Tools
+alias g="git"
+alias ma="make"
+alias va="vagrant"
+alias tf="terraform"
+alias di="colordiff"
+alias devnullsmtp="java -jar $DOTBIN/DevNullSmtp.jar"
 
-alias mvnf='mvn formatter:format'
-alias mvni='mvn clean install -DskipTests -Dskip.revapi '
-alias mvnp='mvn clean package -DskipTests -Dskip.revapi '
-alias mvnd='mvn -Dmaven.surefire.debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -Xnoagent -Djava.compiler=NONE" '
+# Homebrew
+if command-exists brew; then
+  alias br="brew"
+  alias bb="brew bundle"
+  alias bbg="brew bundle --global"
 
-alias reset_license='rm conf/muleLicenseKey.lic && touch conf/.lic-mule'
+  cask() {
+    local cmd="$1"
+    shift 1
+    brew "$cmd" --cask "$@"
+  }
+  alias ca="cask"
+fi
 
-alias agn='ag --nonumbers'
-alias ags='ag -s'
-alias fdi='fd -I'
+# Flutter
+if command-exists flutter; then
+  alias fl="flutter"
+fi
 
-# vim aliases
-alias v='nvim'
-alias vi='nvim'
-alias vim='nvim'
+# Misc.
+alias weechat="TERM=screen-256color weechat-curses"
+alias slashdot="ab -kc 50 -t 300"
+alias digg="ab -kc 50 -t 30"
+alias fact="elinks -dump randomfunfacts.com | sed -n '/^| /p' | tr -d \|"
+alias servethis="python -m http.server"
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'''
+alias fku="fuck you"
+alias fucking="sudo"
 
-# fzf find files in current directory and edit the selected ones
-alias f='v $(fzf -i)'
-alias -g Z='| fzf'
-
-case $(uname) in
-  Linux)
-    alias ls='ls --color=tty'
-    ;;
-  Darwin)
-    alias ls="ls -G"
-    ;;
-esac
-
-alias aws-login=". aws-login.sh"
-
-alias urldecode='python3 -c "import sys, urllib.parse as ul; \
-    print(ul.unquote_plus(sys.argv[1]))"'
-
-alias urlencode='python3 -c "import sys, urllib.parse as ul; \
-    print (ul.quote_plus(sys.argv[1]))"'
-
-n() {
-  # Block nesting of nnn in subshells
-  if [ -n $NNNLVL ] && [ "${NNNLVL:-0}" -ge 1 ]; then
-    echo "nnn is already running"
-    return
-  fi
-
-  # The behaviour is set to cd on quit (nnn checks if NNN_TMPFILE is set)
-  # To cd on quit only on ^G, either remove the "export" as in:
-  #    NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
-  #    (or, to a custom path: NNN_TMPFILE=/tmp/.lastd)
-  # or, export NNN_TMPFILE after nnn invocation
-  NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
-
-  nnn "$@"
-
-  # Unmask ^Q (, ^V etc.) (if required, see `stty -a`) to Quit nnn
-  # stty start undef
-  # stty stop undef
-  # stty lwrap undef
-  # stty lnext undef
-
-  if [ -f "$NNN_TMPFILE" ]; then
-    . "$NNN_TMPFILE"
-    rm -f "$NNN_TMPFILE" >/dev/null
-  fi
+# Improved myip alias. Echoed to avoid strange character at end in ZSH.
+myip() {
+  echo "$(curl -s whatismyip.akamai.com)"
 }
 
-alias n="n -GdR"
-alias t=dstask
+# appends your key to a server's authorized keys file
+alias authme="ssh-copy-id"
 
-command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
+# Make and cd into directory
+#  - from: http://alias.sh/make-and-cd-directory
+mcd() {
+  mkdir -p "$1" && cd "$1"
+}
 
-alias k=kubectl
+# Extract most common archives with single command.
+#  - from: http://alias.sh/extract-most-know-archives-one-command
+extract() {
+  if [ -f $1 ]; then
+    case $1 in
+      *.tar.bz2)  tar xvjf $1    ;;
+      *.tar.gz)   tar xvzf $1    ;;
+      *.tar.xz)   tar xvJf $1    ;;
+      *.bz2)      bunzip2 $1     ;;
+      *.rar)      unrar e $1     ;;
+      *.gz)       gunzip $1      ;;
+      *.tar)      tar xvf $1     ;;
+      *.tbz2)     tar xvjf $1    ;;
+      *.tbz)      tar xvjf $1    ;;
+      *.tgz)      tar xvzf $1    ;;
+      *.txz)      tar xvJf $1    ;;
+      *.zip)      unzip $1       ;;
+      *.Z)        uncompress $1  ;;
+      *.7z)       7z x $1        ;;
+      *)          echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+alias ext=extract
