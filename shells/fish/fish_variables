@@ -1,25 +1,53 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
+SETUVAR --export BROWSER:open
 SETUVAR --export CARGOBIN:/Users/meagan/\x2ecargo/bin
+SETUVAR --export CARGO_HOME:/Users/meagan/\x2elocal/share/cargo
 SETUVAR --export DENOBIN:/Users/meagan/\x2edeno/bin
 SETUVAR --export EDITOR:nvim
+SETUVAR --export FZF_DEFAULT_COMMAND:rg\x20\x2d\x2dfiles\x20\x2d\x2dno\x2dignore\x20\x2d\x2dhidden\x20\x2d\x2dfollow\x20\x2d\x2dglob\x20\x27\x21\x2egit/\x2a\x27
+SETUVAR --export GNUPGHOME:/Users/meagan/\x2elocal/share/gnupg
 SETUVAR --export GOBIN:/Users/meagan/go/bin
 SETUVAR --export --path GOPATH:/Users/meagan/go
 SETUVAR --export HISTFILE:/Users/meagan/\x2econfig/zsh/\x2ezhistory
 SETUVAR --export HISTSIZE:10000
+SETUVAR --export IPYTHONDIR:/Users/meagan/\x2econfig/jupyter
+SETUVAR --export --path JULIAUP_DEPOT_PATH:/Users/meagan/\x2elocal/share/julia
+SETUVAR --export --path JULIA_DEPOT_PATH:/Users/meagan/\x2elocal/share/julia\x1e/Users/meagan/\x2elocal/share/julia\x1e/Users/meagan/\x2elocal/share/julia\x1e/Users/meagan/\x2elocal/share/julia\x1e/Users/meagan/\x2elocal/share/julia\x1e/Users/meagan/\x2elocal/share/julia\x1e
+SETUVAR --export JUPYTER_CONFIG_DIR:/Users/meagan/\x2econfig/jupyter
+SETUVAR --export LESSHISTFILE:\x2d
 SETUVAR --export LOCALBIN:/Users/meagan/\x2elocal/bin
-SETUVAR --export MANPAGER:nvim\x20\x2dc\x20\x27Man\x21\x27\x20\x2d
+SETUVAR --export MAMBARC:/Users/meagan/\x2econfig/mamba/mambarc
+SETUVAR --export MAMBA_EXE:/usr/local/opt/micromamba/bin/micromamba
+SETUVAR --export MAMBA_ROOT_PREFIX:/Users/meagan/\x2elocal/share/micromamba
+SETUVAR --export MANPAGER:nvim\x1e\x2bZenMode\x1e\x2bMan\x21
+SETUVAR --export MPLCONFIGDIR:/Users/meagan/\x2econfig/matplotlib
 SETUVAR --export NBIN:/Users/meagan/n/bin
+SETUVAR --export NODE_REPL_HISTORY:/Users/meagan/\x2elocal/share/node_repl_history
+SETUVAR --export NPM_CONFIG_CACHE:/Users/meagan/\x2ecache/npm
+SETUVAR --export NPM_CONFIG_USERCONFIG:/Users/meagan/\x2econfig/npm/config
 SETUVAR --export NVIMBIN:/Users/meagan/\x2elocal/nvim/bin
 SETUVAR --export N_PREFIX:/Users/meagan/n
+SETUVAR --export PIPX_HOME:/Users/meagan/\x2elocal/share/pipx
 SETUVAR --export PRETTIERD_DEFAULT_CONFIG:/Users/meagan/\x2econfig/prettier/\x2eprettierrc
+SETUVAR --export PYENV_ROOT:/Users/meagan/\x2elocal/share/pyenv
+SETUVAR --export PYLINTHOME:/Users/meagan/\x2ecache/pylint
+SETUVAR --export PYTHON_CFLAGS:\x2dI/Applications/Xcode\x2eapp/Contents/Developer/Platforms/MacOSX\x2eplatform/Developer/SDKs/MacOSX\x2esdk/usr/include
+SETUVAR --export PYTHON_CONFIG:/Users/meagan/\x2econfig/python
+SETUVAR --export RUSTUP_HOME:/Users/meagan/\x2elocal/share/rustup
 SETUVAR --export SAVEHIST:10000
 SETUVAR --export SUDO_EDITOR:nvim\x20\x2du\x20NORC
+SETUVAR --export TERM:alacritty
+SETUVAR --export TERMINFO:/Users/meagan/\x2elocal/share/terminfo
+SETUVAR --export TERMINFO_DIRS:/Users/meagan/\x2elocal/share/terminfo\x3a/usr/share/terminfo
+SETUVAR --export TEXINPUTS:\x2e\x3a/Users/meagan/\x2elocal/share/texmf//\x3a
+SETUVAR --export VCPKG_ROOT:/Users/meagan/\x2elocal/share/vcpkg
 SETUVAR --export VISUAL:nvim
 SETUVAR --export XDG_CACHE_HOME:/Users/meagan/\x2ecache
 SETUVAR --export XDG_CONFIG_HOME:/Users/meagan/\x2econfig
 SETUVAR --export XDG_DATA_DIRS:/usr/local/share\x3a/usr/share
 SETUVAR --export XDG_DATA_HOME:/Users/meagan/\x2elocal/share
+SETUVAR --export XDG_STATE_HOME:/Users/meagan/\x2elocal/state
 SETUVAR --export YARNBIN:/Users/meagan/\x2eyarn/bin
 SETUVAR --export ZDOTDIR:/Users/meagan/\x2econfig/zsh
 SETUVAR ZO_CMD:zo
@@ -27,7 +55,17 @@ SETUVAR Z_CMD:z
 SETUVAR Z_DATA:/Users/meagan/\x2elocal/share/z/data
 SETUVAR Z_DATA_DIR:/Users/meagan/\x2elocal/share/z
 SETUVAR Z_EXCLUDE:\x5e/Users/meagan\x24
+SETUVAR --export __CF_USER_TEXT_ENCODING:0x501\x3a0x0\x3a0x52
 SETUVAR __fish_initialized:3400
+SETUVAR _fisher_acomagu_2F_fish_2D_async_2D_prompt_files:\x7e/\x2econfig/fish/conf\x2ed/__async_prompt\x2efish
+SETUVAR _fisher_hit9_2F_fish_2D_pyenv_files:\x7e/\x2econfig/fish/functions/pyenv\x2efish
+SETUVAR _fisher_jethrokuan_2F_z_files:\x7e/\x2econfig/fish/functions/__z\x2efish\x1e\x7e/\x2econfig/fish/functions/__z_add\x2efish\x1e\x7e/\x2econfig/fish/functions/__z_clean\x2efish\x1e\x7e/\x2econfig/fish/functions/__z_complete\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/z\x2efish
+SETUVAR _fisher_jorgebucaran_2F_autopair_2E_fish_files:\x7e/\x2econfig/fish/functions/_autopair_backspace\x2efish\x1e\x7e/\x2econfig/fish/functions/_autopair_insert_left\x2efish\x1e\x7e/\x2econfig/fish/functions/_autopair_insert_right\x2efish\x1e\x7e/\x2econfig/fish/functions/_autopair_insert_same\x2efish\x1e\x7e/\x2econfig/fish/functions/_autopair_tab\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/autopair\x2efish
+SETUVAR _fisher_jorgebucaran_2F_fisher_files:\x7e/\x2econfig/fish/functions/fisher\x2efish\x1e\x7e/\x2econfig/fish/completions/fisher\x2efish
+SETUVAR _fisher_jorgebucaran_2F_getopts_2E_fish_files:\x7e/\x2econfig/fish/functions/getopts\x2efish
+SETUVAR _fisher_jorgebucaran_2F_nvm_2E_fish_files:\x7e/\x2econfig/fish/functions/_nvm_index_update\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_list\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_version_activate\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_version_deactivate\x2efish\x1e\x7e/\x2econfig/fish/functions/nvm\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/nvm\x2efish\x1e\x7e/\x2econfig/fish/completions/nvm\x2efish
+SETUVAR _fisher_plugins:jorgebucaran/fisher\x1ejethrokuan/z\x1ehit9/fish\x2dpyenv\x1eacomagu/fish\x2dasync\x2dprompt\x1ejorgebucaran/autopair\x2efish\x1ejorgebucaran/nvm\x2efish\x1ejorgebucaran/getopts\x2efish
+SETUVAR _fisher_upgraded_to_4_4:\x1d
 SETUVAR fish_color_autosuggestion:brblack
 SETUVAR fish_color_cancel:\x2dr
 SETUVAR fish_color_command:blue
@@ -50,10 +88,14 @@ SETUVAR fish_color_selection:white\x1e\x2d\x2dbold\x1e\x2d\x2dbackground\x3dbrbl
 SETUVAR fish_color_status:red
 SETUVAR fish_color_user:brgreen
 SETUVAR fish_color_valid_path:\x2d\x2dunderline
+SETUVAR fish_cursor_insert:line
+SETUVAR fish_cursor_replace_one:underscore
+SETUVAR fish_cursor_visual:block
+SETUVAR fish_greeting:\x1d
 SETUVAR fish_key_bindings:fish_vi_key_bindings
 SETUVAR fish_pager_color_completion:normal
 SETUVAR fish_pager_color_description:yellow\x1e\x2di
 SETUVAR fish_pager_color_prefix:normal\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
 SETUVAR fish_pager_color_selected_background:\x2dr
-SETUVAR fish_user_paths:/usr/bin\x1e/Users/meagan/\x2elocal/share/nvim/mason/bin\x1e/Users/meagan/\x2edotfiles/bin\x1e/usr/local/sbin\x1e/usr/local/bin\x1e/Users/meagan/\x2ecargo/bin\x1e/Users/meagan/\x2elocal/bin\x1e/Users/meagan/go/bin
+SETUVAR --export fish_user_paths:/Users/meagan/\x2easdf/installs/ruby/3\x2e3\x2e0/bin\x1e/Users/meagan/\x2easdf/installs/neovim/nightly/bin\x1e/Users/meagan/\x2elocal/share/bin\x1e/Users/meagan/\x2elocal/bin\x1e/usr/local/bin\x1e/usr/local/sbin\x1e/bin\x1e/sbin

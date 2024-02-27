@@ -1,35 +1,105 @@
+- clean:
+    - '~'
+    - '~/.aws'
+    - '~/.cache/babel/'
+    - '~/.config'
+    - '~/.config/alacritty'
+    - '~/.config/asdf'
+    - '~/.config/aws'
+    - '~/.config/brew'
+    - '~/.config/fish'
+    - '~/.config/fish/completions'
+    - '~/.config/fish/conf.d'
+    - '~/.config/fish/functions'
+    - '~/.config/git'
+    - '~/.config/karabiner'
+    - '~/.config/neofetch'
+    - '~/.config/starship'
+    - '~/.config/tmux'
+    - '~/.config/nvim/lua/custom'
+    - '~/.gnupg'
+    - '~/.local/share/history'
+    - '~/.ssh'
+    - '~/.ssh/config.d'
+    - '~/Library/Preferences/pypoetry'
+    - '~/Library/LaunchAgents'
+
 - defaults:
     links:
-        create: true
-        force: true
-        relink: true
-- clean: ["~"]
-
-- link:
-    # Shell stuff
-    ~/.aliases: shells/bash/aliases
-    ~/.functions: shells/bash/functions
-    ~/.local/bin/tmux-sessionizer: bin/scripts/tmux-sessionizer
-    ~/.config/nvim: editors/nvim
-    ~/.config/fish: shells/fish
-    ~/.zshrc: shells/zsh/zshrc
-    ~/.zshenv: shells/zsh/zshenv
-    ~/.tmux.conf: terminals/tmux/tmux.conf
-    ~/.config/tmux/tmux-mac.conf: terminals/tmux/tmux-mac.conf
-    ~/.gitconfig: tools/vcs/git/config
-    ~/.asdfrc: package-managers/asdf/asdfrc
-    ~/.tool-versions: package-managers/asdf/tool-versions
-    ~/.default-gems: package-managers/asdf/default-gems
-    ~/.default-pnpm-packages: package-managers/asdf/default-pnpm-packages
-    ~/.default-python-packages: package-managers/asdf/default-python-packages
-    ~/.config/borders/bordersrc: gui/borders/bordersrc
-    ~/.config/yabai/yabairc: gui/yabai/yabairc
-    ~/.config/skhd/skhdrc: gui/skhd/skhdrc
+      create: true
+      force: true
+      relink: true
 
 - create:
-    - ~/workspace
-    - ~/dev
-    - ~/code
+    - '~/.cache/babel/'
+    - '~/.cache/bundle'
+    - '~/.cache/gem'
+    - '~/.cache/less'
+    - '~/.cache/npm'
+    - '~/.cache/pip'
+    - '~/.config'
+    - '~/.config/wezterm'
+    - '~/.config/nvim/lua/custom'
+    - '~/.local/bin'
+    - '~/.local/share/aws'
+    - '~/.local/share/bundle'
+    - '~/.local/share/gem'
+    - '~/.local/share/gradle'
+    - '~/.local/share/history'
+    - '~/.local/share/less'
+    - '~/.local/share/password-store'
+    - '~/.local/share/stack'
+    - '~/.local/share/vimfiles'
+
+- link:
+    #~/.editorconfig: editorconfig
+    ~/.local/bin:
+      path: bin/*
+      glob: true
+    ~/.config/brew/Brewfile: package-managers/homebrew/Brewfile
+    ~/.config/asdf/.asdfrc: package-managers/asdf/asdfrc
+    ~/.config/fish/config.fish: shells/fish/config.fish
+    ~/.config/fish/fishfile: shells/fish/fishfile
+    ~/.config/fish/conf.d:
+        path: shells/fish/conf.d/*.fish
+        glob: true
+    ~/.config/fish/functions:
+        path: shells/fish/functions/*.fish
+        glob: true
+    ~/.config/fish/completions:
+        path: shells/fish/completions/*.fish
+        glob: true
+    ~/.config/nvim/lua/custom:
+        path: editors/nvim/lua/custom/*
+        glob: true
+    ~/.vimrc: editors/vim/vimrc
+    ~/.config/git/attributes: tools/vcs/git/attributes
+    ~/.config/git/config: tools/vcs/git/config
+    ~/.config/git/ignore: tools/vcs/git/ignore
+    ~/.tmux.conf: terminals/tmux/tmux.conf
+    ~/.config/tmux/status: terminals/tmux/status
+    ~/.gnupg/gpg.conf: tools/gnupg/gpg.conf
+    ~/.gnupg/gpg-agent.conf:
+        path: tools/gnupg/gpg-agent.conf
+        if: "uname -s | grep --quiet --ignore-case darwin"
+    ~/.ssh/config: tools/ssh/config
+    ~/.config/karabiner/karabiner.json:
+        path: tools/keys/karabiner/karabiner.json
+        if: "uname -s | grep --quiet --ignore-case darwin"
+    ~/.config/wezterm:
+        path: terminals/wezterm/*
+        glob: true
+    ~/.config/hammerspoon:
+        path: gui/hammerspoon
+        if: "uname -s | grep --quiet --ignore-case darwin"
+    ~/.config/alacritty:
+        path: terminals/alacritty/*
+        glob: true
+    ~/.config/yabai/yabairc: gui/yabai/yabairc
+    ~/.config/neofetch/config.conf: tools/neofetch/config.conf
+    ~/.config/starship/starship.toml: shells/starship/starship.toml
 
 - shell:
+    - command: ./scripts/post.sh
+      stderr: true
     - [git submodule update --init --recursive, Installing Submodules]

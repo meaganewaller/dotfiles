@@ -1,5 +1,6 @@
 {
-  "editor.fontLigatures": "'ss02', 'ss03', 'ss05', 'ss07'",
+  // "editor.fontLigatures": "'ss01'",
+  "editor.lineHeight": 22,
   "editor.scrollBeyondLastLine": false,
   "files.associations": {
     "zshrc": "shellscript"
@@ -11,8 +12,7 @@
   "telemetry.enableTelemetry": false,
   "telemetry.enableCrashReporter": false,
   "terminal.integrated.shell.osx": "/usr/local/bin/fish",
-  "workbench.colorTheme": "Rosé Pine Moon",
-  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Fluffy Theme",
   "workbench.colorCustomizations": {
     "activityBar.background": "#333842",
     "badge.background": "#528BFF",
@@ -154,17 +154,34 @@
       "scope": "workspace"
     }
   ],
+  "vscode_custom_css.imports": [
+
+
+    "file:///Users/meagan/.vscode/custom.css"
+  ],
   "todo.statistics.statusbar.enabled": true,
   "workbench.commandPalette.experimental.suggestCommands": true,
   "git.autofetch": true,
   "git.confirmSync": false,
   "window.zoomLevel": 2,
   "[typescriptreact]": {
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "redhat.telemetry.enabled": true,
   "git.openRepositoryInParentFolders": "always",
   "explorer.confirmDelete": false,
-  "editor.fontFamily": "SpaceMono Nerd Font Mono,SpaceMono Nerd Font",
-  "window.confirmSaveUntitledWorkspace": false
+  "editor.fontFamily": "SpaceMono Nerd Font Mono,SpaceMono Nerd Font,VictorMono Nerd Font Mono,VictorMono Nerd Font",
+  "window.confirmSaveUntitledWorkspace": false,
+  "editor.fontSize": 16,
+  "workbench.sideBar.location": "right",
+  "workbench.iconTheme": "vscode-celestial-magic-girl-icon-theme",
+  "editor.tabSize": 2,
+  "terminal.integrated.automationProfile.osx": {
+
+  },
+  "terminal.integrated.inheritEnv": false,
+  "workbench.editor.enablePreview": false,
+  "editor.minimap.enabled": false,
+  "rubyLsp.formatter": "none",
+  "workbench.productIconTheme": "bongocat"
 }

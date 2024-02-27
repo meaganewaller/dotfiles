@@ -1,66 +1,172 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 sudo yabai --load-sa
 
-yabai -m config window_border on
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
-yabai -m space 1 --label code
-yabai -m space 2 --label web
-yabai -m space 3 --label mail
-yabai -m space 4 --label notes
-yabai -m space 5 --label re
-yabai -m space 6 --label misc
-yabai -m space 7 --label social
-yabai -m space 8 --label games
-yabai -m space 9 --label vert1
-yabai -m space 10 --label vert2
-yabai -m space 11 --label media
-yabai -m space 12 --label twelve
-yabai -m space 13 --label thirteen
+BAR_HEIGHT=$(sketchybar -m --query bar | jq -r '.height')
 
-yabai -m rule --add app="^Mail$" space=mail
-yabai -m rule --add app="^Canary$" space=mail
-yabai -m rule --add app="^Safari$" space=web
-yabai -m rule --add app="^Brave Browser$" space=web
-yabai -m rule --add app="^Notes$" space=notes
-yabai -m rule --add app="^Spotify$" space=media
-yabai -m rule --add app="^Discord$" space=social grid=1:1:0:0:1:1 manage=off
-yabai -m rule --add app="^Slack$" space=vert1 manage=off
-yabai -m rule --add app="^Steam$" space=games manage=off
-yabai -m rule --add app="^(Calculator|System Preferences|Archive Utility)$" manage=off
-yabai -m rule --add app="^mpv$" manage=off border=off sticky=on layer=above opacity=1.0 grid=8:8:6:0:2:2
+GENERAL=(
+  external_bar all:"${BAR_HEIGHT}":0
+  split_type auto
+  split_ratio 0.5
+  auto_balance off
+)
 
-yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
-yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
+WINDOWS=(
+  window_placement second_child
+  window_topmost on
+  window_shadow float
+  window_opacity on
+  active_window_opacity 0.97
+  normal_window_opacity 0.92
+  window_animation_duration 0.25
+  window_origin_display focused
+  window_opacity_duration 0.15
+)
 
-yabai -m config --space mail layout stack
-yabai -m config --space games layout float
+LAYOUT=(
+  layout bsp
+  top_padding 15
+  bottom_padding 15
+  left_padding 15
+  right_padding 15
+  window_gap 15
+)
 
-yabai -m config                                  \
-	external_bar                off:41:0     \
-	mouse_follows_focus         off           \
-	focus_follows_mouse         off    \
-	window_placement            second_child \
-	window_topmost              off          \
-	window_shadow               float          \
-	window_animation_duration   0.25         \
-	window_opacity_duration     0.25         \
-	active_window_opacity       0.95         \
-	normal_window_opacity       0.85         \
-	window_opacity              on           \
-	split_ratio                 0.50         \
-	split_type                  auto         \
-	auto_balance                off          \
-	top_padding                 14           \
-	left_padding                10           \
-	right_padding               10           \
-	bottom_padding              10           \
-	window_gap                  10           \
-	layout                      bsp          \
-	mouse_modifier              fn           \
-	mouse_action1               move         \
-	mouse_action2               resize       \
-	mouse_drop_action           swap
+MOUSE=(
+  mouse_modifier alt
+  mouse_action1 move
+  mouse_action2 resize
+  mouse_action3 swap
+  mouse_follows_focus off
+)
+
+yabai -m config "${GENERAL[@]}"
+yabai -m config "${WINDOWS[@]}"
+yabai -m config "${LAYOUT[@]}"
+yabai -m config "${MOUSE[@]}"
+
+LABELS=(
+  code
+  web
+  mail
+  notes
+  re
+  misc
+  scratch
+  games
+  social
+  vert2
+  media
+  twelve
+  thirteen
+)
+
+for ((i = 1; i <= "${#LABELS[@]}"; i++)); do
+	yabai -m space "${i}" --label "${LABELS[(($i - 1))]}"
+done
+
+yabai -m config --space social layout stack window_opacity off
+yabai -m config --space mail layout stack window_opacity off
+yabai -m config --space media layout stack window_opacity off
+yabai -m config --space misc layout float
+
+UNMANAGED=(
+  Activity Monitor
+  App Store
+  Archive Utility
+  Authy
+  Calculator
+  Calendar
+  Dictionary
+  Discord
+  Docker
+  FaceTime
+  Finder
+  Mail
+  Messages
+  Messenger
+  Notes
+  Photo Booth
+  Raycast
+  Raycast Preferences
+  Screen Sharing
+  Screens
+  Signal
+  Slack
+  Software Update
+  Spark
+  Spotify
+  Stats
+  System Information
+  System Preferences
+  System Settings
+  Telegram
+  Thunderbird
+  VLC
+  Vimac
+  iStat Menus
+  zoom.us
+)
+
+for ((i = 1; i <= "${#UNMANAGED[@]}"; i++)); do
+  yabai -m rule --add label="unmanage_${UNMANAGED[(($i - 1))]}" app="^${UNMANAGED[(($i - 1))]}.*$" manage=off
+done
+
+
+# Exclude problematic apps from being managed:
+yabai -m rule --add label="Finder" app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off
+yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
+yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
+yabai -m rule --add label="Select file to save to" app="^Inkscape$" title="Select file to save to" manage=off
+
+SOCIAL=(
+  Discord
+  FaceTime
+  Messages
+  Messenger
+  Signal
+  Slack
+  Telegram
+)
+
+for ((i = 1; i <= "${#SOCIAL[@]}"; i++)); do
+  yabai -m rule --add label="social_${SOCIAL[(($i - 1))]}" app="^${SOCIAL[(($i - 1))]}.*$" space=social
+done
+
+MAIL=(
+  Mail
+  Thunderbird
+  Canary
+  Spark
+)
+
+for ((i = 1; i <= "${#MAIL[@]}"; i++)); do
+  yabai -m rule --add label="mail_${MAIL[(($i - 1))]}" app="^${MAIL[(($i - 1))]}.*$" space=mail
+done
+
+MEDIA=(
+  Music
+  Plex
+  Spotify
+  VLC
+)
+
+for ((i = 1; i <= "${#MEDIA[@]}"; i++)); do
+  yabai -m rule --add label="media_${MEDIA[(($i - 1))]}" app="^${MEDIA[(($i - 1))]}.*$" space=media
+done
+
+# Notes
+NOTES=(
+	Notes
+	Reminders
+	Calendar
+	Fantastical
+)
+
+for ((i = 1; i <= "${#NOTES[@]}"; i++)); do
+	yabai -m rule --add label="notes_${NOTES[(($i - 1))]}" app="^${NOTES[(($i - 1))]}.*$" space=notes
+done
 
 echo "yabai configuration loaded.."

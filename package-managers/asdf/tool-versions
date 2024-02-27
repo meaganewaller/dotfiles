@@ -5,18 +5,18 @@ erlang 25.2.2 system
 golang 1.20.5
 groovy 4.0.9 system
 haskell 9.2.4 system
-java temurin-11.0.16+101
+java system system
 julia 1.8.5 system
 kotlin 1.8.22
 lazygit 0.35
 lua 5.4.4 system
 luajit 2.0.5--2.4.4
 neovim nightly
-nodejs 19.8.1 16.13.0 18.16.0 lts
+nodejs 20.10.0
 ocaml 5.0.0 system
 perl 5.32.0
 php 8.2.2 system
-pnpm 7.30.0
+pnpm 8.15.1
 postgres 15.2
 pre-commit 2.20.0
 python 3.11.4

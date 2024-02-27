@@ -159,3 +159,4 @@ config/definitions.rb
 private-keys-*
 random_seed
 public/uploads/
+logfile
