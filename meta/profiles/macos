@@ -1,5 +1,7 @@
 homebrew
-dotfiles
+fish
+fonts
 dev_tools
 git
 macos_defaults
+starship
