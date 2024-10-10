@@ -10,6 +10,8 @@ setup: set-symlinks
 set-symlinks:
 	@ mkdir -p $(CONFIG_DIR)
 	
-	@ ln -v -i -s $(CURDIR)/wezterm.lua $(CONFIG_DIR)/wezterm.lua
-
-
+	@ ln -s $(CURDIR)/*.lua       $(CONFIG_DIR)/
+	@ ln -s $(CURDIR)/backgrounds $(CONFIG_DIR)/
+	@ ln -s $(CURDIR)/domains     $(CONFIG_DIR)/
+	@ ln -s $(CURDIR)/events      $(CONFIG_DIR)/
+	@ ln -s $(CURDIR)/utils       $(CONFIG_DIR)/
