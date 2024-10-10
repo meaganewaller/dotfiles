@@ -1,0 +1,8 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR ZO_CMD:zo
+SETUVAR Z_CMD:z
+SETUVAR Z_DATA:/Users/meagan\x2ewaller/\x2elocal/share/z/data
+SETUVAR Z_DATA_DIR:/Users/meagan\x2ewaller/\x2elocal/share/z
+SETUVAR Z_EXCLUDE:\x5e/Users/meagan\x2ewaller\x24
+SETUVAR fish_key_bindings:fish_default_key_bindings
