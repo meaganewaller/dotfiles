@@ -1,51 +1,41 @@
-# <type>[(optional scope)]: <subject>
-# <BLANK LINE>
-# [optional body]
-# <BLANK LINE>
-# [optional footer(s)]
+<type>: <title>
+## No more than 50 chars. ##### 50 chars is here: #
+# "When applied, this commit will: {{ THE TITLE }}"
 
-# type
-#   fix:      A bug fix
-#   feat:     A new features
-#   docs:     Documentation only changes
-#   style:    Changes that do not affect the meaning of the code
-#   refactor: A code change that neither fixes a bug nor adds a feature
-#   perf:     A code change that improves performance
-#   test:     Adding missing or correcting existing tests
-#   build:    Changes that affect the build system or external dependencies
-#   ci:       Changes to our CI configuration files and scripts
-#   chore:    Other changes that don't modify src or test files
-#   revert:   Reverts a previous commit
+<body>
+## Wrap at 72 chars. ################################### which is here: #
 
-# optional scope
-#   init:     Initialize commit
-#   security: Security to invite users to upgrade in case of vulnerabilities
-#   deps:     Dependencies upgrading or downgrading
-#   config:   Configuration changes
-#   i18n:     Internationalization and localization
-#   ...
+Issue #
+# Provide links or keys to any relevant tickets, articles or other resources
+# Example: Github issue #23
 
-# subject: Short summary
-#   - Do nt end with a period
-#   - Not cased
-#   - Start writing in lower case
-#   - 100 chars or less
-#   - Use the imperative mood
+# BREAKING CHANGE: a commit that has a footer BREAKING CHANGE:, or appends a !
+# after the type/scope, introduces a breaking API change
+# (correlating with MAJOR in Semantic Versioning).
+# A BREAKING CHANGE can be part of commits of any type.
 
-# optional body: Explain why this change is being made.
-#   - Wrap it to about 100 characters or so
-#   - Can use multiple lines with "-" for bullet points
-#   - Explain what and why vs. how
+# Source https://www.conventionalcommits.org/
 
-# optional footer(s): Provide links or keys to any relevant tickets
-#   - Wrap it to about 100 characters or so
-#   Linking a pull request to an issue using a keyword
-#     - close #ISSUE-NUMBER
-#     - fix #ISSUE-NUMBER
-#     - resolve #ISSUE-NUMBER
-
+# --- COMMIT END ---
+# Type can be
+#    feat     (new feature)
+#    fix      (bug fix)
+#    refactor (refactoring production code)
+#    style    (formatting, missing semi colons, etc; no code change)
+#    docs     (changes to documentation)
+#    test     (adding or refactoring tests; no production code change)
+#    chore    (updating grunt tasks etc; no production code change)
 # --------------------
-# Conventional Commits
-# A specification for adding human and machine readable meaning to commit messages
-# Ref: https://www.conventionalcommits.org
+# Remember to
+#    Use the imperative mood in the subject line
+#    Do not end the subject line with a period
+#    Separate subject from body with a blank line
+#    Use the body to explain what and why vs. how
+#    Can use multiple lines with "-" for bullet points in body
 # --------------------
+
+# Github Specifics
+
+# Co-authored-by: name <name@example.com>
+# Co-authored-by: another-name <github-username@users.noreply.github.com>
+

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+exit_code=0
+
+pre_commit_white_space_check.sh
+exit_code=$((exit_code + $?))
+
+pre_commit_ascii_filename_check.sh
+exit_code=$((exit_code + $?))
+
+pre_commit_copyright_check.sh
+exit_code=$((exit_code + $?))
+
+pre_commit_shebang_check.sh
+exit_code=$((exit_code + $?))
+
+if [ "${exit_code}" != 0 ]; then
+    echo "pre-commit: pass -n or --no-verify to bypass pre-commit hooks"
+fi
+
+exit ${exit_code}
