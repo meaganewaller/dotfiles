@@ -1,0 +1,66 @@
+{
+  "entries": {
+    "cask": {
+      "aws-vault": {
+        "version": "7.2.0",
+        "options": {
+          "full_name": "aws-vault"
+        }
+      },
+      "chromedriver": {
+        "version": "129.0.6668.100",
+        "options": {
+          "full_name": "chromedriver"
+        }
+      },
+      "google-cloud-sdk": {
+        "version": "496.0.0",
+        "options": {
+          "full_name": "google-cloud-sdk"
+        }
+      },
+      "iterm2": {
+        "version": "3.5.5",
+        "options": {
+          "full_name": "iterm2"
+        }
+      },
+      "itsycal": {
+        "version": "0.15.4",
+        "options": {
+          "full_name": "itsycal"
+        }
+      },
+      "raycast": {
+        "version": "1.84.2",
+        "options": {
+          "full_name": "raycast"
+        }
+      },
+      "session-manager-plugin": {
+        "version": "1.2.677.0",
+        "options": {
+          "full_name": "session-manager-plugin"
+        }
+      },
+      "vivaldi": {
+        "version": "6.9.3447.54",
+        "options": {
+          "full_name": "vivaldi"
+        }
+      }
+    }
+  },
+  "system": {
+    "macos": {
+      "sequoia": {
+        "HOMEBREW_VERSION": "4.4.1",
+        "HOMEBREW_PREFIX": "/opt/homebrew",
+        "Homebrew/homebrew-core": "api",
+        "CLT": "16.0.0.0.1.1724870825",
+        "Xcode": "16.0",
+        "macOS": "15.0.1"
+      }
+    }
+  }
+}

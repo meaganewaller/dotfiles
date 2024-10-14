@@ -1,2 +1,9 @@
+- shell:
+  - command: |
+        ~/.dotfiles/tools/package-managers/brew/install
+    description: Installing homebrew
+    quiet: false
+    stdin: true
 - brewfile:
-    - os/macos/Brewfile
+    - tools/package-managers/brew/Brewfile.cask
+    - tools/package-managers/brew/Brewfile
