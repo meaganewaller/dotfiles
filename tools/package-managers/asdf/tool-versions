@@ -1,0 +1,12 @@
+lua 5.4.4 system
+luaJIT 2.0.5--2.4.4 system
+neovim nightly
+nodejs 22.9.0
+pnpm 7.30.0
+python 3.11.3
+ruby 3.2.1 system
+rust 1.67.1 system
+stylua 0.14.2
+swift 5.7
+yarn 1.22.19
+direnv 2.32.2
