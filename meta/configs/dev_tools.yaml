@@ -2,4 +2,6 @@
     ~/.editorconfig:  dev/editorconfig
     ~/.curlrc:        dev/curlrc
     ~/user-dirs.dirs: dev/user-dirs.dirs
-
+    ~/.gemrc:         dev/gemrc
+    ~/.psqlrc:        dev/psqlrc
+    ~/.wgetrc:        dev/wgetrc
