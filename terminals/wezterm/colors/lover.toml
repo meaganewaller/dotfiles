@@ -1,0 +1,136 @@
+[metadata]
+name = "lover"
+origin_url = "https://github.com/meaganewaller/dotfiles"
+
+# Lover color palette
+
+# Base: Primary background
+# General background: e.g., windows, tabs,
+# extended panels, e.g. sidebars
+
+# Surface: Secondary background atop base
+# Accessory panels, e.g. popups, floats, editor terminals
+# Inputs, e.g. text search, checkboxes
+
+# Overlay: Tertiary background atop surface
+# Active backgrounds, e.g. tabs, list items
+# High contrast inputs, e.g. text search, checkboxes
+# Hover selections
+# Terminal black
+
+# Muted: Low contrast foreground
+#     Ignored content, e.g. ignored Git files
+#     Terminal bright black
+
+# Subtle: Medium contrast foreground
+#     Inactive foregrounds, e.g. tabs, list items
+
+# Text:  High contrast foreground
+#     Active foregrounds, e.g. tabs, list items
+#     Cursor foreground paired with highlight high background
+#     Selection foreground paired with highlight med background
+#     Terminal white, bright white
+
+
+# Role          |Hex    |RGB               |HSL
+
+# Role          |Hex    |RGB               |HSL
+# Base          |#F3AAD0|rgb(243, 170, 208)| hsl(331deg, 65%, 80%)
+# Surface       |#6EB0E5|rgb(110, 176, 229)|hsl(209deg, 69%, 64%)
+# Overlay       |#F0C5AF|rgb(240, 197, 175)|hsl(19deg, 71%, 79%)
+# Muted         |#F5E2B1|rgb(245, 226, 177)|hsl(43deg, 82%, 78%)
+# Subtle        |#D2E7D8|rgb(210, 231, 216)|hsl(145deg, 43%, 82%)
+# Text          |#8874B7|rgb(136, 116, 183)|hsl(261deg, 35%, 57%)
+# Love          |#EEC7D0|rgb(238, 199, 208)|hsl(346deg, 57%, 83%)
+# Gold          |#F5B8E8|rgb(245, 184, 232)|hsl(309deg, 80%, 82%)
+# Rose          |#E8A378|rgb(232, 163, 120)|hsl(25deg, 71%, 64%)
+# Pine          |#9FB0D2|rgb(159, 176, 210)|hsl(218deg, 39%, 70%)
+# Foam          |#EFCEB8|rgb(239, 206, 184)|hsl(28deg, 71%, 81%)
+# Iris          |#CEA3C3|rgb(206, 163, 195)|hsl(313deg, 32%, 70%)
+# Highlight Low |#fffaf3|rgb(255, 250, 243)|hsl(45deg, 100%, 97%)
+# Highlight Med |#faf4ed|rgb(250, 244, 237)|hsl(39deg, 51%, 97%)
+# Highlight High|#f2e9e1|rgb(242, 233, 225)|hsl(34deg, 45%, 94%)
+
+
+# Base          |#FDF1FA|rgb(253, 241, 250)| hsl(313deg, 75%, 97%)
+# Surface       |#1f1d2e|rgb(31, 29, 46)   |hsl(247deg, 23%, 15%)
+# Overlay       |#26233a|rgb(38, 35, 58)   |hsl(248deg, 25%, 18%)
+# Muted         |#6e6a86|rgb(110, 106, 134)|hsl(249deg, 12%, 47%)
+# Subtle        |#908caa|rgb(144, 140, 170)|hsl(248deg, 15%, 61%)
+# Text          |#e0def4|rgb(224, 222, 244)|hsl(245deg, 50%, 91%)
+# Love          |#eb6f92|rgb(235, 111, 146)|hsl(343deg, 76%, 68%)
+# Gold          |#f6c177|rgb(246, 193, 119)|hsl(35deg, 88%, 72%)
+# Rose          |#ebbcba|rgb(235, 188, 186)|hsl(2deg, 55%, 83%)
+# Pine          |#31748f|rgb(49, 116, 143) |hsl(197deg, 49%, 38%)
+# Foam          |#9ccfd8|rgb(156, 207, 216)|hsl(189deg, 43%, 73%)
+# Iris          |#c4a7e7|rgb(196, 167, 231)|hsl(267deg, 57%, 78%)
+# Highlight Low |#21202e|rgb(33, 32, 46)   |hsl(244deg, 18%, 15%)
+# Highlight Med |#403d52|rgb(64, 61, 82)   |hsl(249deg, 15%, 28%)
+# Highlight High|#524f67|rgb(82, 79, 103)  |hsl(248deg, 13%, 36%)
+
+[colors]
+foreground = "#e0def4"
+background = "#191724"
+
+compose_cursor = "#ebbcba" # pending leader key color
+cursor_bg = "#e0def4"
+cursor_fg = "#524f67"
+cursor_border = "#e0def4"
+
+selection_bg = "#403d52"
+selection_fg = "#e0def4"
+
+scrollbar_thumb = "#6e6a86"
+split = "#908caa"
+visual_bell = "#524f67"
+
+ansi = [
+  "#26233a",
+  "#eb6f92",
+  "#31748f",
+  "#f6c177",
+  "#9ccfd8",
+  "#c4a7e7",
+  "#ebbcba",
+  "#e0def4",
+]
+brights = [
+  "#6e6a86",
+  "#eb6f92",
+  "#31748f",
+  "#f6c177",
+  "#9ccfd8",
+  "#c4a7e7",
+  "#ebbcba",
+  "#e0def4",
+]
+
+[colors.indexed]
+16 = "#fab387"
+17 = "#f5e0dc"
+
+# this only applies to retro tab bar
+# see: https://wezfurlong.org/wezterm/config/appearance.html
+[colors.tab_bar]
+background = "#191724" # tab bar and terminal background are same
+
+[colors.tab_bar.active_tab]
+bg_color = "#26233a"
+fg_color = "#e0def4"
+
+[colors.tab_bar.inactive_tab]
+bg_color = "#191724"
+fg_color = "#6e6a86"
+
+[colors.tab_bar.inactive_tab_hover]
+bg_color = "#26233a"
+fg_color = "#e0def4"
+
+[colors.tab_bar.new_tab]
+bg_color = "#191724"
+fg_color = "#6e6a86"
+
+# keep this colors similar to inactive_tab_hover
+[colors.tab_bar.new_tab_hover]
+bg_color = "#26233a"
+fg_color = "#e0def4"
