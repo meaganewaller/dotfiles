@@ -56,9 +56,9 @@ namespace :install do
     section 'Using Dotbot to symlink dotfiles'
 
     if macos?
-      run %( ./install-profile macos )
+      run %( ./install-profile.sh macos )
     elsif linux?
-      run %( ./install-profile linux )
+      run %( ./install-profile.sh linux )
     else
       log_fail '~> Unknown OS'
     end

@@ -1,12 +1,14 @@
-lua 5.4.4 system
+direnv 2.32.2
+golang 1.20.2
+lua 5.4.3
 luaJIT 2.0.5--2.4.4 system
-neovim nightly
+neovim nightly stable
 nodejs 22.9.0
 pnpm 7.30.0
-python 3.11.3
-ruby 3.2.1 system
+python 3.10.0
+ruby 3.2.1 latest
 rust 1.67.1 system
-stylua 0.14.2
-swift 5.7
-yarn 1.22.19
-direnv 2.32.2
+rust latest
+stylua 0.14.2 latest
+swift 5.7 latest
+yarn 1.22.19 latest
