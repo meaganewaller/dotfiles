@@ -1,10 +1,8 @@
-# vim: ft=ruby
-
-cask 'aws-vault'
-cask 'chromedriver'
-cask 'google-cloud-sdk'
-cask 'iterm2'
-cask 'itsycal'
-cask 'raycast'
-cask 'session-manager-plugin'
-cask 'vivaldi'
+'aws-vault'
+'chromedriver'
+'google-cloud-sdk'
+'iterm2'
+'itsycal'
+'raycast'
+'session-manager-plugin'
+'vivaldi'
