@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+. "$HOME/.config/sketchybar/colors.sh"
+. "$HOME/.config/sketchybar/icons.sh"
+
+. "$HOME/.config/sketchybar/grant_permissions.sh"
+
+export ITEM_DIR="$HOME/.config/sketchybar/items"
+export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+
+FONT="SF Pro"
+PADDINGS=3
+
+HELPER=git.felix.helper
+killall helper
+(cd "$HOME/.config/sketchybar/helper" && make)
+"$HOME/.config/sketchybar/helper/helper" "$HELPER" >/dev/null 2>&1 &
+
+# Unload the macOS on screen indicator overlay for volume change
+launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
+
+bar=(
+  height=36
+  color="$BAR_COLOR"
+  border_width=2
+  border_color="$BAR_BORDER_COLOR"
+  shadow=off
+  position=top
+  sticky=on
+  padding_right=10
+  padding_left=10
+  y_offset=5
+  corner_radius=12
+  margin=10
+)
+
+sketchybar --bar "${bar[@]}"
+
+defaults=(
+  updates=when_shown
+  icon.font="$ICON_FONT:Bold:14.0"
+  icon.color="$ICON_COLOR"
+  icon.padding_left="$PADDINGS"
+  icon.padding_right="$PADDINGS"
+  label.font="$FONT:Semibold:13.0"
+  label.color="$LABEL_COLOR"
+  label.padding_left="$PADDINGS"
+  label.padding_right="$PADDINGS"
+  padding_right="$PADDINGS"
+  padding_left="$PADDINGS"
+  background.height=26
+  background.corner_radius=9
+  popup.background.border_color="$POPUP_BORDER_COLOR"
+  popup.background.color="$POPUP_BACKGROUND_COLOR"
+  popup.blur_radius=20
+  popup.background.shadow.drawing=on
+)
+
+sketchybar --default "${defaults[@]}"
+
+
+. "$ITEM_DIR/spaces.sh"
+. "$ITEM_DIR/terminal.sh"
+. "$ITEM_DIR/yabai.sh"
+
+# . "$ITEM_DIR/apple.sh"
+. "$ITEM_DIR/front_app.sh"
+
+. "$ITEM_DIR/music.sh"
+# . "$ITEM_DIR/prompt.sh"
+
+. "$ITEM_DIR/calendar.sh"
+. "$ITEM_DIR/time.sh"
+. "$ITEM_DIR/battery.sh"
+. "$ITEM_DIR/brew.sh"
+. "$ITEM_DIR/github.sh"
+. "$ITEM_DIR/volume.sh"
+# . "$ITEM_DIR/ticktick.sh"
+# . "$ITEM_DIR/focus.sh"
+# . "$ITEM_DIR/power.sh"
+# . "$ITEM_DIR/wifi.sh"
+# . "$ITEM_DIR/mail.sh"
+
+# ###################### FINALIZE ###################
+sketchybar --update
+sketchybar --hotload true
+
+echo "sketchybar configuration loaded.."
