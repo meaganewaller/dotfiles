@@ -1,0 +1,10 @@
+- link:
+    ~/.yabairc: os/macos/yabai/yabairc
+
+- shell:
+    - description: Starting yabai services
+      quiet: false
+      command: >-
+        echo "Attempting to start yabai services";
+        yabai --start-service;
+

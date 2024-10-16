@@ -1,4 +1,3 @@
 #!/bin/bash
 
-# shellcheck disable=SC1091
-sketchybar --set "$NAME" label="$(date '+%a %d. %b')"
+sketchybar --set $NAME label="$(date +'%a %d %b %I:%M:%S %p')"

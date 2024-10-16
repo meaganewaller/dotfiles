@@ -1,54 +1,57 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # General Icons
-export LOADING="􀖇"
-export APPLE="􀣺 "
-export PREFERENCES="􀣌 "
-export ACTIVITY="􁂥 "
-export LOCK="􀎡 "
-export BELL="􀋚 "
-export BELL_DOT="􀝗 "
-export MAIL="􀈠 "
-export CPU="􀧓 "
-export DISK=" "
-export MEMORY="􀧖 "
+LOADING=􀖇
+APPLE=􀣺
+PREFERENCES=􀺽
+ACTIVITY=􀒓
+LOCK=􀒳
+BELL=􀋚
+BELL_DOT=􀝗
 
 # Git Icons
-export GIT_ISSUE="􀍷 "
-export GIT_DISCUSSION="􀒤 "
-export GIT_PULL_REQUEST="􀙡"
-export GIT_COMMIT="􀡚 "
-export GIT_INDICATOR=""
+GIT_ISSUE=􀍷
+GIT_DISCUSSION=􀒤
+GIT_PULL_REQUEST=􀙡
+GIT_COMMIT=􀡚
+GIT_INDICATOR=􀂓
+
+# Spotify Icons
+SPOTIFY_BACK=􀊎
+SPOTIFY_PLAY_PAUSE=􀊈
+SPOTIFY_NEXT=􀊐
+SPOTIFY_SHUFFLE=􀊝
+SPOTIFY_REPEAT=􀊞
 
 # Yabai Icons
-export YABAI_STACK="􀏭 "
-export YABAI_FULLSCREEN_ZOOM="􀏜 "
-export YABAI_PARENT_ZOOM="􀥃 "
-export YABAI_FLOAT="􀢌 "
-export YABAI_GRID="􀧍 "
-
-# Music Icons
-export MUSIC_BACK="􀊎 "
-export MUSIC_PLAY_PAUSE="􀊈 "
-export MUSIC_NEXT="􀊐 "
-export MUSIC_SHUFFLE="􀊝 "
-export MUSIC_REPEAT="􀊞 "
+YABAI_STACK=􀏭
+YABAI_FULLSCREEN_ZOOM=􀏜
+YABAI_PARENT_ZOOM=􀥃
+YABAI_FLOAT=􀢌
+YABAI_GRID=􀧍
 
 # Battery Icons
-export BATTERY_100="􀛨 "
-export BATTERY_75="􀺸 "
-export BATTERY_50="􀺶 "
-export BATTERY_25="􀛩 "
-export BATTERY_0="􀛪 "
-export BATTERY_CHARGING="􀢋 "
+BATTERY_100=􀛨
+BATTERY_75=􀺸
+BATTERY_50=􀺶
+BATTERY_25=􀛩
+BATTERY_0=􀛪
+BATTERY_CHARGING=􀢋
 
 # Volume Icons
-export VOLUME_100="􀊩 "
-export VOLUME_66="􀊧 "
-export VOLUME_33="􀊥 "
-export VOLUME_10="􀊡"
-export VOLUME_0="􀊣 "
+VOLUME_100=􀊩
+VOLUME_66=􀊧
+VOLUME_33=􀊥
+VOLUME_10=􀊡
+VOLUME_0=􀊣
 
 # WiFi
-export WIFI_CONNECTED="􀙇 "
-export WIFI_DISCONNECTED="􀙈 "
+WIFI_CONNECTED=􀙇
+WIFI_DISCONNECTED=􀙈
+
+# svim
+MODE_NORMAL=􀂯
+MODE_INSERT=􀂥
+MODE_VISUAL=􀂿
+MODE_CMD=􀂙
+MODE_PENDING=􀈏
