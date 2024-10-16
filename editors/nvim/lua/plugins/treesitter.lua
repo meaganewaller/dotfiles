@@ -1,5 +1,6 @@
 return {
   "nvim-treesitter/nvim-treesitter",
+  event = { "BufReadPre", "BufNewFile" },
   dependencies = {
     "nvim-treesitter/nvim-treesitter-textobjects",
     {
@@ -30,8 +31,6 @@ return {
     },
     "windwp/nvim-ts-autotag",
   },
-  init = function()
-  end,
   cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
   build = ":TSUpdate",
   opts = function()
@@ -54,6 +53,7 @@ return {
         "lua",
         "markdown",
         "python",
+        "ruby",
         "scss",
         "sql",
         "svelte",
@@ -68,17 +68,15 @@ return {
       highlight = {
         enable = true,
       },
-      indent = { enable = true },
-      autopairs = { enable = true },
-      autotag = { enable = true },
+      indent = { enable = false },
       auto_install = true,
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = '<c-space>',
-          node_incremental = '<c-space>',
-          scope_incremental = '<c-s>',
-          node_decremental = '<c-backspace>',
+          init_selection = '<c-n>',
+          node_incremental = '<c-n>',
+          scope_incremental = '<c-p>',
+          node_decremental = '<c-l>',
         },
       },
       textobjects = {
