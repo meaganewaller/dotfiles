@@ -1,0 +1,13 @@
+- link:
+    ~/.local/bin/color-mode: bin/color-mode
+    ~/.color_mode: bin/color_mode
+    ~/.local/bin/color_mode.py: bin/color_mode.py
+
+- shell:
+    - description: Setting bin scripts to executable
+      quiet: true
+      command: >-
+        echo "Attempting to set bin scripts to executable";
+        chmod +x ~/.local/bin/color-mode;
+        chmod +x ~/.local/bin/color_mode.py;
+        chmod +x ~/.color_mode;

@@ -9,7 +9,7 @@ $battery
 right_format = """$time $cmd_duration"""
 add_newline = true
 command_timeout = 10_000
-palette = 'lover_light'
+palette = 'lover_dark'
 
 aws.disabled = true
 c.disabled = true
@@ -31,9 +31,9 @@ php.disabled = true
 vagrant.disabled = true
 git_metrics.disabled = true
 
-[palettes.lover_light]
-background = "#faf4ed"  # Lover's light background color
-foreground = "#575279"
+[palettes.lover_dark]
+foreground = "#faf4ed"  # Lover's light background color
+background = "#575279"
 selection = "#dfdad9"
 comment = "#907aa9"
 red = "#D4618F"   # Lover's light 'Charm' color
