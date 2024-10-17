@@ -1,3 +1,5 @@
+- brew: [yabai]
+
 - link:
     ~/.yabairc: os/macos/yabai/yabairc
 

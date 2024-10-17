@@ -17,7 +17,6 @@ task :backup do
     section 'Backing up'
     Rake::Task['backup:brew'].invoke
     Rake::Task['backup:mas'].invoke
-    Rake::Task['backup:mackup'].invoke
     Rake::Task['backup:files'].invoke
     Rake::Task['backup:pip'].invoke
     Rake::Task['backup:pnpm'].invoke
@@ -40,7 +39,6 @@ task :install do
       Rake::Task['install:brew_cask_packages'].invoke
       Rake::Task['install:mas'].invoke
       Rake::Task['install:brew_clean_up'].invoke
-      Rake::Task['install:mackup'].invoke
     end
 
     Rake::Task['install:asdf'].invoke
@@ -80,7 +78,6 @@ task :update do
     Rake::Task['update:pnpm'].invoke
     Rake::Task['update:gems'].invoke
     Rake::Task['update:fish'].invoke
-    Rake::Task['update:tmux'].invoke
     Rake::Task['update:rails'].invoke
     Rake::Task['update:servers'].invoke
     Rake::Task['update:writing'].invoke
