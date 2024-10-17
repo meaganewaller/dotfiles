@@ -1,7 +1,0 @@
-[user]
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFE6MD0uf3jDyr72wIc7j+pT0FEcSCMTDEa4f0O1fg4B
-	name = Meagan Waller
-	email = meagan.waller@gusto.com
-[core]
-	hooksPath = /Users/meagan.waller/.gusto/githooks
-
