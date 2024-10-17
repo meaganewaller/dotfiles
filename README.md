@@ -75,17 +75,17 @@ The rabbit hole awaits.
 ```
 
 
-Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a bash script.
+Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Rakefile.
 
 **3. Run the installation script:**
 
 ```sh
-💲 ./install-profile.sh macos
+💲 rake install
 ```
 
 <hr style="border:1px dashed pink" />
 
-now you're all set to explore the depth of my (and now _yours_) dotfiles. enjoy the ride. with great customization comes
+now you're all set to explore the depth of my (and now _your_) dotfiles. enjoy the ride. with great customization comes
 great responsibility, or whatever uncle ben said.
 
 </div>
