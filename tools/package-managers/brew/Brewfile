@@ -76,6 +76,7 @@ pass
 pinentry-mac
 postgresql@14
 redis
+reminders-cli
 ripgrep
 rsync
 sd
