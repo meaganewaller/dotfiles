@@ -1,5 +1,5 @@
 - link:
-    ~/.config/nvim: 
+    ~/.config/nvim:
       create: true
       relink: true
       glob: true
