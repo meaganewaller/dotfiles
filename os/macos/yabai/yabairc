@@ -1,10 +1,16 @@
-#!/usr/bin/env sh
+#!/usr/bin/env zsh
 
-sudo yabai --load-sa
+# sudo yabai --load-sa
+# yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
-yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+defaults write .GlobalPreferences com.apple.mouse.scaling -1
 
 BAR_HEIGHT=$(sketchybar -m --query bar | jq -r '.height')
+
+# yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
+# yabai -m signal --add event=window_destroyed     action="sketchybar --trigger windows_on_spaces"
+yabai -m signal --add event=window_focused       action="sketchybar -m --trigger window_focus &> /dev/null"
+# yabai -m signal --add event=window_title_changed action="sketchybar -m --trigger front_app_switched &> /dev/null"
 
 GENERAL=(
   external_bar all:"${BAR_HEIGHT}":0
@@ -48,20 +54,39 @@ yabai -m config "${LAYOUT[@]}"
 yabai -m config "${MOUSE[@]}"
 
 LABELS=(
-  code
-  web
-  mail
+  browser
+  terminal
   notes
-  re
-  misc
-  scratch
-  games
   social
-  vert2
-  media
-  twelve
-  thirteen
+  productivity
+  music
 )
+
+yabai -m config --space 6 layout float
+
+# Web Browsers
+yabai -m rule --add app="^Google Chrome|Safari|Brave Browser$" space=1
+
+# Terminal
+yabai -m rule --add app="^(iTerm2|Terminal|Alacritty|kitty)$" space=2
+
+# Notes
+yabai -m rule --add app="^(Notion|Obsidian|Notes|Reminders|Craft)$" space=3
+
+# Social
+yabai -m rule --add app="^(WhatsApp|Messages|Slack|Discord|Signal|Zoom)$" space=4
+
+# Productivity
+yabai -m rule --add app="^(Mail|Keynote|Numbers|Pages|Calendar|Fantastical|Drafts|Things)$" space=5
+
+# Music
+yabai -m rule --add app="^(Music|Spotify)$" space=6
+
+# apps to not manage (ignore)
+yabai -m rule --add app="^(Finder|System Settings|Archive Utility|Creative Cloud|Logi Options|Raycast|Bitwarden|CleanMyMac X|Karabiner-Elements|Karabiner-EventViewer|Setapp|Stats|ClearVPN|DBngin|FaceTime|Loom|Tape|Alfred|Raycast|Installer|Docker)$" manage=off
+
+echo "yabai configuration loaded.."
+
 
 for ((i = 1; i <= "${#LABELS[@]}"; i++)); do
   yabai -m space "${i}" --label "${LABELS[(($i - 1))]}"
