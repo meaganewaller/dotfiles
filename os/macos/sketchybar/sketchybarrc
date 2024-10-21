@@ -4,137 +4,91 @@
 # brew uninstall sketchybar
 # brew untap FelixKratz/formulae
 
-export CONFIG_DIR="$HOME/.config/sketchybar"
+source "$HOME/.config/sketchybar/icons.sh"
 
-source "$CONFIG_DIR/colors.sh"
+FONT="BigBlue_Terminal_437TT Nerd Font" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
+PADDINGS=3
+POPUP_BORDER_WIDTH=2
+POPUP_CORNER_RADIUS=11
+CORNER_RADIUS=15
+SHADOW=on
+BAR_HEIGHT=32
 
-PLUGIN_DIR="$CONFIG_DIR/plugins"
-ITEM_DIR="$CONFIG_DIR/items"
-FONT="SF Pro"
-
-# aerospace setting
-AEROSPACE_FOCUSED_MONITOR_NO=$(aerospace list-workspaces --focused)
-AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR=$(aerospace list-windows --workspace $AEROSPACE_FOCUSED_MONITOR_NO | awk -F'|' '{gsub(/^ *| *$/, "", $2); print $2}')
-
-##### Bar Appearance #####
-# Configuring the general appearance of the bar.
-# These are only some of the options available. For all options see:
-# https://felixkratz.github.io/SketchyBar/config/bar
-# If you are looking for other colors, see the color picker:
-# https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
+BAR_COLOR=0xFFFDDDE6
+BORDER_COLOR=0xFFFBAED2
 
 bar=(
-  position=top
-  height=37
-  blur_radius=30
-  sticky=off
-  padding_left=10
-  padding_right=10
-  corner_radius=25
-  y_offset=5
-  margin=15
-  color=$BAR_COLOR
-  border_width=2
-  border_color=$BAR_BORDER_COLOR
-  shadow=off
-  border_color=0x00000000
+    height="$BAR_HEIGHT"
+    border_color="$BORDER_COLOR"
+    color="$BAR_COLOR"
+    shadow="$SHADOW"
+    sticky=on
+    padding_top=5
+    padding_bottom=5
+    padding_right="$PADDINGS"
+    padding_left=0
+    corner_radius="$CORNER_RADIUS"
+    y_offset=0
+    margin=0
+    notch_width=200
+    blur_radius=20
 )
 
 sketchybar --bar "${bar[@]}"
 
-##### Changing Defaults #####
-# We now change some default values, which are applied to all further items.
-# For a full list of all available item properties see:
-# https://felixkratz.github.io/SketchyBar/config/items
-
 default=(
-  updates=when_shown
-  padding_left=5
-  padding_right=5
-  # icon.font="Hack Nerd Font:Bold:17.0"
-  icon.font="$FONT:Semibold:14.0"
-  # label.font="Hack Nerd Font:Bold:14.0"
-  label.font="$FONT:Semibold:15.0"
-  icon.color=$WHITE
-  label.color=$WHITE
-  icon.padding_left=10
-  icon.padding_right=4
-  label.padding_left=4
-  label.padding_right=10
-  background.color=$ITEM_BG_COLOR
-  background.corner_radius=9
-  background.height=26
-  background.border_width=2
-  popup.background.border_width=2
-  popup.background.corner_radius=9
-  popup.background.border_color=$POPUP_BORDER_COLOR
-  popup.background.color=$POPUP_BACKGROUND_COLOR
-  popup.background.shadow_drawing=on
-  popup.blur_radius=20
-  scroll_texts=on
+    icon.font="$FONT:Nerd Font Mono:14.0"
+    icon.color=0xFFFBAED2
+    icon.padding_left="$PADDINGS"
+    icon.padding_right="$PADDINGS"
+    label.font="$FONT:Nerd Font Mono:13.0"
+    label.color=0xFFFBAED2
+    label.padding_left="$PADDINGS"
+    label.padding_right="$PADDINGS"
+    background.padding_left="$PADDINGS"
+    background.padding_right="$PADDINGS"
+    popup.background.border_width=2
+    popup.background.corner_radius=11
+    popup.background.border_color="$BORDER_COLOR"
+    popup.background.color="$BAR_COLOR"
+    popup.background.shadow.drawing="$SHADOW"
+    scroll_texts=on
+    updates=when_shown
 )
+
 sketchybar --default "${default[@]}"
 
-# aerospace integration
-# sketchybar --add event aerospace_workspace_change
+APPLE_POPUP_OFF="sketchybar --set apple.logo popup.drawing=off"
+APPLE_POPUP_CLICK_SCRIPT="sketchybar --set \$NAME popup.drawing=toggle"
 
-# for sid in $(aerospace list-workspaces --all); do
-#     sketchybar --add item space.$sid left \
-#         --subscribe space.$sid aerospace_workspace_change \
-#         --set space.$sid \
-#         background.color=0x44ffffff \
-#         background.corner_radius=5 \
-#         background.height=20 \
-#         background.drawing=off \
-#         label="$sid" \
-#         click_script="aerospace workspace $sid" \
-#         script="$CONFIG_DIR/plugins/aerospace.sh $sid"
-# done
+sketchybar --add item apple.logo left \
+    --set apple.logo icon="🍏" \
+    icon.font="$FONT:Black:16.0" \
+    icon.padding_left=10 \
+    icon.padding_right=10 \
+    background.padding_left=-1 \
+    background.height=26 \
+    background.padding_right=17 \
+    background.corner_radius="$CORNER_RADIUS" \
+    label.drawing=off \
+    click_script="$APPLE_POPUP_CLICK_SCRIPT" \
+    --add item apple.prefs popup.apple.logo \
+    --set apple.prefs icon="$PREFERENCES" \
+    label="Preferences" \
+    click_script="open -a 'System Preferences';
+    $APPLE_POPUP_OFF" \
+        \
+        --add item apple.activity popup.apple.logo \
+        --set apple.activity icon=$ACTIVITY \
+        label="Activity" \
+        click_script="open -a 'Activity Monitor';
+            $APPLE_POPUP_OFF" \
+                \
+                --add item apple.lock popup.apple.logo \
+                --set apple.lock icon=$LOCK \
+                label="Lock Screen" \
+                click_script="pmset displaysleepnow;
+                            $APPLE_POPUP_OFF"
 
-# for sid in $(aerospace list-workspaces --all); do
-#     sketchybar --add item space.$sid left \
-#         --subscribe space.$sid aerospace_workspace_change \
-#         --set space.$sid \
-#         background.color=0x44ffffff \
-#         background.corner_radius=5 \
-#         background.height=20 \
-#         background.drawing=off \
-#         label="$sid" \
-#         click_script="aerospace workspace $sid" \
-#         script="$CONFIG_DIR/plugins/aerospace.sh $sid"
-# done
-
-# # Separator between spaces, can be adjusted as needed
-# sketchybar --add item space_separator left \
-#            --set space_separator icon="􀆊" \
-#                                  icon.color=$ACCENT_COLOR \
-#                                  icon.padding_left=4 \
-#                                  label.drawing=off \
-#                                  background.drawing=off \
-#                                  script="$CONFIG_DIR/plugins/aerospace_windows.sh" \
-#            --subscribe space_separator aerospace_workspace_change
-
-
-# -- Left Side Items --
-source $ITEM_DIR/apple.sh
-source $ITEM_DIR/spaces.sh
-# source $ITEM_DIR/aerospaces.sh
-source $ITEM_DIR/front_app.sh
-
-# -- Right Side Of Notch Items --
-source $ITEM_DIR/media.sh
-
-# --- Right Side Items ---
-source $ITEM_DIR/calendar.sh
-source $ITEM_DIR/volume.sh
-# source $ITEM_DIR/battery.sh # uncomment this if on a laptop
-source $ITEM_DIR/cpu.sh
-source $ITEM_DIR/vpn.sh
-source $ITEM_DIR/mic.sh
-source $ITEM_DIR/reminders.sh
-
-sketchybar --hotload on
-
-##### Finalizing Setup #####
-##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update
+echo "sketchybar configuration loaded..."
