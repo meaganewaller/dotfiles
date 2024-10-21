@@ -1,57 +1,55 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 # General Icons
-LOADING=􀖇
-APPLE=􀣺
-PREFERENCES=􀺽
-ACTIVITY=􀒓
-LOCK=􀒳
-BELL=􀋚
-BELL_DOT=􀝗
+export LOADING=􀖇
+export APPLE=􀣺
+export PREFERENCES=􀺽
+export ACTIVITY=􀒓
+export LOCK=􀒳
+export MIC=􀊱
+export MIC_MUTE=􀊳
+export BELL=􀋚
+export BELL_DOT=􀝗
+export PACKAGES=􀐛
+export TICK=✔︎
+export MEMORY=􀧖
+export CLOCK=
+
+# Primary Spaces
+export SPACES_CODE=􀤙
+export SPACES_TEX=􀓕
+export SPACES_WEB=􀼺
+export SPACES_IDLE=􀽎
+
+# Secondary Spaces
+export SPACES_MISC=􀤙
+export SPACES_DOC=􀓕
+export SPACES_HELP=􀼺
+export SPACES_MUSIC=􀽎
+
+# Network Icons
+export NETWORK_UP=􀅃
+export NETWORK_DOWN=􀅄
+export NETWORK_VPN=􀞚
+export NETWORK_NO_VPN=􀞞
 
 # Git Icons
-GIT_ISSUE=􀍷
-GIT_DISCUSSION=􀒤
-GIT_PULL_REQUEST=􀙡
-GIT_COMMIT=􀡚
-GIT_INDICATOR=􀂓
+export GIT_ISSUE=􀍷
+export GIT_DISCUSSION=􀒤
+export GIT_PULL_REQUEST=􀙡
+export GIT_COMMIT=􀡚
+export GIT_INDICATOR=􀂓
 
 # Spotify Icons
-SPOTIFY_BACK=􀊎
-SPOTIFY_PLAY_PAUSE=􀊈
-SPOTIFY_NEXT=􀊐
-SPOTIFY_SHUFFLE=􀊝
-SPOTIFY_REPEAT=􀊞
+export SPOTIFY_BACK=􀊎
+export SPOTIFY_PLAY_PAUSE=􀊈
+export SPOTIFY_NEXT=􀊐
+export SPOTIFY_SHUFFLE=􀊝
+export SPOTIFY_REPEAT=􀊞
 
 # Yabai Icons
-YABAI_STACK=􀏭
-YABAI_FULLSCREEN_ZOOM=􀏜
-YABAI_PARENT_ZOOM=􀥃
-YABAI_FLOAT=􀢌
-YABAI_GRID=􀧍
-
-# Battery Icons
-BATTERY_100=􀛨
-BATTERY_75=􀺸
-BATTERY_50=􀺶
-BATTERY_25=􀛩
-BATTERY_0=􀛪
-BATTERY_CHARGING=􀢋
-
-# Volume Icons
-VOLUME_100=􀊩
-VOLUME_66=􀊧
-VOLUME_33=􀊥
-VOLUME_10=􀊡
-VOLUME_0=􀊣
-
-# WiFi
-WIFI_CONNECTED=􀙇
-WIFI_DISCONNECTED=􀙈
-
-# svim
-MODE_NORMAL=􀂯
-MODE_INSERT=􀂥
-MODE_VISUAL=􀂿
-MODE_CMD=􀂙
-MODE_PENDING=􀈏
+export YABAI_STACK=stack
+export YABAI_FULLSCREEN_ZOOM=full
+export YABAI_PARENT_ZOOM=􀥃
+export YABAI_FLOAT=float
+export YABAI_GRID=tall

@@ -5,7 +5,6 @@ if vim.fn.exists("syntax_on") then
   vim.cmd("syntax reset")
 end
 
-vim.o.background = "dark"
 vim.g.colors_name = "hardhacker"
 
 if not vim.fn.has('gui_running') and vim.o.t_Co ~= "256" and not (vim.fn.has('termguicolors') and vim.o.termguicolors) then

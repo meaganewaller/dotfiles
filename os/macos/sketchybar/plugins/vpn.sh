@@ -7,5 +7,5 @@ if [[ $VPN != "" ]]; then
                           label="$VPN" \
                           drawing=on
 else
-  sketchybar -m --set vpn drawing=off
+ sketchybar -m --set vpn drawing=off
 fi
