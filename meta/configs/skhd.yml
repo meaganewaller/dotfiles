@@ -1,0 +1,10 @@
+- tap: [felixkratz/formulae]
+  brew: [jq, skhd]
+
+- link:
+    ~/.skhdrc: os/macos/skhd/skhdrc
+
+- shell:
+    - description: Starting skhd
+      command: >-
+        skhd --start-service;

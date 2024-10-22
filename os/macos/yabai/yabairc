@@ -5,12 +5,7 @@
 
 defaults write .GlobalPreferences com.apple.mouse.scaling -1
 
-BAR_HEIGHT=$(sketchybar -m --query bar | jq -r '.height')
-
-# yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
-# yabai -m signal --add event=window_destroyed     action="sketchybar --trigger windows_on_spaces"
-yabai -m signal --add event=window_focused       action="sketchybar -m --trigger window_focus &> /dev/null"
-# yabai -m signal --add event=window_title_changed action="sketchybar -m --trigger front_app_switched &> /dev/null"
+BAR_HEIGHT=$(sketchybar --query bar | jq -r '.height')
 
 GENERAL=(
   external_bar all:"${BAR_HEIGHT}":0
@@ -21,7 +16,7 @@ GENERAL=(
 
 WINDOWS=(
   window_placement          second_child
-  window_topmost            on
+  window_topmost            off
   window_shadow             float
   window_opacity            on
   active_window_opacity     0.97
@@ -41,11 +36,12 @@ LAYOUT=(
 )
 
 MOUSE=(
-  mouse_modifier      alt
+  mouse_modifier      ctrl
   mouse_action1       move
   mouse_action2       resize
   mouse_action3       swap
   mouse_follows_focus off
+  focus_follows_mouse off
 )
 
 yabai -m config "${GENERAL[@]}"
@@ -68,7 +64,7 @@ yabai -m config --space 6 layout float
 yabai -m rule --add app="^Google Chrome|Safari|Brave Browser$" space=1
 
 # Terminal
-yabai -m rule --add app="^(iTerm2|Terminal|Alacritty|kitty)$" space=2
+yabai -m rule --add app="^(iTerm2|Terminal|Alacritty|kitty|WezTerm)$" space=2
 
 # Notes
 yabai -m rule --add app="^(Notion|Obsidian|Notes|Reminders|Craft)$" space=3
@@ -134,6 +130,7 @@ UNMANAGED=(
   Vimac
   iStat Menus
   zoom.us
+  Zoom
 )
 
 for ((i = 1; i <= "${#UNMANAGED[@]}"; i++)); do
@@ -193,5 +190,10 @@ NOTES=(
 for ((i = 1; i <= "${#NOTES[@]}"; i++)); do
 	yabai -m rule --add label="notes_${NOTES[(($i - 1))]}" app="^${NOTES[(($i - 1))]}.*$" space=notes
 done
+
+yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
+yabai -m signal --add event=window_destroyed action="echo \"destroyed window with id \$YABAI_WINDOW_ID\""
+yabai -m signal --add event=space_changed action="echo \"changed space \$YABAI_RECENT_SPACE_ID -> \$YABAI_SPACE_ID\""
+yabai -m signal --add event=space_changed action="yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id)"
 
 echo "yabai configuration loaded.."
