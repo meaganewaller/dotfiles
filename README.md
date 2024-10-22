@@ -2,7 +2,7 @@
     <div align="center">
         <pre align="center">
         ╔════════════════ °❀•°✮°•❀° ═════════════════╗<br>
-        ✧･ﾟ:*<a href="#-setup">Setup</a> ✧ <a href="#--key-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a>*:･ﾟ✧ <br>
+        ✧･ﾟ:*<a href="#-setup">Setup</a> ✧ <a href="#-key-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a>*:･ﾟ✧ <br>
         ╚════════════════ °❀•°✮°•❀° ═════════════════╝
         </pre>
     </div>
@@ -89,3 +89,9 @@ now you're all set to explore the depth of my (and now _your_) dotfiles. enjoy t
 great responsibility, or whatever uncle ben said.
 
 </div>
+
+## ⌨️<samp>KEY BINDINGS</samp>
+Coming soon
+
+## 🧭 <samp>GUIDES</samp>
+Coming soon
