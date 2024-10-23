@@ -24,3 +24,11 @@ zmodload zsh/complist
 # use the module above for autocomplete selection
 zstyle ":completion:*" menu select=0 search
 eval "$(/opt/homebrew/bin/mise activate zsh)"
+
+# pnpm
+export PNPM_HOME="/Users/meagan.waller/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
