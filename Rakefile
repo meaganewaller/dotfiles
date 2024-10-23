@@ -15,8 +15,8 @@ desc 'Backup all existing dotfiles'
 task :backup do
   begin
     section 'Backing up'
-    Rake::Task['backup:brew'].invoke
-    Rake::Task['backup:mas'].invoke
+    Rake::Task['backup:brew'].invoke if macos?
+    Rake::Task['backup:mas'].invoke if macos?
     Rake::Task['backup:files'].invoke
     Rake::Task['backup:pip'].invoke
     Rake::Task['backup:pnpm'].invoke
