@@ -32,19 +32,19 @@ task :install do
   begin
     section 'Installing'
 
+    Rake::Task['install:dotbot'].invoke
+    Rake::Task['install:asdf'].invoke
+
     if macos?
-      Rake::Task['install:xcode'].invoke
       Rake::Task['install:brew'].invoke
       Rake::Task['install:brew_packages'].invoke
       Rake::Task['install:brew_cask_packages'].invoke
       Rake::Task['install:mas'].invoke
       Rake::Task['install:brew_clean_up'].invoke
+      Rake::Task['install:fonts'].invoke
+      Rake::Task['install:macos'].invoke
     end
 
-    Rake::Task['install:asdf'].invoke
-    Rake::Task['install:dotbot'].invoke
-    Rake::Task['install:fonts'].invoke
-    Rake::Task['install:macos'].invoke if macos?
     Rake::Task['install:servers'].invoke
     Rake::Task['install:neovim'].invoke
     Rake::Task['install:vim'].invoke

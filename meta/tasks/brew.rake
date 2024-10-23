@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 # This file contains tasks related to Homebrew
 
-BACKUP_BREW_TAPS_FILE = File.expand_path("../../tools/package-managers/brew/taps.txt", __dir__)
-BACKUP_BREW_PACKAGES_FILE = File.expand_path("../../tools/package-managers/brew/packages.txt", __dir__)
-BACKUP_BREW_CASK_PACKAGES_FILE = File.expand_path("../../tools/package-managers/brew/cask.txt", __dir__)
+BACKUP_BREW_TAPS_FILE = File.expand_path("../../tools/package-managers/brew/taps.bak", __dir__)
+BACKUP_BREW_PACKAGES_FILE = File.expand_path("../../tools/package-managers/brew/packages.bak", __dir__)
+BACKUP_BREW_CASK_PACKAGES_FILE = File.expand_path("../../tools/package-managers/brew/casks.bak", __dir__)
 
 BREW_PACKAGES_FILE = File.expand_path("../../tools/package-managers/brew/Brewfile", __dir__)
 BREW_TAPS_FILE = File.expand_path("../../tools/package-managers/brew/Brewfile.taps", __dir__)
@@ -26,6 +26,15 @@ namespace :backup do
     end
   end
 
+  desc 'Backup Brew Taps'
+  task :brew_taps do
+    section 'Backing up Brew Taps Packages'
+
+    run %( brew tap > #{BACKUP_BREW_TAPS_FILE} )
+
+    log_info "~> Brew taps saved to #{BACKUP_BREW_TAPS_FILE}"
+  end
+
   desc 'Backup Brew Packages'
   task :brew_packages do
     section 'Backing up Brew Packages'
@@ -43,25 +52,9 @@ namespace :backup do
 
     log_info "~> Brew cask packages saved to #{BACKUP_BREW_CASK_PACKAGES_FILE}"
   end
-
-  desc 'Backup Brew Taps'
-  task :brew_taps do
-    section 'Backing up Brew Taps Packages'
-
-    run %( brew list --cask > #{BACKUP_BREW_TAPS_FILE} )
-
-    log_info "~> Brew taps saved to #{BACKUP_BREW_TAPS_FILE}"
-  end
 end
 
 namespace :install do
-  desc 'Install XCode'
-  task :xcode do
-    section 'Installing XCode'
-
-    run %( xcode-select --install )
-  end
-
   desc 'Install Homebrew'
   task :brew do
     section 'Installing Homebrew'
@@ -122,10 +115,6 @@ end
 
 def brew_packages
   File.readlines(BREW_PACKAGES_FILE).map(&:strip)
-end
-
-def brew_taps
-  File.readlines(BREW_TAPS_FILE).map(&:strip)
 end
 
 def brew_cask_packages
