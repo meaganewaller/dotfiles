@@ -147,7 +147,7 @@ truncate_to_repo=false
 " ~/Dropbox"   = " ~/Dropbox"
 " ~/code"      = "👩‍💻~/code"
 " ~/dev"       = "👩‍💻~/dev"
-" ~/workspace" = "🛠️~/workspace"
+" ~/workspace" = "💻 ~/workspace"
 " ~/.dotfiles" = " dots"
 
 [docker_context]
