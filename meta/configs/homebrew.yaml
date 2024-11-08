@@ -4,6 +4,8 @@
     description: Installing homebrew
     quiet: false
     stdin: true
+- tap:
+    - FelixKratz/formulae
 - brewfile:
     - tools/package-managers/brew/Brewfile.cask
     - tools/package-managers/brew/Brewfile
