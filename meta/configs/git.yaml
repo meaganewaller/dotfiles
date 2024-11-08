@@ -1,3 +1,4 @@
+- link:
     ~/.gitattributes:    tools/vcs/git/gitattributes
     ~/.gitconfig:        tools/vcs/git/gitconfig
     ~/.gitconfig-local:  tools/vcs/git/gitconfig-local
