@@ -25,7 +25,7 @@
 
 # 🌷 <sup><sub><samp> welcome to my dotfiles! </samp></sub></sup>
 
-<img style="z-index: 100;" alt="Screenshot of my desktop in lightmode" align="right" width="600px" height="251px" src="meta/assets/lightmode.png"/>
+<img style="z-index: 100;" alt="Screenshot of my desktop in lightmode" align="right" width="450px" height="188px" src="meta/assets/lightmode.png"/>
 
 My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and** performance are prioritized.
 
