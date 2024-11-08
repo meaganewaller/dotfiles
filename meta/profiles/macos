@@ -4,6 +4,7 @@ fish
 fonts
 dev_tools
 git
+gh
 macos_defaults
 starship
 wezterm
