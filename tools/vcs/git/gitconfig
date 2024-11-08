@@ -101,6 +101,3 @@
   hooksPath = ~/.config/git/hooks
 [include]
 	path = .gitconfig-local
-[user]
-	name = Meagan Waller
-	email = meagan@meaganwaller.com
