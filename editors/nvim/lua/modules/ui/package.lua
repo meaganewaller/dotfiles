@@ -5,6 +5,12 @@ packadd({
 })
 
 packadd({
+  'catppuccin/nvim',
+  name = 'catppuccin',
+  priority = 1000,
+})
+
+packadd({
   'nvimdev/dashboard-nvim',
   event = 'UIEnter',
   config = conf.dashboard,
