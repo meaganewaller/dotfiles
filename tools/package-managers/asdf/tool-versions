@@ -1,6 +1,6 @@
 direnv 2.32.2
 golang 1.20.2
-lua 5.4.3
+lua 5.4.7
 luaJIT 2.0.5--2.4.4 system
 neovim nightly stable
 nodejs 22.9.0
@@ -12,3 +12,5 @@ rust latest
 stylua 0.14.2 latest
 swift 5.7 latest
 yarn 1.22.19 latest
+luajit system
+postgres system
