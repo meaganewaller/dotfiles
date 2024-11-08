@@ -1,5 +1,4 @@
 aws-vault
-chromedriver
 font-0xproto-nerd-font
 font-3270-nerd-font
 font-agave-nerd-font
@@ -66,6 +65,8 @@ font-roboto-mono-nerd-font
 font-sauce-code-pro-nerd-font
 font-sf-mono
 font-sf-mono-for-powerline
+font-sf-mono-nerd-font-ligaturized
+font-sf-pro
 font-shure-tech-mono-nerd-font
 font-space-mono-nerd-font
 font-symbols-only-nerd-font
@@ -82,10 +83,14 @@ iterm2
 itsycal
 keycastr
 neovide
+notion
 raycast
 rectangle
 session-manager-plugin
+sf-symbols
 vivaldi
 vscodium
 wezterm
 wkhtmltopdf
+yubico-authenticator
+yubico-yubikey-manager
