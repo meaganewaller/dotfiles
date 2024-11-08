@@ -1,242 +1,139 @@
-#!/usr/bin/env sh
+#!/usr/bin/env zsh
 
-. "$HOME/.config/sketchybar/icons.sh"
-
-ITEM_DIR="$HOME/.config/sketchybar/items"
+CONFIG_DIR="$HOME/.config/sketchybar"
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+FONT_FACE="Liga SFMono Nerd Font"
 
-export SPACE_CLICK_SCRIPT="yabai -m space --focus \$SID 2>/dev/null"
+source "$CONFIG_DIR/colors.sh"
 
-FONT="FiraCode Nerd Font Mono"
+bar=(
+    height=36
+    blur_radius=30
+    corner_radius=8
+    margin=4
+    position=top
+    sticky=on
+    padding_left=12
+    padding_right=8
+    color=$BAR_COLOR
+)
+sketchybar --bar "${bar[@]}"
 
-PADDINGS=3
-SEGMENT_SPACING=13
+default=(
+    updates=when_shown
+    background.padding_left=2
+    background.padding_right=2
+    background.corner_radius=5
+    background.height=24
+    icon.color=$ICON_COLOR
+    icon.font="$FONT_FACE:Bold:17.0"
+    icon.padding_left=8
+    icon.padding_right=7
+    label.font="$FONT_FACE:Bold:12.0"
+    label.color=$LABEL_COLOR
+    label.padding_left=0
+    label.padding_right=7
+)
+sketchybar --default "${default[@]}"
 
-sketchybar --bar height=24 \
-    corner_radius=0 \
-    border_width=0 \
-    margin=0 \
-    blur_radius=0 \
-    position=top \
-    padding_left=4 \
-    padding_right=4 \
-    topmost=off \
-    sticky=on \
-    font_smoothing=off \
-    y_offset=-100 \
-    notch_width=0 \
-    \
-    --default drawing=on \
-    updates=when_shown \
-    label.font="$FONT:Bold:16.0" \
-    icon.font="$FONT:Bold:18.0" \
-    icon.padding_left=$PADDINGS \
-    icon.padding_right=$PADDINGS \
-    label.padding_left=$PADDINGS \
-    label.padding_right=$PADDINGS \
-    background.padding_right=$PADDINGS \
-    background.padding_left=$PADDINGS
+for i in {0..7};
+do
+    sid=$(($i+1))
+    space=(
+        space=$sid
+        icon=$sid
+        icon.font="$FONT_FACE:Bold:13.0"
+        background.color=$BAR_BORDER_COLOR
+        background.corner_radius=5
+        background.padding_right=5
+        background.drawing=off
+        label.drawing=off
+        script="$PLUGIN_DIR/current_space.sh"
+        click_script="yabai -m space --focus $sid"
+        )
+        sketchybar --add space space.$sid left \
+            --set space.$sid "${space[@]}"
+done
 
-sketchybar --animate sin 30 --bar y_offset=-100 y_offset=0
-sketchybar --add event theme_changed AppleInterfaceThemeChangedNotification
-sketchybar --add item colordummy center \
-    --set colordummy \
-    drawing=off \
-    script="$PLUGIN_DIR/colordummy.sh" \
-    --subscribe colordummy theme_changed
+front_app=(
+    display=active
+    icon.background.drawing=on
+    icon.background.image.scale=0.75
+    label.font="$FONT_FACE:Bold:12.0"
+    label.padding_left=8
+    script="$PLUGIN_DIR/front_app.sh"
+)
+sketchybar --add event window_focus            \
+           --add item front_app left           \
+           --set front_app "${front_app[@]}"   \
+           --subscribe front_app front_app_switched window_focus mouse.clicked
 
-### Template for some elements ###
-sketchybar --add item label_template left \
-    --set label_template icon.drawing=off \
-    label.font="$FONT:Normal:16.0" \
-    label.padding_right=5 \
-    click_script="$PLUGIN_DIR/toggle_bracket.sh" \
-    background.padding_left=$SEGMENT_SPACING \
-    drawing=off
+# INFO: center bar components
+weather=(
+    background.padding_right=4
+    icon=
+    icon.color=$PINK
+    icon.font="$FONT_FACE:Bold:16.0"
+    label.max_chars=80
+    scroll_texts=yes
+    update_freq=1800
+    script="$PLUGIN_DIR/weather.sh"
+)
+media_info=(
+    icon.background.image=media.artwork
+    icon.background.image.scale=0.6
+    icon.background.image.corner_radius=4
+    label.padding_left=8
+    label.max_chars=80
+    scroll_texts=yes
+    updates=on
+    script="$PLUGIN_DIR/media_info.sh"
+)
+sketchybar --add item weather center                         \
+           --set weather "${weather[@]}"                     \
+           --subscribe weather system_woke                   \
+                                                             \
+           --add item media_info center                      \
+           --set media_info "${media_info[@]}"               \
+           --subscribe media_info media_change
 
-### Spaces themselves are this ###
-. "$ITEM_DIR/spaces.sh"
+# INFO: right-side bar components
+clock=(
+    icon=󰨲
+    icon.color=$RED
+    update_freq=10
+    script="$PLUGIN_DIR/clock.sh"
+)
+battery=(
+    icon.y_offset=1
+    update_freq=120
+    script="$PLUGIN_DIR/battery.sh"
+)
+wifi=(
+    script="$PLUGIN_DIR/wifi.sh"
+)
+KEYBOARD_EVENT="AppleSelectedInputSourcesChangedNotification"
+keyboard=(
+    icon=󰧹
+    icon.y_offset=-1
+    script="$PLUGIN_DIR/keyboard.sh"
+)
+sketchybar  --add item clock right                              \
+            --set clock "${clock[@]}"                           \
+                                                                \
+            --add item battery right                            \
+            --set battery "${battery[@]}"                       \
+            --subscribe battery system_woke power_source_change \
+                                                                \
+            --add item wifi right                               \
+            --set wifi "${wifi[@]}"                             \
+            --subscribe wifi wifi_change                        \
+                                                                \
+            --add event input_change $KEYBOARD_EVENT            \
+            --add item keyboard right                           \
+            --set keyboard "${keyboard[@]}"                     \
+            --subscribe keyboard input_change
 
-### First Seperator on the bar ###
-sketchybar --add item separator left \
-    --set separator icon=┃ \
-    icon.font="$FONT:Regular:9.0" \
-    background.padding_left=-5 \
-    background.padding_right=-7 \
-    icon.y_offset=1 \
-    label.drawing=off
-
-sketchybar --add event window_focus \
-    --add item system.yabai left \
-    --set system.yabai script="$PLUGIN_DIR/yabai.sh" \
-    icon.font="$FONT:Bold:14.0" \
-    label.drawing=off \
-    icon.y_offset=1 \
-    icon.padding_left=8 \
-    updates=on \
-    --subscribe system.yabai window_focus mouse.clicked
-
-sketchybar --add item separator2 left \
-    --set separator2 icon=┃ \
-    icon.font="$FONT:Regular:9.0" \
-    background.padding_right=0 \
-    background.padding_left=-3 \
-    icon.y_offset=1 \
-    label.drawing=off \
-    icon.color=0xff606060
-
-### SPACE NUMBER ###
-. "$ITEM_DIR/spacenum.sh"
-
-### Third seperator on the bar ###
-sketchybar --add item separator3 left \
-    --set separator3 icon=┃ \
-    icon.font="$FONT:Regular:9.0" \
-    background.padding_right=-5 \
-    icon.y_offset=1 \
-    label.drawing=off \
-    icon.color=0xff606060
-
-sketchybar --add event window_focus \
-    --add event title_change \
-    --add item title left \
-    --set title script="$PLUGIN_DIR/window_title.sh" \
-    label.font="$FONT:Bold:11.8" \
-    label.y_offset=1 \
-    label.padding_left=-0  \
-    label.color=0xffd5d9dd \
-    --subscribe title window_focus front_app_switched space_change title_change
-
-### MENU BAR ITEMS ###
-. "$ITEM_DIR/system.sh"
-
-### CLOCK WIDGET ###
-sketchybar --add item clock right \
-    --set clock update_freq=1 \
-    icon="$CLOCK" \
-    icon.font="$FONT:Bold:13" \
-    icon.padding_right=4 \
-    icon.y_offset=2 \
-    label.y_offset=1 \
-    label.font="$FONT:Bold:12" \
-    label.color=0xff55d0f0 \
-    background.height=2 \
-    background.padding_right=6 \
-    background.y_offset=-9 \
-    script="$PLUGIN_DIR/clock.sh" \
-    icon.padding_left=0 \
-    label.padding_right=1
-
-### BATTERY WIDGET ###
-sketchybar --add item battery right \
-    --set battery update_freq=2 \
-    icon.font="$FONT:Bold:13.0" \
-    icon.padding_right=3 \
-    icon.y_offset=2 \
-    icon.y_offset=1 \
-    label.font="$FONT:Bold:12.0" \
-    label.padding_right=8 \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/battery.sh" \
-    icon.padding_left=0 \
-    label.padding_right=0
-
-### UPDATES WIDGET ###
-sketchybar --add item updates right \
-    --set updates update_freq=1800 \
-    icon="$BELL" \
-    icon.font="$FONT:Bold:13" \
-    icon.padding_right=7 \
-    icon.y_offset=1 \
-    label.y_offset=1 \
-    label.font="$FONT:Bold:10.6" \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/package_monitor.sh" \
-    icon.padding_left=0 label.padding_right=2
-
-### UPTIME WIDGET ###
-sketchybar --add item uptime right \
-    --set uptime update_freq=120 \
-    icon.font="$FONT:Bold:13" \
-    icon.padding_right=4 \
-    label.y_offset=1 \
-    icon.y_offset=1 \
-    label.font="$FONT:Bold:10.6" \
-    label.padding_right=8 \
-    background.color=0xff9bbf70 \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/uptime.sh" \
-    icon.padding_left=0 label.padding_right=2
-
-### ssd Widget ###
-sketchybar --add item ssd right \
-    --set ssd update_freq=10 \
-    icon.padding_right=4 \
-    icon.font="$FONT:Bold:13" \
-    icon.y_offset=1 \
-    label.y_offset=1 \
-    label.font="$FONT:Bold:10.6" \
-    label.padding_right=8 \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/disk.sh" \
-    icon.padding_left=0 label.padding_right=2
-
-### mem Widget ###
-sketchybar --add item mem right \
-    --set mem update_freq=10 \
-    icon.font="$FONT:Bold:13" \
-    icon.padding_right=4 \
-    icon.y_offset=1 \
-    label.y_offset=1 \
-    label.font="$FONT:Bold:10.6" \
-    label.padding_right=8 \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/mem.sh" \
-    icon.padding_left=0 label.padding_right=2
-
-### cpu Widget ###
-sketchybar --add item cpu right \
-    --set cpu update_freq=10 \
-    icon.font="$FONT:Bold:13" \
-    icon.padding_right=4 \
-    icon.y_offset=1 \
-    label.y_offset=1 \
-    label.font="$FONT:Bold:10.6" \
-    label.padding_right=8 \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/cpu.sh" \
-    icon.padding_left=0 label.padding_right=2
-
-### os version Widget ###
-sketchybar --add item ver right \
-    --set ver update_freq=6400 \
-    icon.font="$FONT:Bold:13" \
-    icon.padding_right=4 \
-    icon.y_offset=1 \
-    label.y_offset=1 \
-    label.font="$FONT:Bold:10.6" \
-    label.padding_right=8 \
-    background.height=2 \
-    background.y_offset=-9 \
-    background.padding_right=8 \
-    script="$PLUGIN_DIR/os-ver.sh" \
-    icon.padding_left=-1 label.padding_right=2
-
-### If an update is avalible, update sketchybar when launched ##
-sketchybar --hotload true
+##### Finalizing Setup #####
+sketchybar --hotload on
 sketchybar --update
-
-### Notify when sketchybarrc is finished loading ##
-echo "sketchybar configuation loaded.."

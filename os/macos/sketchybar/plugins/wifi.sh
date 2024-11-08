@@ -1,11 +1,27 @@
-#!/usr/bin/env sh
+#!/usr/bin/env zsh
 
-CURRENT_WIFI="$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I)"
-SSID="$(echo "$CURRENT_WIFI" | grep -o "SSID: .*" | sed 's/^SSID: //')"
-CURR_TX="$(echo "$CURRENT_WIFI" | grep -o "lastTxRate: .*" | sed 's/^lastTxRate: //')"
+# The wifi_change event supplies a $INFO variable in which the current SSID
+# is passed to the script.
+if [ "$SENDER" = "wifi_change" ]; then
+    INFO=$(
+        system_profiler SPAirPortDataType -detailLevel basic |
+        awk '/Current Network Information:/ {
+            getline
+            if ($0 ~ /^[[:space:]]*$/) {
+                next
+            }
+            gsub(/^[[:space:]]+|:$/, "", $0)
+            print $0
+            exit
+        }'
+    )
 
-if [ "$SSID" = "" ]; then
-  sketchybar --set $NAME label="Disconnected" icon=📡
-else
-  sketchybar --set $NAME label="${CURR_TX}Mbps" icon=🛰
+    if [[ -z "$INFO" ]] || [[ -z "${INFO##You are not*}" ]]; then
+        ICON="󰤫"
+        WIFI="Not Connected"
+    else
+        ICON="󰤨"
+        WIFI=$(echo $INFO | tr -d '\t')
+    fi
+    sketchybar --set $NAME label="${WIFI}" icon="${ICON}"
 fi
