@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-VOLUME=$(osascript -e "get volume settings" | cut -d " " -d ":" -f2 | cut -d "," -f1)
+VOLUME=$(osascript -e "get volume settings" | cut -d " " -d ":" -f2 | cut -d "," -f1)"%"
 MUTED=$(osascript -e "get volume settings" | grep "muted:true")
 
 if [[ "$MUTED" != "" ]]; then
-ICON="ﱝ"
+ICON="􀊣"
+VOLUME=""
 else
 case ${VOLUME} in
   100) ICON="";;
@@ -22,4 +23,4 @@ case ${VOLUME} in
 esac
 fi
 
-sketchybar --set "$NAME" icon="$ICON" label="$VOLUME%"
+sketchybar --set "$NAME" icon="$ICON" label="$VOLUME"
