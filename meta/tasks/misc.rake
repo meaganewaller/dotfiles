@@ -52,9 +52,22 @@ namespace :install do
 
   desc 'Install asdf'
   task :asdf do
-    run %(git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1)
+    section 'Installing asdf package manager'
+
+    unless system('which asdf')
+      log_info("asdf is not installed. Proceeding with installation...")
+      run %( /bin/bash git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1)
+      log_success("asdf installation completed successfully.")
+    else
+      log_warning("asdf is already installation. Skipping installation...")
+    end
+
+    log_info "~> Updating fish config"
     File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts "source ~/.asdf/asdf.fish" }
+
+    log_info '~> Adding asdf completions to fish'
     run %( mkdir -p ~/.config/fish/completions );
+
     run %( ln -s ~/.asdf/completions/asdf.fish ~/.config/fish/completions);
   end
 
