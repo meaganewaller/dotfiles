@@ -7,8 +7,8 @@ nodejs 22.9.0
 pnpm 9.12.2
 python 3.10.0
 ruby 3.3.5
-rust 1.67.1 system
-rust latest
+rust 1.82.0
+rust 1.82.0
 stylua 0.14.2 latest
 swift 5.7 latest
 yarn 1.22.19 latest
@@ -16,3 +16,4 @@ luajit system
 postgres system
 deno 2.0.1
 awscli 2.18.9
+lua-language-server 3.11.1
