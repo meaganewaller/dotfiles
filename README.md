@@ -25,17 +25,21 @@
 
 # 🌷 <sup><sub><samp> welcome to my dotfiles! </samp></sub></sup>
 
+<img style="z-index: 100;" alt="Screenshot of my desktop in lightmode" align="right" width="600px" height="251px" src="meta/assets/lightmode.png"/>
+
 My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and** performance are prioritized.
 
-## Quick details about my setup
+### Quick details about my setup
 
-### macOS
+#### macOS
 
 - **Operating System**: [macOS Sequoia 15.0.1 (24A348)](https://apple.com/macos/macos-sequoia/)
 - **Terminal Emulator**: [wezterm](https://wezfurlong.org/wezterm/index.html)
 - **Shell**: [fish](https://fishshell.com/)
 - **Editor**: [neovim](https://neovim.io/)
 - **App Launcher**: [raycast](https://raycast.com)
+
+</div>
 
 <h1>
   <a href="#---------1">
