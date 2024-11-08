@@ -1,3 +1,13 @@
+[init]
+	defaultBranch = main
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true
+[credential]
+	helper = osxkeychain
 [color]
 	status = true
 	branch = true
@@ -7,25 +17,19 @@
 	abbrevCommit = true
 	decorate = true
 	date = relative
-
 [diff]
 	algorithm = patience
 	indentHeuristic = true
-
 [merge]
 	ff = false
-
 [push]
-	default = current
-
+	default = simple
+	autoSetupRemote = true
 [pull]
 	rebase = true
-
 [rebase]
 	autoStash = true
-
 [core]
 	excludesFile = ~/.gitignore-global
-
 [include]
 	path = .gitconfig-local
