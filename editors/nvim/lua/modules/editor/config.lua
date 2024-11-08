@@ -5,6 +5,9 @@ function M.nvim_treesitter()
   vim.opt.foldmethod = 'expr'
   vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
   require('nvim-treesitter.configs').setup({
+    ignore_install = {},
+    auto_install = true,
+    sync_install = true,
     ensure_installed = {
       'c',
       'cpp',
@@ -34,9 +37,8 @@ function M.nvim_treesitter()
       'vimdoc',
       'vim',
       'cmake',
-            'ruby',
-            'embedded_template',
-
+      'ruby',
+      'embedded_template',
     },
     highlight = {
       enable = true,

@@ -7,14 +7,6 @@ packadd({
 })
 
 packadd({
-  'nvimdev/modeline.nvim',
-  event = { 'BufReadPost */*' },
-  config = function()
-    require('modeline').setup()
-  end,
-})
-
-packadd({
   'lewis6991/gitsigns.nvim',
   event = 'BufEnter */*',
   config = conf.gitsigns,
