@@ -1,6 +1,6 @@
-PIP_FILE = File.expand_path("./tools/package-managers/asdf/default-python-packages.txt", __dir__)
-PNPM_FILE = File.expand_path("./tools/package-managers/asdf/default-pnpm-packages.txt", __dir__)
-GEMS_FILE = File.expand_path("./tools/package-managers/asdf/default-gems.txt", __dir__)
+PIP_FILE = File.expand_path("../../tools/package-managers/asdf/default-python-packages", __dir__)
+PNPM_FILE = File.expand_path("../../tools/package-managers/asdf/default-pnpm-packages", __dir__)
+GEMS_FILE = File.expand_path("../../tools/package-managers/asdf/default-gems", __dir__)
 FONT_PATH = File.expand_path("../../fonts/", __dir__)
 
 PIP_FILE_BACKUP = File.expand_path("./tools/package-managers/asdf/default-python-packages.bak", __dir__)
@@ -54,7 +54,8 @@ namespace :install do
   task :asdf do
     run %(git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1)
     File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts "source ~/.asdf/asdf.fish" }
-    run %(mkdir -p ~/.config/fish/completions; and ln -s ~/.asdf/completions/asdf.fish ~/.config/fish/completions)
+    run %( mkdir -p ~/.config/fish/completions );
+    run %( ln -s ~/.asdf/completions/asdf.fish ~/.config/fish/completions);
   end
 
   namespace :asdf do
