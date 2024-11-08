@@ -1,6 +1,3 @@
-- brewfile:
-    - dev/macos/tools/Brewfile
-
 - link:
     ~/.editorconfig:  dev/editorconfig
     ~/.curlrc:        dev/curlrc
