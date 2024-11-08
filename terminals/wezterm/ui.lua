@@ -13,7 +13,7 @@ local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
 		return "hardhacker"
 	else
-		return "Catppuccin Latte"
+		return "light-pink"
 	end
 end
 
