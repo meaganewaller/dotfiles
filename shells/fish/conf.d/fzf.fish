@@ -9,6 +9,9 @@ end
 # This variable is global so that it can be referenced by fzf_configure_bindings and in tests
 set --global _fzf_search_vars_command '_fzf_search_variables (set --show | psub) (set --names | psub)'
 
+set fzf_directory_opts --bind 'ctrl-o:execute($EDITOR {} &> /dev/tty)'
+set fzf_fd_opts --hidden --exclude=.git
+set fzf_preview_dir_cmd ls
 
 # Install the default bindings, which are mnemonic and minimally conflict with fish's preset bindings
 fzf_configure_bindings
