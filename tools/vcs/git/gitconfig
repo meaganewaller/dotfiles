@@ -105,3 +105,4 @@
 	path = .gitconfig-local
 [apply]
 	whitespace = fix
+
