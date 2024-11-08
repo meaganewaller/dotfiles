@@ -9,3 +9,4 @@
 [submodule "meta/dotbot-asdf"]
 	path = meta/dotbot-asdf
 	url = https://github.com/sobolevn/dotbot-asdf.git
+	ignore = dirty
