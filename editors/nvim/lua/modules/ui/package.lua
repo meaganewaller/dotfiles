@@ -1,6 +1,10 @@
 local conf = require('modules.ui.config')
 
 packadd({
+  'hardhackerlabs/theme-vim',
+})
+
+packadd({
   'nvimdev/dashboard-nvim',
   event = 'UIEnter',
   config = conf.dashboard,
