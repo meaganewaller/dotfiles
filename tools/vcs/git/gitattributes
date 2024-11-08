@@ -27,7 +27,6 @@
 *.mustache text
 *.tab      text
 *.tsv      text
-*.txt      text
 *.sql      text
 
 # Documentation
