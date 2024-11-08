@@ -9,6 +9,12 @@ function config.template_nvim()
   require('fzf-lua').load_extension('find_template')
 end
 
+function config.peek()
+  require('peek').setup()
+  vim.api.nvim_create_user_command('PeekOpen', require('peek').open, {})
+  vim.api.nvim_create_user_command('PeekClose', require('peek').close, {})
+end
+
 function config.guard()
   local ft = require('guard.filetype')
   ft('c,cpp'):fmt({

@@ -1,6 +1,13 @@
 local conf = require('modules.tools.config')
 
 packadd({
+  'toppair/peek.nvim',
+  event = { 'VeryLazy' },
+  build = 'deno task --quiet build:fast',
+  config = conf.peek,
+})
+
+packadd({
   'nvimdev/flybuf.nvim',
   cmd = 'FlyBuf',
   config = function()
