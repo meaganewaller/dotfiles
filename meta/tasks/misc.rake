@@ -3,15 +3,15 @@ PNPM_FILE = File.expand_path("../../tools/package-managers/asdf/default-pnpm-pac
 GEMS_FILE = File.expand_path("../../tools/package-managers/asdf/default-gems", __dir__)
 FONT_PATH = File.expand_path("../../fonts/", __dir__)
 
-PIP_FILE_BACKUP = File.expand_path("./tools/package-managers/asdf/default-python-packages.bak", __dir__)
-PNPM_FILE_BACKUP = File.expand_path("./tools/package-managers/asdf/default-pnpm-packages.bak", __dir__)
-GEMS_FILE_BACKUP = File.expand_path("./tools/package-managers/asdf/default-gems.bak", __dir__)
+PIP_FILE_BACKUP = File.expand_path("../../tools/package-managers/asdf/default-python-packages.bak", __dir__)
+PNPM_FILE_BACKUP = File.expand_path("../../tools/package-managers/asdf/default-pnpm-packages.bak", __dir__)
+GEMS_FILE_BACKUP = File.expand_path("../../tools/package-managers/asdf/default-gems.bak", __dir__)
 
 namespace :backup do
   desc 'Backup PIP files'
   task :pip do
     section 'Backing up PIP files'
-    run %( pip3 freeze \> #{PIP_FILE_BACKUP} )
+    run %( pip3 freeze > #{PIP_FILE_BACKUP} )
     log_info "PIP files backed up to #{PIP_FILE_BACKUP}"
   end
 
@@ -19,7 +19,7 @@ namespace :backup do
   task :pnpm do
     section 'Backing up PNPM files'
 
-    run %( pnpm -g upgrade )
+    run %( pnpm i -g add pnpm )
     run %( pnpm list --global --parseable --depth=0 | sed '1d' | awk '\{gsub\(/\\/.*\\//,"",$1\); print\}' \> #{PNPM_FILE_BACKUP} )
 
     log_info "PNPM files backed up to #{PNPM_FILE_BACKUP}"
