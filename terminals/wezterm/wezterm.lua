@@ -46,7 +46,7 @@ config.background = {
 require('events.gui_startup')
 require('events.format_tab_title')
 require('events.format_window_title')
-require('evnts.update_status')
+require('events.update_status')
 require('keys').make_config(config)
 
 if helpers.file_exists(wezterm.config_dir .. "/domains/ssh_domains.lua") then
