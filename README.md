@@ -2,7 +2,7 @@
     <div align="center">
         <pre align="center">
         ╔════════════════ °❀•°✮°•❀° ═════════════════╗<br>
-        ✧･ﾟ:*<a href="#-setup">Setup</a> ✧ <a href="#-key-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a>*:･ﾟ✧ <br>
+        ✧･ﾟ:*<a href="#-setup">Setup</a> ✧ <a href="#%EF%B8%8Fkey-bindings">Keybinds</a> ✧ <a href="https://github.com/meaganewaller/dotfiles/wiki/Gallery">Gallery</a> ✧ <a href="#-guides">Guides</a>*:･ﾟ✧ <br>
         ╚════════════════ °❀•°✮°•❀° ═════════════════╝
         </pre>
     </div>
