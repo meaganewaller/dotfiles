@@ -97,7 +97,7 @@ def app_wezterm(mode):
     """
     Change the theme in the terminal
     """
-    config = wezterm_path + "/wezterm.lua"
+    config = wezterm_path + "/ui.lua"
 
     # Open the neovim file
     with open(os.path.expanduser(config), "r") as config_file:

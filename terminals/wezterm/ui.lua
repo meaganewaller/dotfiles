@@ -8,7 +8,7 @@ local frame_font = "SpaceMono Nerd Font"
 local M = {}
 
 local ok
-M.colorscheme = "hardhacker"
+M.colorscheme = "onedarkpro_onelight"
 ok, M.colors =
   pcall(wezterm.color.load_scheme, wezterm.home_dir .. "/.config/wezterm/colors/" .. M.colorscheme .. ".toml")
 if not ok then
