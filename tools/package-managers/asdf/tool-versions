@@ -14,3 +14,4 @@ swift 5.7 latest
 yarn 1.22.19 latest
 luajit system
 postgres system
+deno 2.0.1
