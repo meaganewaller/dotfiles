@@ -1,5 +1,19 @@
 - defaults:
     link:
+      create: true
       relink: true
+      force: true
+    shell:
+      stdout: true
+      stderr: true
+      stdin: true
 
-- clean: ["~"]
+- clean: ['~']
+
+- create:
+    - ~/.local/bin
+    - ~/Downloads
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
+  - [chmod +x ~/.local/bin, Making binaries executable]
