@@ -57,6 +57,6 @@ namespace :update do
   task :dotbot do
     section 'Updating Dotbot'
     run %( git submodule update --remote meta/dotbot )
-    run %( ./install )
+    Rake::Task['install:dotbot'].invoke
   end
 end
