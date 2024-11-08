@@ -1,27 +1,61 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-ICON_ARRAY=(🏠  💻  💬  📧  📅  📄  🎵  🛠️ 🧹)
-UNSELECTED_ICON_ARRAY=(🏚️ 💽 🚫 📪 📆 📂 🎧 🧰 🏁)
+# The $SELECTED variable is available for space components and indicates if
+# the space invoking this script (with name: $NAME) is currently selected:
+# https://felixkratz.github.io/SketchyBar/config/components#space----associate-mission-control-spaces-with-an-item
 
+# source "$CONFIG_DIR/colors.sh" # Loads all defined colors
+
+# if [ $SELECTED = true ]; then
+#   sketchybar --set $NAME background.drawing=on \
+#                          background.color=$ACCENT_COLOR \
+#                          label.color=$BAR_COLOR \
+#                          icon.color=$BAR_COLOR
+# else
+#   sketchybar --set $NAME background.drawing=off \
+#                          label.color=$ACCENT_COLOR \
+#                          icon.color=$ACCENT_COLOR
+# fi
+#
 update() {
-  if [ "$SELECTED" = "true" ]; then
-    sketchybar -m --set "$NAME" icon="${ICON_ARRAY[$SID-1]}" \
-      background.border_color="$YABAI_SPACE_BACKGROUND_BORDER_COLOR_ACTIVE" \
-      label.highlight="$SELECTED"
-  else
-    sketchybar -m --set "$NAME" icon="${UNSELECTED_ICON_ARRAY[$SID-1]}" \
-      label.highlight="$SELECTED" \
-      background.border_color="$YABAI_SPACE_BACKGROUND_BORDER_COLOR"
+  # 처음 시작에만 작동하기 위해서
+  # 현재 forced, space_change 이벤트가 동시에 발생하고 있다.
+  if [ "$SENDER" = "space_change" ]; then
+    #echo space.sh $'FOCUSED_WORKSPACE': $FOCUSED_WORKSPACE, $'SELECTED': $SELECTED, NAME: $NAME, SENDER: $SENDER, INFO: $INFO  >> ~/aaaa
+    #echo $(aerospace list-workspaces --focused) >> ~/aaaa
+    source "$CONFIG_DIR/colors.sh"
+    # COLOR=$BACKGROUND_2
+    COLOR=$ITEM_BG_COLOR
+    if [ "$SELECTED" = "true" ]; then
+      COLOR=$ACCENT_COLOR
+    fi
+    # sketchybar --set $NAME icon.highlight=$SELECTED \
+    #                        label.highlight=$SELECTED \
+    #                        background.border_color=$COLOR
+    sketchybar --set space.$(aerospace list-workspaces --focused) icon.highlight=true \
+                      label.highlight=true \
+                      label.color=$BLACK \
+                      icon.color=$BLACK \
+                      background.border_color=$ACCENT_COLOR \
+                      background.color=$BLACK
+    
+    # sketchybar --set space.$(aerospace list-workspaces --focused) icon.highlight=true \
+    #                   label.highlight=true \
+    #                   label.color=$ACCENT_COLOR \
+    #                   icon.color=$ACCENT_COLOR \
+    #                   background.border_color=$ACCENT_COLOR \
+    #                   background.color=$CURRENT_ITEM_COLOR
   fi
 }
 
 set_space_label() {
-  sketchybar --set "$NAME" icon="$@"
+  sketchybar --set $NAME icon="$@"
 }
 
 mouse_clicked() {
   if [ "$BUTTON" = "right" ]; then
-    yabai -m space --destroy "$SID" && sketchybar --trigger windows_on_spaces
+    # yabai -m space --destroy $SID
+    echo ''
   else
     if [ "$MODIFIER" = "shift" ]; then
       SPACE_LABEL="$(osascript -e "return (text returned of (display dialog \"Give a name to space $NAME:\" default answer \"\" with icon note buttons {\"Cancel\", \"Continue\"} default button \"Continue\"))")"
@@ -33,11 +67,14 @@ mouse_clicked() {
         fi
       fi
     else
-      yabai -m space --focus "$SID" 2>/dev/null
+      #yabai -m space --focus $SID 2>/dev/null
+      #echo space.sh BUTTON: $BUTTON, $'SELECTED': $SELECTED, MODIFIER: $MODIFIER, NAME: $NAME, SENDER: $SENDER, INFO: $INFO, TEST: ${NAME#*.}, ${NAME:6} >> ~/aaaa
+      aerospace workspace ${NAME#*.}
     fi
   fi
 }
 
+# echo plugin_space.sh $SENDER >> ~/aaaa
 case "$SENDER" in
   "mouse.clicked") mouse_clicked
   ;;

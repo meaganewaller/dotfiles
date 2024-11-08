@@ -1,88 +1,140 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-. "$HOME/.config/sketchybar/colors.sh"
-. "$HOME/.config/sketchybar/icons.sh"
+# To uninstall, run the two following commands
+# brew uninstall sketchybar
+# brew untap FelixKratz/formulae
 
-. "$HOME/.config/sketchybar/grant_permissions.sh"
+export CONFIG_DIR="$HOME/.config/sketchybar"
 
-export ITEM_DIR="$HOME/.config/sketchybar/items"
-export PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+source "$CONFIG_DIR/colors.sh"
 
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+ITEM_DIR="$CONFIG_DIR/items"
 FONT="SF Pro"
-PADDINGS=3
 
-HELPER=git.felix.helper
-killall helper
-(cd "$HOME/.config/sketchybar/helper" && make)
-"$HOME/.config/sketchybar/helper/helper" "$HELPER" >/dev/null 2>&1 &
+# aerospace setting
+AEROSPACE_FOCUSED_MONITOR_NO=$(aerospace list-workspaces --focused)
+AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR=$(aerospace list-windows --workspace $AEROSPACE_FOCUSED_MONITOR_NO | awk -F'|' '{gsub(/^ *| *$/, "", $2); print $2}')
 
-# Unload the macOS on screen indicator overlay for volume change
-launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist >/dev/null 2>&1 &
+##### Bar Appearance #####
+# Configuring the general appearance of the bar.
+# These are only some of the options available. For all options see:
+# https://felixkratz.github.io/SketchyBar/config/bar
+# If you are looking for other colors, see the color picker:
+# https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
 
 bar=(
-  height=36
-  color="$BAR_COLOR"
-  border_width=2
-  border_color="$BAR_BORDER_COLOR"
-  shadow=off
   position=top
-  sticky=on
-  padding_right=10
+  height=37
+  blur_radius=30
+  sticky=off
   padding_left=10
+  padding_right=10
+  corner_radius=25
   y_offset=5
-  corner_radius=12
-  margin=10
+  margin=15
+  color=$BAR_COLOR
+  border_width=2
+  border_color=$BAR_BORDER_COLOR
+  shadow=off
+  border_color=0x00000000
 )
 
 sketchybar --bar "${bar[@]}"
 
-defaults=(
+##### Changing Defaults #####
+# We now change some default values, which are applied to all further items.
+# For a full list of all available item properties see:
+# https://felixkratz.github.io/SketchyBar/config/items
+
+default=(
   updates=when_shown
-  icon.font="$ICON_FONT:Bold:14.0"
-  icon.color="$ICON_COLOR"
-  icon.padding_left="$PADDINGS"
-  icon.padding_right="$PADDINGS"
-  label.font="$FONT:Semibold:13.0"
-  label.color="$LABEL_COLOR"
-  label.padding_left="$PADDINGS"
-  label.padding_right="$PADDINGS"
-  padding_right="$PADDINGS"
-  padding_left="$PADDINGS"
-  background.height=26
+  padding_left=5
+  padding_right=5
+  # icon.font="Hack Nerd Font:Bold:17.0"
+  icon.font="$FONT:Semibold:14.0"
+  # label.font="Hack Nerd Font:Bold:14.0"
+  label.font="$FONT:Semibold:15.0"
+  icon.color=$WHITE
+  label.color=$WHITE
+  icon.padding_left=10
+  icon.padding_right=4
+  label.padding_left=4
+  label.padding_right=10
+  background.color=$ITEM_BG_COLOR
   background.corner_radius=9
-  popup.background.border_color="$POPUP_BORDER_COLOR"
-  popup.background.color="$POPUP_BACKGROUND_COLOR"
+  background.height=26
+  background.border_width=2
+  popup.background.border_width=2
+  popup.background.corner_radius=9
+  popup.background.border_color=$POPUP_BORDER_COLOR
+  popup.background.color=$POPUP_BACKGROUND_COLOR
+  popup.background.shadow_drawing=on
   popup.blur_radius=20
-  popup.background.shadow.drawing=on
+  scroll_texts=on
 )
+sketchybar --default "${default[@]}"
 
-sketchybar --default "${defaults[@]}"
+# aerospace integration
+# sketchybar --add event aerospace_workspace_change
+
+# for sid in $(aerospace list-workspaces --all); do
+#     sketchybar --add item space.$sid left \
+#         --subscribe space.$sid aerospace_workspace_change \
+#         --set space.$sid \
+#         background.color=0x44ffffff \
+#         background.corner_radius=5 \
+#         background.height=20 \
+#         background.drawing=off \
+#         label="$sid" \
+#         click_script="aerospace workspace $sid" \
+#         script="$CONFIG_DIR/plugins/aerospace.sh $sid"
+# done
+
+# for sid in $(aerospace list-workspaces --all); do
+#     sketchybar --add item space.$sid left \
+#         --subscribe space.$sid aerospace_workspace_change \
+#         --set space.$sid \
+#         background.color=0x44ffffff \
+#         background.corner_radius=5 \
+#         background.height=20 \
+#         background.drawing=off \
+#         label="$sid" \
+#         click_script="aerospace workspace $sid" \
+#         script="$CONFIG_DIR/plugins/aerospace.sh $sid"
+# done
+
+# # Separator between spaces, can be adjusted as needed
+# sketchybar --add item space_separator left \
+#            --set space_separator icon="􀆊" \
+#                                  icon.color=$ACCENT_COLOR \
+#                                  icon.padding_left=4 \
+#                                  label.drawing=off \
+#                                  background.drawing=off \
+#                                  script="$CONFIG_DIR/plugins/aerospace_windows.sh" \
+#            --subscribe space_separator aerospace_workspace_change
 
 
-. "$ITEM_DIR/spaces.sh"
-. "$ITEM_DIR/terminal.sh"
-. "$ITEM_DIR/yabai.sh"
+# -- Left Side Items --
+source $ITEM_DIR/apple.sh
+source $ITEM_DIR/spaces.sh
+# source $ITEM_DIR/aerospaces.sh
+source $ITEM_DIR/front_app.sh
 
-# . "$ITEM_DIR/apple.sh"
-. "$ITEM_DIR/front_app.sh"
+# -- Right Side Of Notch Items --
+source $ITEM_DIR/media.sh
 
-. "$ITEM_DIR/music.sh"
-# . "$ITEM_DIR/prompt.sh"
+# --- Right Side Items ---
+source $ITEM_DIR/calendar.sh
+source $ITEM_DIR/volume.sh
+# source $ITEM_DIR/battery.sh # uncomment this if on a laptop
+source $ITEM_DIR/cpu.sh
+source $ITEM_DIR/vpn.sh
+source $ITEM_DIR/mic.sh
+source $ITEM_DIR/reminders.sh
 
-. "$ITEM_DIR/calendar.sh"
-. "$ITEM_DIR/time.sh"
-. "$ITEM_DIR/battery.sh"
-. "$ITEM_DIR/brew.sh"
-. "$ITEM_DIR/github.sh"
-. "$ITEM_DIR/volume.sh"
-# . "$ITEM_DIR/ticktick.sh"
-# . "$ITEM_DIR/focus.sh"
-# . "$ITEM_DIR/power.sh"
-# . "$ITEM_DIR/wifi.sh"
-# . "$ITEM_DIR/mail.sh"
+sketchybar --hotload on
 
-# ###################### FINALIZE ###################
+##### Finalizing Setup #####
+##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update
-sketchybar --hotload true
-
-echo "sketchybar configuration loaded.."

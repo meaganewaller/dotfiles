@@ -21,7 +21,6 @@ toggle_detail() {
 
 toggle_devices() {
   which SwitchAudioSource >/dev/null || exit 0
-  # shellcheck disable=SC1091
   source "$CONFIG_DIR/colors.sh"
 
   args=(--remove '/volume.device\.*/' --set "$NAME" popup.drawing=toggle)
@@ -32,8 +31,8 @@ toggle_devices() {
     if [ "${device}" = "$CURRENT" ]; then
       COLOR=$WHITE
     fi
-    args+=(--add item volume.device."$COUNTER" popup."$NAME" \
-           --set volume.device."$COUNTER" label="${device}" \
+    args+=(--add item volume.device.$COUNTER popup."$NAME" \
+           --set volume.device.$COUNTER label="${device}" \
                                         label.color="$COLOR" \
                  click_script="SwitchAudioSource -s \"${device}\" && sketchybar --set /volume.device\.*/ label.color=$GREY --set \$NAME label.color=$WHITE --set $NAME popup.drawing=off")
     COUNTER=$((COUNTER+1))
