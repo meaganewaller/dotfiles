@@ -39,11 +39,11 @@ opt.pumblend = 10
 opt.winblend = 0
 opt.undofile = true
 
-opt.smarttab = true
-opt.expandtab = true
-opt.autoindent = true
-opt.tabstop = 2
-opt.shiftwidth = 2
+opt.tabstop     = 2
+opt.softtabstop = 2
+opt.smartindent = true
+opt.shiftwidth  = 2
+opt.expandtab   = true
 
 opt.foldlevelstart = 99
 opt.foldmethod = 'marker'

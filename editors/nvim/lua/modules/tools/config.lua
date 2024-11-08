@@ -16,6 +16,7 @@ function config.guard()
     stdin = true,
     ignore_patterns = { 'neovim', 'vim' },
   })
+  ft('ruby'):fmt('lsp')
 
   ft('lua'):fmt({
     cmd = 'stylua',
