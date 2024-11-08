@@ -1,44 +1,34 @@
 #!/bin/bash
 
-POPUP_OFF='sketchybar --set apple.logo popup.drawing=off'
-POPUP_CLICK_SCRIPT='sketchybar --set $NAME popup.drawing=toggle'
+source "$HOME/.config/sketchybar/icons.sh"
 
-apple_logo=(
-  icon=$APPLE
-  icon.font="$FONT:Black:16.0"
-  icon.color=$WHITE
-  padding_right=15
-  label.drawing=off
-  click_script="$POPUP_CLICK_SCRIPT"
-  popup.height=35
-)
+sketchybar --add item apple.logo left              \
+           --set apple.logo icon="$APPLE"          \
+                 icon.font="$ICON_FONT"            \
+                 icon.padding_left=10              \
+                 label.drawing=off                 \
+                 background.padding_left=5         \
+                 background.padding_right=5        \
+                 icon.padding_right=5              \
+                 label.font="$TEXT_FONT"           \
+                 popup.background.border_width=2   \
+                 popup.background.corner_radius=3  \
+                 click_script="sketchybar --set \$NAME popup.drawing=toggle"
 
-apple_prefs=(
-  icon=$PREFERENCES
-  label="Preferences"
-  click_script="open -a 'System Preferences'; $POPUP_OFF"
-)
-
-apple_activity=(
-  icon=$ACTIVITY
-  label="Activity"
-  click_script="open -a 'Activity Monitor'; $POPUP_OFF"
-)
-
-apple_lock=(
-  icon=$LOCK
-  label="Lock Screen"
-  click_script="pmset displaysleepnow; $POPUP_OFF"
-)
-
-sketchybar --add item apple.logo left                  \
-           --set apple.logo "${apple_logo[@]}"         \
-                                                       \
-           --add item apple.prefs popup.apple.logo     \
-           --set apple.prefs "${apple_prefs[@]}"       \
-                                                       \
-           --add item apple.activity popup.apple.logo  \
-           --set apple.activity "${apple_activity[@]}" \
-                                                       \
-           --add item apple.lock popup.apple.logo      \
-           --set apple.lock "${apple_lock[@]}"
+sketchybar --add item apple.preferences popup.apple.logo \
+           --set apple.preferences icon="$PREFERENCES"   \
+                                   label="Preferences"   \
+                                   click_script="open -a 'System Preferences';
+                                                 sketchybar --set apple.logo popup.drawing=off" \
+           --add item apple.activity popup.apple.logo    \
+           --set apple.activity icon="$ACTIVITY"         \
+                                label.padding_left=3     \
+                                label.padding_right=3    \
+                                label="Activity"         \
+                                click_script="open -a 'Activity Monitor';
+                                              sketchybar --set apple.logo popup.drawing=off" \
+           --add item apple.lock popup.apple.logo        \
+           --set apple.lock icon=? \
+                            label="About this Mac"       \
+                            click_script="open -a 'System information';
+                                          sketchybar --set apple.logo popup.drawing=off"

@@ -1,94 +1,242 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
-# To uninstall, run the two following commands
-# brew uninstall sketchybar
-# brew untap FelixKratz/formulae
+. "$HOME/.config/sketchybar/icons.sh"
 
-source "$HOME/.config/sketchybar/icons.sh"
+ITEM_DIR="$HOME/.config/sketchybar/items"
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 
-FONT="BigBlue_Terminal_437TT Nerd Font" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
+export SPACE_CLICK_SCRIPT="yabai -m space --focus \$SID 2>/dev/null"
+
+FONT="FiraCode Nerd Font Mono"
+
 PADDINGS=3
-POPUP_BORDER_WIDTH=2
-POPUP_CORNER_RADIUS=11
-CORNER_RADIUS=15
-SHADOW=on
-BAR_HEIGHT=32
+SEGMENT_SPACING=13
 
-BAR_COLOR=0xFFFDDDE6
-BORDER_COLOR=0xFFFBAED2
+sketchybar --bar height=24 \
+    corner_radius=0 \
+    border_width=0 \
+    margin=0 \
+    blur_radius=0 \
+    position=top \
+    padding_left=4 \
+    padding_right=4 \
+    topmost=off \
+    sticky=on \
+    font_smoothing=off \
+    y_offset=-100 \
+    notch_width=0 \
+    \
+    --default drawing=on \
+    updates=when_shown \
+    label.font="$FONT:Bold:16.0" \
+    icon.font="$FONT:Bold:18.0" \
+    icon.padding_left=$PADDINGS \
+    icon.padding_right=$PADDINGS \
+    label.padding_left=$PADDINGS \
+    label.padding_right=$PADDINGS \
+    background.padding_right=$PADDINGS \
+    background.padding_left=$PADDINGS
 
-bar=(
-    height="$BAR_HEIGHT"
-    border_color="$BORDER_COLOR"
-    color="$BAR_COLOR"
-    shadow="$SHADOW"
-    sticky=on
-    padding_top=5
-    padding_bottom=5
-    padding_right="$PADDINGS"
-    padding_left=0
-    corner_radius="$CORNER_RADIUS"
-    y_offset=0
-    margin=0
-    notch_width=200
-    blur_radius=20
-)
+sketchybar --animate sin 30 --bar y_offset=-100 y_offset=0
+sketchybar --add event theme_changed AppleInterfaceThemeChangedNotification
+sketchybar --add item colordummy center \
+    --set colordummy \
+    drawing=off \
+    script="$PLUGIN_DIR/colordummy.sh" \
+    --subscribe colordummy theme_changed
 
-sketchybar --bar "${bar[@]}"
+### Template for some elements ###
+sketchybar --add item label_template left \
+    --set label_template icon.drawing=off \
+    label.font="$FONT:Normal:16.0" \
+    label.padding_right=5 \
+    click_script="$PLUGIN_DIR/toggle_bracket.sh" \
+    background.padding_left=$SEGMENT_SPACING \
+    drawing=off
 
-default=(
-    icon.font="$FONT:Nerd Font Mono:14.0"
-    icon.color=0xFFFBAED2
-    icon.padding_left="$PADDINGS"
-    icon.padding_right="$PADDINGS"
-    label.font="$FONT:Nerd Font Mono:13.0"
-    label.color=0xFFFBAED2
-    label.padding_left="$PADDINGS"
-    label.padding_right="$PADDINGS"
-    background.padding_left="$PADDINGS"
-    background.padding_right="$PADDINGS"
-    popup.background.border_width=2
-    popup.background.corner_radius=11
-    popup.background.border_color="$BORDER_COLOR"
-    popup.background.color="$BAR_COLOR"
-    popup.background.shadow.drawing="$SHADOW"
-    scroll_texts=on
-    updates=when_shown
-)
+### Spaces themselves are this ###
+. "$ITEM_DIR/spaces.sh"
 
-sketchybar --default "${default[@]}"
+### First Seperator on the bar ###
+sketchybar --add item separator left \
+    --set separator icon=┃ \
+    icon.font="$FONT:Regular:9.0" \
+    background.padding_left=-5 \
+    background.padding_right=-7 \
+    icon.y_offset=1 \
+    label.drawing=off
 
-APPLE_POPUP_OFF="sketchybar --set apple.logo popup.drawing=off"
-APPLE_POPUP_CLICK_SCRIPT="sketchybar --set \$NAME popup.drawing=toggle"
-
-sketchybar --add item apple.logo left \
-    --set apple.logo icon="🍏" \
-    icon.font="$FONT:Black:16.0" \
-    icon.padding_left=10 \
-    icon.padding_right=10 \
-    background.padding_left=-1 \
-    background.height=26 \
-    background.padding_right=17 \
-    background.corner_radius="$CORNER_RADIUS" \
+sketchybar --add event window_focus \
+    --add item system.yabai left \
+    --set system.yabai script="$PLUGIN_DIR/yabai.sh" \
+    icon.font="$FONT:Bold:14.0" \
     label.drawing=off \
-    click_script="$APPLE_POPUP_CLICK_SCRIPT" \
-    --add item apple.prefs popup.apple.logo \
-    --set apple.prefs icon="$PREFERENCES" \
-    label="Preferences" \
-    click_script="open -a 'System Preferences';
-    $APPLE_POPUP_OFF" \
-        \
-        --add item apple.activity popup.apple.logo \
-        --set apple.activity icon=$ACTIVITY \
-        label="Activity" \
-        click_script="open -a 'Activity Monitor';
-            $APPLE_POPUP_OFF" \
-                \
-                --add item apple.lock popup.apple.logo \
-                --set apple.lock icon=$LOCK \
-                label="Lock Screen" \
-                click_script="pmset displaysleepnow;
-                            $APPLE_POPUP_OFF"
+    icon.y_offset=1 \
+    icon.padding_left=8 \
+    updates=on \
+    --subscribe system.yabai window_focus mouse.clicked
 
+sketchybar --add item separator2 left \
+    --set separator2 icon=┃ \
+    icon.font="$FONT:Regular:9.0" \
+    background.padding_right=0 \
+    background.padding_left=-3 \
+    icon.y_offset=1 \
+    label.drawing=off \
+    icon.color=0xff606060
+
+### SPACE NUMBER ###
+. "$ITEM_DIR/spacenum.sh"
+
+### Third seperator on the bar ###
+sketchybar --add item separator3 left \
+    --set separator3 icon=┃ \
+    icon.font="$FONT:Regular:9.0" \
+    background.padding_right=-5 \
+    icon.y_offset=1 \
+    label.drawing=off \
+    icon.color=0xff606060
+
+sketchybar --add event window_focus \
+    --add event title_change \
+    --add item title left \
+    --set title script="$PLUGIN_DIR/window_title.sh" \
+    label.font="$FONT:Bold:11.8" \
+    label.y_offset=1 \
+    label.padding_left=-0  \
+    label.color=0xffd5d9dd \
+    --subscribe title window_focus front_app_switched space_change title_change
+
+### MENU BAR ITEMS ###
+. "$ITEM_DIR/system.sh"
+
+### CLOCK WIDGET ###
+sketchybar --add item clock right \
+    --set clock update_freq=1 \
+    icon="$CLOCK" \
+    icon.font="$FONT:Bold:13" \
+    icon.padding_right=4 \
+    icon.y_offset=2 \
+    label.y_offset=1 \
+    label.font="$FONT:Bold:12" \
+    label.color=0xff55d0f0 \
+    background.height=2 \
+    background.padding_right=6 \
+    background.y_offset=-9 \
+    script="$PLUGIN_DIR/clock.sh" \
+    icon.padding_left=0 \
+    label.padding_right=1
+
+### BATTERY WIDGET ###
+sketchybar --add item battery right \
+    --set battery update_freq=2 \
+    icon.font="$FONT:Bold:13.0" \
+    icon.padding_right=3 \
+    icon.y_offset=2 \
+    icon.y_offset=1 \
+    label.font="$FONT:Bold:12.0" \
+    label.padding_right=8 \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/battery.sh" \
+    icon.padding_left=0 \
+    label.padding_right=0
+
+### UPDATES WIDGET ###
+sketchybar --add item updates right \
+    --set updates update_freq=1800 \
+    icon="$BELL" \
+    icon.font="$FONT:Bold:13" \
+    icon.padding_right=7 \
+    icon.y_offset=1 \
+    label.y_offset=1 \
+    label.font="$FONT:Bold:10.6" \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/package_monitor.sh" \
+    icon.padding_left=0 label.padding_right=2
+
+### UPTIME WIDGET ###
+sketchybar --add item uptime right \
+    --set uptime update_freq=120 \
+    icon.font="$FONT:Bold:13" \
+    icon.padding_right=4 \
+    label.y_offset=1 \
+    icon.y_offset=1 \
+    label.font="$FONT:Bold:10.6" \
+    label.padding_right=8 \
+    background.color=0xff9bbf70 \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/uptime.sh" \
+    icon.padding_left=0 label.padding_right=2
+
+### ssd Widget ###
+sketchybar --add item ssd right \
+    --set ssd update_freq=10 \
+    icon.padding_right=4 \
+    icon.font="$FONT:Bold:13" \
+    icon.y_offset=1 \
+    label.y_offset=1 \
+    label.font="$FONT:Bold:10.6" \
+    label.padding_right=8 \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/disk.sh" \
+    icon.padding_left=0 label.padding_right=2
+
+### mem Widget ###
+sketchybar --add item mem right \
+    --set mem update_freq=10 \
+    icon.font="$FONT:Bold:13" \
+    icon.padding_right=4 \
+    icon.y_offset=1 \
+    label.y_offset=1 \
+    label.font="$FONT:Bold:10.6" \
+    label.padding_right=8 \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/mem.sh" \
+    icon.padding_left=0 label.padding_right=2
+
+### cpu Widget ###
+sketchybar --add item cpu right \
+    --set cpu update_freq=10 \
+    icon.font="$FONT:Bold:13" \
+    icon.padding_right=4 \
+    icon.y_offset=1 \
+    label.y_offset=1 \
+    label.font="$FONT:Bold:10.6" \
+    label.padding_right=8 \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/cpu.sh" \
+    icon.padding_left=0 label.padding_right=2
+
+### os version Widget ###
+sketchybar --add item ver right \
+    --set ver update_freq=6400 \
+    icon.font="$FONT:Bold:13" \
+    icon.padding_right=4 \
+    icon.y_offset=1 \
+    label.y_offset=1 \
+    label.font="$FONT:Bold:10.6" \
+    label.padding_right=8 \
+    background.height=2 \
+    background.y_offset=-9 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/os-ver.sh" \
+    icon.padding_left=-1 label.padding_right=2
+
+### If an update is avalible, update sketchybar when launched ##
+sketchybar --hotload true
 sketchybar --update
-echo "sketchybar configuration loaded..."
+
+### Notify when sketchybarrc is finished loading ##
+echo "sketchybar configuation loaded.."
