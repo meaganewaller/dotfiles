@@ -1,27 +1,25 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
-VOLUME=$INFO
+VOLUME=$(osascript -e "get volume settings" | cut -d " " -d ":" -f2 | cut -d "," -f1)
+MUTED=$(osascript -e "get volume settings" | grep "muted:true")
 
-case $VOLUME in
-  [6-9][0-9]|100)
-    ICON="墳"
-    ICON_PADDING_RIGHT=5
-  ;;
-  [3-5][0-9])
-    ICON="奔"
-    ICON_PADDING_RIGHT=8
-  ;;
-  [1-2][0-9])
-    ICON=""
-    ICON_PADDING_RIGHT=11
-  ;;
-  [1-9])
-    ICON=""
-    ICON_PADDING_RIGHT=18
-  ;;
-  *)
-    ICON="婢"
-    ICON_PADDING_RIGHT=12
+if [[ "$MUTED" != "" ]]; then
+ICON="ﱝ"
+else
+case ${VOLUME} in
+  100) ICON="";;
+  9[0-9]) ICON="";;
+  8[0-9]) ICON="";;
+  7[0-9]) ICON="";;
+  6[0-9]) ICON="";;
+  5[0-9]) ICON="";;
+  4[0-9]) ICON="";;
+  3[0-9]) ICON="";;
+  2[0-9]) ICON="";;
+  1[0-9]) ICON="";;
+  [0-9]) ICON="";;
+  *) ICON=""
 esac
+fi
 
-sketchybar --set $NAME icon="$ICON" icon.padding_right=$ICON_PADDING_RIGHT label="$VOLUME%"
+sketchybar --set "$NAME" icon="$ICON" label="$VOLUME%"
