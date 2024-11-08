@@ -37,3 +37,7 @@ end
 #
 #bind --preset \cC 'cancel-commandline'
 source ~/.asdf/asdf.fish
+
+if test -e "$HOME/.config/fish/private.fish"
+    source "$HOME/.config/fish/private.fish"
+end
