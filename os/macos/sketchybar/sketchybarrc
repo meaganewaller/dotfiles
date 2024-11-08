@@ -46,7 +46,6 @@ defaults=(
 sketchybar --default "${defaults[@]}"
 
 SPACE_ICONS=("" "" "󰛮" "" "󰈈" "󰆼" "󰉋" "󰝚" "󰡨" "10")
-
 for i in "${!SPACE_ICONS[@]}"
 do
     if [[ $i ==  0 ]]; then
