@@ -1,0 +1,35 @@
+# vim: set filetype=yaml ts=4 sw=4 tw=0 et :
+- shell:
+    - description: Installing asdf
+      command: |
+          brew list asdf >/dev/null || brew install asdf
+      stdout: true
+      stderr: true
+- link:
+    ~/.asdfrc: tools/package-managers/asdf/asdfrc
+    ~/.tool-versions: tools/package-managers/asdf/tool-versions
+    ~/.defualt-gems: tools/package-managers/asdf/default-gems
+    ~/.default-npm-packages: tools/package-managers/asdf/default-npm-packages
+    ~/.default-python-packages: tools/package-managers/asdf/default-python-packages
+
+- asdf:
+    - plugin: python
+      versions:
+          - latest:3.9
+    - plugin: ruby
+      versions:
+          - latest
+    - plugin: nodejs
+      versions:
+          - latest:14
+          - latest:16
+          - latest
+    - plugin: golang
+      versions:
+          - latest
+    - plugin: lua
+    - plugin: luajit
+    - plugin: neovim
+      versions:
+          - nightly
+
