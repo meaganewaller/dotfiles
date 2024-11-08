@@ -42,8 +42,7 @@ fastfetch
 fd
 fd
 federico-terzi/espanso/espanso
-felixkratz/formulae/sketchybar
-felixkratz/formulae/svim
+sketchybar
 ffind
 ffmpeg@4
 fish
@@ -93,4 +92,5 @@ tree
 viu
 watch
 wget
+yabai
 zsh
