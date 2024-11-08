@@ -1,0 +1,5 @@
+    ~/.gitattributes:    tools/vcs/git/gitattributes
+    ~/.gitconfig:        tools/vcs/git/gitconfig
+    ~/.gitconfig-local:  tools/vcs/git/gitconfig-local
+    ~/.gitignore-global: tools/vcs/git/gitignore_global
+    ~/.gitmessage:       tools/vcs/git/gitmessage
