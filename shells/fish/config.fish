@@ -36,3 +36,10 @@ end
 #eval "$(/opt/homebrew/bin/brew shellenv)"
 #
 #bind --preset \cC 'cancel-commandline'
+source ~/.asdf/asdf.fish
+source ~/.asdf/asdf.fish
+source ~/.asdf/asdf.fish
+source ~/.asdf/asdf.fish
+source ~/.asdf/asdf.fish
+source ~/.asdf/asdf.fish
+source ~/.asdf/asdf.fish
