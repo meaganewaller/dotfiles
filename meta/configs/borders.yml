@@ -1,2 +1,11 @@
+- tap: [felixkratz/formulae]
+- brew: [borders]
+
 - link:
     ~/.config/borders/bordersrc: os/macos/borders/bordersrc
+
+- shell:
+    - description: Kicking off borders service
+      quiet: false
+      command: >-
+        brew services restart borders
