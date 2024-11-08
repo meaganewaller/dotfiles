@@ -3,8 +3,6 @@
 # Automatically normalize line endings for all text-based files
 # https://git-scm.com/docs/gitattributes#_end_of_line_conversion
 #
-*          text=auto
-
 #
 # The above will handle all files NOT found below
 #
@@ -27,7 +25,6 @@
 *.adoc     text
 *.textile  text
 *.mustache text
-*.csv      text
 *.tab      text
 *.tsv      text
 *.txt      text

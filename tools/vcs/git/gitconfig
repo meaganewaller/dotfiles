@@ -96,16 +96,11 @@
 [rebase]
 	autoStash = true
 [core]
-	autocrlf = false
-	whitespace = space-before-tab, -indent-with-non-tab, trailing-space
 	excludesFile = ~/.gitignore-global
 	attributesFile = ~/.gitattributes
   hooksPath = ~/.config/git/hooks
 [include]
 	path = .gitconfig-local
-[apply]
-	whitespace = fix
-
 [user]
 	name = Meagan Waller
 	email = meagan@meaganwaller.com
