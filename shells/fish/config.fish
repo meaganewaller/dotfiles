@@ -41,3 +41,6 @@ source ~/.asdf/asdf.fish
 if test -e "$HOME/.config/fish/private.fish"
     source "$HOME/.config/fish/private.fish"
 end
+
+# Added by `rbenv init` on Fri Nov  8 15:25:20 EST 2024
+status --is-interactive; and rbenv init - --no-rehash fish | source
