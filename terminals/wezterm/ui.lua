@@ -70,8 +70,8 @@ M.setup = function(cfg)
 
 	-- color scheme
 	cfg.color_scheme = M.colorscheme
-	cfg.command_palette_fg_color = M.colors.foreground
-	cfg.command_palette_bg_color = M.colors.background
+	-- cfg.command_palette_fg_color = M.colors.foreground
+	-- cfg.command_palette_bg_color = M.colors.background
 
 	-- tab bar config
 	-- nordfox : use_fancy_tab_bar: false
