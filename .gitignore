@@ -311,4 +311,6 @@ $RECYCLE.BIN/
 tools/vcs/git/gitconfig-local
 tools/vcs/git/gitconfig-personal
 
+.DS_Store
+
 # End of https://www.toptal.com/developers/gitignore/api/git,vim,macos,linux,python,windows,vagrant,visualstudiocode
