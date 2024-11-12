@@ -91,11 +91,8 @@
 [rebase]
 	autoStash = true
 [core]
-	excludesFile = ~/.gitignore-global
-	attributesFile = ~/.gitattributes
+  excludesFile = ~/.gitignore-global
+  attributesFile = ~/.gitattributes
   hooksPath = ~/.config/git/hooks
 [include]
-	path = .gitconfig-local
-[user]
-	name = Meagan Waller
-	email = meagan.waller@gusto.com
+  path = ~/.gitconfig-local

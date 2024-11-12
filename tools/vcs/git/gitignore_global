@@ -34,3 +34,5 @@ ember.d.ts
 
 .solargraph.yml
 *.swp
+
+~/workspace/gusto_scope/config_files
