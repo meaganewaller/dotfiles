@@ -1,13 +1,13 @@
 if vim.loader then
-  vim.loader.enable()
+	vim.loader.enable()
 end
 
 _G.dd = function(...)
-  require('util.debug').dump(...)
+	require("util.debug").dump(...)
 end
 vim.print = _G.dd
 
-require('config.lazy')
+require("config.lazy")
 -- local g = vim.g
 --
 -- vim.loader.enable()
