@@ -210,4 +210,8 @@ return {
       require('telescope').load_extension('file_browser')
     end,
   },
+
+  {
+    'mrjones2014/smart-splits.nvim',
+  },
 }

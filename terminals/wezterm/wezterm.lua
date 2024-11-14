@@ -1,17 +1,18 @@
-local wezterm = require("wezterm")
+local wezterm = require 'wezterm'
+local session = require 'session'
+local config = wezterm.config_builder()
 
-local menus = require("menus")
-local behavior = require("behavior")
-local ui = require("ui")
+config.font_size = 14
 
-local config = {}
+config.font = wezterm.font_with_fallback({ "FiraCode Nerd Font" })
 
-if wezterm.config_builder then
-	config = wezterm.config_builder()
-end
+config.window_background_opacity = 0.90
+config.color_scheme = "Snazzy"
+config.status_update_interval = 500
 
-ui.apply_to_config(config)
-behavior.apply_to_config(config)
-menus.apply_to_config(config)
+require("keymap")(config)
+require("components")(config)
+
+wezterm.on("gui-startup", function(cmd) session.load() end)
 
 return config
