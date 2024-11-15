@@ -1,0 +1,12 @@
+apiVersion: scope.github.com/v1alpha
+kind: ScopeDoctorGroup
+metadata:
+  name: environment
+  description: My standard base macOS dev environment
+spec:
+  include: when-required
+  actions: []
+  needs:
+    - github-cli
+    - github-ssh
+    - homebrew

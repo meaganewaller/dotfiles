@@ -1,0 +1,17 @@
+apiVersion: scope.github.com/v1alpha
+kind: ScopeDoctorGroup
+metadata:
+  name: github-cli
+  description: GitHub CLI
+spec:
+  include: when-required
+  actions:
+    - name: github-cli
+      description: GitHub CLI is configured
+      check:
+        commands:
+          - ./bin/github-cli.sh check
+      fix:
+        commands:
+          - ./bin/github-cli.sh fix
+        helpText: You need to login to the GitHub CLI

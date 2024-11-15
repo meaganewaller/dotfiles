@@ -1,0 +1,10 @@
+apiVersion: scope.github.com/v1alpha
+kind: ScopeDoctorGroup
+metadata:
+  name: dotfiles
+  description: Set up dotfiles
+spec:
+  needs:
+    - environment
+    - brewfile
+  actions: []
