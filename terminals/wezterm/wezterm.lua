@@ -12,6 +12,7 @@ config.status_update_interval = 500
 
 require("keymap")(config)
 require("components")(config)
+require("program")(config)
 
 wezterm.on("gui-startup", function(cmd) session.load() end)
 
