@@ -42,11 +42,11 @@ if test -e "$HOME/.config/fish/private.fish"
     source "$HOME/.config/fish/private.fish"
 end
 
-if status --is-interactive; and type rbenv >/dev/null
-    rbenv init - --no-rehash fish | source
-end
-
 if test -e "$HOME/.gusto/init.sh"
+    if status --is-interactive; and type rbenv >/dev/null
+        rbenv init - --no-rehash fish | source
+    end
+
     # Reuse Aliases from ~/.bash_profile
     egrep "^alias " ~/.bash_profile | while read e
         set var (echo $e | sed -E "s/^alias ([A-Za-z0-9_-]+)=(.*)\$/\1/")
