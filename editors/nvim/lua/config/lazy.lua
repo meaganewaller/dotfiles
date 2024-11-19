@@ -1,23 +1,23 @@
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
     lazypath,
   })
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
+require('lazy').setup({
   spec = {
     {
-      "LazyVim/LazyVim",
-      import = "lazyvim.plugins",
+      'LazyVim/LazyVim',
+      import = 'lazyvim.plugins',
       opts = {
-        colorscheme = "solarized-osaka",
+        colorscheme = 'solarized-osaka',
         news = {
           lazyvim = true,
           neovim = true,
@@ -27,26 +27,23 @@ require("lazy").setup({
     { import = 'lazyvim.plugins.extras.linting.eslint' },
     { import = 'lazyvim.plugins.extras.formatting.prettier' },
     { import = 'lazyvim.plugins.extras.lang.typescript' },
-    { import = "lazyvim.plugins.extras.lang.json" },
+    { import = 'lazyvim.plugins.extras.lang.json' },
     -- { import = "lazyvim.plugins.extras.lang.markdown" },
-    { import = "lazyvim.plugins.extras.lang.rust" },
-    { import = "lazyvim.plugins.extras.lang.tailwind" },
-    { import = "lazyvim.plugins.extras.ai.copilot" },
+    { import = 'lazyvim.plugins.extras.lang.rust' },
+    { import = 'lazyvim.plugins.extras.lang.tailwind' },
+    { import = 'lazyvim.plugins.extras.ai.copilot' },
     -- { import = "lazyvim.plugins.extras.dap.core" },
     -- { import = "lazyvim.plugins.extras.vscode" },
-    { import = "lazyvim.plugins.extras.util.mini-hipatterns" },
+    { import = 'lazyvim.plugins.extras.util.mini-hipatterns' },
     -- { import = "lazyvim.plugins.extras.test.core" },
     -- { import = "lazyvim.plugins.extras.coding.yanky" },
     -- { import = "lazyvim.plugins.extras.editor.mini-files" },
     -- { import = "lazyvim.plugins.extras.util.project" },
-    { import = "plugins" },
+    { import = 'plugins' },
   },
   defaults = {
     lazy = false,
     version = false,
-  },
-  dev = {
-    path = "~/.ghq/github.com",
   },
   checker = { enabled = true },
   performance = {
@@ -55,21 +52,21 @@ require("lazy").setup({
     },
     rtp = {
       disabled_plugins = {
-        "gzip",
+        'gzip',
         -- "matchit",
         -- "matchparen",
-        "netrwPlugin",
-        "rplugin",
-        "tarPlugin",
-        "tohtml",
-        "tutor",
-        "zipPlugin",
+        'netrwPlugin',
+        'rplugin',
+        'tarPlugin',
+        'tohtml',
+        'tutor',
+        'zipPlugin',
       },
     },
   },
   ui = {
     custom_keys = {
-      ["<localleader>d"] = function(plugin)
+      ['<localleader>d'] = function(plugin)
         dd(plugin)
       end,
     },

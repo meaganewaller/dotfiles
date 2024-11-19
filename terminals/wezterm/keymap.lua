@@ -1,184 +1,84 @@
-local session = require("session")
-local wezterm = require("wezterm") --[[@as wezterm.WezTerm]]
-
+local wezterm = require("wezterm")
 local act = wezterm.action
+local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
+local utils = require("utils")
 
----@param config wezterm.Config
-return function(config)
-    config.disable_default_key_bindings = true
-    config.keys = {
-        {
-            key = "c",
-            mods = "CTRL|SHIFT",
-            action = act.CopyTo("Clipboard"),
-        },
-        {
-            key = "v",
-            mods = "CTRL|SHIFT",
-            action = act.PasteFrom("Clipboard"),
-        },
-        {
-            key = "p",
-            mods = "CTRL|SHIFT",
-            action = act.ActivateCommandPalette,
-        },
-        {
-            key = "+",
-            mods = "CTRL|SHIFT",
-            action = act.IncreaseFontSize,
-        },
-        {
-            key = "-",
-            mods = "CTRL|SHIFT",
-            action = act.DecreaseFontSize,
-        },
-        {
-            key = "s",
-            mods = "CTRL|SHIFT",
-            action = wezterm.action_callback(function(window, pane)
-                window:perform_action(
-                    act.PromptInputLine({
-                        description = "Input session name",
-                        action = wezterm.action_callback(function(_, _, name)
-                            if not name then
-                                window:toast_notification("Session", "cancel")
-                                return
-                            end
-                            session.save(name)
-                        end),
-                    }),
-                    pane
-                )
-            end),
-        },
-        {
-            key = "a",
-            mods = "CTRL",
-            action = act.ActivateKeyTable({ name = "tmux_keys", one_shot = true }),
-        },
-        {
-            key = "b",
-            mods = "CTRL",
-            action = act.SendKey({ key = "a", mods = "CTRL" }),
-        },
-    }
+local M = {}
 
-    config.key_tables = {
-        tmux_keys = {
-            -- pane
-            {
-                key = "z",
-                action = act.TogglePaneZoomState,
-            },
-            {
-                key = "x",
-                action = act.CloseCurrentPane({ confirm = true }),
-            },
-            {
-                key = "v",
-                action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-            },
-            {
-                key = "s",
-                action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
-            },
-            {
-                key = "h",
-                action = act.ActivatePaneDirection("Left"),
-            },
-            {
-                key = "j",
-                action = act.ActivatePaneDirection("Down"),
-            },
-            {
-                key = "k",
-                action = act.ActivatePaneDirection("Up"),
-            },
-            {
-                key = "l",
-                action = act.ActivatePaneDirection("Right"),
-            },
+M.general = {
+  {
+    key = "F11",
+    mods = "NONE",
+    action = act.ToggleFullScreen,
+  },
+  { key = "Space", mods = "CTRL", action = act.ActivateKeyTable({ name = "tmux", one_shot = true }) },
+  { key = "Enter", mods = "CTRL", action = wezterm.action({ SendString = "\x1b[13;5u" }) },
+  { key = "Enter", mods = "SHIFT", action = wezterm.action({ SendString = "\x1b[13;2u" }) },
+  { key = "v", mods = "CTRL|SHIFT", action = act.PasteFrom("Clipboard") },
+  { key = "c", mods = "CTRL|SHIFT", action = act.CopyTo("Clipboard") },
+  { key = "p", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
+  { key = "d", mods = "CTRL|SHIFT", action = act.ShowDebugOverlay },
+  { key = "w", mods = "CTRL|SHIFT", action = act.QuitApplication },
+  { key = "-", mods = "CTRL", action = act.DecreaseFontSize },
+  { key = "=", mods = "CTRL", action = act.IncreaseFontSize },
+  utils.split_nav("move", "h"),
+  utils.split_nav("resize", "h"),
+  utils.split_nav("move", "j"),
+  utils.split_nav("resize", "j"),
+  utils.split_nav("move", "k"),
+  utils.split_nav("resize", "k"),
+  utils.split_nav("move", "l"),
+  utils.split_nav("resize", "l"),
+}
 
-            {
-                key = "H",
-                action = act.Multiple({
-                    act.AdjustPaneSize({ "Left", 2 }),
-                    act.ActivateKeyTable({ name = "resize_pane", timeout_milliseconds = 600, one_shot = false, until_unknow = true }),
-                }),
-            },
-            {
-                key = "J",
-                action = act.Multiple({
-                    act.AdjustPaneSize({ "Down", 2 }),
-                    act.ActivateKeyTable({ name = "resize_pane", timeout_milliseconds = 600, one_shot = false, until_unknow = true }),
-                }),
-            },
-            {
-                key = "K",
-                action = act.Multiple({
-                    act.AdjustPaneSize({ "Up", 2 }),
-                    act.ActivateKeyTable({ name = "resize_pane", timeout_milliseconds = 600, one_shot = false, until_unknow = true }),
-                }),
-            },
-            {
-                key = "L",
-                action = act.Multiple({
-                    act.AdjustPaneSize({ "Right", 2 }),
-                    act.ActivateKeyTable({ name = "resize_pane", timeout_milliseconds = 600, one_shot = false, until_unknow = true }),
-                }),
-            },
-            -- tab
-            {
-                key = "c",
-                action = act.SpawnTab("CurrentPaneDomain"),
-            },
-            {
-                key = "1",
-                action = act.ActivateTab(0),
-            },
-            {
-                key = "2",
-                action = act.ActivateTab(1),
-            },
-            {
-                key = "3",
-                action = act.ActivateTab(2),
-            },
-            {
-                key = "4",
-                action = act.ActivateTab(3),
-            },
-            {
-                key = "5",
-                action = act.ActivateTab(4),
-            },
-            {
-                key = "6",
-                action = act.ActivateTab(5),
-            },
-            {
-                key = "7",
-                action = act.ActivateTab(6),
-            },
-        },
+M.tmux = {
+  -- tmux defaults
+  { key = "%", mods = "SHIFT", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = '"', mods = "SHIFT", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "(", mods = "SHIFT", action = act.SwitchWorkspaceRelative(-1) },
+  { key = ")", mods = "SHIFT", action = act.SwitchWorkspaceRelative(1) },
+  { key = "&", mods = "SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
+  {
+    key = "!",
+    mods = "SHIFT",
+    action = wezterm.action_callback(function(win, pane)
+      local tab, window = pane:move_to_new_tab()
+    end),
+  },
+  { key = "c", action = act.SpawnTab("CurrentPaneDomain") },
+  { key = "n", action = act.ActivateTabRelative(1) },
+  { key = "p", action = act.ActivateTabRelative(-1) },
+  { key = "x", action = act.CloseCurrentPane({ confirm = true }) },
+  { key = "z", action = act.TogglePaneZoomState },
+  { key = "Space", action = act.RotatePanes("Clockwise") },
+  { key = "[", action = act.ActivateCopyMode },
+  { key = "s", action = workspace_switcher.switch_workspace() },
+  { key = "r", action = act.ReloadConfiguration },
+  -- wezterm extras
+  { key = "/", action = act.Search("CurrentSelectionOrEmptyString") },
+  { key = "q", action = act.QuickSelect },
+  {
+    key = "i",
+    mods = "SHIFT",
+    action = wezterm.action_callback(function()
+      wezterm.plugin.update_all()
+    end),
+  },
+  {
+    key = "w",
+    action = wezterm.action.PromptInputLine({
+      description = "Enter workspace name",
+      action = wezterm.action_callback(function(window, pane, workspace)
+        if workspace and #workspace > 0 then
+          window:perform_action(wezterm.action.SwitchToWorkspace({ name = workspace }), pane)
+        end
+      end),
+    }),
+  },
+  {
+    key = "l",
+    action = act.ShowLauncherArgs({ flags = "FUZZY|LAUNCH_MENU_ITEMS" }),
+  },
+}
 
-        resize_pane = {
-            {
-                key = "H",
-                action = act.AdjustPaneSize({ "Left", 2 }),
-            },
-            {
-                key = "J",
-                action = act.AdjustPaneSize({ "Down", 2 }),
-            },
-            {
-                key = "K",
-                action = act.AdjustPaneSize({ "Up", 2 }),
-            },
-            {
-                key = "L",
-                action = act.AdjustPaneSize({ "Right", 2 }),
-            },
-        },
-    }
-end
+return M
