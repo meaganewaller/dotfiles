@@ -1,199 +1,220 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env sh
+#  ┬ ┬┌─┐┌┐ ┌─┐┬
+#  └┬┘├─┤├┴┐├─┤│
+#   ┴ ┴ ┴└─┘┴ ┴┴
+# Author: Meagan Waller
+# Github: github.com/meaganwaller
+# Dotfiles Repo: github.com/meaganewaller/dotfiles
+# Last edited: November 20th, 2024
 
-# sudo yabai --load-sa
-# yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+source "${HOME}"/.config/yabai/scripts/helper
 
-defaults write .GlobalPreferences com.apple.mouse.scaling -1
+# Signal Hooks
+yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
+yabai -m signal --add event=window_minimized active=yes action="if \$(yabai -m query --windows --window \$YABAI_WINDOW_ID | jq -r '.\"is-floating\"'); then yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null; fi"
+yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
+yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
+yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
 
-BAR_HEIGHT=$(sketchybar --query bar | jq -r '.height')
+BAR_HEIGHT=$(sketchybar -m --query bar | jq -r '.height')
+create_spaces 9
 
 GENERAL=(
-  external_bar all:"${BAR_HEIGHT}":0
-  split_type   auto
-  split_ratio  0.5
-  auto_balance off
+  external_bar          all:"${BAR_HEIGHT}":0
+  split_type            auto
+  split_ratio           0.5
+  auto_balance          off
 )
 
+
 WINDOWS=(
+  window_origin_display     focused
   window_placement          second_child
+  window_zoom_persist       on
   window_topmost            off
   window_shadow             float
-  window_opacity            on
+  window_opacity            off
+  window_opacity_duration   0.25
   active_window_opacity     0.97
-  normal_window_opacity     0.92
-  window_animation_duration 0.25
-  window_origin_display     focused
-  window_opacity_duration   0.15
+  normal_window_opacity     0.75
+)
+
+BORDERS=(
+  window_border        on
+  window_border_hidpi  off
+  window_border_blur   off
+  window_border_width  4
+  window_border_radius 12
+   # active_window_border_color 0xff7793d1
+   # normal_window_border_color 0xff5e6798
+   # insert_feedback_color      0xff7793d1
 )
 
 LAYOUT=(
   layout         bsp
-  top_padding    15
-  bottom_padding 15
-  left_padding   15
-  right_padding  15
-  window_gap     15
+  top_padding    20
+  bottom_padding 20
+  left_padding   20
+  right_padding  20
+  window_gap     10
 )
 
 MOUSE=(
-  mouse_modifier      ctrl
-  mouse_action1       move
-  mouse_action2       resize
-  mouse_action3       swap
-  mouse_follows_focus off
-  focus_follows_mouse off
+ mouse_modifier      alt
+ mouse_action1       move
+ mouse_action2       resize
+ mouse_drop_action   swap
+ focus_follows_mouse autofocus
+ mouse_follows_focus off
 )
 
 yabai -m config "${GENERAL[@]}"
 yabai -m config "${WINDOWS[@]}"
+yabai -m config "${BORDERS[@]}"
 yabai -m config "${LAYOUT[@]}"
 yabai -m config "${MOUSE[@]}"
 
 LABELS=(
-  browser
-  terminal
-  notes
-  social
-  productivity
-  music
+  main
+  code
+  chat
+  mail
+  gtd
+  doc
+  media
+  tool
+  scratch
 )
 
-yabai -m config --space 6 layout float
-
-# Web Browsers
-yabai -m rule --add app="^Google Chrome|Safari|Brave Browser$" space=1
-
-# Terminal
-yabai -m rule --add app="^(iTerm2|Terminal|Alacritty|kitty|WezTerm)$" space=2
-
-# Notes
-yabai -m rule --add app="^(Notion|Obsidian|Notes|Reminders|Craft)$" space=3
-
-# Social
-yabai -m rule --add app="^(WhatsApp|Messages|Slack|Discord|Signal|Zoom)$" space=4
-
-# Productivity
-yabai -m rule --add app="^(Mail|Keynote|Numbers|Pages|Calendar|Fantastical|Drafts|Things)$" space=5
-
-# Music
-yabai -m rule --add app="^(Music|Spotify)$" space=6
-
-# apps to not manage (ignore)
-yabai -m rule --add app="^(Finder|System Settings|Archive Utility|Creative Cloud|Logi Options|Raycast|Bitwarden|CleanMyMac X|Karabiner-Elements|Karabiner-EventViewer|Setapp|Stats|ClearVPN|DBngin|FaceTime|Loom|Tape|Alfred|Raycast|Installer|Docker)$" manage=off
-
-echo "yabai configuration loaded.."
-
-
-for ((i = 1; i <= "${#LABELS[@]}"; i++)); do
+for ((i=1; i <= "${#LABELS[@]}"; i++)); do
   yabai -m space "${i}" --label "${LABELS[(($i - 1))]}"
 done
 
-yabai -m config --space social layout stack window_opacity off
-yabai -m config --space mail layout stack window_opacity off
-yabai -m config --space media layout stack window_opacity off
-yabai -m config --space misc layout float
-
+yabai -m config --space chat    layout stack window_opacity off
+yabai -m config --space media   layout stack window_opacity off
+yabai -m config --space scratch layout float
+yabai -m config --space tool    layout float
+yabai -m config --space mail    window_opacity off \
+  left_padding 210 \
+  right_padding 210
 
 UNMANAGED=(
   Activity Monitor
+  Alfred
   App Store
   Archive Utility
-  Authy
   Calculator
-  Calendar
   Dictionary
-  Discord
-  Docker
   FaceTime
-  Finder
-  Mail
-  Messages
-  Messenger
-  Notes
   Photo Booth
-  Raycast
-  Raycast Preferences
+  Preferences
+  Python
+  ScanSnap
   Screen Sharing
   Screens
-  Signal
-  Slack
   Software Update
-  Spark
-  Spotify
   Stats
   System Information
   System Preferences
   System Settings
-  Telegram
-  Thunderbird
   VLC
   Vimac
   iStat Menus
-  zoom.us
-  Zoom
 )
 
 for ((i = 1; i <= "${#UNMANAGED[@]}"; i++)); do
-  yabai -m rule --add label="unmanage_${UNMANAGED[(($i - 1))]}" app="^${UNMANAGED[(($i - 1))]}.*$" manage=off
+ yabai -m rule --add label="unmanage_${UNMANAGED[(($i - 1))]}" app="^${UNMANAGED[(($i - 1))]}.*$" manage=off border=off
 done
 
-# Exclude problematic apps from being managed
+yabai -m rule --add label="ColorSlurp" app="^ColorSlurp$" sticky=true layer=above manage=off
+yabai -m rule --add app="zoom.us" manage=off
+
+# Exclude problematic apps from being managed:
 yabai -m rule --add label="Finder" app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
 yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
-yabai -m rule --add label="Select file to save to" app="^Inkscape$" title="Select file to save to" manage=off
 
-SOCIAL=(
-  Discord
-  FaceTime
+CHAT=(
   Messages
-  Messenger
-  Signal
   Slack
+  Discord
+  Messenger
   Telegram
+  Signal
 )
 
-for ((i = 1; i <= "${#SOCIAL[@]}"; i++)); do
-  yabai -m rule --add label="social_${SOCIAL[(($i - 1))]}" app="^${SOCIAL[(($i - 1))]}.*$" space=social
+for ((i = 1; i <= "${#CHAT[@]}"; i++)); do
+ yabai -m rule --add label="chat_${CHAT[(($i - 1))]}" app="^${CHAT[(($i - 1))]}.*$" space=chat
 done
+
 
 MAIL=(
   Mail
   Thunderbird
-  Canary
   Spark
+  MailSpring
 )
-
 for ((i = 1; i <= "${#MAIL[@]}"; i++)); do
-  yabai -m rule --add label="mail_${MAIL[(($i - 1))]}" app="^${MAIL[(($i - 1))]}.*$" space=mail
+ yabai -m rule --add label="mail_${MAIL[(($i - 1))]}" app="^${MAIL[(($i - 1))]}.*$" space=mail
 done
 
+STICKY=(
+  # 1Password
+  System Preferences
+  System Settings
+)
+
+for ((i = 1; i <= "${#STICKY[@]}"; i++)); do
+ yabai -m rule --add label="sticky_${STICKY[(($i - 1))]}" app="^${STICKY[(($i - 1))]}.*$" sticky=on
+done
+
+CENTERED=(
+  1Password
+)
+
+for ((i = 1; i <= "${#CENTERED[@]}"; i++)); do
+ yabai -m rule --add label="centered_${CENTERD[(($i - 1))]}" app="^${CENTERED[(($i - 1))]}.*$" sticky=on grid=4:4:1:0:2:4
+done
+
+
 MEDIA=(
-  Music
-  Plex
-  Spotify
-  VLC
+ Music
+ Plex
+ Spotify
+ VLC
+  mpv
 )
 
 for ((i = 1; i <= "${#MEDIA[@]}"; i++)); do
-  yabai -m rule --add label="media_${MEDIA[(($i - 1))]}" app="^${MEDIA[(($i - 1))]}.*$" space=media
+ yabai -m rule --add label="media_${MEDIA[(($i - 1))]}" app="^${MEDIA[(($i - 1))]}.*$" space=media
 done
 
-# Notes
-NOTES=(
-	Notes
-	Reminders
-	Calendar
-	Fantastical
+GTD=(
+  Things
+ Notes
+ Reminders
+ Calendar
+ Fantastical
 )
 
-for ((i = 1; i <= "${#NOTES[@]}"; i++)); do
-	yabai -m rule --add label="notes_${NOTES[(($i - 1))]}" app="^${NOTES[(($i - 1))]}.*$" space=notes
+for ((i = 1; i <= "${#GTD[@]}"; i++)); do
+ yabai -m rule --add label="gtd_${GTD[(($i - 1))]}" app="^${GTD[(($i - 1))]}.*$" space=gtd
 done
 
-yabai -m signal --add event=window_destroyed active=yes action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id) &> /dev/null"
-yabai -m signal --add event=window_destroyed action="echo \"destroyed window with id \$YABAI_WINDOW_ID\""
-yabai -m signal --add event=space_changed action="echo \"changed space \$YABAI_RECENT_SPACE_ID -> \$YABAI_SPACE_ID\""
-yabai -m signal --add event=space_changed action="yabai -m window --focus \$(yabai -m query --windows --space | jq .[0].id)"
+DOC=(
+  Notion
+  Obsidian
+)
 
-echo "yabai configuration loaded.."
+for ((i = 1; i <= "${#DOC[@]}"; i++)); do
+ yabai -m rule --add label="doc_${DOC[(($i - 1))]}" app="^${DOC[(($i - 1))]}.*$" space=doc
+done
+
+TOOL=(
+  Beekeeper Studio Ultimate
+  Postman
+  Postico
+)
+for ((i = 1; i <= "${#TOOL[@]}"; i++)); do
+ yabai -m rule --add label="tool_${TOOL[(($i - 1))]}" app="^${TOOL[(($i - 1))]}.*$" space=tool
+done
