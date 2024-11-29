@@ -1,0 +1,10 @@
+- create:
+    - '~/.config/spicetify'
+- clean:
+    - '~/.config/spicetify'
+
+- link:
+    ~/.config/spicetify:
+      force: true
+      path: .config/spicetify
+      glob: true

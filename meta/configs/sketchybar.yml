@@ -2,7 +2,7 @@
 - brew: [sketchybar]
 
 - link:
-    ~/.config/sketchybar: os/macos/sketchybar
+    ~/.config/sketchybar: .config/sketchybar
 
 - shell:
     - description: Setting sketchybar scripts to executable

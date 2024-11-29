@@ -1,0 +1,36 @@
+source ~/.gusto/init.sh
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+
+setopt notify
+unsetopt autocd beep extendedglob
+unsetopt BANG_HIST
+bindkey -e
+
+zstyle :compinstall filename ~/.zshrc
+
+autoload -Uz compinit
+compinit
+
+# Case insensitive completion
+zstyle ":completion:*" matcher-list "" "m:{[:lower:][:upper:]}={[:upper:][:lower:]}" \
+       "+l:|?=** r:|?=**"
+
+# load module for list-style selection
+zmodload zsh/complist
+
+# use the module above for autocomplete selection
+zstyle ":completion:*" menu select=0 search
+eval "$(/opt/homebrew/bin/mise activate zsh)"
+
+# pnpm
+export PNPM_HOME="/Users/meagan.waller/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+source ~/.gusto/init.sh

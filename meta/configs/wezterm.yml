@@ -2,4 +2,4 @@
     ~/.config/wezterm:
       relink: true
       glob: true
-      path: terminals/wezterm/*
+      path: .config/wezterm/*

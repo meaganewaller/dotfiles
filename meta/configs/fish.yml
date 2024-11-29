@@ -1,2 +1,2 @@
 - link:
-    ~/.config/fish: shells/fish
+    ~/.config/fish: .config/fish

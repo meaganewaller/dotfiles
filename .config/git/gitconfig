@@ -1,0 +1,107 @@
+[alias]
+	aliases = config --get-regexp alias
+	amend = commit --amend --reuse-head=HEAd
+	autofixup = "!f() { COMMIT=$(git log --pretty=oneline | fzf | awk '{print $1}'); git commit --fixup $COMMIT; GIT_SEQUENCE_EDITOR=: git rebase --autostash --autosquash -i $COMMIT^; }; f"
+	changelog = "!_() { t=$(git describe --abbrev=0 --tags); git log ${t}..HEAD --no-merges --pretty=format:'* %s'; }; _"
+	cm = "!f() { git commit -a -m \"$*\" ; }; f"
+	cm = commit -m
+	co = checkout
+	conflicts = diff --name-only --diff-filter=U
+	d = !git --no-pager diff
+	dt = difftool
+	f = !"pr() { git fetch origin pull/$1/head:pr-$1; git checkout pr-$1; }; pr"
+	files = !git diff --name-only $(git merge-base HEAD \"$REVIEW_BASE\")
+	fixup = "!f() { SHA=`git rev-parse "$1"`; git commit --fixup "$SHA" && GIT_SEQUENCE_EDITOR=true git rebase --interactive --autosquash "$SHA^"; }; f"
+	fo = fetch origin
+	gl = config --global -l
+	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+	last = log -1 HEAD --stat
+	lg = log --graph --all --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)%an%Creset %C(yellow)%d%Creset'
+	ll = log --oneline
+	m = checkout main
+	pf = push --force-with-lease
+	pr =!git commit --amend --reuse-message=HEAD --no-edit && git push --force-with-lease
+	project-summary = !which onefetch && onefetch
+	rebase-branch = "!r() { git rebase -i HEAD~$1; }; r"
+	rv = remote -v
+	save = "!git add -A && git commit -m 'SAVEPOINT'"
+	se = !git rev-list --all | xargs git\\grep -F
+	search = !git rev-list --all | xargs git \\grep -F
+	st = status -sb
+	summary = "!which onefetch && onefetch; tokei"
+	sync = !git fetch origin && git rebase --interactive origin/main
+	sweep = !git branch --merged main | grep -v 'main$' | xargs git branch -d && git remote prune origin
+	undo = reset HEAD~1 --mixed
+	unpushed = log --branches --not --remotes --no-walk --decorate --oneline
+	unstage = reset HEAD --
+	up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+	upstream = "!git branch --set-upstream-to=origin/$(git rev-parse --abbrev-ref HEAD) $(git rev-parse --abbrev-ref HEAD)"
+	whoami = config user.email
+	wipe = "!git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard"
+[merge]
+	ff = only
+[branch]
+	autosetupmerge = true
+[init]
+	defaultBranch = main
+[commit]
+	template = ~/.gitmessage
+[fetch]
+	recurseSubmodules = on-demand
+	prune = true
+[grep]
+	break = true
+	heading = true
+	lineNumber = true
+	extendedRegexp = true
+[help]
+	autocorrect = 20
+[hub]
+	protocol = ssh
+[credential]
+	helper = osxkeychain
+[color]
+	ui = true
+	status = true
+	branch = true
+	diff = true
+	interactive = true
+[color "branch"]
+	current = green
+	remote = yellow
+	upstream = cyan
+[status]
+	showUntrackedFiles = all
+[log]
+	abbrevCommit = true
+	follow = true
+	decorate = true
+	date = relative
+[diff]
+	algorithm = patience
+	indentHeuristic = true
+[merge]
+	ff = false
+[push]
+	default = tracking
+	autoSetupRemote = true
+[pull]
+	ff = only
+	rebase = true
+[rebase]
+	autoStash = true
+[core]
+  excludesFile = ~/.gitignore-global
+  attributesFile = ~/.gitattributes
+  hooksPath = ~/.config/git/hooks
+[include]
+  path = ~/.gitconfig-local
+[user]
+	name = Meagan Waller
+	email = meagan.waller@gusto.com
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential

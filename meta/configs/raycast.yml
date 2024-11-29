@@ -13,4 +13,4 @@
         -c "Add :AppleSymbolicHotKeys:64:type string standard"
 
 - link:
-    ~/.config/raycast/raycast.rayconfig: os/macos/raycast/raycast.rayconfig
+    ~/.config/raycast/raycast.rayconfig: .config/raycast/raycast.rayconfig

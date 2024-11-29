@@ -1,11 +1,11 @@
-PIP_FILE = File.expand_path("../../tools/package-managers/asdf/default-python-packages", __dir__)
-PNPM_FILE = File.expand_path("../../tools/package-managers/asdf/default-pnpm-packages", __dir__)
-GEMS_FILE = File.expand_path("../../tools/package-managers/asdf/default-gems", __dir__)
+PIP_FILE = File.expand_path("../../tools/package-managers/mise/default-python-packages", __dir__)
+PNPM_FILE = File.expand_path("../../tools/package-managers/mise/default-pnpm-packages", __dir__)
+GEMS_FILE = File.expand_path("../../tools/package-managers/mise/default-gems", __dir__)
 FONT_PATH = File.expand_path("../../fonts/", __dir__)
 
-PIP_FILE_BACKUP = File.expand_path("../../tools/package-managers/asdf/default-python-packages.bak", __dir__)
-PNPM_FILE_BACKUP = File.expand_path("../../tools/package-managers/asdf/default-pnpm-packages.bak", __dir__)
-GEMS_FILE_BACKUP = File.expand_path("../../tools/package-managers/asdf/default-gems.bak", __dir__)
+PIP_FILE_BACKUP = File.expand_path("../../tools/package-managers/mise/default-python-packages.bak", __dir__)
+PNPM_FILE_BACKUP = File.expand_path("../../tools/package-managers/mise/default-pnpm-packages.bak", __dir__)
+GEMS_FILE_BACKUP = File.expand_path("../../tools/package-managers/mise/default-gems.bak", __dir__)
 
 namespace :backup do
   desc 'Backup PIP files'
@@ -50,57 +50,59 @@ namespace :install do
     end
   end
 
-  desc 'Install asdf'
-  task :asdf do
-    section 'Installing asdf package manager'
+  desc 'Install mise'
+  task :mise do
+    section 'Installing mise package manager'
 
-    unless system('which asdf')
-      log_info("asdf is not installed. Proceeding with installation...")
-      run %( /bin/bash git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1)
-      log_success("asdf installation completed successfully.")
+    unless system('which mise')
+      log_info("mise is not installed. Proceeding with installation...")
+      run %( /bin/bash curl https://mise.jdx.dev/mise-latest-macos-arm64 > ~/.local/bin/mise )
+      log_success("mise installation completed successfully.")
     else
-      log_warning("asdf is already installation. Skipping installation...")
+      log_warning("mise is already installed. Skipping installation...")
     end
 
     log_info "~> Updating fish config"
-    File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts "source ~/.asdf/asdf.fish" }
+    File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts "mise activate fish | source" }
 
-    log_info '~> Adding asdf completions to fish'
+    log_info '~> Adding mise completions to fish'
     run %( mkdir -p ~/.config/fish/completions );
 
-    run %( ln -s ~/.asdf/completions/asdf.fish ~/.config/fish/completions);
+    run %( mise use -g usage )
+    run %( mise completion fish > ~/.config/fish/completions/mise.fish)
+
+    log_success("mise completions installed")
   end
 
-  namespace :asdf do
-    desc 'Install asdf plugins'
-    task :plugins do
-      section "Installing asdf plugins"
+  namespace :mise do
+    desc 'Install mise packages'
+    task :packages do
+      section "Installing mise packages"
 
-      run %( asdf plugin add python )
-      run %( asdf install python 2.7.18 )
-      run %( asdf install python 3.10.0 )
-      run %( asdf global python 3.10.0 2.7.18 )
-      run %( ~/.asdf/shims/python -m pip install --upgrade pip )
-      run %( ~/.asdf/shims/python -m pip install pynvim )
-      run %( ~/.asdf/shims/python2 -m pip install --upgrade pip )
-      run %( ~/.asdf/shims/python2 -m pip install pynvim )
-
-      run %( asdf plugin add ruby )
-      run %( asdf install ruby 3.1.1 )
-      run %( asdf global ruby 3.1.1 )
-
-      run %( asdf plugin add lua )
-      run %( asdf install lua 5.4.3 )
-      run %( asdf global lua 5.4.3 )
-
-      run %( asdf plugin add postgres )
-      run %( asdf install postgres 14.0 )
-      run %( asdf global postgres 14.0 )
-      run %( ~/.asdf/installs/postgres/14.0/bin/pg_ctl -D ~/.asdf/installs/postgres/14.0/data -l logfile start )
-
-      run %( asdf plugin add nodejs )
-      run %( asdf install nodejs latest )
-      run %( asdf global nodejs latest )
+      # run %( mise install python 2.7.18 )
+      # run %( mise install python 3.10.0 )
+      # run %( mise global python 3.10.0 2.7.18 )
+      # run %( ~/.mise/shims/python -m pip install --upgrade pip )
+      # run %( ~/.asdf/shims/python -m pip install pynvim )
+      # run %( ~/.asdf/shims/python2 -m pip install --upgrade pip )
+      # run %( ~/.asdf/shims/python2 -m pip install pynvim )
+      #
+      # run %( asdf plugin add ruby )
+      # run %( asdf install ruby 3.1.1 )
+      # run %( asdf global ruby 3.1.1 )
+      #
+      # run %( asdf plugin add lua )
+      # run %( asdf install lua 5.4.3 )
+      # run %( asdf global lua 5.4.3 )
+      #
+      # run %( asdf plugin add postgres )
+      # run %( asdf install postgres 14.0 )
+      # run %( asdf global postgres 14.0 )
+      # run %( ~/.asdf/installs/postgres/14.0/bin/pg_ctl -D ~/.asdf/installs/postgres/14.0/data -l logfile start )
+      #
+      # run %( asdf plugin add nodejs )
+      # run %( asdf install nodejs latest )
+      # run %( asdf global nodejs latest )
     end
   end
 
@@ -116,10 +118,10 @@ namespace :install do
     section 'Installing Neovim'
 
     time = Time.new.strftime('%s')
-    run %( asdf plugin add neovim )
-    run %( asdf install neovim nightly )
-    run %( rm -rf /usr/local/bin/nvim )
-    run %( rm -rf /usr/local/share/nvim )
+    # run %( asdf plugin add neovim )
+    # run %( asdf install neovim nightly )
+    # run %( rm -rf /usr/local/bin/nvim )
+    # run %( rm -rf /usr/local/share/nvim )
   end
 
   desc 'Install Vim plugins'
@@ -321,7 +323,7 @@ namespace :update do
   task :servers do
     section 'Updating servers'
 
-    run %( asdf plugin update --all )
+    # run %( asdf plugin update --all )
   end
 
   desc 'Update writing tools'

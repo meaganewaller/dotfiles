@@ -1,4 +1,4 @@
 - link:
     ~/.config/lf:
       glob: true
-      path: tools/file-managers/lf
+      path: .config/lf

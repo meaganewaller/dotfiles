@@ -1,6 +1,6 @@
 - link:
     ~/.config/nvim:
-      create: true
-      relink: true
-      glob: true
-      path: editors/nvim/*
+        create: true
+        relink: true
+        glob: true
+        path: .config/nvim

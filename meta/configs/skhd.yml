@@ -2,7 +2,7 @@
   brew: [jq, skhd]
 
 - link:
-    ~/.skhdrc: os/macos/skhd/skhdrc
+    ~/.skhdrc: .config/skhd/skhdrc
 
 - shell:
     - description: Starting skhd

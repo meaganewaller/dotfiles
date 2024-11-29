@@ -1,7 +1,7 @@
 - link:
-    ~/.local/bin/color-mode: bin/color-mode
-    ~/.color_mode: bin/color_mode
-    ~/.local/bin/color_mode.py: bin/color_mode.py
+    ~/.local/bin/color-mode: .local/bin/color-mode
+    ~/.color_mode: .local/bin/color_mode
+    ~/.local/bin/color_mode.py: .local/bin/color_mode.py
 
 - shell:
     - description: Setting bin scripts to executable

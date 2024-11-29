@@ -1,7 +1,7 @@
 - brew: [yabai]
 
 - link:
-    ~/.yabairc: os/macos/yabai/yabairc
+    ~/.yabairc: .config/yabai/yabairc
 
 - shell:
     - description: Starting yabai services

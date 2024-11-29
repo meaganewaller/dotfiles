@@ -3,4 +3,4 @@
 - link:
     ~/.bashrc:
       force: true
-      path: shells/bash/bashrc
+      path: .config/bash/bashrc

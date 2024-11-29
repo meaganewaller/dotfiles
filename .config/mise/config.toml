@@ -1,0 +1,33 @@
+[settings]
+experimental = false
+legacy_version_file = true
+always_keep_download = false
+always_keep_install = false
+plugin_autoupdate_last_check_duration = '1 week'
+trusted_config_paths = ['~/workspace', '~/.dotfiles', '~/dev']
+verbose = false
+asdf_compat = false
+jobs = 4
+raw = false
+yes = false
+not_found_auto_install = true
+task_output = "prefix"
+paranoid = false
+shorthands_file = '~/.config/mise/shorthands.toml'
+disable_default_shorthands = false
+env_file = '.env'
+status = { missing_tools = "if_other_versions_installed", show_env = false, show_tools = false }
+cargo_binstall = true
+pipx_uvx = true
+
+[tools]
+bun = "latest"
+deno = "latest"
+go = "latest"
+node = "latest"
+pnpm = "latest"
+python = "latest"
+ruby = "latest"
+neovim = "nightly"
+rust = "latest"
+watchexec = "latest"
