@@ -33,7 +33,7 @@ task :install do
     section 'Installing'
 
     Rake::Task['install:dotbot'].invoke
-    Rake::Task['install:asdf'].invoke
+    Rake::Task['install:mise'].invoke
 
     if macos?
       Rake::Task['install:brew'].invoke

@@ -1,3 +1,0 @@
-# Terminal options
-
-stty -ixon
