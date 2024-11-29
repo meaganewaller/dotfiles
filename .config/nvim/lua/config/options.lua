@@ -1,47 +1,61 @@
-vim.g.mapleader = ' '
+local go = vim.g
+local o = vim.opt
 
-vim.opt.encoding = 'utf-8'
-vim.opt.fileencoding = 'utf-8'
+-- Optimizations on startup
+vim.loader.enable()
 
-vim.opt.number = true
+-- Personal Config and LazyVim global options
+go.lualine_info_extras = false
+go.codeium_cmp_hide = false
+go.lazygit_config = false
 
-vim.opt.title = true
-vim.opt.autoindent = true
-vim.opt.smartindent = true
-vim.opt.hlsearch = true
-vim.opt.backup = false
-vim.opt.showcmd = true
-vim.opt.cmdheight = 1
-vim.opt.laststatus = 3
-vim.opt.expandtab = true
-vim.opt.scrolloff = 10
-vim.opt.shell = 'fish'
-vim.opt.backupskip = { '/tmp/*', '/private/tmp/*' }
-vim.opt.inccommand = 'split'
-vim.opt.ignorecase = true -- Case insensitive searching UNLESS /C or capital in search
-vim.opt.smarttab = true
-vim.opt.breakindent = true
-vim.opt.shiftwidth = 2
-vim.opt.tabstop = 2
-vim.opt.wrap = false -- No Wrap lines
-vim.opt.backspace = { 'start', 'eol', 'indent' }
-vim.opt.path:append({ '**' }) -- Finding files - Search down into subfolders
-vim.opt.wildignore:append({ '*/node_modules/*' })
-vim.opt.splitbelow = true -- Put new windows below current
-vim.opt.splitright = true -- Put new windows right of current
-vim.opt.splitkeep = 'cursor'
-vim.opt.mouse = ''
+-- Define leader key
+go.mapleader = ' '
+go.maplocalleader = '\\'
 
--- Undercurl
-vim.cmd([[let &t_Cs = "\e[4:3m"]])
-vim.cmd([[let &t_Ce = "\e[4:0m"]])
+-- Autoformat on save (Global)
+go.autoformat = true
 
--- Add asterisks in block comments
-vim.opt.formatoptions:append({ 'r' })
+-- Font
+go.gui_font_default_size = 10
+go.gui_font_size = go.gui_font_default_size
+go.gui_font_face = 'JetBrainsMono Nerd Font'
 
-vim.cmd([[au BufNewFile,BufRead *.astro setf astro]])
-vim.cmd([[au BufNewFile,BufRead Podfile setf ruby]])
+-- Enable EditorConfig integration
+go.editorconfig = true
 
-if vim.fn.has('nvim-0.8') == 1 then
-  vim.opt.cmdheight = 0
+-- Root dir detection
+go.root_spec = {
+  'lsp',
+  {
+    '.git',
+    'lua',
+    '.obsidian',
+    'package.json',
+    'Makefile',
+    'go.mod',
+    'cargo.toml',
+    'pyproject.toml',
+    'src',
+  },
+  'cwd',
+}
+
+-- Disable annoying cmd line stuff
+o.showcmd = false
+o.laststatus = 3
+o.cmdheight = 0
+
+-- Enable spell checking
+o.spell = true
+
+-- Backspacing and indentation when wrapping
+o.backspace = { 'start', 'eol', 'indent' }
+o.breakindent = true
+
+-- Smoothscroll
+if vim.fn.has('nvim-0.10') == 1 then
+  o.smoothscroll = true
 end
+
+o.conceallevel = 2
