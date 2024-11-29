@@ -214,4 +214,34 @@ return {
   {
     'mrjones2014/smart-splits.nvim',
   },
+
+  {
+    'smoka7/hop.nvim',
+    version = '*', -- or a tag
+    init = function()
+      require('hop').setup({})
+    end,
+  },
+
+  {
+    's1n7ax/nvim-window-picker',
+    name = 'window-picker',
+    -- event = "VeryLazy",
+    version = '2.*',
+    config = function()
+      require('window-picker').setup({
+        hint = 'floating-big-letter',
+      })
+    end,
+  },
+
+  {
+    'otavioschwanck/arrow.nvim',
+    lazy = false,
+    opts = {
+      show_icons = true,
+      leader_key = '\\', -- Recommended to be a single key
+      buffer_leader_key = 'm', -- Per Buffer Mappings
+    },
+  },
 }

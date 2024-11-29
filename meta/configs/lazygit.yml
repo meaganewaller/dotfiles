@@ -1,0 +1,10 @@
+- brew: [lazygit]
+
+- create:
+    - $HOME/.config/lazygit
+
+- clean:
+    - $HOME/.config/lazygit
+
+- link:
+    ~/.config/lazygit: .config/lazygit

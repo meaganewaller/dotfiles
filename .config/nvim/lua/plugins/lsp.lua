@@ -4,15 +4,24 @@ return {
     'williamboman/mason.nvim',
     opts = function(_, opts)
       vim.list_extend(opts.ensure_installed, {
-        'stylua',
-        'selene',
+        'bash-language-server',
+        'clojure-lsp',
+        'cmake-language-server',
+        'css-lsp',
+        'html-lsp',
+        'json-lsp',
+        'lua-language-server',
         'luacheck',
+        'marksman',
+        'prettier',
+        'ruby-lsp',
+        'selene',
         'shellcheck',
         'shfmt',
+        'stylua',
         'tailwindcss-language-server',
         'typescript-language-server',
-        'css-lsp',
-        'ruby-lsp',
+        'vim-language-server',
       })
     end,
   },
@@ -28,7 +37,6 @@ return {
       },
     },
   },
-  { 'Bilal2453/luvit-meta', lazy = true }, -- optional `vim.uv` typings
   { -- optional cmp completion source for require statements and module annotations
     'hrsh7th/nvim-cmp',
     opts = function(_, opts)
@@ -116,6 +124,9 @@ return {
                 semicolon = 'Disable',
                 arrayIndex = 'Disable',
               },
+              inlay_hints = {
+                enabled = true,
+              },
               doc = {
                 privateName = { '^_' },
               },
@@ -123,6 +134,7 @@ return {
                 castNumberToInteger = true,
               },
               diagnostics = {
+                virtual_text = true,
                 disable = { 'incomplete-signature-doc', 'trailing-space' },
                 -- enable = false,
                 groupSeverity = {
@@ -175,6 +187,16 @@ return {
           has = 'definition',
         },
       })
+    end,
+  },
+
+  {
+    'MysticalDevil/inlay-hints.nvim',
+    event = 'LspAttach',
+    dependencies = { 'neovim/nvim-lspconfig' },
+    config = function()
+      local inlay_hints = require('inlay-hints')
+      inlay_hints.setup()
     end,
   },
 }

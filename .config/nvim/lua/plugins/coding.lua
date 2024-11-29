@@ -94,4 +94,22 @@ return {
       table.insert(opts.sources, { name = 'emoji' })
     end,
   },
+
+  -- Markdown preview
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    build = 'cd app && yarn install',
+    init = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+    end,
+    ft = { 'markdown' },
+  },
+
+  {
+    'rmagatti/goto-preview',
+    opts = {
+      default_mappings = true,
+    },
+  },
 }

@@ -1,0 +1,4 @@
+- brew: [fd]
+
+- link:
+  ~/.config/fd: .config/fd
