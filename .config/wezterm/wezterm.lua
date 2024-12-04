@@ -8,9 +8,9 @@ local quick_domains = wezterm.plugin.require("https://github.com/DavidRR-F/quick
 
 local c = {}
 if wezterm.config_builder then
-  c = wezterm.config_builder()
+	c = wezterm.config_builder()
 end
-c.default_prog = { "/opt/homebrew/bin/fish", "-l" }
+c.default_prog = { "/opt/homebrew/bin/zsh", "-l" }
 c.default_workspace = "main"
 c.disable_default_key_bindings = true
 c.enable_wayland = false
@@ -18,10 +18,10 @@ c.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
 c.keys = keys.general
 c.key_tables = { tmux = keys.tmux }
 c.launch_menu = {
-  { label = "󰊢 GitHub Dashboard", args = { "gh", "dash" } },
-  { label = " Lazy Docker", args = { "lazydocker" } },
-  { label = "󱃾 K9S", args = { "k9s" } },
-  { label = "󰻫 Yazi", args = { "yazi" } },
+	{ label = "󰊢 GitHub Dashboard", args = { "gh", "dash" } },
+	{ label = " Lazy Docker", args = { "lazydocker" } },
+	{ label = "󱃾 K9S", args = { "k9s" } },
+	{ label = "󰻫 Yazi", args = { "yazi" } },
 }
 
 ui.apply_to_config(c)

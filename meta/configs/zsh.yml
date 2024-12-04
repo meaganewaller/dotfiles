@@ -1,4 +1,4 @@
+- create:
+    - ~/.config/zsh
 - link:
-    ~/.zshrc:
-      force: true
-      path: .config/zsh/zshrc
+    ~/.zshrc: .config/zsh/zshrc
