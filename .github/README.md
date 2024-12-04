@@ -25,7 +25,7 @@
 
 # 🌷 <sup><sub><samp> welcome to my dotfiles! </samp></sub></sup>
 
-<img style="z-index: 100;" alt="Screenshot of my desktop in lightmode" align="right" width="450px" height="188px" src="meta/assets/lightmode.png"/>
+<img style="z-index: 100;" alt="Screenshot of my desktop in lightmode" align="right" width="450px" height="188px" src="../meta/assets/lightmode.png"/>
 
 My fully automated dev environment is built to ✨spark joy✨. Aesthetics **and** performance are prioritized.
 
@@ -61,6 +61,7 @@ I update this constantly with poor git habits. There are no guarantees of stabil
 > It's highly recommended that you dig into the configs yourself. It's _not_ the best habit to install mine--A Stranger's--shell scripts. But also, you do you.
 
 ### <samp>INSTALLING</samp>
+
 ### :blossom: ‎ <samp>INSTALLATION ([DEPENDENCIES](./REPOLOGY.md))</samp>
 
 **1. Clone the dotfiles repository:**
@@ -78,7 +79,6 @@ The rabbit hole awaits.
 💲 cd ~/.dotfiles
 ```
 
-
 Welcome to the rabbit hole. You can't go back now. This is where the magic happens. And the magic is a Rakefile.
 
 **3. Run the installation script:**
@@ -95,7 +95,9 @@ great responsibility, or whatever uncle ben said.
 </div>
 
 ## ⌨️<samp>KEY BINDINGS</samp>
+
 Coming soon
 
 ## 🧭 <samp>GUIDES</samp>
+
 Coming soon
