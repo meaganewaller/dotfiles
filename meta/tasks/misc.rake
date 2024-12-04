@@ -1,11 +1,13 @@
-PIP_FILE = File.expand_path("../../tools/package-managers/mise/default-python-packages", __dir__)
-PNPM_FILE = File.expand_path("../../tools/package-managers/mise/default-pnpm-packages", __dir__)
-GEMS_FILE = File.expand_path("../../tools/package-managers/mise/default-gems", __dir__)
-FONT_PATH = File.expand_path("../../fonts/", __dir__)
+# frozen_string_literal: true
 
-PIP_FILE_BACKUP = File.expand_path("../../tools/package-managers/mise/default-python-packages.bak", __dir__)
-PNPM_FILE_BACKUP = File.expand_path("../../tools/package-managers/mise/default-pnpm-packages.bak", __dir__)
-GEMS_FILE_BACKUP = File.expand_path("../../tools/package-managers/mise/default-gems.bak", __dir__)
+PIP_FILE = File.expand_path('../../tools/package-managers/mise/default-python-packages', __dir__)
+PNPM_FILE = File.expand_path('../../tools/package-managers/mise/default-pnpm-packages', __dir__)
+GEMS_FILE = File.expand_path('../../tools/package-managers/mise/default-gems', __dir__)
+FONT_PATH = File.expand_path('../../fonts/', __dir__)
+
+PIP_FILE_BACKUP = File.expand_path('../../tools/package-managers/mise/default-python-packages.bak', __dir__)
+PNPM_FILE_BACKUP = File.expand_path('../../tools/package-managers/mise/default-pnpm-packages.bak', __dir__)
+GEMS_FILE_BACKUP = File.expand_path('../../tools/package-managers/mise/default-gems.bak', __dir__)
 
 namespace :backup do
   desc 'Backup PIP files'
@@ -20,7 +22,9 @@ namespace :backup do
     section 'Backing up PNPM files'
 
     run %( pnpm i -g add pnpm )
+    # rubocop:disable Layout/LineLength
     run %( pnpm list --global --parseable --depth=0 | sed '1d' | awk '\{gsub\(/\\/.*\\//,"",$1\); print\}' \> #{PNPM_FILE_BACKUP} )
+    # rubocop:enable Layout/LineLength
 
     log_info "PNPM files backed up to #{PNPM_FILE_BACKUP}"
   end
@@ -35,6 +39,7 @@ namespace :backup do
   end
 end
 
+# rubocop:disable Metrics/BlockLength
 namespace :install do
   desc 'Install fonts'
   task :fonts do
@@ -54,30 +59,30 @@ namespace :install do
   task :mise do
     section 'Installing mise package manager'
 
-    unless system('which mise')
-      log_info("mise is not installed. Proceeding with installation...")
-      run %( /bin/bash curl https://mise.jdx.dev/mise-latest-macos-arm64 > ~/.local/bin/mise )
-      log_success("mise installation completed successfully.")
+    if system('which mise')
+      log_warning('mise is already installed. Skipping installation...')
     else
-      log_warning("mise is already installed. Skipping installation...")
+      log_info('mise is not installed. Proceeding with installation...')
+      run %( /bin/bash curl https://mise.jdx.dev/mise-latest-macos-arm64 > ~/.local/bin/mise )
+      log_success('mise installation completed successfully.')
     end
 
-    log_info "~> Updating fish config"
-    File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts "mise activate fish | source" }
+    log_info '~> Updating fish config'
+    File.open("#{Dir.home}/.config/fish/config.fish", 'a') { |f| f.puts 'mise activate fish | source' }
 
     log_info '~> Adding mise completions to fish'
-    run %( mkdir -p ~/.config/fish/completions );
+    run %( mkdir -p ~/.config/fish/completions )
 
     run %( mise use -g usage )
     run %( mise completion fish > ~/.config/fish/completions/mise.fish)
 
-    log_success("mise completions installed")
+    log_success('mise completions installed')
   end
 
   namespace :mise do
     desc 'Install mise packages'
     task :packages do
-      section "Installing mise packages"
+      section 'Installing mise packages'
 
       # run %( mise install python 2.7.18 )
       # run %( mise install python 3.10.0 )
@@ -117,7 +122,7 @@ namespace :install do
   task :neovim do
     section 'Installing Neovim'
 
-    time = Time.new.strftime('%s')
+    # time = Time.new.strftime('%s')
     # run %( asdf plugin add neovim )
     # run %( asdf install neovim nightly )
     # run %( rm -rf /usr/local/bin/nvim )
@@ -130,7 +135,9 @@ namespace :install do
 
     run %( mkdir ~/.vim/swp )
     run %( mkdir ~/.vim/undo )
+    # rubocop:disable Layout/LineLength
     run %( curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim )
+    # rubocop:enable Layout/LineLength
     run %( vim +PlugInstall +qall )
   end
 
@@ -189,8 +196,9 @@ namespace :install do
   desc 'Install Rails YARD directives'
   task :rails do
     section 'Installing Rails YARD directives'
-
+    # rubocop:disable Layout/LineLength
     run %( git clone https://gist.github.com/castwide/28b349566a223dfb439a337aea29713e ~/.dotfiles/languages/ruby/enhance-rails-intellisense-in-solargraph )
+    # rubocop:enable Layout/LineLength
   end
 
   desc 'Make dotfiles/bin executable'
@@ -207,6 +215,7 @@ namespace :install do
     run %( defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua" )
   end
 
+  # rubocop:disable Layout/LineLength
   desc 'Install writing tools'
   task :writing do
     section 'Installing writing tools'
@@ -218,8 +227,11 @@ namespace :install do
     run %( curl -LSs https://github.com/errata-ai/write-good/releases/latest/download/write-good.zip --output /tmp/write-good.zip)
     run %( unzip /tmp/write-good.zip && mv ./write-good/ ~/.config/vale/ && rm -rf /tmp/write-good* )
   end
+  # rubocop:enable Layout/LineLength
 end
+# rubocop:enable Metrics/BlockLength
 
+# rubocop:disable Metrics/BlockLength
 namespace :update do
   desc 'Patch fonts'
   task :fonts do
@@ -236,7 +248,9 @@ namespace :update do
 
     run %( cd ~/.fontforge && git pull )
     Dir.foreach(input_dir) do |font|
+      # rubocop:disable Layout/LineLength
       run %( cd ~/.fontforge && fontforge -script font-patcher --fontawesome --fontawesomeextension --fontlogos --octicons --codicons --powersymbols --pomicons --powerline --powerlineextra --material --weather --out #{output_dir} #{input_dir}/#{font} )
+      # rubocop:enable Layout/LineLength
     end
   end
 
@@ -335,6 +349,7 @@ namespace :update do
     run %( cd ~/.config/vale/write-good && git pull )
   end
 end
+# rubocop:enable Metrics/BlockLength
 
 namespace :rollback do
   desc 'Rollback Neovim'
@@ -349,6 +364,8 @@ namespace :rollback do
     run %( (cd ~/.neovim && ls -Art | tail -n 1 | xargs rm -rf) )
 
     # Restore Neovim from the previous nightly build
+    # rubocop:disable Layout/LineLength
     run %( (cd ~/.neovim && ls -Art | fgrep -v .DS_Store | tail -n 1 | xargs -I{} cp -s ~/.neovim/{}/build/bin/nvim /usr/local/bin) )
+    # rubocop:enable Layout/LineLength
   end
 end

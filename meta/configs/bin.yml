@@ -1,13 +1,21 @@
 - link:
     ~/.local/bin/color-mode: .local/bin/color-mode
+    ~/.local/bin/git-cleanup: .local/bin/git-cleanup
     ~/.color_mode: .local/bin/color_mode
+    ~/.local/bin/git-reset-author: .local/bin/git-reset-author
     ~/.local/bin/color_mode.py: .local/bin/color_mode.py
+    ~/.local/bin/broken-symlinks: .local/bin/broken-symlinks
+    ~/.local/bin/git-main-branch: .local/bin/git-main-branch
 
 - shell:
     - description: Setting bin scripts to executable
       quiet: true
       command: >-
         echo "Attempting to set bin scripts to executable";
+        chmod +x ~/.local/bin/git-reset-author;
+        chmod +x ~/.local/bin/git-main-branch;
+        chmod +x ~/.local/bin/git-cleanup;
+        chmod +x ~/.local/bin/broken-symlinks;
         chmod +x ~/.local/bin/color-mode;
         chmod +x ~/.local/bin/color_mode.py;
         chmod +x ~/.color_mode;

@@ -1,7 +1,8 @@
 - link:
-    ~/.editorconfig:  dev/editorconfig
-    ~/.curlrc:        dev/curlrc
-    ~/user-dirs.dirs: dev/user-dirs.dirs
-    ~/.gemrc:         dev/gemrc
-    ~/.psqlrc:        dev/psqlrc
-    ~/.wgetrc:        dev/wgetrc
+    ~/.editorconfig: home/editorconfig
+    ~/.curlrc: home/curlrc
+    ~/.gemrc: home/gemrc
+    ~/.psqlrc: home/psqlrc
+    ~/.wgetrc: home/wgetrc
+    ~/.shellcheckrc: home/shellcheckrc
+    ~/.inputrc: home/inputrc
