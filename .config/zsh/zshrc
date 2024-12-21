@@ -73,6 +73,19 @@ fi
 alias vim="nvim"
 
 unsetopt BEEP
-source ~/.gusto/init.sh
 
-source ~/.gusto/init.sh
+if [ -f "$HOME/.gusto/init.sh" ]; then
+  source ~/.gusto/init.sh
+fi
+
+if [ -f "$HOME/.zshrc.private" ]; then
+  source ~/.zshrc.private
+fi
+
+# pnpm
+export PNPM_HOME="/Users/meaganwaller/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
