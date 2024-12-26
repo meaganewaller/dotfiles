@@ -6,20 +6,20 @@ return {
       {
         "vuki656/package-info.nvim",
         event = { "BufRead package.json" },
-        opts = {}
+        opts = {},
       },
       {
         "David-Kunz/cmp-npm",
         event = { "BufRead package.json" },
-        opts = {}
-      }
+        opts = {},
+      },
     },
     opts = function(_, opts)
       local cmp = require("cmp")
       opts.sources = cmp.config.sources(vim.list_extend(opts.sources, {
         { name = "npm", keyword_length = 3 },
       }))
-    end
+    end,
   },
 
   -- add nodejs specific modules to treesitter
@@ -36,13 +36,13 @@ return {
     "williamboman/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed,
-        { "css-lsp", "eslint-lsp", "html-lsp", "standardjs", "stylelint-lsp" })
+      vim.list_extend(opts.ensure_installed, { "css-lsp", "eslint-lsp", "html-lsp", "standardjs", "stylelint-lsp" })
     end,
   },
 
   -- import additional language modules from upstream
+  { import = "lazyvim.plugins.extras.formatting.prettier" },
+  { import = "lazyvim.plugins.extras.linting.eslint" },
   { import = "lazyvim.plugins.extras.lang.json" },
-  { import = "lazyvim.plugins.extras.lang.typescript" }
-
+  { import = "lazyvim.plugins.extras.lang.typescript" },
 }

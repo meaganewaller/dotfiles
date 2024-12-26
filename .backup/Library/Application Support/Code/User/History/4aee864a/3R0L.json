@@ -1,0 +1,49 @@
+{
+    "git.autofetch": true,
+    "settingsSync.ignoredExtensions": [
+        
+    ],
+    "settingsSync.ignoredSettings": [],
+    "git.openRepositoryInParentFolders": "always",
+    "security.workspace.trust.untrustedFiles": "open",
+    "explorer.confirmDelete": false,
+    "terminal.external.osxExec": "Wezterm.app",
+    "terminal.integrated.shellIntegration.enabled": false,
+    "terminal.integrated.profiles.osx": {
+        "bash": {
+            "path": "bash",
+            "args": [
+                "-l"
+            ],
+            "icon": "terminal-bash"
+        },
+        "zsh": {
+            "path": "zsh",
+            "args": [
+                "-l"
+            ]
+        },
+        "fish": {
+            "path": "fish",
+            "args": [
+                "-l"
+            ]
+        },
+        "tmux": {
+            "path": "tmux",
+            "icon": "terminal-tmux"
+        },
+        "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+        },
+        "fish (2)": {
+            "path": "/opt/homebrew/bin/fish"
+        }
+    },
+    "terminal.integrated.defaultProfile.osx": "fish (2)",
+    "workbench.colorTheme": "Modern Purple Theme Light",
+    "workbench.iconTheme": "vscode-celestial-magic-girl-icon-theme",
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "0xProto Nerd Font Mono"
+}

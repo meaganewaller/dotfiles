@@ -1,0 +1,14 @@
+{
+    "workbench.colorTheme": "Spinel",
+    "workbench.iconTheme": "vscode-celestial-magic-girl-icon-theme",
+    "git.autofetch": true,
+    "settingsSync.ignoredExtensions": [
+        
+    ],
+    "settingsSync.ignoredSettings": [],
+    "git.openRepositoryInParentFolders": "always",
+    "security.workspace.trust.untrustedFiles": "open",
+    "explorer.confirmDelete": false,
+    "terminal.external.osxExec": "Wezterm.app",
+    "terminal.integrated.shellIntegration.enabled": false
+}

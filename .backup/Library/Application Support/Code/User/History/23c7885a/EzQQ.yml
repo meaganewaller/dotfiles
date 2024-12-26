@@ -1,0 +1,4 @@
+- link:
+    ~/.zshrc:
+      force: true
+	  path: .config/zsh/zshrc

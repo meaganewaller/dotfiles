@@ -1,11 +1,11 @@
 return {
-  -- disable catppuccin
-  { "catppuccin/nvim", name = "catppuccin", enabled = false },
+  -- catppuccin
+  { "catppuccin/nvim", name = "catppuccin", lazy = true, priority = 1000 },
 
   -- configure tokyonight theme
   {
     "folke/tokyonight.nvim",
-    optional = true,
+    lazy = true,
     dependencies = {
       -- toggle theme
       {
@@ -13,10 +13,17 @@ return {
         opts = {
           mode = "colorscheme",
           dark_mode_colorscheme = "tokyonight-storm",
-          light_mode_colorscheme = "tokyonight-day"
+          light_mode_colorscheme = "tokyonight-day",
         },
-      }
-    }
+      },
+    },
+  },
+
+  {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "catppuccin-frappe",
+    },
   },
 
   -- notify customization
@@ -26,7 +33,7 @@ return {
       stages = "fade_in_slide_out",
       timeout = 3000,
       render = "compact",
-    }
+    },
   },
 
   -- bufferline
@@ -34,21 +41,9 @@ return {
     "akinsho/bufferline.nvim",
     opts = {
       options = {
-        numbers = "none", -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
-        max_name_length = 30,
-        max_prefix_length = 30, -- prefix used when a buffer is de-duplicated
-        show_buffer_icons = true,
-        show_buffer_close_icons = false,
-        show_close_icon = false,
-        show_tab_indicators = true,
-        separator_style = "thin", -- | "thick" | "thin" | { 'any', 'any' },
-        color_icons = false,
-        diagnostics = false,
-        highlights = {
-          buffer_selected = {
-            gui = "none"
-          },
-        },
+        mode = "tabs",
+        show_buffer_close_icons = true,
+        show_close_icon = true,
         offsets = {
           {
             filetype = "neo-tree",
@@ -60,11 +55,11 @@ return {
             filetype = "Outline",
             text = "Symbols Outline",
             highlight = "TSType",
-            text_align = "left"
-          }
-        }
-      }
-    }
+            text_align = "left",
+          },
+        },
+      },
+    },
   },
 
   -- scrollbar for Neovim
@@ -75,7 +70,7 @@ return {
       excluded_filetypes = { "alpha", "dashboard", "neo-tree" },
       current_only = true,
       winblend = 75,
-    }
+    },
   },
 
   -- theme toggle
@@ -91,7 +86,8 @@ return {
       vim.cmd("colorscheme " .. colorscheme)
     end,
     keys = {
-      { "<leader>ub",
+      {
+        "<leader>ub",
         function()
           if vim.o.background ~= "light" then
             vim.g.NV_UI_MODE = "dark"
@@ -100,9 +96,9 @@ return {
           end
           vim.cmd([[DarkLightSwitch]])
         end,
-        desc = "Toggle Background"
+        desc = "Toggle Background",
       },
-    }
+    },
   },
 
   -- dashboard
@@ -111,8 +107,8 @@ return {
     optional = true,
     opts = function(_, opts)
       -- show dashboard when new tab page is opened
-      vim.api.nvim_create_autocmd('TabNewEntered', { command = 'Dashboard' })
-    end
+      vim.api.nvim_create_autocmd("TabNewEntered", { command = "Dashboard" })
+    end,
   },
 
   -- alpha
@@ -143,7 +139,7 @@ return {
           end,
         })
       end
-    end
+    end,
   },
 
   -- project
@@ -158,7 +154,7 @@ return {
         ".hg",
         ".svn",
       }
-    end
+    end,
   },
 
   -- rest
@@ -183,7 +179,7 @@ return {
       icons = {
         inlay = {
           loading = "󰔟 ",
-          done = " "
+          done = " ",
         },
         lualine = "󱂛",
       },
@@ -191,6 +187,18 @@ return {
       -- e.g. { "--insecure", "-A", "Mozilla/5.0" }
       additional_curl_options = {},
     },
+  },
 
-  }
+  -- lualine
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      options = {
+        icons_enabled = true,
+        component_separators = "|",
+        -- section_separators = "",
+      },
+    },
+  },
 }

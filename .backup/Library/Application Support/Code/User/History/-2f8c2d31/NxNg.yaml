@@ -1,0 +1,41 @@
+- brew:
+  - switchaudio-osx
+  - nowplaying-cli
+
+- asdf:
+  - plugin: lua
+    versions:
+        - latest
+
+- shell:
+    - description: Setting global lua
+      quiet: false
+      command: >-
+        asdf global lua latest;
+
+- tap:
+    - FelixKratz/formulae
+
+- brew:
+    - sketchybar
+    - sf-symbols
+    - font-sf-mono
+    - font-sf-pro
+
+- shell:
+    - description: Cloning sketchybar-app-font
+      quiet: false
+      command: >-
+        curl -L https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.5/sketchybar-app-font.ttf -o $HOME/Library/Fonts/sketchybar-app-font.ttf;
+
+    - description: Cloning SbarLua
+      quiet: false
+      command: >-
+        git clone https://github.com/FelixKratz/SbarLua.git /tmp/SbarLua; 
+        cd /tmp/SbarLua; 
+        make install; 
+        rm -rf /tmp/SbarLua/;
+
+- link:
+    - ~/.config/sketchybar: os/macos/sketchybar
+

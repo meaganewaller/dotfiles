@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+# shim for running `podman` in lima VM
+
+: "${NAME:="podman"}"
+: "${TEMPLATE:="fedora"}"
+
+if [ "$(uname -s)" = 'Darwin' ]; then
+  if ! command -v limactl >/dev/null; then
+    echo "Error: limactl not found on macOS, cannot start Linux VM for podman."
+    exit 127
+  fi
+  if ! limactl shell "$NAME" true >/dev/null 2>&1; then
+    limactl start --name "$NAME" "$HOME/.config/configent/lima/$TEMPLATE.yaml" --tty=false ||
+      limactl start --name "$NAME"
+  fi
+  # pass arguments to this exact same script on the guest VM
+  limactl shell "$NAME" ~/configent/bin/podman "$@"
+else
+  # shellcheck disable=SC2155  # will not declare separately
+  [ -z "$XDG_RUNTIME_DIR" ] && export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+  if [ -x "/usr/bin/podman" ]; then
+    "/usr/bin/podman" "$@"
+  else
+    echo "Error: podman not found in this Linux system."
+    exit 127
+  fi
+fi
