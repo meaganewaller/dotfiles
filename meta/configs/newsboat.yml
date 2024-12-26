@@ -1,0 +1,10 @@
+- clean:
+    - "~/.newsboat/config"
+    - "~/.newsboat/urls"
+- link:
+    ~/.newsboat/config:
+      force: true
+      path: home/newsboat/config
+    ~/.newsboat/urls:
+      force: true
+      path: home/newsboat/urls

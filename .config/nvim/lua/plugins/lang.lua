@@ -3,7 +3,7 @@ return {
   {
     "neovim/nvim-lspconfig",
     opts = {
-      inlay_hints = { enabled = vim.fn.has('nvim-0.10') },
+      inlay_hints = { enabled = vim.fn.has("nvim-0.10") },
       ---@type lspconfig.options
     },
   },
@@ -12,7 +12,7 @@ return {
   {
     "williamboman/mason.nvim",
     opts = function(_, opts)
-      vim.list_extend(opts.ensure_installed, { "lua-language-server", "marksman" })
+      vim.list_extend(opts.ensure_installed, { "stylua", "lua-language-server", "marksman", "shfmt", "flake8" })
       opts.ui = {
         icons = {
           package_installed = "✓",
@@ -32,8 +32,8 @@ return {
     opts = {
       spec = {
         { "<leader>dw", group = "widgets" },
-      }
-    }
+      },
+    },
   },
 
   -- dap integration
@@ -43,29 +43,36 @@ return {
     keys = {
       {
         "<leader>de",
-        function() require("dap.ui.widgets").centered_float(require("dap.ui.widgets").expression, { border = "none" }) end,
+        function()
+          require("dap.ui.widgets").centered_float(require("dap.ui.widgets").expression, { border = "none" })
+        end,
         desc = "Eval",
-        mode = { "n", "v" }
+        mode = { "n", "v" },
       },
       {
         "<leader>dwf",
-        function() require("dap.ui.widgets").centered_float(require("dap.ui.widgets").frames, { border = "none" }) end,
-        desc = "Frames"
+        function()
+          require("dap.ui.widgets").centered_float(require("dap.ui.widgets").frames, { border = "none" })
+        end,
+        desc = "Frames",
       },
       {
         "<leader>dws",
-        function() require("dap.ui.widgets").centered_float(require("dap.ui.widgets").scopes, { border = "none" }) end,
-        desc = "Scopes"
+        function()
+          require("dap.ui.widgets").centered_float(require("dap.ui.widgets").scopes, { border = "none" })
+        end,
+        desc = "Scopes",
       },
       {
         "<leader>dwt",
-        function() require("dap.ui.widgets").centered_float(require("dap.ui.widgets").threads, { border = "none" }) end,
-        desc = "Threads"
+        function()
+          require("dap.ui.widgets").centered_float(require("dap.ui.widgets").threads, { border = "none" })
+        end,
+        desc = "Threads",
       },
     },
     opts = function(_, opts)
       require("dap").defaults.fallback.terminal_win_cmd = "enew | set filetype=dap-terminal"
-    end
+    end,
   },
-
 }
