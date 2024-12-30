@@ -8,6 +8,7 @@ cmacrae/formulae
 daipeihust/tap
 eth-p/software
 federico-terzi/espanso
+felixkratz/formulae
 fsouza/prettierd
 git-duet/tap
 gusto/gusto
@@ -19,6 +20,7 @@ isacikgoz/taps
 jandedobbeleer/oh-my-posh
 jesseduffield/lazygit
 kak-lsp/kak-lsp
+kaos/shell
 keith/formulae
 koekeishiya/formulae
 mas-cli/tap
@@ -32,6 +34,7 @@ olets/tap
 osx-cross/arm
 osx-cross/avr
 qmk/qmk
+shaunsingh/sfmono-nerd-font-ligaturized
 spring-io/tap
 superfly/tap
 tophat/bar
