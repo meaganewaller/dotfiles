@@ -1,0 +1,12 @@
+bundler
+debug
+solargraph
+solargraph-rails
+terminal-notifier
+standard
+standard-rails
+rubocop-performance
+pry
+rails
+repl_type_completor
+neovim
