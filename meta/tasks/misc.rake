@@ -9,36 +9,6 @@ PIP_FILE_BACKUP = File.expand_path('../../tools/package-managers/mise/default-py
 PNPM_FILE_BACKUP = File.expand_path('../../tools/package-managers/mise/default-pnpm-packages.bak', __dir__)
 GEMS_FILE_BACKUP = File.expand_path('../../tools/package-managers/mise/default-gems.bak', __dir__)
 
-namespace :backup do
-  desc 'Backup PIP files'
-  task :pip do
-    section 'Backing up PIP files'
-    run %( pip3 freeze > #{PIP_FILE_BACKUP} )
-    log_info "PIP files backed up to #{PIP_FILE_BACKUP}"
-  end
-
-  desc 'Backup PNPM files'
-  task :pnpm do
-    section 'Backing up PNPM files'
-
-    run %( pnpm i -g add pnpm )
-    # rubocop:disable Layout/LineLength
-    run %( pnpm list --global --parseable --depth=0 | sed '1d' | awk '\{gsub\(/\\/.*\\//,"",$1\); print\}' \> #{PNPM_FILE_BACKUP} )
-    # rubocop:enable Layout/LineLength
-
-    log_info "PNPM files backed up to #{PNPM_FILE_BACKUP}"
-  end
-
-  desc 'Backup Ruby Gems'
-  task :gems do
-    section 'Backing up Ruby Gems'
-
-    run %( gem list --no-versions | sed '1d' | awk '\{gsub\(/\\/.*\\//,"",$1\); print\}' \> #{GEMS_FILE_BACKUP} )
-
-    log_info "Ruby Gems backed up to #{GEMS_FILE_BACKUP}"
-  end
-end
-
 # rubocop:disable Metrics/BlockLength
 namespace :install do
   desc 'Install fonts'
