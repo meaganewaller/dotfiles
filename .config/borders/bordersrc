@@ -1,11 +1,12 @@
 #!/bin/bash
 
 options=(
-  style=square
-  width=6.0
-  hidpi=on
-  inactive_color=0xFF286983
-  active_color=0xffF3AAD0
+    style=round
+    width=6.0
+    hidpi=on
+    inactive_color=0xFF286983
+    active_color=0xffF3AAD0
+    blacklist="Dropbox Capture,WinAppHelper"
 )
 
 borders "${options[@]}"
