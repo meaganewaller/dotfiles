@@ -2,27 +2,30 @@ local wezterm = require("wezterm")
 local ui = require("ui")
 local font = require("font")
 local keys = require("keymap")
+local binds = require("keybinds")
 local plugin_config = require("plugin_config")
 local smart_workspace = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
 local quick_domains = wezterm.plugin.require("https://github.com/DavidRR-F/quick_domains.wezterm")
 
 local c = {}
 if wezterm.config_builder then
-	c = wezterm.config_builder()
+    c = wezterm.config_builder()
 end
 c.default_prog = { "/opt/homebrew/bin/zsh", "-l" }
 c.default_workspace = "main"
 c.disable_default_key_bindings = true
 c.enable_wayland = false
-c.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
-c.keys = keys.general
-c.key_tables = { tmux = keys.tmux }
+-- c.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
+-- c.keys = keys.general
+-- c.key_tables = { tmux = keys.tmux, search = keys.search_mode, copy = keys.copy_mode }
 c.launch_menu = {
-	{ label = "󰊢 GitHub Dashboard", args = { "gh", "dash" } },
-	{ label = " Lazy Docker", args = { "lazydocker" } },
-	{ label = "󱃾 K9S", args = { "k9s" } },
-	{ label = "󰻫 Yazi", args = { "yazi" } },
+    { label = "󰊢 GitHub Dashboard", args = { "gh", "dash" } },
+    { label = " Lazy Docker", args = { "lazydocker" } },
+    { label = "󱃾 K9S", args = { "k9s" } },
+    { label = "󰻫 Yazi", args = { "yazi" } },
 }
+
+binds.setup(c)
 
 ui.apply_to_config(c)
 font.apply_to_config(c)
