@@ -1,4 +1,0 @@
-- brew: [btop]
-
-- link:
-    ~/.config/btop: .config/btop

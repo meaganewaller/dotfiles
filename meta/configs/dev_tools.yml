@@ -1,8 +1,0 @@
-- link:
-    ~/.editorconfig: home/editorconfig
-    ~/.curlrc: home/curlrc
-    ~/.gemrc: home/gemrc
-    ~/.psqlrc: home/psqlrc
-    ~/.wgetrc: home/wgetrc
-    ~/.shellcheckrc: home/shellcheckrc
-    ~/.inputrc: home/inputrc

@@ -1,4 +1,0 @@
-- create:
-    - ~/.config/zsh
-- link:
-    ~/.zshrc: .config/zsh/zshrc

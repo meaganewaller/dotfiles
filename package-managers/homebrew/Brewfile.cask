@@ -7,7 +7,6 @@ aws-vault
 bartender
 caffeine
 cameracontroller
-cheatsheet
 chromedriver
 chromium
 chronosync
@@ -15,7 +14,6 @@ cleanmymac
 cleanshot
 cloudflare-warp
 contexts
-controlplane
 diffmerge
 fantastical
 figma
@@ -148,7 +146,6 @@ pdf-expert
 postico
 postman
 qmk-toolbox
-qtox
 raycast
 rectangle
 session-manager-plugin
@@ -157,7 +154,6 @@ spotify
 vivaldi
 vscodium
 wezterm@nightly
-wkhtmltopdf
 yubico-authenticator
 yubico-yubikey-manager
 zotero

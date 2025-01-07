@@ -1,4 +1,0 @@
-- shell:
-    -
-      description: Install fonts
-      command: cp -r fonts/* /Library/Fonts

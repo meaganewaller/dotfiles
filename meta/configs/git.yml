@@ -1,9 +1,0 @@
-- create:
-    - ~/.config/git
-
-- link:
-    ~/.gitattributes:    .config/git/gitattributes
-    ~/.gitconfig:        .config/git/gitconfig
-    ~/.gitconfig-local:  .config/git/gitconfig-local
-    ~/.gitignore-global: .config/git/gitignore_global
-    ~/.gitmessage:       .config/git/gitmessage

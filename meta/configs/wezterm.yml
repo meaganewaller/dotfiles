@@ -1,5 +1,0 @@
-- link:
-    ~/.config/wezterm:
-      relink: true
-      glob: true
-      path: .config/wezterm/*
