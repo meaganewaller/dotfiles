@@ -1,0 +1,34 @@
+this_path=$(cd "$(dirname "$0")" && pwd)
+dotfiles_path="$this_path/dotfiles"
+backup_path="$this_path/.backup"
+
+local_bin_path="$HOME/.local/dotfiles/bin"
+mkdir -p "$local_bin_path"
+rm -rf "$local_bin_path"
+ln -sfnv "$this_path/bin" "$local_bin_path"
+
+config_path="$HOME/.config/dotfiles"
+mkdir -p "$config_path"
+rm -rf "$config_path"
+ln -sfnv "$this_path/etc" "$config_path"
+
+files="$(find "$dotfiles_path" -type f -exec basename {} \;)"
+
+for source_file_name in $files; do
+    if [ ! -r "$backup_path/$source_file_name" ]; then
+        mkdir -p "$backup_path"
+        cp -P "$HOME/$source_file_name" "$backup_path/$source_file_name"
+    fi
+    ln -sfnv "$dotfiles_path/$source_file_name" "$HOME/$source_file_name"
+done
+
+if [ "$(uname -s)" = 'Linux' ]; then
+  if [ ! -r "$backup_path/.config/htop/htoprc" ]; then
+    if [ -r "$HOME/.config/htop/htoprc" ]; then
+      mkdir -p "$backup_path/.config/htop"
+      cp -P "$HOME/.config/htop/htoprc" "$backup_path/.config/htop/htoprc"
+    fi
+  fi
+  mkdir -p "$HOME/.config/htop"
+  ln -sfnv "$dotfiles_path/.htoprc" "$HOME/.config/htop/htoprc"
+fi

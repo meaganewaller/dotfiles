@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+eval_brew() {
+  if [ -x "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x "/usr/local/bin/brew" ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  elif [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  elif [ -x "$HOME/.linuxbrew/bin/brew" ]; then
+    eval "$("$HOME"/.linuxbrew/bin/brew shellenv)"
+  fi
+}
+eval_brew
+
+if ! command -v brew >/dev/null; then
+  # nosemgrep: bash.curl.security.curl-pipe-bash.curl-pipe-bash
+  NONINTERACTIVE=true HOMEBREW_INSTALL_FROM_API=true \
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  eval_brew
+fi
+
+# GNU bins prepended to PATH on macOS in .profile
+brew install coreutils
+brew install findutils
+#brew install gnu-getopt
+#brew install gnu-indent
+#brew install gnu-sed
+#brew install gnu-tar
+#brew install gnu-time
+#brew install gnu-which
+
+# GNU bins NOT prepended to PATH on macOS in .profile
+brew install gawk
+brew install grep
+
+# More recent git than in Xcode Command Line Tools
+brew install git
+
+# Git extra commands (https://github.com/tj/git-extras)
+brew install git-extras
+
+# Git extension for versioning large files
+brew install git-lfs
+
+# Swiss Army Knife for macOS (https://github.com/rgcr/m-cli)
+brew install m-cli
+
+# Mac App Store command-line interface (https://github.com/mas-cli/mas)
+brew install mas
+
+# For conversion between text file formats
+brew install pandoc
+
+# For speech-to-text
+brew install portaudio
+
+# Internet traffic monitor (https://github.com/GyulyVGC/sniffnet)
+brew install sniffnet
+
+# Maintained ctags implementation
+brew install universal-ctags
+
+# Zsh
+brew install zsh

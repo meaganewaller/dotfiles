@@ -1,0 +1,100 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+if [ "$(id -u)" = 0 ]; then
+  SUDO=''
+elif command -v sudo >/dev/null; then
+  SUDO='sudo'
+
+  # Ask sudo password upfront
+  sudo -n true || sudo -v
+
+  # Keep sudo alive until the script has finished
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+else
+  printf "\nERROR: User is non-root and sudo not available, cannot proceed.\n"
+  exit 1
+fi
+
+if ! $SUDO grep -Fq "@testing" /etc/apk/repositories; then
+  echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" |
+    $SUDO tee -a /etc/apk/repositories
+fi
+
+# Update package lists
+$SUDO apk update
+
+# Certificates
+$SUDO apk add ca-certificates
+
+# Cryptography
+$SUDO apk add gnupg
+
+# Locales
+$SUDO apk add musl-locales
+
+# Common build tools
+$SUDO apk add bison build-base cmake gcc gcompat icu-libs m4 ncurses
+
+# Common development dependencies
+$SUDO apk add bzip2-dev libffi-dev libpsl-native libxml2-dev musl-dev \
+  openssl-dev readline-dev sqlite-dev xz-dev yaml-dev zlib-dev
+
+# Utils
+$SUDO apk add coreutils curl bind-tools file findutils \
+  git git-lfs htop less pandoc-cli procps zip unzip util-linux wget \
+  whois
+
+# Bash
+$SUDO apk add bash
+
+# Zsh
+$SUDO apk add zsh
+
+# Vim
+$SUDO apk add vim
+
+# Git-extras
+$SUDO apk add git-extras@testing
+
+# GNU awk
+$SUDO apk add gawk
+
+# ctags
+$SUDO apk add ctags
+
+# Perl
+$SUDO apk add perl
+
+# macOS pbcopy/pbpaste like experience
+#$SUDO apk add xsel
+
+# Microsoft TrueType fonts (accepts EULA)
+#$SUDO apk add msttcorefonts-installer fontconfig &&
+#    $SUDO update-ms-fonts &&
+#    $SUDO fc-cache -f
+
+# Docker (rootless Docker is not supported on Alpine Linux)
+$SUDO apk add iptables
+$SUDO apk add docker
+$SUDO addgroup "$USER" docker
+$SUDO service docker start
+$SUDO rc-update add docker default
+
+# No Snap is available for Alpine Linux
+
+# Flatpak
+if [ "$FLATPAKS" != 'false' ]; then
+  $SUDO apk add flatpak
+fi

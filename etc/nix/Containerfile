@@ -1,0 +1,10 @@
+# checkov:skip=CKV_DOCKER_7: skip image tag
+FROM nixos/nix:2.22.0
+
+RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
+
+# checkov:skip=CKV_DOCKER_5: allow caching channel unstable
+RUN nix-channel --update
+
+# checkov:skip=CKV_DOCKER_3: skip creating user
+# checkov:skip=CKV_DOCKER_2: skip healthcheck

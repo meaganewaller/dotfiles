@@ -1,0 +1,79 @@
+images:
+  # Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
+  - location: "https://cloud.debian.org/images/cloud/bookworm/20241004-1890/debian-12-genericcloud-amd64-20241004-1890.qcow2"
+    arch: "x86_64"
+    digest: "sha512:da84d609d7ec5645dae1df503ea72037b2a831401d1b42ce2e7ec2a840b699f07ca8aea630853a3d5430839268c2bd337be45d89498264c36a9b5e12872c59ee"
+  - location: "https://cloud.debian.org/images/cloud/bookworm/20241004-1890/debian-12-genericcloud-arm64-20241004-1890.qcow2"
+    arch: "aarch64"
+    digest: "sha512:c33f0c8138a2ba40483bd9021c810b464f2b3152671e6cc2ef89aed9e3ab839517ac1932f30be11a1b6c68b36317d3fd771c0285d27fe50b7e8f022244da1258"
+  # Fallback to the latest release image.
+  # Hint: run `limactl prune` to invalidate the cache
+  - location: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
+    arch: "x86_64"
+  - location: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-arm64.qcow2"
+    arch: "aarch64"
+
+#cpus: 4          # default: 4
+memory: "8GiB" # default: "4GiB"
+#disk: "100GiB"   # default: "100GiB"
+
+mounts:
+  - location: "~/configent"
+    writable: false
+  - location: "~/dev"
+    writable: true
+  - location: "~/Downloads"
+    writable: true
+  - location: "/tmp/lima"
+    writable: true
+
+ssh:
+  forwardAgent: true
+
+containerd:
+  system: false
+  user: true
+
+provision:
+  # Add iptables to $PATH for nerdctl
+  # See: https://github.com/containerd/nerdctl/discussions/1536
+  - mode: system
+    script: |
+      #!/bin/sh
+      ln -s /usr/sbin/iptables /usr/local/bin/iptables
+      ln -s /usr/sbin/ip6tables /usr/local/bin/ip6tables
+  - mode: system
+    script: |
+      #!/bin/sh
+      curl -fsSL https://get.k3s.io | sh
+  - mode: user
+    script: |
+      #!/bin/sh
+      curl -fsSL https://raw.githubusercontent.com/raas-dev/configent/main/install.sh | sh &
+
+probes:
+  - script: |
+      #!/bin/sh
+      if ! timeout 30s sh -c "until test -f /etc/rancher/k3s/k3s.yaml; do sleep 3; done"; then
+        echo >&2 "k3s is not running yet"
+        exit 1
+      fi
+    hint: |
+      The k3s kubeconfig file has not yet been created.
+      Run "limactl shell k3s sudo journalctl -u k3s" to check the log.
+      If that is still empty, check the bottom of the log at "/var/log/cloud-init-output.log".
+
+hostResolver:
+  hosts:
+    host.docker.internal: host.lima.internal
+
+copyToHost:
+  - guest: "/etc/rancher/k3s/k3s.yaml"
+    host: "{{.Dir}}/kubeconfig.yaml"
+
+message: |
+  To run `kubectl` on the host (assumes kubectl is installed), run the following commands:
+  ------
+  export KUBECONFIG="{{.Dir}}/kubeconfig.yaml"
+  kubectl get nodes
+  ------

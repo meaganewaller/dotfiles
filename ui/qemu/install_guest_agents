@@ -1,0 +1,6 @@
+#!/bin/sh
+
+sudo apt-get update
+sudo apt-get install -y spice-vdagent
+sudo apt-get install -y spice-webdavd
+sudo apt-get install -y qemu-guest-agent

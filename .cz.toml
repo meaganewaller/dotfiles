@@ -1,0 +1,5 @@
+[tool.commitizen]
+bump_message = "chore: Release $new_version"
+tag_format = "$version"
+version = "1.130.11"
+version_files = [".github/README.md", "install.sh:GIT_REF"]

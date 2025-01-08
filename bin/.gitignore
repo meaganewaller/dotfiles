@@ -1,0 +1,17 @@
+*
+
+!.gitignore
+!ai_commit
+!docker
+!docker-compose
+!install_*
+!lessfilter
+!lesspipe.sh
+!nerdctl
+!podman
+!postinstall_*
+!rsync_tmbackup.sh
+!setup_*
+!tm
+!trans
+!xpanes

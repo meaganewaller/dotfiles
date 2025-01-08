@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+### constants ##################################################################
+
+this_path=$(cd "$(dirname "$0")" && pwd)
+fonts_dir="$this_path/../ui/fonts"
+
+### Install fonts ##############################################################
+
+find_command="find \"$fonts_dir\" \( -name '*.[o,t]tf' -or -name '*.pcf.gz' \) \
+  -type f -print0"
+
+if [ "$(uname -s)" = 'Darwin' ]; then
+  font_dir="$HOME/Library/Fonts"
+else
+  font_dir="$HOME/.local/share/fonts"
+  mkdir -p "$font_dir"
+fi
+
+# Copy all fonts to user fonts directory
+echo "Copying fonts..."
+eval "$find_command" | xargs -0 -I % cp "%" "$font_dir/"
+
+# Reset font cache on Linux
+if command -v fc-cache @ >/dev/null; then
+  echo "Resetting font cache, this may take a moment..."
+  fc-cache -f "$font_dir"
+fi
+
+echo "All fonts installed to $font_dir"

@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+if [ "$(id -u)" = 0 ]; then
+  SUDO=''
+  SUDOEULA=''
+  export DEBIAN_FRONTEND=noninteractive
+elif command -v sudo >/dev/null; then
+  SUDO='sudo DEBIAN_FRONTEND=noninteractive'
+  SUDOEULA='sudo ACCEPT_EULA=Y'
+
+  # Ask sudo password upfront
+  sudo -n true || sudo -v
+
+  # Keep sudo alive until the script has finished
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+else
+  printf "\nERROR: User is non-root and sudo not available, cannot proceed.\n"
+  exit 1
+fi
+
+# Update package lists
+$SUDOEULA apt-get update
+
+# Ensure apt-get sources.list works with https
+$SUDO apt-get install -y apt-transport-https
+
+# Locales (required on Debian)
+$SUDO apt-get install -y locales
+echo "en_US.UTF-8 UTF-8" | $SUDO tee /etc/locale.gen
+echo "LANG=en_US.UTF-8" | $SUDO tee /etc/locale.conf
+$SUDO locale-gen en_US.UTF-8
+
+# Certificates
+$SUDO apt-get install -y ca-certificates
+
+# Cryptography
+$SUDO apt-get install -y gnupg
+
+# Common build tools
+$SUDO apt-get install -y bison build-essential cmake m4 pkg-config
+
+# Common development dependencies
+$SUDO apt-get install -y libbz2-dev libcurl4-openssl-dev libffi-dev \
+  libgmp-dev liblzma-dev libreadline-dev libsqlite3-dev libssl-dev \
+  libxml2-dev libyaml-dev zlib1g-dev
+
+# Utils
+$SUDO apt-get install -y coreutils dnsutils file findutils \
+  git git-lfs htop lsb-release pandoc procps traceroute unzip wget \
+  whois zip
+
+# Bash
+$SUDO apt-get install -y bash
+
+# Zsh
+$SUDO apt-get install -y zsh
+
+# git-extras
+$SUDO apt-get install -y git-extras
+
+# GNU awk
+$SUDO apt-get install -y gawk
+
+# ctags
+$SUDO apt-get install -y universal-ctags
+
+# macOS pbcopy/pbpaste like experience
+#$SUDO apt-get install -y xsel
+
+# Microsoft TrueType fonts (accepts EULA)
+#$SUDO apt-get install -y ttf-mscorefonts-installer
+
+# Flatpak
+if [ "$FLATPAKS" != 'false' ]; then
+  $SUDO apt-get install -y flatpak
+fi

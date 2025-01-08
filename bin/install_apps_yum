@@ -1,0 +1,90 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+if [ "$(id -u)" = 0 ]; then
+  SUDO=''
+elif command -v sudo >/dev/null; then
+  SUDO='sudo'
+
+  # Ask sudo password upfront
+  sudo -n true || sudo -v
+
+  # Keep sudo alive until the script has finished
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+else
+  printf "\nERROR: User is non-root and sudo not available, cannot proceed.\n"
+  exit 1
+fi
+
+# Update package lists
+$SUDO dnf check-update -y
+
+# Add Epel repostitory (https://docs.fedoraproject.org/en-US/epel/)
+$SUDO dnf config-manager --set-enabled crb
+$SUDO dnf install -y epel-release epel-next-release
+
+# Certificates
+$SUDO dnf install -y ca-certificates
+
+# Cryptography
+$SUDO dnf install -y gnupg
+
+# Common build tools
+$SUDO dnf install -y bison cmake gcc gcc-c++ libicu make m4 pkgconf-pkg-config
+
+# Common development dependencies
+$SUDO dnf install -y bzip2-devel libffi-devel libyaml-devel libxcrypt-compat \
+  openssl-devel readline-devel sqlite-devel zlib-devel xz-devel libxml2-devel
+
+# Utils
+$SUDO dnf install -y bind-utils coreutils file findutils git git-lfs htop \
+  lsof pandoc procps redhat-lsb-core tar traceroute unzip wget \
+  whois zip
+
+# Bash
+$SUDO dnf install -y bash
+
+# Zsh
+$SUDO dnf install -y zsh
+
+# git-extras, not available in CentOS Stream (as of 2023-07)
+$SUDO dnf install -y git-extras
+
+# GNU awk
+$SUDO dnf install -y gawk
+
+# ctags, not available in CentOS Stream (as of 2023-07)
+$SUDO dnf install -y ctags
+
+# Locales
+$SUDO dnf install -y langpacks-en
+
+# pbcopy/pbpaste like experience
+#$SUDO dnf install -y xsel
+
+# Microsoft TrueType fonts (accepts EULA)
+#$SUDO dnf install -y cabextract fontconfig xorg-x11-font-utils
+#$SUDO rpm -i https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+
+# Docker (rootless)
+$SUDO dnf install -y fuse3 fuse-overlayfs dbus-daemon iptables shadow-utils
+curl -fsSL https://get.docker.com/rootless | sh
+systemctl --user start dbus
+systemctl --user start docker
+$SUDO loginctl enable-linger "$USER"
+
+# Flatpak
+if [ "$FLATPAKS" != 'false' ]; then
+  $SUDO dnf install -y flatpak
+fi

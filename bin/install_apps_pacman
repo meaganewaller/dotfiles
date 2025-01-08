@@ -1,0 +1,87 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+if [ "$(id -u)" = 0 ]; then
+  SUDO=''
+elif command -v sudo >/dev/null; then
+  SUDO='sudo'
+
+  # Ask sudo password upfront
+  sudo -n true || sudo -v
+
+  # Keep sudo alive until the script has finished
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+else
+  printf "\nERROR: User is non-root and sudo not available, cannot proceed.\n"
+  exit 10
+fi
+
+# Certificates
+$SUDO pacman --noconfirm --needed -S ca-certificates
+
+# Cryptography
+$SUDO pacman --noconfirm --needed -S gnupg
+
+# Common build tools
+$SUDO pacman --noconfirm --needed -S base-devel bison bzip2 cmake gcc glibc
+
+# Common development dependencies
+$SUDO pacman --noconfirm --needed -S libffi libunistring libxml2 m4 ncurses \
+  openssl pkgconf readline sqlite3 xz zlib
+
+# Hack for 2023-01 libunistring.so.2 issues
+$SUDO ln -s /usr/lib/libunistring.so.5 /usr/lib/libunistring.so.2
+
+# Utils
+$SUDO pacman --noconfirm --needed -S coreutils bind file findutils \
+  git git-lfs htop lsb-release pandoc-cli procps traceroute unzip vim wget \
+  which whois zip
+
+# Bash
+$SUDO pacman --noconfirm --needed -S bash
+
+# Zsh
+$SUDO pacman --noconfirm --needed -S zsh
+
+# GNU awk
+$SUDO pacman --noconfirm --needed -S gawk
+
+# ctags
+$SUDO pacman --noconfirm --needed -S universal-ctags
+
+# pbcopy/pbpaste like experience
+#$SUDO pacman --noconfirm --needed -S xsel
+
+# Docker (rootless)
+$SUDO pacman --noconfirm --needed -S fuse3 fuse-overlayfs iptables
+curl -fsSL https://get.docker.com/rootless | sh
+systemctl --user start dbus
+systemctl --user start docker
+$SUDO loginctl enable-linger "$USER"
+
+# Yay
+git clone https://aur.archlinux.org/yay-bin.git "/tmp/yay-bin" ||
+  git -C "/tmp/yay-bin" pull --no-autostash --rebase
+(cd "/tmp/yay-bin" && makepkg --noconfirm --needed -si)
+
+# git-extras
+yay --noconfirm --needed -S git-extras
+
+# Microsoft TrueType fonts (accepts EULA)
+#yay --noconfirm --needed -S ttf-ms-fonts
+
+# Flatpak
+if [ "$FLATPAKS" != 'false' ]; then
+  $SUDO pacman --noconfirm --needed -S flatpak
+fi

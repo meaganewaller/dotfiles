@@ -1,0 +1,836 @@
+#!/bin/bash
+# the above shebang is only for ShellCheck, this file is not executable
+
+### Upgrade for all package managers ###########################################
+
+# shellcheck disable=SC2139  # ok to expand variable read-time, not run-time
+skipped_managers="containers helm vim"
+alias up="topgrade --yes --no-retry --disable system restarts $skipped_managers"
+alias dup="topgrade --yes --no-retry --disable $skipped_managers"
+
+### OS specific ################################################################
+
+if [ "$(uname -s)" = 'Darwin' ]; then
+  # Recursively delete .DS_Store files in the current path
+  alias cleanupds='/usr/bin/find . -type f -name "*.DS_Store" -ls -delete'
+
+  # Clean up LaunchServices to remove duplicates in "Open With" menues
+  alias cleanupls='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+    -kill -r -domain local -domain system -domain user &&
+    killall Finder'
+
+  # Fix broken icons in Dock
+  alias reseticons="sudo /usr/bin/find /private/var/folders/ \
+    -name com.apple.dock.iconcache -exec rmv {} \; ;
+    sudo /usr/bin/find /private/var/folders/ -name com.apple.iconservices -exec rm -rfv {} \; ;
+    sudo rm -rfv /Library/Caches/com.apple.iconservices.store ;
+    sleep 3 ;
+    killall Dock ;
+    killall Finder"
+
+  # Fix macOS keyboard input sources
+  alias resetkeyboard="rm -fv ~/Library/Preferences/com.apple.HIToolbox.plist ;
+    sudo rm -fv /Library/Preferences/com.apple.HIToolbox.plist"
+
+  # Get macOS keyboard layout name
+  alias kb="defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleSelectedInputSources | grep 'KeyboardLayout Name' | cut -f 2 -d '=' | tr -d ' ;.\"'"
+
+  # Disable or enable Spotlight (indexing)
+  alias spotoff='sudo mdutil -a -i off'
+  alias spoton='sudo mdutil -a -i on'
+
+  # Canonical hex dump; some systems have this symlinked
+  ! command -v hd >/dev/null && alias hd='hexdump -C'
+
+  # macOS keychain - get
+  gx() {
+    local name="$1"
+    [ -z "$name" ] && echo "Usage: $0 <name>" && return 1
+    security find-generic-password -a "$USER" -D "environment variable" \
+      -s "$name" -w
+  }
+
+  # macOS keychain: set
+  sx() {
+    local name="$1"
+    [ -z "$name" ] && echo "Usage: $0 <name>" && return 1
+    local secret="$2"
+    if [ -z "$secret" ]; then
+      printf "Enter secret for %s: " "$name"
+      read -r secret
+    fi
+    [ -z "$secret" ] && echo "Error: Empty secret" && return 1
+    security add-generic-password -a "$USER" -D "environment variable" \
+      -s "$name" -w "$secret" -U
+  }
+
+  # macOS keychain: delete
+  dx() {
+    local name="$1"
+    [ -z "$name" ] && echo "Usage: $0 <name>" && return 1
+    printf "Are you sure to remove all secret %s [y\N] > " "$1"
+    read -r choice
+    case "$choice" in
+    [yY])
+      security delete-generic-password -a "$USER" -D "environment variable" \
+        -s "$name"
+      ;;
+    *)
+      printf "Aborted.\n"
+      ;;
+    esac
+  }
+else
+  # Similar to macOS `pbcopy` and `pbpaste`
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output'
+
+  # Similar to macOS `open`
+  alias open='xdg-open'
+fi
+
+### More sensible defaults #####################################################
+
+alias code='code --reuse-window --add'
+# If present, VSCodium takes presendence over VSCode
+command -v codium >/dev/null && alias code='codium --reuse-window --add'
+
+# (Commercial) VSCode forks
+alias cursor='cursor --reuse-window --add'
+alias ws='windsurf --reuse-window --add'
+
+alias grep='grep --color'
+alias egrep='egrep --color'
+alias fgrep='fgrep --color'
+
+alias ping='ping -c 999'
+
+### Safer defaults #############################################################
+
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
+# rm: --preserve-root is default
+
+### Enhanced ls ################################################################
+
+if command -v lsd >/dev/null; then
+  alias ls='lsd --group-dirs first --date="+%a %d-%b-%y %H:%M:%S" --icon never'
+  alias la='ls -Al'
+  alias le='ls -Al --extensionsort && echo Ordered by extension, alphabetically'
+  alias lu='ls -Al --sizesort && echo Ordered by size, biggest first'
+  alias lt='ls -Al --timesort && echo Ordered by change time, most recent first'
+  alias lut='ls -Al --sizesort --total-size --tree --depth 2'
+else
+  alias ls='ls --color -h'
+  alias la='ls -Al'
+  alias le='ls -Al -XB && echo Ordered by extension, alphabetically'
+  alias lu='ls -Al -S && echo Ordered by size, biggest first'
+  alias lt='ls -Al -tc && echo Ordered by change time, most recent first'
+fi
+
+### Shortcuts ##################################################################
+
+alias a='aichat'
+alias b='bat --style=grid,header-filename,numbers,snip'
+alias c='ai_developer'
+# d is for generic docker build and run, see d()
+# e is for generic extract package, see e()
+alias f='fd --ignore-case --no-ignore --hidden'
+alias g='git'
+alias h='xh --verify=no'
+alias i='glances'
+# j is for zoxide
+alias k='kalk'
+alias l='la'
+# m is for m-cli
+# n is for ad-hoc nix-shell in docker, see n()
+alias o='open'
+alias p='procs --tree --watch-interval 1'
+alias q='clear'
+alias r='exec $SHELL'
+alias s='rg --smart-case --no-ignore --hidden --glob "!.git/"'
+alias t='logs'
+alias u='diskonaut'
+alias v='limactl'
+alias w='which -a'
+alias x='pkill -i -f'
+alias y='tldr'
+alias z='port'
+alias ¨='bat --show-all --theme=default'
+alias §='trans :fi'
+alias ,='trans'
+alias _='ai_assistant'
+
+### watch ######################################################################
+
+command -v hwatch >/dev/null && alias watch='hwatch --differences word'
+
+### Lima VMs ###################################################################
+
+alias vm4ubuntu="limactl start --name ubuntu ~/.config/configent/lima/ubuntu.yaml --tty=false"
+alias vm4debian="limactl start --name debian ~/.config/configent/lima/debian.yaml --tty=false ;
+  export KUBECONFIG=~/.lima/default/kubeconfig.yaml ;
+  kubectl get nodes"
+
+alias vm4fedora="limactl start --name fedora ~/.config/configent/lima/fedora.yaml --tty=false"
+alias vm4centos="limactl start --name centos ~/.config/configent/lima/centos.yaml --tty=false"
+
+alias vm4alma="limactl start --name almalinux ~/.config/configent/lima/almalinux.yaml --tty=false"
+alias vm4rocky="limactl start --name rocky ~/.config/configent/lima/rocky.yaml --tty=false"
+alias vm4oracle="limactl start --name oraclelinux ~/.config/configent/lima/oraclelinux.yaml --tty=false"
+
+alias vm4suse="limactl start --name opensuse ~/.config/configent/lima/opensuse.yaml --tty=false"
+alias vm4arch="limactl start --name archlinux ~/.config/configent/lima/archlinux.yaml --tty=false"
+alias vm4alpine="limactl start --name alpine ~/.config/configent/lima/alpine.yaml --tty=false"
+
+### docker #####################################################################
+
+alias dr='docker rm --force $(docker ps --all --quiet)'
+alias drv='docker volume rm --force $(docker volume ls --quiet)'
+alias dri='docker rmi --force $(docker images --all --quiet)'
+alias dpr='dr ; drv ; dri ; docker system prune --force --volumes'
+
+### containerd #################################################################
+
+alias nr='nerdctl rm --force $(nerdctl ps --all --quiet)'
+alias nrv='nerdctl volume rm --force $(nerdctl volume ls --quiet)'
+alias nri='nerdctl rmi --force $(nerdctl images --all --quiet)'
+alias npr='nr ; nrv ; nri ; nerdctl system prune --force --volumes'
+
+### Utilities ##################################################################
+
+# cd
+alias cdtemp="cd $(mktemp -d)"
+
+# Typos
+alias dc='cd'
+alias gti='git'
+
+# Copy the current path to clipboard
+alias cwd='pwd | tr -d "\n" | pbcopy'
+
+# Display public IP
+alias ip='curl --silent --ipv4 https://ifconfig.co/json | jq .'
+alias ipv6='curl --silent --ipv6 https://ifconfig.co/ip'
+
+# Display PATH content
+alias path='printf "${PATH//:/\\n}\n"'
+
+# Enable aliases to be sudo’ed
+alias sudo='sudo '
+
+# Display week number
+alias week='date +%V'
+
+# Weather (https://github.com/chubin/wttr.in)
+alias wttr='curl "v2.wttr.in/$(ip | jq -r .city)?MF&lang=en"'
+
+### Python #####################################################################
+
+# https://hatch.pypa.io/latest
+alias hatch='uvx hatch'
+
+# Command-line utility for rendering projects templates
+alias copier='uvx --with copier-templates-extensions copier'
+
+# Reactive notebook
+alias marimo='uvx marimo'
+
+# SQL IDE for terminal
+alias harlequin='uvx --from "harlequin[mysql,postgres]" harlequin --theme lightbulb'
+
+# Semgrep (SAST: code vulnerability scanner)
+alias semgrep='uvx semgrep'
+
+# GuardDog (SAST: malicious package identifier - uses semgrep underneath)
+alias guarddog='uvx guarddog'
+
+# Checkov (SAST: cloud misconfiguration scanner)
+alias checkov='uvx checkov'
+
+# Multitool for tabular data in terminal
+alias vd='uvx --with odfpy,openpyxl visidata'
+
+# General media downloader
+alias you-get='uvx you-get'
+
+# Concatenate files for use with LLMs (see repomix for Node.js version)
+alias files-to-prompt='uvx files-to-prompt'
+
+# Huggingface CLI
+alias huggingface-cli='uvx --from huggingface-hub huggingface-cli'
+
+# OpenAI CLI
+alias openai='uvx openai'
+
+# Langflow
+alias langflow='uvx langflow'
+
+# Toggle a Python virtual environment for development
+venv() {
+  # shellcheck disable=SC1091  # activate does not exist unless venv is created
+  if [ -z "$VIRTUAL_ENV" ]; then
+    [ ! -d ".venv" ] && uv venv --seed # python -m venv .venv
+    source ".venv/bin/activate"
+    sitepackages_path="$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"
+    ln -sfnv "$HOME/.config/configent/python/sitecustomize.py" \
+      "$sitepackages_path/sitecustomize.py"
+    uv pip install ptpython rich
+    if [ -r "pdm.lock" ] && command -v pdm >/dev/null; then
+      pdm install
+    elif [ -r "poetry.lock" ] && command -v poetry >/dev/null; then
+      ! poetry check &>/dev/null && poetry lock
+      poetry install
+    elif [ -r "uv.lock" ] && [ -r "pyproject.toml" ]; then
+      # inexact: do not remove extraneous packages unless they conflict
+      uv sync --inexact --all-extras
+      uv pip install --editable .
+    else
+      # no lockfile, do not create one either
+      # prioritize requirements.txt as it most likely has pinned dependencies
+      if [ -r "requirements.txt" ]; then
+        uv pip install -r requirements.txt
+      elif [ -r "pyproject.toml" ]; then
+        uv pip install --all-extras -r pyproject.toml
+      elif [ -r "setup.py" ]; then
+        uv pip install --all-extras -r setup.py
+      fi
+      if [ -r "pyproject.toml" ] || [ -r "setup.py" ]; then
+        uv pip install --editable .
+      fi
+    fi
+  else
+    deactivate # && [ -d ".venv" ] && rm -rv ".venv"
+  fi
+}
+
+### Node.js ####################################################################
+
+# Find unused and missing package.json (dev)Dependencies
+alias depcheck='bunx depcheck'
+
+# Upgrades your package.json dependencies to the latest version
+alias ncu='bunx npm-check-updates'
+
+# Project generator (requires bin/yarn shim)
+alias projen='bunx projen'
+
+# Bump version and generate CHANGELOG.md
+alias standard-version='bunx standard-version'
+
+# Azure Functions CLI
+alias func='bunx azure-functions-core-tools'
+
+# Firebase CLI
+alias firebase='bunx firebase-tools'
+
+# Cloudflare Workers CLI
+alias wrangler='bunx wrangler'
+
+# Railway.app CLI
+alias railway='bunx @railway/cli'
+
+# Packs entire repository into a single, AI-friendly file
+alias repomix='bunx repomix'
+
+# Flowise
+alias flowise='bunx flowise'
+
+### Functions: AI ##############################################################
+
+_aichat_setup_functions() {
+  git clone "$FUNCTIONS_REPO_URL" "$AICHAT_FUNCTIONS_DIR" &&
+    (cd "$AICHAT_FUNCTIONS_DIR" >/dev/null && argc build)
+}
+
+_aichat_build_agents() {
+  local agent="$1"
+  local context="$2"
+  [ ! -d "$AICHAT_FUNCTIONS_DIR" ] && _aichat_setup_functions
+  (
+    cd "$AICHAT_FUNCTIONS_DIR" >/dev/null 2>&1 &&
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      if [ -n "$(git status --porcelain)" ]; then
+        if [ -n "$agent" ]; then
+          argc build@agent "$agent"
+          if [ -n "$context" ]; then
+            ctx_path="$AICHAT_CONFIG_DIR/agents/$agent/sessions/$context.yaml"
+            [ -e "$ctx_path" ] && mv -fv "$ctx_path" "$ctx_path.old"
+          fi
+        else
+          argc build@agent
+        fi
+      fi
+    fi
+  )
+}
+
+_aichat_build_tools() {
+  [ ! -d "$AICHAT_FUNCTIONS_DIR" ] && _aichat_setup_functions
+  (
+    cd "$AICHAT_FUNCTIONS_DIR" >/dev/null 2>&1 &&
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      if [ -n "$(git status --porcelain)" ]; then
+        argc build@tool
+      fi
+    fi
+  )
+}
+
+# in ~/.rclocal:
+# export <PROVIDER>_API_KEY='sk-xxxxxx'
+ai() {
+  local role="$1"
+  local category="general"
+  local context="${PWD##*/}"
+  _aichat_build_tools
+
+  if [ -z "$role" ]; then
+    role="chat"
+  else
+    # search most specific roles first
+    if AICHAT_ROLES_DIR="$HOME/.config/configent/prompts/developer" aichat --list-roles | grep -Fx -q "$role"; then
+      category="developer"
+    elif AICHAT_ROLES_DIR="$HOME/.config/configent/prompts/assistant" aichat --list-roles | grep -Fx -q "$role"; then
+      category="assistant"
+    else
+      role="chat#$role"
+    fi
+    shift
+  fi
+
+  echo "[ai] using $category prompts"
+  AICHAT_ROLES_DIR="$HOME/.config/configent/prompts/$category" \
+    aichat --role "$role" --session "$role@$context" --save-session "$@"
+}
+
+ai_assistant() {
+  local agent="assistant"
+  local context="${PWD##*/}"
+  _aichat_build_agents "$agent" "$context"
+  aichat --agent "$agent" --session "$context" --save-session "$@"
+}
+
+ai_developer() {
+  local agent="developer"
+  local context="${PWD##*/}"
+  _aichat_build_agents "$agent" "$context"
+  aichat --agent "$agent" --session "$context" --save-session "$@"
+}
+
+### Functions: Docker ##########################################################
+
+# Generic docker build and run
+d() {
+  # lowercase the image name to allow pushing it to container registries
+  # shellcheck disable=SC2155  # will not declare separately, value compactness
+  local name="$(echo "${PWD##*/}" | tr '[:upper:]' '[:lower:]')"
+  if docker top "$name" &>/dev/null; then
+    docker stop "$name" || docker kill "$name"
+  fi
+
+  if [ -r "$PWD/Dockerfile" ]; then
+    echo "[d] Building image from Dockerfile"
+    docker build --pull --tag "$name" . || return
+  else
+    echo "[d] Building image with nixpacks"
+    TMPDIR="/tmp/lima" nixpacks build . --name "$name" || return
+  fi
+
+  if [ -n "$PORT" ]; then
+    local port_args="--publish 127.0.0.1:$PORT:$PORT"
+    local env_args="--env PORT=$PORT"
+  fi
+
+  [ -r "$PWD/.env" ] && local env_file="--env-file $PWD/.env"
+
+  if [ -n "$1" ] && [ "$1" != "-d" ] && [ "$1" != "--detach" ]; then
+    local run_args="--log-driver none --entrypoint /bin/sh"
+    local cmd="-c '$*'"
+  else
+    local run_args="$*"
+  fi
+
+  eval docker run --init -it --name "$name" --rm \
+    --cap-drop ALL \
+    "$port_args" \
+    "$env_file" \
+    "$env_args" \
+    "$run_args" \
+    "$name" "$cmd"
+
+  local run_exit_code=$?
+
+  if [ "$run_args" = "-d" ] || [ "$run_args" = "--detach" ]; then
+    echo "[d] Published ports: container -> host"
+    docker port "$name"
+    echo "[d] Following logs, ^C does not halt the container"
+    docker logs --follow "$name"
+  fi
+
+  return $run_exit_code
+}
+
+### Functions: Utilities #######################################################
+
+# List 20 biggest subdirectories
+big() {
+  du | sort -r -n |
+    awk '{split("K M G",v); s=1; while($1>1024){$1/=1024; s++} \
+      print int($1)" "v[s]"\t"$2}' | head -n 20
+}
+
+# Generic extract package
+e() {
+  # Forked from: https://github.com/xvoland/Extract/blob/master/extract.sh
+  if [ $# -eq 0 ]; then
+    echo "Usage: $0 <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz|.zlib|.cso>"
+    echo "       $0 <path/file_name_1.ext> [path/file_name_2.ext] [path/file_name_3.ext]"
+  fi
+
+  for n in "$@"; do
+    if [ ! -f "$n" ]; then
+      echo "[e] File does not exist: $n"
+      return 1
+    fi
+
+    case "${n%,}" in
+    *.cbt | *.tar.bz2 | *.tar.gz | *.tar.xz | *.tbz2 | *.tgz | *.txz | *.tar)
+      tar zxvf "$n"
+      ;;
+    *.lzma) unlzma ./"$n" ;;
+    *.bz2) bunzip2 ./"$n" ;;
+    *.cbr | *.rar) unrar x -ad ./"$n" ;;
+    *.gz) gunzip ./"$n" ;;
+    *.cbz | *.epub | *.zip) unzip ./"$n" ;;
+    *.z) uncompress ./"$n" ;;
+    *.7z | *.apk | *.arj | *.cab | *.cb7 | *.chm | *.deb | *.iso | *.lzh | *.msi | *.pkg | *.rpm | *.udf | *.wim | *.xar | *.vhd)
+      7z x ./"$n"
+      ;;
+    *.xz) unxz ./"$n" ;;
+    *.exe) cabextract ./"$n" ;;
+    *.cpio) cpio -id <./"$n" ;;
+    *.cba | *.ace) unace x ./"$n" ;;
+    *.zpaq) zpaq x ./"$n" ;;
+    *.arc) arc e ./"$n" ;;
+    *.cso) ciso 0 ./"$n" ./"$n.iso" &&
+      extract "$n.iso" && \rm -f "$n" ;;
+    *.zlib) zlib-flate -uncompress <./"$n" >./"$n.tmp" &&
+      mv ./"$n.tmp" ./"${n%.*zlib}" && rm -f "$n" ;;
+    *.dmg)
+      hdiutil mount ./"$n" -mountpoint "./$n.mounted"
+      ;;
+    *)
+      echo "[e] Unknown archive: $n"
+      return 1
+      ;;
+    esac
+  done
+}
+
+# Generate password and copy it to clipboard
+genpass() {
+  local length="${1:-16}"
+  tr </dev/urandom -dc 'a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?=' |
+    fold -w "$length" | head -n1 | pbcopy
+}
+
+# Scientific calculator with support for physical units
+kalk() {
+  # https://numbat.dev/
+  if [ $# -eq 0 ]; then
+    numbat
+  else
+    numbat --expression "$*"
+  fi
+}
+
+# Follow the given log file, or cloud-init output if log file is not given
+logs() {
+  local log_file="${1:-"/var/log/cloud-init-output.log"}"
+  if command -v tspin >/dev/null; then
+    if [ -r "$log_file" ]; then
+      tspin --follow "$log_file"
+    else
+      sudo "$(which tspin)" --follow "$log_file"
+    fi
+  else
+    if [ -r "$log_file" ]; then
+      tail --follow --verbose --lines=20 "$log_file"
+    else
+      sudo tail --follow --verbose --lines=20 "$log_file"
+    fi
+  fi
+}
+
+# List what listens on port(s, separated by comma)
+port() {
+  local filter=
+  [ -n "$1" ] && filter=":$1"
+  lsof -P -iTCP"$filter" -sTCP:LISTEN +c0
+}
+
+### Functions: Cleaners ########################################################
+
+# Npm remove all global packages (except later npm installed via npm)
+npmclear() {
+  npm ls --location=global -p --depth=0 |
+    awk -F/ '/node_modules/ && !/\/npm$/ {print $NF}' |
+    xargs npm --location=global rm
+}
+
+# Gem remove all
+gemclear() {
+  gem uninstall -aIx
+}
+
+# Pip(x) remove all
+pipclear() {
+  command -v uv >/dev/null && uv tool uninstall --all
+  command -v pipx >/dev/null && pipx uninstall-all
+  pip freeze | grep -v "^-e" | cut -d "@" -f1 | xargs pip uninstall -y
+}
+
+# Remove all non-cask formulae
+brewclear() {
+  printf "Are you sure to remove all Homebrew formulae [y\N] > "
+  read -r choice
+  case "$choice" in
+  [yY])
+    brew list --formula | xargs brew uninstall --ignore-dependencies --force
+    ;;
+  *)
+    printf "Aborted.\n"
+    ;;
+  esac
+}
+
+# Remove all VS Code extensions
+codeclear() {
+  printf "Are you sure to remove all VS Code extensions [y\N] > "
+  read -r choice
+  case "$choice" in
+  [yY])
+    code --list-extensions | while read -r extension; do
+      code --force --uninstall-extension "$extension"
+    done
+    ;;
+  *)
+    printf "Aborted.\n"
+    ;;
+  esac
+}
+
+# Remove all VSCodium extensions
+codiumclear() {
+  printf "Are you sure to remove all VSCodium extensions [y\N] > "
+  read -r choice
+  case "$choice" in
+  [yY])
+    codium --list-extensions | while read -r extension; do
+      codium --force --uninstall-extension "$extension"
+    done
+    ;;
+  *)
+    printf "Aborted.\n"
+    ;;
+  esac
+}
+
+# Remove all Cursor extensions
+cursorclear() {
+  printf "Are you sure to remove all Cursor extensions [y\N] > "
+  read -r choice
+  case "$choice" in
+  [yY])
+    cursor --list-extensions | while read -r extension; do
+      cursor --force --uninstall-extension "$extension"
+    done
+    ;;
+  *)
+    printf "Aborted.\n"
+    ;;
+  esac
+}
+
+# Remove all Windsurf extensions
+wsclear() {
+  printf "Are you sure to remove all Windsurf extensions [y\N] > "
+  read -r choice
+  case "$choice" in
+  [yY])
+    windsurf --list-extensions | while read -r extension; do
+      windsurf --force --uninstall-extension "$extension"
+    done
+    ;;
+  *)
+    printf "Aborted.\n"
+    ;;
+  esac
+}
+
+### Nix ########################################################################
+
+# Nix in containerd
+nixd() {
+  if [ -z "$1" ]; then
+    local bin="bash"
+  else
+    local bin="$1"
+    shift
+  fi
+  local image="nix"
+  local name="$image-${PWD##*/}"
+
+  if [ -n "$PORT" ]; then
+    local port_args="--publish 127.0.0.1:$PORT:$PORT"
+    local env_args="--env PORT=$PORT"
+  fi
+
+  #[ -r "$PWD/.env" ] && local env_file="--env-file $PWD/.env"
+
+  nerdctl start "$name" &>/dev/null ||
+    (nerdctl build --tag "$image" ~/configent/etc/nix &&
+      eval nerdctl run --init -t --detach \
+        --name "$name" \
+        "$port_args" \
+        --volume "$PWD:$PWD" \
+        --workdir "$PWD" \
+        "$image")
+  eval nerdctl exec -it \
+    "$env_file" \
+    "$env_args" \
+    --workdir "$PWD" \
+    "$name" "$bin" "$*"
+}
+
+# Generic nix-shell builder and runner
+n() {
+  [ -z "$1" ] && echo "Usage: $0 nix-pkg1[/nix-pkgN] [ARGUMENTS]" && return
+  local packages="${1//\// }"
+  # shellcheck disable=SC1001   # escape forward slash on purpose
+  case "$1" in shell*)
+    shift
+    local packages="${packages#* }"
+    local command="bash -c '$*'"
+    ;;
+  *\/*)
+    shift
+    local bin="${packages%% *}"
+    local command="$bin $*"
+    ;;
+  *)
+    local command="$*"
+    ;;
+  esac
+  # shellcheck disable=SC2086   # command has to be in quotes
+  nixd nix-shell --packages "$packages" --command \"$command\"
+}
+
+# https://nixery.dev/
+nixery() {
+  [ -z "$1" ] && echo "Usage: $0 nix-pkg1[/nix-pkgN] [ARGUMENTS]" && return
+  local packages="$1"
+  shift
+  local bin="${packages%%/*}"
+  if [ "$bin" = "shell" ]; then
+    local command="bash -c '$*'"
+  else
+    local command="$bin $*"
+  fi
+  if [ "$(uname -m)" = 'arm64' ] || [ "$(uname -m)" = 'aarch64' ]; then
+    local image="nixery.dev/arm64/$packages"
+  else
+    local image="nixery.dev/$packages"
+  fi
+  eval nerdctl run --init -it --rm \
+    --volume "$PWD:$PWD":rro,rprivate \
+    --workdir "$PWD" \
+    "$image" "$command"
+}
+
+### Ad-hoc binaries via Nix ####################################################
+
+# file explorers
+alias yazi='n yazi/ffmpegthumbnailer/unar/jq/poppler/fd/ripgrep/fzf/zoxide/vim'
+
+# file conversion
+alias pdftotext='n shell/poppler_utils pdftotext'
+
+# servers
+alias miniserve='PORT=8000 n miniserve --hide-version-footer --port \$PORT $PWD'
+
+# cloud
+alias azcopy='n shell/azure-storage-azcopy azcopy'
+
+# appsec
+alias grype='n grype'
+alias syft='n syft'
+
+# secrets
+alias trufflehog='n trufflehog/git'
+
+# sast
+alias hadolint='n hadolint'
+alias kubescape='n kubescape'
+alias terrascan='n terrascan'
+
+# database clients
+alias mysql='n shell/mariadb mysql'
+alias psql='n shell/postgresql psql'
+
+# decoders
+alias fq='n fq'
+alias hexyl='n hexyl'
+alias lemmeknow='n lemmeknow'
+
+# development
+alias devenv='n devenv' # https://devenv.sh/
+alias difft='n shell/difftastic difft'
+alias grex='n grex'
+alias pcalc='n pcalc'
+alias tokei='n tokei'
+
+# load testing
+alias k6='n k6'
+alias oha='n oha'
+
+# network
+alias dog='n shell/dogdns dog'
+alias gping='n gping/iputils'
+
+# port scanners
+alias naabu='n naabu'
+alias nmap='n nmap'
+alias rustscan='n rustscan'
+
+# osint
+alias maigret='n maigret'
+
+# enumeration
+alias amass='n amass'
+alias feroxbuster='n feroxbuster'
+alias gobuster='n gobuster'
+alias katana='n katana'
+
+# dns scanners
+alias dnstwist='n dnstwist'
+alias subfinder='n subfinder'
+
+# web scanners
+alias ffuf='n ffuf'
+alias nikto='n nikto'
+alias nuclei='n nuclei'
+alias wapiti='n wapiti'
+
+# xss scanners
+alias dalfox='n dalfox'
+
+# pentesting
+alias msfconsole='n shell/metasploit msfconsole'
+alias sqlmap='n sqlmap'
+
+# password recovery
+alias hashcat='n hashcat'
+alias hydra='n shell/thc-hydra hydra'

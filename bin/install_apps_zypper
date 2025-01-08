@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+if [ "$(id -u)" = 0 ]; then
+  SUDO=''
+elif command -v sudo >/dev/null; then
+  SUDO='sudo'
+
+  # Ask sudo password upfront
+  sudo -n true || sudo -v
+
+  # Keep sudo alive until the script has finished
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+else
+  printf "\nERROR: User is non-root and sudo not available, cannot proceed.\n"
+  exit 1
+fi
+
+# Update package lists
+$SUDO zypper refresh
+
+# Certificates
+$SUDO zypper install -y ca-certificates
+
+# Cryptography
+$SUDO zypper install -y gpg2
+
+# Common build tools
+$SUDO zypper install -y bison cmake gcc gcc-c++ make m4 pkg-config
+
+# Common development dependencies
+$SUDO zypper install -y readline-devel sqlite3-devel libbz2-devel \
+  libffi-devel libyaml-devel liblzma5 libopenssl-devel xz-devel zlib-devel
+
+# Utils
+$SUDO zypper install -y bind-utils coreutils file findutils \
+  git git-lfs htop lsb-release lsof man pandoc procps traceroute unzip wget \
+  whois zip
+
+# Bash
+$SUDO zypper install -y bash
+
+# Zsh
+$SUDO zypper install -y zsh
+
+# git-extras, not available in OpenSUSE (as of 2023-07)
+#$SUDO zypper install -y git-extras
+
+# GNU awk
+$SUDO zypper install -y gawk
+
+# ctags
+$SUDO zypper install -y ctags
+
+# pbcopy/pbpaste like experience
+#$SUDO zypper install -y xsel
+
+# Microsoft TrueType fonts (accepts EULA)
+# $SUDO zypper install -y fetchmsttfonts
+
+# Docker (rootless)
+$SUDO zypper install -y fuse-overlayfs
+$SUDO modprobe ip_tables iptable_mangle iptable_nat iptable_filter
+curl -fsSL https://get.docker.com/rootless | sh
+systemctl --user start dbus
+systemctl --user start docker
+$SUDO loginctl enable-linger "$USER"
+
+# Flatpak
+if [ "$FLATPAKS" != 'false' ]; then
+  $SUDO zypper install -y flatpak
+fi

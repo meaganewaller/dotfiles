@@ -1,0 +1,99 @@
+[alias]
+# the original asdf-azure-cli plugin messes up python version
+azure-cli = 'asdf:https://github.com/asyrjasalo/asdf-azure-cli'
+
+[tools]
+rust = '1.83.0'
+cargo-binstall = 'latest'
+# dotfiles requirements
+'cargo:aichat' = { version = 'latest', postinstall = "~/.local/configent/bin/postinstall_aichat" }
+'cargo:argc' = 'latest'
+'cargo:bat' = { version = 'latest', postinstall = "~/.local/configent/bin/postinstall_bat" }
+'cargo:diskonaut' = 'latest'
+'cargo:fd-find' = 'latest'
+'cargo:git-delta' = 'latest'
+'cargo:gitui' = 'latest'
+'cargo:hurl' = 'latest'
+'cargo:hwatch' = 'latest'
+'cargo:lsd' = 'latest'
+'cargo:numbat-cli' = 'latest'
+'cargo:ouch' = 'latest'
+'cargo:procs' = 'latest'
+'cargo:ripgrep' = 'latest'
+'cargo:sd' = 'latest'
+'cargo:starship' = { version = 'latest', postinstall = "~/.local/configent/bin/postinstall_starship" }
+'cargo:tailspin' = 'latest'
+'cargo:xh' = 'latest'
+'cargo:zoxide' = 'latest'
+# topgrade
+'cargo:cargo-cache' = 'latest' # https://github.com/matthiaskrgr/cargo-cache
+'cargo:cargo-update' = { version = 'latest', postinstall = "~/.local/configent/bin/postinstall_topgrade" } # https://github.com/nabijaczleweli/cargo-update
+'cargo:topgrade' = 'latest' #  https://github.com/topgrade-rs/topgrade
+# extras
+'cargo:kondo' = 'latest' # https://github.com/tbillington/kondo
+'cargo:nixpacks' = 'latest' # https://github.com/railwayapp/nixpacks
+'cargo:pastel' = 'latest' # https://github.com/sharkdp/pastel
+'cargo:watchexec-cli' = 'latest' # https://github.com/watchexec/watchexec
+
+go = '1.23.4'
+'go:github.com/muesli/duf' = 'latest'
+'go:github.com/go-enry/enry' = 'latest'
+'go:github.com/charmbracelet/glow' = 'latest'
+'go:golang.org/x/tools/gopls' = 'latest'
+'go:mvdan.cc/sh/v3/cmd/shfmt' = 'latest'
+'go:github.com/abhimanyu003/sttr' = 'latest'
+'go:github.com/shihanng/tfvar' = 'latest'
+'go:github.com/rverton/webanalyze/cmd/webanalyze' = 'latest'
+
+node = '22.12.0'
+bun = '1.1.42'
+'npm:pnpm' = 'latest'
+'npm:yarn' = 'latest'
+
+python = { version = '3.13.1', postinstall = "~/.local/configent/bin/postinstall_python" }
+uv = 'latest'
+'pipx:aider-chat' = { version = 'latest', extras = 'browser', uvx_args = '--python 3.11', postinstall = "~/.local/configent/bin/postinstall_aider" }
+'pipx:glances' = { version = "latest", extras = "containers,gpu,web,wifi" }
+'pipx:gptme' = { version = 'latest', extras = 'browser', uvx_args = ' --with flask', postinstall = "~/.local/configent/bin/postinstall_gptme" }
+'pipx:pdm' = 'latest'
+'pipx:playwright' = 'latest'
+'pipx:poetry' = 'latest'
+'pipx:pre-commit' = 'latest'
+'pipx:sncli' = { version = 'latest', uvx_args = '--python 3.11', postinstall = "~/.local/configent/bin/postinstall_sncli" }
+'pipx:tldr' = 'latest'
+
+dotnet = { version = '8.0.404' }
+'dotnet:powershell' = { version = '7.4.6', postinstall = "~/.local/configent/bin/postinstall_pwsh" }
+
+#ruby = '3.4.1'
+#java = 'temurin-17.0.13+11'
+#ghcup = { version = '0.1.30.0', postinstall = "ghcup install stack" }
+fzf = '0.57.0'
+jq = '1.7.1'
+github-cli = '2.64.0'
+shellcheck = '0.10.0'
+trivy = '0.58.1'
+awscli = '2.22.26'
+azure-cli = { version = '2.67.0', postinstall = "~/.local/configent/bin/postinstall_azure" }
+#gcloud = '504.0.1'
+#terraform = '1.10.3'
+#tfsec = '1.28.11'
+#kubectl = '1.32.0'
+#krew = { version = '0.4.4', postinstall = "krew install ctx ns" }
+#helm = '3.16.4'
+#k9s = '0.32.7'
+#cloudflared = '2024.12.2'
+#flyctl = '0.3.56'
+neovim = { version = '0.10.3', postinstall = "~/.local/configent/bin/postinstall_neovim" }
+tmux = { version = '3.5a', postinstall = "~/.local/configent/bin/postinstall_tmux" }
+#ollama = '0.5.4' # works on both macOS/Linux but autostarts on neither
+lima = '1.0.3'
+usage = 'latest'
+'vfox:jdx/vfox-clang' = '18.1.8'
+#'vfox:version-fox/vfox-cmake' = '3.31.3'
+
+[settings]
+experimental = true
+cargo.binstall = true
+npm.bun = true
+pipx.uvx = true

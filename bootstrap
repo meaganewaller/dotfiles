@@ -1,0 +1,35 @@
+#!/bin/sh
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+rclocal_path="$HOME/.rclocal"
+this_path="$(cd "$(dirname "$0")" && pwd)"
+
+touch "$rclocal_path"
+
+# set empty MISE_GITHUB_TOKEN token (https://github.com/jdx/mise/issues/2910)
+if ! grep -q "export MISE_GITHUB_TOKEN=" "$rclocal_path"; then
+  printf "\nexport MISE_GITHUB_TOKEN=\"\$GITHUB_TOKEN\"" >>"$rclocal_path"
+fi
+
+# take existing git user name and email from .gitconfig, or leave them blank
+if ! grep -q "export EMAIL=" "$rclocal_path"; then
+  EMAIL="$(git config --global user.email)"
+  printf "\nexport EMAIL='%s'" "$EMAIL" >>"$rclocal_path"
+fi
+if ! grep -q "export GIT_AUTHOR_NAME=" "$rclocal_path"; then
+  GIT_NAME="$(git config --global user.name)"
+  printf "\nexport GIT_AUTHOR_NAME='%s'" "$GIT_NAME" >>"$rclocal_path"
+fi
+if ! grep -q "export GIT_COMMITTER_NAME=" "$rclocal_path"; then
+  GIT_NAME="$(git config --global user.name)"
+  printf "\nexport GIT_COMMITTER_NAME='%s'" "$GIT_NAME" >>"$rclocal_path"
+fi
+
+### files in the repo ##########################################################
+
+"$this_path/symlink_dotfiles"
+NONINTERACTIVE=true "$this_path/install_apps"
+"$this_path/setup_ide"
+
+printf "\n✅ bootstrap done.\n"

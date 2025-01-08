@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+# you can use this script to symlink configuration for VS Code forks, e.g.:
+#
+# BIN_NAME="cursor" ./create_extensions_list
+# BIN_NAME="windsurf" ./create_extensions_list
+
+### constants ##################################################################
+
+this_path=$(cd "$(dirname "$0")" && pwd)
+
+if [ "$(uname -s)" = 'Linux' ]; then
+  default_bin_name="codium"
+else
+  default_bin_name="code"
+fi
+
+### variables ##################################################################
+
+: "${BIN_NAME:="$default_bin_name"}"
+
+###  Write list of installed extensions to a file ##############################
+
+"$BIN_NAME" --list-extensions >"$this_path/extensions.list"

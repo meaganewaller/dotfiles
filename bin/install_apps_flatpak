@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+# https://flathub.org/
+flatpak remote-add --user --if-not-exists \
+  flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# Brave
+flatpak install --user -y flathub com.brave.Browser
+
+# VSCodium
+flatpak install --user -y flathub com.vscodium.codium
+
+# LibreOffice
+#flatpak install --user -y flathub org.libreoffice.LibreOffice

@@ -1,0 +1,77 @@
+#!/bin/sh
+
+# configent (https://github.com/raas-dev/configent)
+# One command automated macOS/Linux laptop/VM/container bootstrapper.
+#
+# Copyright(C) 2016- Anssi Syrjäsalo (http://a.syrjasalo.com)
+# Licensed under GNU Lesser General Public License v3 (LGPL-3.0).
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+### Set bash as the default shell ##############################################
+
+if [ "$(uname -s)" = 'Darwin' ]; then
+  if [ "$(uname -m)" = 'arm64' ]; then
+    if [ -x "/opt/homebrew/bin/bash" ]; then
+      bash_path="/opt/homebrew/bin/bash"
+    elif [ -x "/bin/bash" ]; then
+      bash_path="/bin/bash"
+    fi
+  else
+    if [ -x "/usr/local/bin/bash" ]; then
+      bash_path="/usr/local/bin/bash"
+    elif [ -x "/bin/bash" ]; then
+      bash_path="/bin/bash"
+    fi
+  fi
+  default_shell=$(dscl . -read "$HOME" UserShell | cut -d' ' -f2)
+else
+  if [ -x "/home/linuxbrew/.linuxbrew/bin/bash" ]; then
+    bash_path="/home/linuxbrew/.linuxbrew/bin/bash"
+  elif [ -x "$HOME/.linuxbrew/bin/bash" ]; then
+    bash_path="$HOME/.linuxbrew/bin/bash"
+  elif [ -x "/bin/bash" ]; then
+    bash_path="/bin/bash"
+  fi
+  default_shell=$(getent passwd "$LOGNAME" | cut -d: -f7)
+fi
+
+if [ -x "$bash_path" ]; then
+  if [ "$default_shell" = "$bash_path" ]; then
+    echo "$bash_path is already set as the user's default shell."
+  else
+    if [ -z "$NONINTERACTIVE" ]; then
+      echo ""
+      printf "Set %s as the user's default shell [y\N] > " "$bash_path"
+      read -r set_bash
+      case "$set_bash" in
+      [yY][eE][sS] | [yY])
+        if ! grep -q "$bash_path" /etc/shells >/dev/null 2>&1; then
+          echo "Sudo password may be asked next to write to /etc/shells"
+          echo "$bash_path" | sudo tee -a /etc/shells
+        fi
+        if [ "$(uname -s)" = 'Darwin' ]; then
+          echo "On macOS, sudo is used to set the user's default shell."
+          sudo dscl . -create "$HOME" UserShell "$bash_path"
+        else
+          case $(sudo passwd --status "$USER" | awk '{print $2}') in
+          NP)
+            echo "User's password will be asked next to set the shell."
+            chsh -s "$bash_path"
+            ;;
+          P)
+            echo "User has no password, sudo is used to set the shell."
+            sudo chsh -s "$bash_path" "$USER"
+            ;;
+          *)
+            echo "User is locked, sudo is used to set the shell."
+            sudo chsh -s "$bash_path" "$USER"
+            ;;
+          esac
+        fi
+        echo "$bash_path is the user's default shell on next login or reboot."
+        ;;
+      esac
+    fi
+  fi
+fi

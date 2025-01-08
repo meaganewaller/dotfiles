@@ -1,0 +1,55 @@
+#!/bin/sh
+
+trap "printf '\nCaught ^C from user - exiting now\n' ; exit 130" INT
+
+this_path=$(cd "$(dirname "$0")" && pwd)
+bin_path="$this_path/bin"
+
+if [ "$(uname -s)" = 'Darwin' ]; then
+  "$bin_path/install_apps_brew"
+  if [ "$CASKS" != 'false' ]; then
+    "$bin_path/install_apps_cask"
+  else
+    printf "CASKS=false and on macOS, won't install casks.\n"
+  fi
+elif [ "$(uname -s)" = 'Linux' ]; then
+  # zypper is aliased as apt-get, thus it has to come before real apt-get!
+  if command -v zypper >/dev/null; then
+    "$bin_path/install_apps_zypper"
+  elif command -v apt-get >/dev/null; then
+    "$bin_path/install_apps_apt"
+    if [ "$ROOTFUL_DOCKER" = 'true' ] || [ -S "/var/run/docker.sock" ]; then
+      "$bin_path/install_docker"
+    else
+      "$bin_path/install_docker_rootless"
+    fi
+  elif command -v dnf >/dev/null; then
+    "$bin_path/install_apps_yum"
+  elif command -v pacman >/dev/null; then
+    "$bin_path/install_apps_pacman"
+  elif command -v apk >/dev/null; then
+    "$bin_path/install_apps_apk"
+  fi
+  if [ "$FLATPAKS" != 'false' ]; then
+    "$bin_path/install_apps_flatpak"
+  else
+    printf "FLATPAKS=false and on Linux, won't install flatpaks.\n"
+  fi
+else
+  printf "\nError: Neither macOS nor apt, yum, zypper, pacman or apk present.\n"
+  exit 1
+fi
+
+# assumes `zsh` is present at this point, installs Zsh plugins
+# prompts to set Zsh as the default shell
+# pass NONINTERACTIVE=true to skip (set by bootstrap)
+"$bin_path/setup_zsh"
+
+# assumes `vim` is present at this point, install Vundle and vim plugins
+"$bin_path/setup_vundle"
+
+# install mise, and all tools which are not disabled in etc/mise/config.yml
+"$bin_path/install_mise"
+
+# install Ollama
+"$bin_path/install_ollama"
