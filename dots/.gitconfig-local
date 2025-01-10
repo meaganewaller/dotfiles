@@ -1,0 +1,27 @@
+[user]
+username = meaganewaller
+email = meaganewaller@gmail.com
+
+[gpg]
+format = ssh
+
+[gpg "ssh"]
+program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+gpgsign = true
+
+[includeif "gitdir:~/Documents/Garden/"]
+path = ~/.gitconfig-personal
+
+[includeif "gitdir:~/Documents/Swiftie/"]
+path = ~/.gitconfig-personal
+
+[includeif "gitdir:~/Documents/Gusto/"]
+path = ~/.gitconfig-work
+
+[includeif "gitdir:~/.dotfiles/"]
+path = ~/.gitconfig-personal
+
+[includeif "gitdir:~/workspace/**"]
+path = ~/.gitconfig-work
