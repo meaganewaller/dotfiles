@@ -1,17 +1,26 @@
-SUB_DIRS = $(shell ls -d */)
+DOTFILES_SOURCES := $(shell find home -type f)
+DOTFILES_TARGETS := $(patsubst home/%, $(HOME)/%, $(DOTFILES_SOURCES))
+DOTFILES_DIR     := $(shell pwd)
 
-all: print-info make-all
+.PHONY: all
+all: install
 
-print-info:
-	@ echo "This makefile runs all subdirectory Makefiles."
+.PHONY: install
+install: configs
 
-make-all:
-	@ for each in $(SUB_DIRS); do \
-		echo ""; \
-		make -C $$each --quiet; \
-done
-# SHELL                   := /bin/bash
-# DOTS_FOLDER             := $(HOME)/.dotfiles
+.PHONY: update
+update: git_update configs
+
+configs: $(DOTFILES_TARGETS)
+
+.PHONY: $(DOTFILES_SOURCES)
+$(HOME)/%: home/%
+	@mkdir -p "$(@D)"
+	@test -e "$@" || ln -s "$(DOTFILES_DIR)/$^" "$@"
+
+.PHONY: git_update
+git_update:
+	@git pull --rebase
 # LINK                    := ln -sfn
 # CLONE                   := git clone
 # FONT_PATH               := $(DOTS_FOLDER)/fonts

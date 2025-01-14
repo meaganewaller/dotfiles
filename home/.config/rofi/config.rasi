@@ -1,0 +1,14 @@
+/* vi: ft=css
+*/
+
+configuration {
+  terminal: "wezterm";
+  dpi: 163;
+  font: "0xProto Nerd Font 13";
+  display-window: "Windows";
+  display-run: "Commands";
+  display-ssh: "SSH";
+  sidebar-mode: true;
+}
+
+@theme "${HOME}/.config/rofi/gruvbox.rasi"
