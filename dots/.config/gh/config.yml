@@ -1,8 +1,0 @@
-git_protocol: ssh
-editor: nvim
-prompt: enabled
-pager: delta -s
-aliases:
-    co: pr checkout
-http_unix_socket:
-version: "1"

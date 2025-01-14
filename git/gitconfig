@@ -1,0 +1,29 @@
+[color]
+  status = true
+  branch = true
+  diff = true
+  interactive = true
+
+[log]
+  abbrevCommit = true
+  decorate = true
+  date = relative
+
+[diff]
+  algorithm = patience
+  indentHeuristic = true
+
+[merge]
+  ff = false
+
+[push]
+  default = current
+
+[rebase]
+  autoStash = true
+
+[core]
+  excludesFile = ~/.gitignore-global
+
+[include]
+  path = .gitconfig-local
