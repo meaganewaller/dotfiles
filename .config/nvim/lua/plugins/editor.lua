@@ -3,6 +3,7 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     opts = {
+      auto_expand_width = false,
       close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab
       filesystem = {
         follow_current_file = {
@@ -26,10 +27,10 @@ return {
         layout_config = {
           vertical = {
             preview_cutoff = 0.2,
-            preview_height = 0.4
+            preview_height = 0.4,
           },
           height = 0.9,
-          width = 0.9
+          width = 0.9,
         },
         mappings = {
           i = {
@@ -41,7 +42,7 @@ return {
             end,
             ["<C-p>"] = function(...)
               return require("telescope.actions.layout").toggle_preview(...)
-            end
+            end,
           },
           n = {
             ["j"] = function(...)
@@ -58,8 +59,8 @@ return {
             end,
             ["<C-p>"] = function(...)
               return require("telescope.actions.layout").toggle_preview(...)
-            end
-          }
+            end,
+          },
         },
       },
     },

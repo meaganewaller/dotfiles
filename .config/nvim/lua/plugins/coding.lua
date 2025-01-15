@@ -1,4 +1,41 @@
 return {
+  {
+    "zbirenbaum/copilot.lua",
+    optional = true,
+    opts = {
+      filetypes = { ["*"] = true },
+    },
+  },
+  { "wakatime/vim-wakatime", event = "VeryLazy" },
+  {
+    "bennypowers/nvim-regexplainer",
+    event = "BufRead",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "MunifTanjim/nui.nvim" },
+    config = true,
+    opts = {
+      mappings = {
+        toggle = "ge",
+      },
+    },
+  },
+
+  {
+    "~p00f/godbolt.nvim",
+    url = "https://git.sr.ht/~p00f/godbolt.nvim",
+    cmd = { "Godbolt", "GodboltCompiler" },
+  },
+  {
+    "andymass/vim-matchup",
+    event = "BufReadPost",
+    init = function()
+      vim.o.mps = vim.o.mps .. ',<:>,":"'
+    end,
+    config = function()
+      vim.g.matchup_matchparen_deferred = 1
+      vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
+    end,
+  },
+
   -- extend auto completion
   {
     "hrsh7th/nvim-cmp",

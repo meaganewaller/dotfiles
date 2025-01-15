@@ -1,3 +1,3 @@
 return {
-  { import = "plugins.extras.test.coverage" },
+  require("plugins.extras.test.coverage"),
 }

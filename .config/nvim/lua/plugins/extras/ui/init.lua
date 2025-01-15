@@ -1,5 +1,4 @@
 return {
-  { import = "lazyvim.plugins.extras.ui.edgy" },
-  { import = "lazyvim.plugins.extras.ui.mini-animate" },
-  { import = "plugins.extras.ui.onedarkpro-theme" },
+  -- require("plugins.extras.ui.github-theme"),
+  -- require("plugins.extras.ui.onedarkpro-theme"),
 }
