@@ -32,4 +32,11 @@ packages:
     casks:
       - 1password-cli
       - ngrok
+      - visual-studio-code
+      - cursor
+      - slack
+      - obsidian
+      - vlc
+      - loopback
       - font-maple-mono-nf-cn
+    mas: []
