@@ -34,6 +34,7 @@ packages:
       - 1password-cli
       - ngrok
       - visual-studio-code
+      - claude-code
       - cursor
       - slack
       - obsidian
