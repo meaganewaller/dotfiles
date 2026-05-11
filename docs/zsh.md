@@ -66,9 +66,22 @@ bindkey -v
 
 ### Custom Functions
 
+The configuration includes a function autoloading system that follows zsh best practices. Functions are stored in `$XDG_CONFIG_HOME/zsh/functions/` and autoloaded on demand for better performance.
+
 #### reload! Function
 
 A shell reload function for fast configuration reloads. Simply run `reload!` to restart your shell session with updated configuration.
+
+#### c Function
+
+A project navigation function for quickly changing to project directories. Unlike the `e` command which launches Claude Code, `c` simply navigates to the project directory in the current shell session.
+
+**Usage:**
+```bash
+c                    # Use fzf to select from available projects
+c REPO              # Navigate to REPO across configured organizations  
+c ORG/REPO          # Navigate to specific ORG/REPO
+```
 
 #### e Function
 

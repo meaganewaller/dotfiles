@@ -75,6 +75,10 @@ plugins=(git mise starship)
 source "$ZSH"/oh-my-zsh.sh
 
 # User configuration
+fpath=($XDG_CONFIG_HOME/zsh/functions $fpath)
+autoload -Uz c
+
+# Enable Vi mode for command line editing
 bindkey -v
 
 # export MANPATH="/usr/local/man:$MANPATH"
