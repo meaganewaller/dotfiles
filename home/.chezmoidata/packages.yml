@@ -15,6 +15,7 @@ packages:
       - htop
       - ca-certificates
       - zsh
+      - devcontainer
       - docker
       - docker-buildx
       - docker-completion
