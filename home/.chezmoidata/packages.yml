@@ -6,6 +6,7 @@ packages:
       - awscli
       - coreutils
       - curl
+      - eza
       - fd
       - mas
       - mise
