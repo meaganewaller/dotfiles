@@ -7,6 +7,8 @@ packages:
       - bat
       - coreutils
       - curl
+      - duf
+      - dust
       - eza
       - fd
       - mas
