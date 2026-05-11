@@ -26,7 +26,7 @@ REINSTALL_TOOLS=true ./install
 REINSTALL_TOOLS=true ./install -- --force
 ```
 
-### env vars
+#### env vars
 
 - `REINSTALL_TOOLS=true` - Force reinstallation of tools even if already present
 - `BIN_DIR=/custom/path` - Install binaries to a custom directory (default: `~/.local/bin`)
@@ -34,3 +34,15 @@ REINSTALL_TOOLS=true ./install -- --force
 - `VERIFY_SIGNATURES=false` - Disable signature verification (not recommended)
 
 For a complete list of options, run `./install --help`.
+
+#### Non-Interactive Installation
+
+For CI/CD or automated environments where no TTY is available, set these variables to bypass interactive prompts:
+
+- `GIT_USER_NAME="Your Name"` - Git user name for commits
+- `GIT_USER_EMAIL="your.email@example.com"` - Git user email for commits
+
+Example for CI environments:
+```bash
+GIT_USER_NAME="CI User" GIT_USER_EMAIL="ci@example.com" ./install
+```

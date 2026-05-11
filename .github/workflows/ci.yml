@@ -28,7 +28,7 @@ jobs:
         uses: jdx/mise-action@v2
       - name: Install chezmoi
         run: |
-          ./install
+          GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci.test.user@example.com" ./install
       - name: Install test dependencies
         run: |
           ./bin/setup
