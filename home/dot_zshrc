@@ -74,6 +74,11 @@ plugins=(git mise starship)
 
 source "$ZSH"/oh-my-zsh.sh
 
+# Initialize atuin for magical shell history
+if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init zsh)"
+fi
+
 # User configuration
 fpath=($XDG_CONFIG_HOME/zsh/functions $fpath)
 autoload -Uz c
