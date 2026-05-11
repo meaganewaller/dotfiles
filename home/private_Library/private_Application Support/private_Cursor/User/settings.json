@@ -1,0 +1,18 @@
+{
+  "window.commandCenter": true,
+  "editor.rulers": [
+    80,
+    120
+  ],
+  "go.formatTool": "goimports",
+  "workbench.colorTheme": "Tinacious Design (High Contrast)",
+  "git.autofetch": true,
+  "window.autoDetectColorScheme": true,
+  "workbench.preferredLightColorTheme": "Tinacious Design (Light)",
+  "editor.accessibilitySupport": "off",
+  "cursor.composer.shouldChimeAfterChatFinishes": true,
+  "cursor.composer.shouldAllowCustomModes": true,
+  "workbench.preferredDarkColorTheme": "Tinacious Design (High Contrast)",
+  "editor.fontFamily": "'Maple Mono NF CN', 'Menlo', 'Monaco', 'Consolas', 'Ubuntu Mono', 'source-code-pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace",
+  "editor.fontLigatures": true
+}
