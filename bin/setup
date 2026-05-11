@@ -26,7 +26,7 @@ set -o errexit
 set -o nounset
 
 # Package list to install
-readonly PACKAGES="shfmt shellcheck"
+readonly PACKAGES="shfmt shellcheck bats yq"
 
 log_info() {
   printf "\033[32m[INFO]\033[0m %s\n" "$*" >&2
@@ -124,6 +124,15 @@ verify_installations() {
         shellcheck)
           version_info="$(shellcheck --version 2>/dev/null | grep '^version:' | cut -d' ' -f2 || echo "unknown")"
           ;;
+				bats)
+					version_info="$(bats --version 2>/dev/null || echo "unknown")"
+					;;
+				yq)
+					version_info="$(yq --version 2>/dev/null || echo "unknown")"
+					;;
+				*)
+					version_info="unknown"
+					;;
       esac
       log_info "$package: $(command -v "$package") (version: $version_info)"
     else

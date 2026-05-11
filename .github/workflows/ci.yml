@@ -17,13 +17,19 @@ jobs:
           shellcheck bin/setup
           shellcheck bin/test
 
-  install-test:
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v6
-      - name: Test installation script
+      - name: Install chezmoi
         run: |
           ./install
+      - name: Install test dependencies
+        run: |
+          ./bin/setup
+      - name: Run test suite
+        run: |
+          ./bin/test
