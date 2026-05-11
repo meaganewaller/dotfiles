@@ -1,5 +1,35 @@
 packages:
   darwin:
-    brews: []
+    brews: 
+      - cosign
+      - gnupg
+      - awscli
+      - coreutils
+      - curl
+      - mas
+      - ripgrep
+      - tree
+      - htop
+      - ca-certificates
+      - zsh
+      - docker
+      - docker-buildx
+      - docker-completion
+      - docker-compose
+      - docker-credential-helper
+      - docker-credential-helper-ecr
+      - ffmpeg
+      - flac
+      - gh
+      - git
+      - git-lfs
+      - jq
+      - yq
+      - lz4
+      - lzo
+      - xz
+      - zstd
     casks:
-      - 'font-maple-mono-nf-cn'
+      - 1password-cli
+      - ngrok
+      - font-maple-mono-nf-cn
