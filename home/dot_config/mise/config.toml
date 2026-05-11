@@ -1,5 +1,5 @@
 [tools]
-"aqua:dandavison/delta" = "latest"
+"aqua:dandavison/delta" = "0.18.2"
 neovim = "nightly"
 fzf = "latest"
 lazygit = "latest"
