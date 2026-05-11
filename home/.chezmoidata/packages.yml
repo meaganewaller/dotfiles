@@ -6,6 +6,7 @@ packages:
       - awscli
       - coreutils
       - curl
+      - fd
       - mas
       - mise
       - ripgrep

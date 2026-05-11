@@ -1,2 +1,5 @@
 [tools]
 "aqua:dandavison/delta" = "latest"
+neovim = "nightly"
+fzf = "latest"
+lazygit = "latest"
