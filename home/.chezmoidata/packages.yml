@@ -11,6 +11,7 @@ packages:
       - mise
       - ripgrep
       - tree
+      - ccusage
       - htop
       - ca-certificates
       - zsh
