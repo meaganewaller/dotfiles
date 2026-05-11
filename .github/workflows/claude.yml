@@ -22,7 +22,7 @@ jobs:
         github.event.sender.permissions.admin == true ||
         github.event.sender.permissions.maintain == true ||
         github.event.sender.type == 'Owner' ||
-        (github.actor != 'dependabot[bot]' && contains(fromJson('["ivy"]'), github.actor))
+        (github.actor != 'dependabot[bot]' && contains(fromJson('["meaganewaller"]'), github.actor))
       )
     runs-on: ubuntu-latest
     permissions:
