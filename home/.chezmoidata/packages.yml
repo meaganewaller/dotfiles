@@ -24,6 +24,7 @@ packages:
       - gh
       - git
       - git-lfs
+      - tmux
       - jq
       - yq
       - lz4
