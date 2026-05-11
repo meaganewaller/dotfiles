@@ -47,4 +47,5 @@ packages:
       - vlc
       - loopback
       - font-maple-mono-nf-cn
+      - ghostty
     mas: []
