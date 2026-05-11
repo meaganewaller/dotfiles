@@ -35,7 +35,6 @@ packages:
       - git-lfs
       - tmux
       - starship
-      - jq
       - yq
       - mermaid-cli
       - glow
@@ -47,7 +46,6 @@ packages:
       - 1password-cli
       - ngrok
       - visual-studio-code
-      - claude-code
       - cursor
       - slack
       - obsidian
