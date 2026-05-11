@@ -22,6 +22,7 @@ packages:
       - docker-credential-helper-ecr
       - ffmpeg
       - flac
+      - delta
       - gh
       - git
       - git-lfs
