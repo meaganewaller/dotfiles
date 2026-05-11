@@ -3,3 +3,4 @@
 neovim = "nightly"
 fzf = "latest"
 lazygit = "latest"
+python = "3.13.7"
