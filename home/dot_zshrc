@@ -75,6 +75,7 @@ plugins=(git mise)
 source "$ZSH"/oh-my-zsh.sh
 
 # User configuration
+bindkey -v
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
