@@ -7,6 +7,7 @@ packages:
       - coreutils
       - curl
       - mas
+      - mise
       - ripgrep
       - tree
       - htop
