@@ -1,3 +1,3 @@
 # dotfiles
 
-there's no place like `~`
+> there's no place like `~`
