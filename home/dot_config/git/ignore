@@ -74,8 +74,13 @@ tags
 # https://lefthook.dev/configuration/source_dir_local.html
 /.lefthook-local/
 
-
 .obsidian/
 
 **/.claude/settings.local.json
 .claude/settings.local.json
+
+# Docker Compose local overrides
+**/compose.local.yml
+compose.local.yml
+**/docker-compose.local.yml
+docker-compose.local.yml
