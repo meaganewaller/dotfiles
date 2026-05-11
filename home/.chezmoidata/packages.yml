@@ -33,6 +33,7 @@ packages:
       - jq
       - yq
       - mermaid-cli
+      - glow
       - lz4
       - lzo
       - xz
