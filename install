@@ -1,31 +1,31 @@
 #!/bin/sh
-
-# install - chezmoi dotfiles installer
 #
-# this will install chezmoi and initialize your dotfiles from this repo.
-# it will also install cosign for signing and verifying container images.
-# tries package managers first (homebrew, apt, etc)
-# downloads from github releases with proper signature verification
-# uses cosign to verify the download and the binary itself
+# install -- Chezmoi Dotfiles Installer
 #
+# This script installs Chezmoi (https://chezmoi.io) and initializes your
+# dotfiles from this repository. It follows security best practices:
+#   - Installs cosign for signature verification
+#   - Tries package managers first (Homebrew, apt, dnf, pacman, apk)
+#   - Downloads from GitHub releases with proper signature verification
+#   - Uses cosign to verify downloaded binaries
 #
-# usage:
-#   1. clone this repo: git clone https://github.com/meaganewaller/dotfiles.git
-#   2. cd into the repo, run the installer: ./install
-#   3. the script will:
-#      a. install chezmoi to ~/.local/bin
-#      b. initialize your dotfiles from this repo
-#      c. apply all configs automatically
-# 
+# HOW TO USE:
+#   1. Clone this repository: git clone https://github.com/meaganewaller/dotfiles.git
+#   2. Run the installer: ./install
+#   3. The script will:
+#      - Install Chezmoi to ~/.local/bin
+#      - Initialize your dotfiles from this repo
+#      - Apply all configurations automatically
+#
 # ENVIRONMENT VARIABLES:
-#   CHEZMOI_VERSION: Override the version to install for chezmoi (default: latest)
-#   COSIGN_VERSION: Override the version to install (default: latest)
-#   BIN_DIR: Override the directory to install Chezmoi to (default: ~/.local/bin)
+#   CHEZMOI_VERSION: Override the version to install (default: latest)
+#   COSIGN_VERSION: Override the cosign version to install (default: latest)
+#   BIN_DIR: Override installation directory (default: ~/.local/bin)
 #   VERIFY_SIGNATURES: Disable signature verification (default: true)
-#   SKIP_PACKAGE_MANAGER: Force binary downlload (default: false)
-#   DEBUG: Enable debug output (default: false)
+#   SKIP_PACKAGE_MANAGER: Force binary download (default: false)
+#   DEBUG: Enable debug output
 #
-# example usage:
+# EXAMPLE USAGE:
 #   $ git clone https://github.com/meaganewaller/dotfiles.git
 #   $ cd dotfiles
 #   $ ./install
@@ -94,16 +94,16 @@ log_debug() {
 # Parse command line arguments
 parse_arguments() {
   # Store all arguments for passthrough to chezmoi init
-  CHEZMOI_ARGS=()
-  
+  CHEZMOI_ARGS=""
+
   while [ $# -gt 0 ]; do
     case $1 in
-      --help | -h)
-        cat <<'EOF'
+    --help | -h)
+      cat <<'EOF'
 Chezmoi Dotfiles Installer
 
 USAGE:
-    ./install.sh [OPTIONS] [-- CHEZMOI_ARGS...]
+    ./install [OPTIONS] [-- CHEZMOI_ARGS...]
 
 OPTIONS:
     --help, -h  Show this help message
@@ -118,25 +118,25 @@ ENVIRONMENT VARIABLES:
     DEBUG                   Enable debug output
 
 EXAMPLES:
-    ./install.sh                                    # Install normally
-    REINSTALL_TOOLS=true ./install.sh               # Force reinstall everything
-    ./install.sh -- --force                         # Pass --force to chezmoi init
-    ./install.sh -- --one-shot                      # Use chezmoi one-shot mode
-    DEBUG=1 ./install.sh                            # Install with debug output
-    BIN_DIR=/usr/local/bin ./install.sh             # Install to custom directory
+    ./install                                    # Install normally
+    REINSTALL_TOOLS=true ./install               # Force reinstall everything
+    ./install -- --force                         # Pass --force to chezmoi init
+    ./install -- --one-shot                      # Use chezmoi one-shot mode
+    DEBUG=1 ./install                            # Install with debug output
+    BIN_DIR=/usr/local/bin ./install             # Install to custom directory
 
 EOF
-        exit 0
-        ;;
-      --)
-        shift
-        CHEZMOI_ARGS+=("$@")
-        break
-        ;;
-      *)
-        CHEZMOI_ARGS+=("$1")
-        shift
-        ;;
+      exit 0
+      ;;
+    --)
+      shift
+      CHEZMOI_ARGS="$CHEZMOI_ARGS $*"
+      break
+      ;;
+    *)
+      CHEZMOI_ARGS="$CHEZMOI_ARGS $1"
+      shift
+      ;;
     esac
   done
 }
@@ -191,35 +191,35 @@ get_download_cmd() {
 detect_system() {
   # Detect OS
   case "$(uname -s)" in
-    Linux*) os="linux" ;;
-    Darwin*) os="darwin" ;;
-    FreeBSD*) os="freebsd" ;;
-    OpenBSD*) os="openbsd" ;;
-    *)
-      log_error "Unsupported operating system: $(uname -s)"
-      log_error "Supported systems: Linux, Darwin (macOS), FreeBSD, OpenBSD"
-      exit 1
-      ;;
+  Linux*) os="linux" ;;
+  Darwin*) os="darwin" ;;
+  FreeBSD*) os="freebsd" ;;
+  OpenBSD*) os="openbsd" ;;
+  *)
+    log_error "Unsupported operating system: $(uname -s)"
+    log_error "Supported systems: Linux, Darwin (macOS), FreeBSD, OpenBSD"
+    exit 1
+    ;;
   esac
 
   # Detect architecture
   case "$(uname -m)" in
-    x86_64 | amd64) arch="amd64" ;;
-    aarch64 | arm64) arch="arm64" ;;
-    armv7l | armv8l) arch="arm" ;;
-    i386 | i686) arch="i386" ;;
-    ppc64) arch="ppc64" ;;
-    ppc64le) arch="ppc64le" ;;
-    s390x) arch="s390x" ;;
-    riscv64) arch="riscv64" ;;
-    loong64) arch="loong64" ;;
-    mips64) arch="mips64" ;;
-    mips64le) arch="mips64le" ;;
-    *)
-      log_error "Unsupported architecture: $(uname -m)"
-      log_error "Supported architectures: x86_64, aarch64, armv7l, i386, ppc64, s390x, riscv64, loong64, mips64"
-      exit 1
-      ;;
+  x86_64 | amd64) arch="amd64" ;;
+  aarch64 | arm64) arch="arm64" ;;
+  armv7l | armv8l) arch="arm" ;;
+  i386 | i686) arch="i386" ;;
+  ppc64) arch="ppc64" ;;
+  ppc64le) arch="ppc64le" ;;
+  s390x) arch="s390x" ;;
+  riscv64) arch="riscv64" ;;
+  loong64) arch="loong64" ;;
+  mips64) arch="mips64" ;;
+  mips64le) arch="mips64le" ;;
+  *)
+    log_error "Unsupported architecture: $(uname -m)"
+    log_error "Supported architectures: x86_64, aarch64, armv7l, i386, ppc64, s390x, riscv64, loong64, mips64"
+    exit 1
+    ;;
   esac
 
   echo "${os}_${arch}"
@@ -283,14 +283,14 @@ run_with_sudo() {
 # Function to install cosign
 install_cosign() {
   # Check if cosign is already available and not forcing reinstall
-  if command -v cosign >/dev/null 2>&1 && [ "$FORCE_INSTALL" != "true" ]; then
+  if command -v cosign >/dev/null 2>&1 && [ "${REINSTALL_TOOLS:-false}" != "true" ]; then
     log_info "Cosign is already installed: $(command -v cosign)"
     log_info "Version: $(cosign version 2>/dev/null | grep 'GitVersion:' | cut -d' ' -f2 || echo "unknown")"
     log_info "Use --force to reinstall"
     return 0
   fi
 
-  if [ "$FORCE_INSTALL" = "true" ]; then
+  if [ "${REINSTALL_TOOLS:-false}" = "true" ]; then
     log_info "Force installing cosign for signature verification..."
   else
     log_info "Installing cosign for signature verification..."
@@ -418,14 +418,14 @@ download_chezmoi() {
 
   # Determine file extension based on system
   case "$system" in
-    linux_*) ext="tar.gz" ;;
-    darwin_*) ext="tar.gz" ;;
-    freebsd_*) ext="tar.gz" ;;
-    openbsd_*) ext="tar.gz" ;;
-    *)
-      log_error "Unsupported system for download: $system"
-      exit 1
-      ;;
+  linux_*) ext="tar.gz" ;;
+  darwin_*) ext="tar.gz" ;;
+  freebsd_*) ext="tar.gz" ;;
+  openbsd_*) ext="tar.gz" ;;
+  *)
+    log_error "Unsupported system for download: $system"
+    exit 1
+    ;;
   esac
 
   # Download files to temporary directory
@@ -547,8 +547,8 @@ install_chezmoi() {
 # Add BIN_DIR to PATH if not already there
 add_to_path() {
   case ":$PATH:" in
-    *":$BIN_DIR:"*) ;;
-    *) export PATH="$BIN_DIR:$PATH" ;;
+  *":$BIN_DIR:"*) ;;
+  *) export PATH="$BIN_DIR:$PATH" ;;
   esac
 }
 
@@ -591,7 +591,13 @@ main() {
   log_info "Summary: Chezmoi available at $chezmoi and configured successfully"
 
   # Execute the initialization command with passthrough arguments
-  exec "$chezmoi" init --apply --source="$script_dir" "${CHEZMOI_ARGS[@]}"
+  if [ -n "$CHEZMOI_ARGS" ]; then
+    # shellcheck disable=SC2086
+    set -- $CHEZMOI_ARGS
+    exec "$chezmoi" init --apply --source="$script_dir" "$@"
+  else
+    exec "$chezmoi" init --apply --source="$script_dir"
+  fi
 }
 
 main "$@"

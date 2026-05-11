@@ -7,5 +7,6 @@
 			"enableNonRootDocker": "true"
 		}
   },
-  "postCreateCommand": "./install"
+  // Run the install script and setup dev tools after container creation
+  "postCreateCommand": "./install && ./bin/setup"
 }
