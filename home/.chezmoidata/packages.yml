@@ -3,6 +3,7 @@ packages:
     brews: 
       - cosign
       - gnupg
+      - atuin
       - awscli
       - bat
       - coreutils
