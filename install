@@ -24,7 +24,6 @@
 
 set -o errexit
 set -o nounset
-set -o pipefail
 
 BIN_DIR="${BIN_DIR:-$HOME/.local/bin}"
 CHEZMOI_URL="get.chezmoi.io"
@@ -47,54 +46,50 @@ get_download_cmd() {
   fi
 }
 
-
 # Function to download and install Chezmoi
 install_chezmoi() {
-  # shellcheck disable=SC3043
-  local download_cmd
   download_cmd=$(get_download_cmd)
-    
+
   echo "Installing Chezmoi to $BIN_DIR..."
-    
+
   # Download and install Chezmoi with better error handling
   if ! $download_cmd "$CHEZMOI_URL" | sh -s -- -b "$BIN_DIR"; then
-      echo "Error: Failed to download or install Chezmoi" >&2
-      exit 1
+    echo "Error: Failed to download or install Chezmoi" >&2
+    exit 1
   fi
-  
+
   # Verify installation
   if [ ! -x "$BIN_DIR/chezmoi" ]; then
-      echo "Error: Chezmoi installation failed - binary not found" >&2
-      exit 1
+    echo "Error: Chezmoi installation failed - binary not found" >&2
+    exit 1
   fi
-  
+
   echo "Chezmoi installed successfully to $BIN_DIR"
 }
-
 
 # Add BIN_DIR to PATH if not already there
 add_to_path() {
   case ":$PATH:" in
-      *":$BIN_DIR:"*) ;;
-      *) export PATH="$BIN_DIR:$PATH" ;;
+  *":$BIN_DIR:"*) ;;
+  *) export PATH="$BIN_DIR:$PATH" ;;
   esac
 }
 
 # Main execution
 main() {
   echo "Installing Chezmoi dotfiles manager..."
-  
+
   # Install Chezmoi
   install_chezmoi
-  
+
   # Add BIN_DIR to PATH
   add_to_path
-  
+
   # Set chezmoi variable for the exec command
   chezmoi="$BIN_DIR/chezmoi"
-  
+
   echo "Initializing dotfiles from $script_dir..."
-  
+
   # Execute the initialization command
   exec "$chezmoi" init --apply --source="$script_dir"
 }
