@@ -27,6 +27,7 @@ packages:
       - git
       - git-lfs
       - tmux
+      - starship
       - jq
       - yq
       - mermaid-cli
