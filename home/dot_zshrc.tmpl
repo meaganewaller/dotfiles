@@ -70,17 +70,22 @@ export ZSH="$HOME/.oh-my-zsh"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git mise starship)
+# shellcheck disable=SC2034
+plugins=(
+  git
+  mise
+  starship
+)
 
 source "$ZSH"/oh-my-zsh.sh
 
 # Initialize atuin for magical shell history
-if command -v atuin >/dev/null 2>&1; then
-    eval "$(atuin init zsh)"
-fi
+{{- if lookPath "atuin" }}
+eval "$(atuin init zsh)"
+{{- end }}
 
 # User configuration
-fpath=($XDG_CONFIG_HOME/zsh/functions $fpath)
+
 # Add custom functions and completions directories to fpath and enable autoloading
 fpath=(
   "$XDG_CONFIG_HOME/zsh/functions"
@@ -92,50 +97,59 @@ autoload -Uz c
 # Enable Vi mode for command line editing
 bindkey -v
 
+# Create aliases to enhanced alternatives
+{{- if lookPath "bat" }}
+alias cat='bat'
+{{- end }}
+{{- if lookPath "duf" }}
+alias df='duf'
+{{- end }}
+{{- if lookPath "gdircolors" }}
+alias dircolors='gdircolors'
+{{- end }}
+{{- if lookPath "dust" }}
+alias du='dust'
+{{- end }}
+{{- if lookPath "hub" }}
+alias git='hub'
+{{- end }}
+{{- if lookPath "eza" }}
+alias ls='eza --icons=always --group-directories-first'
+{{- else if lookPath "gls" }}
+alias ls='gls'
+{{- end }}
+{{- if lookPath "colormake" }}
+alias make='colormake'
+{{- end }}
+{{- if lookPath "htop" }}
+alias top='htop'
+{{- end }}
+{{- if lookPath "nvim" }}
+alias vi='nvim'
+alias vim='nvim'
+{{- else if lookPath "vim" }}
+alias vi='vim'
+{{- end }}
+
+
+# Enhanced eza aliases with icons
+{{- if lookPath "eza" }}
+alias eza='eza --icons=always --group-directories-first'
+alias ll='eza --icons=always --long --group-directories-first'
+alias la='eza --icons=always --long --all --group-directories-first'
+alias tree='eza --icons=always --tree'
+{{- end }}
+
+# Aliases for colorized commands
+alias grep='grep -Hn --color=auto'
+
+# Suffix aliases - automatically open files by extension
+alias -s md="glow --pager"
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
-
-# Helper function for creating aliases to preferred commands
-function alias_preference {
-  local name="$1"
-  shift
-
-  for cmd in "$@"; do
-    if command -v "$cmd" &>/dev/null; then
-      alias "$name"="$cmd"
-      break
-    fi
-  done
-}
-
-# Create aliases to enhanced alternatives
-alias_preference cat bat
-alias_preference df duf
-alias_preference dircolors gdircolors
-alias_preference du dust
-alias_preference git hub
-alias_preference ls eza gls
-alias_preference make colormake
-alias_preference top htop
-alias_preference vi nvim vim
-alias_preference vim nvim
-
-unset -f alias_preference
-
-# Enhanced eza aliases with icons
-if command -v eza &>/dev/null; then
-  alias eza='eza --icons=always --group-directories-first'
-  alias ll='eza --icons=always --long --group-directories-first'
-  alias la='eza --icons=always --long --all --group-directories-first'
-  alias tree='eza --icons=always --tree'
-fi
-
-# Aliases for colorized commands
-alias grep='grep -Hn --color=auto'
-# Suffix aliases - automatically open files by extension
-alias -s md="glow --pager"
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -158,6 +172,7 @@ alias -s md="glow --pager"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
 # Reload shell function - re-execs the exact same zsh binary
 function reload! {
     # Find the actual zsh binary path using multiple fallback methods
