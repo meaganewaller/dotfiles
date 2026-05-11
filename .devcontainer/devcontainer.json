@@ -1,0 +1,11 @@
+{
+  "name": "Dotfiles Development",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"version": "latest",
+			"enableNonRootDocker": "true"
+		}
+  },
+  "postCreateCommand": "./install"
+}
