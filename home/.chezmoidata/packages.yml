@@ -4,6 +4,7 @@ packages:
       - cosign
       - gnupg
       - awscli
+      - bat
       - coreutils
       - curl
       - eza
