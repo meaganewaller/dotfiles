@@ -50,4 +50,45 @@ else
     osascript -e "tell application \"System Events\" to set picture of every desktop to \"$wallpaper\""
     echo "Wallpaper set"
 fi
+
+# Key repeat: fastest rate (2 = ~30ms) and shortest delay (15 = ~225ms)
+if [ "$(defaults read NSGlobalDomain KeyRepeat 2>/dev/null)" = "2" ] \
+    && [ "$(defaults read NSGlobalDomain InitialKeyRepeat 2>/dev/null)" = "15" ]; then
+    echo "Key repeat already set, skipping"
+else
+    echo "Setting key repeat rate..."
+    defaults write NSGlobalDomain KeyRepeat -int 2
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
+    echo "Key repeat set (logout required to take effect)"
+fi
+
+# Enable full keyboard navigation (tab through all controls)
+if [ "$(defaults read NSGlobalDomain AppleKeyboardUIMode 2>/dev/null)" = "2" ]; then
+    echo "Keyboard navigation already enabled, skipping"
+else
+    echo "Enabling keyboard navigation..."
+    defaults write NSGlobalDomain AppleKeyboardUIMode -int 2
+    echo "Keyboard navigation enabled"
+fi
+
+# Enable Ctrl+scroll to zoom
+# com.apple.universalaccess requires sudo; com.apple.Accessibility is user-writable
+if [ "$(defaults read com.apple.Accessibility closeViewScrollWheelToggle 2>/dev/null)" = "1" ]; then
+    echo "Scroll zoom already enabled, skipping"
+else
+    echo "Enabling Ctrl+scroll zoom..."
+    defaults write com.apple.Accessibility closeViewScrollWheelToggle -bool true
+    defaults write com.apple.Accessibility HIDScrollZoomModifierMask -int 262144
+    echo "Scroll zoom enabled (logout required to take effect)"
+fi
+
+# Clear default Dock icons
+if [ "$(defaults read com.apple.dock persistent-apps 2>/dev/null | grep -c 'tile-data')" = "0" ]; then
+    echo "Dock already empty, skipping"
+else
+    echo "Clearing default Dock icons..."
+    defaults write com.apple.dock persistent-apps -array
+    killall Dock
+    echo "Dock cleared"
+fi
 {{ end -}}
