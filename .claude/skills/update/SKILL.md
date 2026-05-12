@@ -59,6 +59,20 @@ $ARGUMENTS
 
 ### 0. Preconditions
 
+#### 0.1: Check AGENTS.local.md Freshness
+
+```bash
+test -f AGENTS.local.md && echo "exists" || echo "missing"
+```
+
+If the file exists, read it and check the `Generated:` data line.
+
+- **Missing:** suggest "Run `/agents-local-md` to generate machine-specific context"
+- **Older than 7 days:** suggest "Run `/agents-local-md --force` to refresh machine context"
+- **Fresh:** no action needed
+
+This is **advisory only** — continue the update regardless.
+
 ```bash
 git rev-parse --is-inside-work-tree
 git rev-parse --abbrev-ref HEAD
