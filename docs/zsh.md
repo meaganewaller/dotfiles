@@ -50,6 +50,19 @@ The configuration adds `~/.local/bin` to the front of PATH if it exists and isn'
 
 ## Interactive Shell Configuration (dot_zshrc)
 
+When AI coding agents (Claude Code, Cursor agent, CI, etc.) run commands through your zsh, they need standard command behavior and fast startup. `home/dot_zshrc.tmpl` therefore branches at the top: if the shell is classified as an **agent shell**, it skips Oh My Zsh, atuin, autosuggestions, syntax highlighting, and human-centric aliases (such as `cat` → `bat`), while still activating **mise**, keeping **fpath** / `autoload` for shared functions like `c`, prepending the git-safe `bin` PATH entry, and using a simple `PROMPT`.
+
+**Detection (single place in the template):** `_dotfiles_is_agent_shell` returns true when any of these hold:
+
+| Signal | Meaning |
+| --- | --- |
+| `DOTFILES_AGENT_SHELL=1` | Explicit opt-in (unknown agents, sandboxes, scripts). |
+| `DOTFILES_AGENT_SHELL=0` (or `false` / `no` / `off`) | Explicit opt-out: always use the full interactive profile, even if a vendor fingerprint is set. |
+| `CLAUDECODE=1` | Shell spawned by [Claude Code](https://code.claude.com/docs/en/env-vars). |
+| Non-empty `CURSOR_AGENT` | Cursor agent–driven terminal (see [ADR 0001](adrs/0001-specialized-agent-shell.md); `CURSOR_CLI` is intentionally not used because it is often set for any Cursor integrated terminal). |
+
+Details and rejected alternatives: [docs/adrs/0001-specialized-agent-shell.md](adrs/0001-specialized-agent-shell.md).
+
 ### Oh My Zsh Framework
 
 The configuration uses [Oh My Zsh](https://ohmyz.sh/) framework with:
