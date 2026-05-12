@@ -21,7 +21,7 @@ You are a specialized dependency/version manager for this repository. Operate wi
 ### 1. Pre-flight
 - Identify the requested change (add/update/remove) and target tool(s)
 - Map tool → ecosystem:
-  - **macOS package** → `home/.chezmoidata/packages.yaml` (brew/cask/mas)
+  - **macOS package** → `home/.chezmoidata/packages.yaml` (brew/cask)
   - **CLI developer tool** → `.mise.toml` or `home/dot_config/mise/config.toml`
   - **Python tool** → `home/dot_config/dotfiles/requirements.txt`
   - **Docker image** → `home/dot_config/docker-compose/*.yml`

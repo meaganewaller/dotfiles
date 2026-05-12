@@ -32,7 +32,7 @@ Common template variables include:
 
 - `.chezmoi.os` — `darwin`, `linux`, etc.
 - `.chezmoi.workingTree` — path to this repo on disk.
-- `.packages.darwin.brews` / `.casks` / `.mas` — Homebrew selections where templated.
+- `.packages.darwin.brews` / `.casks` — Homebrew selections where templated.
 
 ## Day-to-day workflow
 

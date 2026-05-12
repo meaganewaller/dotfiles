@@ -120,8 +120,6 @@ packages:
     casks:
       - ghostty     # GUI applications
       - cursor
-    mas:
-      - 1532419400  # Mac App Store apps (MeetingBar)
 ```
 
 **Note**: These don't have Renovate automation yet. Consider adding version comments for manual tracking.
