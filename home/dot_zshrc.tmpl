@@ -190,6 +190,11 @@ autoload -Uz c
 # Enable Vi mode for command line editing
 bindkey -v
 
+# Ctrl+G opens command line in $EDITOR
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^G' edit-command-line
+
 # Create aliases to enhanced alternatives
 {{- range .aliases.replacements }}
 {{- if lookPath .tool }}
