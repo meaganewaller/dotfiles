@@ -4,4 +4,18 @@
 "aqua:bats-core/bats-core" = "v1.12.0"
 "aqua:koalaman/shellcheck" = "v0.11.0"
 "aqua:mikefarah/yq" = "v4.47.1"
-shfmt = "v3.12.0"
+"aqua:suzuki-shunsuke/ghalint" = "latest"
+hk = "latest"
+jq = "latest"
+"npm:markdownlint-cli" = "latest"
+pkl = "latest"
+shfmt = "latest"
+stylua = "latest"
+
+[tasks.lint]
+description = "Lint and auto-fix"
+run = "hk fix"
+
+[tasks.test]
+description = "Run test suite"
+run = "bats test/"
