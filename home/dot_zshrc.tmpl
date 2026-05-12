@@ -195,10 +195,12 @@ bindkey -v
 {{- if lookPath .tool }}
 alias {{ .replaces }}='{{ .tool }}'
 {{- end }}
+{{- end }}
 
 {{- range .aliases.custom }}
 {{- if lookPath .tool }}
 alias {{ .replaces }}='{{ .command }}'
+{{- end }}
 {{- end }}
 
 {{- range .aliases.fallbacks }}
@@ -210,6 +212,7 @@ alias {{ .replaces }}='{{ .command }}'
 alias {{ $replaces }}='{{ .command }}'
 {{-     end }}
 {{-   end }}
+{{- end }}
 
 # Aliases for colorized commands
 alias grep='grep -Hn --color=auto'
