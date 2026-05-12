@@ -51,7 +51,7 @@ These files purposely centralize versions so Renovate can update them automatica
   - Supports multiple backends:
     - Native mise tools (e.g., `python = "3.13.7"`, `node = "24.11.1"`)
     - Aqua‑sourced tools (`"aqua:owner/repo" = "vX.Y.Z"`)
-    - Ubi‑sourced tools (`"ubi:owner/repo" = "vX.Y.Z"`)
+    - Github‑sourced tools (`"github:owner/repo" = "vX.Y.Z"`)
     - npm packages (`"npm:@scope/package" = "X.Y.Z"`)
     - Python/pipx tools (`"pipx:package" = "X.Y.Z"`)
   - Renovate updates all these via custom regex managers with appropriate datasources (npm, pypi, github-releases).
@@ -86,11 +86,11 @@ Defined in `renovate.json5`:
 - Pattern: `"aqua:(?<depName>[^/]+/[^\"]+)"\s*=\s*"(?<currentValue>v?[^\"]+)"`
 - Datasource: `github-releases` (e.g., `aqua:mikefarah/yq` → `mikefarah/yq`)
 
-3) Ubi‑prefixed tools in mise TOML (GitHub Releases)
+3) GitHub‑prefixed tools in mise TOML (GitHub Releases)
 
 - Files: `.mise.toml`, `home/dot_config/mise/config.toml`
-- Pattern: `"ubi:(?<depName>[^/]+/[^\"]+)"\s*=\s*"(?<currentValue>v?[^\"]+)"`
-- Datasource: `github-releases` (e.g., `ubi:sst/opencode` → `sst/opencode`)
+- Pattern: `"github:(?<depName>[^/]+/[^\"]+)"\s*=\s*"(?<currentValue>v?[^\"]+)"`
+- Datasource: `github-releases` (e.g., `github:sst/opencode` → `sst/opencode`)
 
 4) npm‑prefixed tools in mise TOML (npm registry)
 
@@ -136,7 +136,7 @@ Note: When adding new externals, add a matching regex rule so Renovate can keep 
 - GitHub Actions: digest pinning and minor/patch updates grouped and auto‑merged.
 - Mise tools: PRs update `.mise.toml` and `home/dot_config/mise/config.toml` pins, including:
   - Native runtimes (Python, Node.js, etc.)
-  - Aqua/Ubi tools (from GitHub releases)
+  - Aqua/GitHub tools (from GitHub releases)
   - npm packages (via `npm:` prefix)
   - Python/pipx tools (via `pipx:` prefix)
 - CLI versions: PRs update `cli-versions.toml` (e.g., `cosign`).
@@ -149,7 +149,7 @@ Note: When adding new externals, add a matching regex rule so Renovate can keep 
 - Add a new mise tool:
   - Native runtime: add to `[tools]` with an exact version (e.g., `node = "24.11.1"`, `python = "3.14.0"`).
   - Aqua‑sourced: use `"aqua:owner/repo" = "vX.Y.Z"` to source releases from GitHub.
-  - Ubi‑sourced: use `"ubi:owner/repo" = "vX.Y.Z"` to source releases from GitHub.
+  - GitHub‑sourced: use `"github:owner/repo" = "vX.Y.Z"` to source releases from GitHub.
   - npm package: use `"npm:package-name" = "X.Y.Z"` or `"npm:@scope/package" = "X.Y.Z"`.
   - Python/pipx tool: use `"pipx:package-name" = "X.Y.Z"`.
   - Renovate will propose version bumps automatically via custom regex managers.

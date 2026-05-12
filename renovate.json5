@@ -85,6 +85,15 @@
       ],
       "datasourceTemplate": "github-releases"
     },
+    // Handle github-prefixed tools in mise TOML files
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/\\.mise\\.toml$/", "/^home/dot_config/mise/config\\.toml$/"],
+      "matchStrings": [
+        "\"github:(?<depName>[^/]+/[^\"]+)\"\\s*=\\s*\"(?<currentValue>v?[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-releases"
+    },
 
     // Handle npm-prefixed tools in mise TOML files
     {
