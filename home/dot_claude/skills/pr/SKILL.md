@@ -6,6 +6,7 @@ model: sonnet
 allowed-tools:
   - Glob
   - Read
+  - Bash(~/.claude/skills/pr/claude-extract-session:*)
 ---
 
 # Create Pull Request
@@ -65,11 +66,32 @@ If there are only untracked files (not relevant to the PR), proceed without aski
 ## Notes for reviewers
 
 [Non-obvious decisions, areas of uncertainty, or "looks wrong but isn't" explanations]
+
+---
+
+🤖 [Conversation log](GIST_URL)
 ```
 
 If user provided additional context in arguments, incorporate it appropriately into the PR body.
 
 Draft the content but don't show it to the user for approval - proceed directly to creation.
+
+### 3.1 Export Conversation Log and Create Gist
+
+Export **only the current session** and pipe directly to a secret Gist:
+
+```bash
+~/.claude/skills/pr/claude-extract-session "${CLAUDE_SESSION_ID}" \
+  | gh gist create --filename "pr-conversation-<branch-name>.md" -
+```
+
+The shim:
+- Takes the current session ID (provided by the `${CLAUDE_SESSION_ID}` substitution)
+- Extracts **only that session** with `--detailed` output
+- Writes markdown to stdout (no files created on disk)
+- Pipes directly to `gh gist create` (secret by default)
+
+Capture the Gist URL from the output and include it in the PR body after the horizontal rule.
 
 ### 4. Push and Create PR
 
