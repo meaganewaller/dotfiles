@@ -4,19 +4,12 @@ packages:
       - cosign
       - git-crypt
       - gnupg
-      - atuin
       - awscli
-      - bat
       - coreutils
       - curl
-      - duf
-      - dust
-      - eza
-      - fd
       - mas
       - mise
       - pkl-lsp
-      - ripgrep
       - tree
       - ccusage
       - htop
@@ -31,15 +24,11 @@ packages:
       - docker-credential-helper-ecr
       - ffmpeg
       - flac
-      - delta
       - gh
       - git
       - git-lfs
       - tmux
-      - starship
-      - yq
       - mermaid-cli
-      - glow
       - lz4
       - lzo
       - xz
@@ -57,3 +46,15 @@ packages:
       - font-maple-mono-nf-cn
       - ghostty
     mas: []
+
+  linux:
+    dnf:
+      - ca-certificates
+      - git
+      - git-lfs
+      - gh
+      - htop
+      - neovim
+      - tmux
+      - util-linux-user
+      - zsh
