@@ -27,3 +27,4 @@ pkl = "0.30.2"
 
 # Node tools via npm
 "npm@anthropic-ai/claude-code" =  "2.0.50"
+"npm@git-mob" = "4.0.1"
