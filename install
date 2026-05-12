@@ -24,6 +24,9 @@
 #   VERIFY_SIGNATURES: Disable signature verification (default: true)
 #   SKIP_PACKAGE_MANAGER: Force binary download (default: false)
 #   DEBUG: Enable debug output
+#   CI / GITHUB_ACTIONS: Plain progress (no spinner); per-step logs under INSTALL_RUN_DIR/steps/
+#
+# On failure or Ctrl+C, the installer prints INSTALL_RUN_DIR and each step's .log path.
 #
 # EXAMPLE USAGE:
 #   $ git clone https://github.com/meaganewaller/dotfiles.git
@@ -59,23 +62,217 @@ readonly script_dir="$script_dir_temp"
 # Create temporary directory for downloads
 temp_dir=""
 
+# Per-run log directory (step logs + metadata); retained on failure/interrupt
+INSTALL_RUN_DIR=""
+# Background PID for optional chezmoi version prefetch (overlaps Homebrew on macOS)
+PREFETCH_PID=""
+
+install_tty() {
+	[ -t 1 ] && [ -t 2 ]
+}
+
+install_ci() {
+	if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+		return 0
+	fi
+	if ! install_tty; then
+		return 0
+	fi
+	return 1
+}
+
+# Wait for a background PID with a spinner on TTY, plain wait in CI / non-TTY
+install_spinner_wait() {
+	_sw_pid="$1"
+	_sw_msg="${2:-Working}"
+	if install_ci || ! install_tty; then
+		wait "$_sw_pid"
+		return $?
+	fi
+	_sw_i=0
+	while kill -0 "$_sw_pid" 2>/dev/null; do
+		_sw_i=$((_sw_i + 1))
+		case $((_sw_i % 4)) in
+		0) _sw_f="|" ;;
+		1) _sw_f="/" ;;
+		2) _sw_f="-" ;;
+		3) _sw_f="\\" ;;
+		esac
+		printf "\r%s %s " "$_sw_msg" "$_sw_f" >&2
+		sleep 0.2 2>/dev/null || sleep 1
+	done
+	printf "\r%60s\r" " " >&2
+	wait "$_sw_pid"
+}
+
+# Print step report (interrupt or failure)
+install_emit_report() {
+	_reason="${1:-done}"
+	_rc="${2:-0}"
+	if [ -z "${INSTALL_RUN_DIR:-}" ] || [ ! -d "$INSTALL_RUN_DIR" ]; then
+		printf "\033[31m[ERROR]\033[0m Install report: run directory not initialized (exit %s, reason=%s)\n" "$_rc" "$_reason" >&2
+		return 0
+	fi
+	printf "\n\033[33m========== install report (%s, exit %s) ==========\033[0m\n" "$_reason" "$_rc" >&2
+	printf "Run directory: %s\n" "$INSTALL_RUN_DIR" >&2
+	if [ -d "$INSTALL_RUN_DIR/steps" ]; then
+		printf "\nPer-step logs (under %s/steps/):\n" "$INSTALL_RUN_DIR" >&2
+		for _f in "$INSTALL_RUN_DIR/steps/"*.log; do
+			[ -f "$_f" ] || continue
+			_bn="${_f##*/}"
+			_meta="${_f%.log}.meta"
+			printf "  - %s\n" "$_f" >&2
+			if [ -f "$_meta" ]; then
+				grep -v '^$' "$_meta" 2>/dev/null | while IFS= read -r _ln || [ -n "$_ln" ]; do
+					printf "      %s\n" "$_ln" >&2
+				done
+			fi
+		done
+	fi
+	printf "\033[33m====================================================\033[0m\n\n" >&2
+}
+
+install_on_signal() {
+	_DF_INSTALL_INTERRUPT=1
+	export _DF_INSTALL_INTERRUPT
+	exit 130
+}
+
+# macOS: cache sudo credential before Homebrew installer (no sudoers.d changes)
+step_install_homebrew() {
+	case "$(uname -s)" in
+	Darwin*)
+		if ! command -v brew >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
+			log_info "Caching sudo credentials for Homebrew install (sudo -v)..."
+			sudo -v || log_info "sudo -v skipped or failed; Homebrew install may prompt"
+		fi
+		;;
+	esac
+	install_homebrew
+}
+
+# Start resolving latest chezmoi tag in parallel with other long steps
+prefetch_chezmoi_version_start() {
+	PREFETCH_PID=""
+	[ "${CHEZMOI_VERSION:-latest}" = "latest" ] || return 0
+	[ -n "${INSTALL_RUN_DIR:-}" ] || return 0
+	_pf_log="$INSTALL_RUN_DIR/steps/prefetch-chezmoi-version.log"
+	_pf_out="$INSTALL_RUN_DIR/chezmoi-version.resolved"
+	_pf_meta="$INSTALL_RUN_DIR/steps/prefetch-chezmoi-version.meta"
+	printf "log=%s\nstate=running\n" "$_pf_log" >"$_pf_meta"
+	(
+		set -e
+		download_cmd_pf=$(get_download_cmd)
+		$download_cmd_pf "$GITHUB_API_URL/repos/$CHEZMOI_REPO/releases/latest" |
+			grep '"tag_name"' | cut -d'"' -f4 | sed 's/^v//' >"$_pf_out"
+	) >>"$_pf_log" 2>&1 &
+	PREFETCH_PID=$!
+	printf "pid=%s\n" "$PREFETCH_PID" >>"$_pf_meta"
+}
+
+prefetch_chezmoi_version_finish() {
+	[ -n "${PREFETCH_PID:-}" ] || return 0
+	if install_ci || ! install_tty; then
+		wait "$PREFETCH_PID" && _pf_ec=0 || _pf_ec=$?
+	else
+		install_spinner_wait "$PREFETCH_PID" "Resolving latest chezmoi" && _pf_ec=0 || _pf_ec=$?
+	fi
+	_pf_meta="$INSTALL_RUN_DIR/steps/prefetch-chezmoi-version.meta"
+	if [ "$_pf_ec" -eq 0 ] && [ -f "$INSTALL_RUN_DIR/chezmoi-version.resolved" ]; then
+		printf "state=ok\nexit=0\n" >>"$_pf_meta"
+		log_info "Prefetched chezmoi version: $(tr -d '\n' <"$INSTALL_RUN_DIR/chezmoi-version.resolved")"
+	else
+		printf "state=failed\nexit=%s\n" "$_pf_ec" >>"$_pf_meta"
+		log_info "Chezmoi version prefetch failed (exit $_pf_ec); installer will query GitHub again if needed"
+		rm -f "$INSTALL_RUN_DIR/chezmoi-version.resolved"
+	fi
+	PREFETCH_PID=""
+}
+
+# Run a named install phase; all output goes to steps/<name>.log
+run_logged_step() {
+	_step="$1"
+	_log="${INSTALL_RUN_DIR}/steps/${_step}.log"
+	_meta="${INSTALL_RUN_DIR}/steps/${_step}.meta"
+	mkdir -p "${INSTALL_RUN_DIR}/steps"
+	printf "log=%s\nstate=running\n" "$_log" >"$_meta"
+	log_info "[step:${_step}] -> ${_log}"
+	set +e
+	(
+		set -e
+		printf '%s ' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+		printf 'step=%s start\n' "$_step"
+		case "$_step" in
+		environment) setup_environment ;;
+		cosign) install_cosign ;;
+		mise) install_mise ;;
+		chezmoi) install_chezmoi ;;
+		*)
+			log_error "unknown step: $_step"
+			exit 99
+			;;
+		esac
+	) >>"$_log" 2>&1
+	_rs_ec=$?
+	set -e
+	if [ "$_rs_ec" -eq 0 ]; then
+		printf "state=ok\nexit=0\n" >>"$_meta"
+	else
+		printf "state=failed\nexit=%s\n" "$_rs_ec" >>"$_meta"
+	fi
+	return "$_rs_ec"
+}
+
+# Homebrew step with optional spinner on TTY (install can take several minutes)
+run_homebrew_logged_step() {
+	_hb_log="${INSTALL_RUN_DIR}/steps/homebrew.log"
+	_hb_meta="${INSTALL_RUN_DIR}/steps/homebrew.meta"
+	mkdir -p "${INSTALL_RUN_DIR}/steps"
+	printf "log=%s\nstate=running\n" "$_hb_log" >"$_hb_meta"
+	log_info "[step:homebrew] -> $_hb_log"
+	set +e
+	(
+		set -e
+		printf '%s ' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+		printf 'step=homebrew start\n'
+		step_install_homebrew
+	) >>"$_hb_log" 2>&1 &
+	_hb_pid=$!
+	if install_ci || ! install_tty; then
+		wait "$_hb_pid"
+		_hb_ec=$?
+	else
+		install_spinner_wait "$_hb_pid" "Installing Homebrew"
+		_hb_ec=$?
+	fi
+	set -e
+	if [ "$_hb_ec" -eq 0 ]; then
+		printf "state=ok\nexit=0\n" >>"$_hb_meta"
+	else
+		printf "state=failed\nexit=%s\n" "$_hb_ec" >>"$_hb_meta"
+	fi
+	return "$_hb_ec"
+}
 
 cleanup() {
 	exit_code=$?
 
-	# Clean up temporary directory
 	if [ -n "$temp_dir" ] && [ -d "$temp_dir" ]; then
 		log_debug "Cleaning up temporary directory: $temp_dir"
 		rm -rf "$temp_dir"
 	fi
 
-	# On failure, point the user to the install log
-	if [ "$exit_code" -ne 0 ] && [ -n "${_DOTFILES_LOG:-}" ]; then
-		printf "\033[31m[ERROR]\033[0m Installation failed (exit code %d)\n" "$exit_code" >&2
-		printf "\033[31m[ERROR]\033[0m Full log: %s\n" "$_DOTFILES_LOG" >&2
+	if [ -n "${_DF_INSTALL_INTERRUPT:-}" ]; then
+		install_emit_report "INTERRUPTED" 130
+	elif [ "$exit_code" -ne 0 ]; then
+		install_emit_report "FAILED" "$exit_code"
+	elif [ -n "${INSTALL_RUN_DIR:-}" ] && [ -d "$INSTALL_RUN_DIR" ]; then
+		log_info "Install run logs: $INSTALL_RUN_DIR (remove manually when done)"
 	fi
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap install_on_signal INT
+trap install_on_signal TERM
 
 # =============================================================================
 # LOGGING FUNCTIONS
@@ -124,6 +321,10 @@ ENVIRONMENT VARIABLES:
     VERIFY_SIGNATURES       Disable signature verification (default: true)
     SKIP_PACKAGE_MANAGER    Force binary download (default: false)
     DEBUG                   Enable debug output
+    CI / GITHUB_ACTIONS     Plain progress (no TTY spinner); per-step logs still written
+
+Each phase logs to INSTALL_RUN_DIR/steps/<name>.log (path printed when the step starts).
+On failure or interrupt, the installer prints the run directory and step log paths.
 
 EXAMPLES:
     ./install                                    # Install normally
@@ -568,8 +769,10 @@ download_chezmoi() {
   download_cmd=$(get_download_cmd)
   system=$(detect_system)
 
-  # Get version
-  if [ "$CHEZMOI_VERSION" = "latest" ]; then
+  # Get version (reuse prefetch from parallel phase when available)
+  if [ "$CHEZMOI_VERSION" = "latest" ] && [ -f "${INSTALL_RUN_DIR:-}/chezmoi-version.resolved" ]; then
+    version=$(tr -d '\n' <"$INSTALL_RUN_DIR/chezmoi-version.resolved")
+  elif [ "$CHEZMOI_VERSION" = "latest" ]; then
     version=$(get_latest_version)
   else
     version="$CHEZMOI_VERSION"
@@ -602,34 +805,45 @@ download_chezmoi() {
   signature_path="$temp_dir/$signature"
   pubkey_path="$temp_dir/$pubkey"
 
-  log_info "Downloading $archive..."
-  if ! $download_cmd "$base_url/$archive" >"$archive_path"; then
+  log_info "Downloading release assets (parallel fetch)..."
+  set +e
+  $download_cmd "$base_url/$archive" >"$archive_path" &
+  pid_a=$!
+  $download_cmd "$base_url/$checksums" >"$checksums_path" &
+  pid_b=$!
+  if [ "$VERIFY_SIGNATURES" = "true" ]; then
+    $download_cmd "$base_url/$signature" >"$signature_path" &
+    pid_c=$!
+    $download_cmd "$base_url/$pubkey" >"$pubkey_path" &
+    pid_d=$!
+  else
+    pid_c=""
+    pid_d=""
+  fi
+  set -e
+
+  wait "$pid_a" || {
     log_error "Failed to download chezmoi archive"
     log_error "URL attempted: $base_url/$archive"
     exit 1
-  fi
-
-  log_info "Downloading checksums..."
-  if ! $download_cmd "$base_url/$checksums" >"$checksums_path"; then
+  }
+  wait "$pid_b" || {
     log_error "Failed to download checksums"
     exit 1
+  }
+  if [ "$VERIFY_SIGNATURES" = "true" ]; then
+    wait "$pid_c" || {
+      log_error "Failed to download signature"
+      exit 1
+    }
+    wait "$pid_d" || {
+      log_error "Failed to download public key"
+      exit 1
+    }
   fi
 
   # Only download and verify signature if verification is enabled
   if [ "$VERIFY_SIGNATURES" = "true" ]; then
-    log_info "Downloading signature..."
-    if ! $download_cmd "$base_url/$signature" >"$signature_path"; then
-      log_error "Failed to download signature"
-      exit 1
-    fi
-
-    log_info "Downloading public key..."
-    if ! $download_cmd "$base_url/$pubkey" >"$pubkey_path"; then
-      log_error "Failed to download public key"
-      exit 1
-    fi
-
-    # Verify signature using cosign
     log_info "Verifying signature..."
     if ! cosign verify-blob "$checksums_path" --signature "$signature_path" --key "$pubkey_path"; then
       log_error "Signature verification failed"
@@ -719,95 +933,81 @@ add_to_path() {
 
 # Main execution
 main() {
-  # Re-exec under script(1) to capture a full install log.
-  # The env var guard prevents infinite recursion — the second invocation
-  # sees _DOTFILES_LOG already set and skips straight to the real work.
-  if [ -z "${_DOTFILES_LOG:-}" ]; then
-	_DOTFILES_LOG="/tmp/dotfiles-install-$(date +%Y%m%d-%H%M%S).log"
-	export _DOTFILES_LOG
-	case "$(uname -s)" in
-	Darwin*) exec script -q "$_DOTFILES_LOG" "$0" "$@" ;;
-	*) exec script -qc "$0 $*" "$_DOTFILES_LOG" ;;
-	esac
-	# exec failed (script(1) not available) — continue without logging
-	unset _DOTFILES_LOG
-  fi
+	parse_arguments "$@"
 
-  # Parse command line arguments first
-  parse_arguments "$@"
+	readonly BIN_DIR="${BIN_DIR:-$HOME/.local/bin}"
+	readonly CHEZMOI_VERSION="${CHEZMOI_VERSION:-latest}"
+	COSIGN_VERSION_FROM_FILE=""
+	if [ -f "$script_dir/home/dot_config/dotfiles/cli-versions.toml" ]; then
+		COSIGN_VERSION_FROM_FILE="$(grep '^cosign' "$script_dir/home/dot_config/dotfiles/cli-versions.toml" | cut -d'"' -f2 2>/dev/null || echo "")"
+	fi
+	readonly COSIGN_VERSION="${COSIGN_VERSION:-${COSIGN_VERSION_FROM_FILE:-latest}}"
+	readonly VERIFY_SIGNATURES="${VERIFY_SIGNATURES:-true}"
+	readonly SKIP_PACKAGE_MANAGER="${SKIP_PACKAGE_MANAGER:-false}"
+	readonly REINSTALL_TOOLS="${REINSTALL_TOOLS:-false}"
 
-  # Set configuration variables after parsing arguments
-  readonly BIN_DIR="${BIN_DIR:-$HOME/.local/bin}"
-  readonly CHEZMOI_VERSION="${CHEZMOI_VERSION:-latest}"
-  # Try to read cosign version from versions file, fallback to latest
-  COSIGN_VERSION_FROM_FILE=""
-  if [ -f "$script_dir/home/dot_config/dotfiles/cli-versions.toml" ]; then
-    COSIGN_VERSION_FROM_FILE="$(grep '^cosign' "$script_dir/home/dot_config/dotfiles/cli-versions.toml" | cut -d'"' -f2 2>/dev/null || echo "")"
-  fi
-  readonly COSIGN_VERSION="${COSIGN_VERSION:-${COSIGN_VERSION_FROM_FILE:-latest}}"
-  readonly VERIFY_SIGNATURES="${VERIFY_SIGNATURES:-true}"
-  readonly SKIP_PACKAGE_MANAGER="${SKIP_PACKAGE_MANAGER:-false}"
-  readonly REINSTALL_TOOLS="${REINSTALL_TOOLS:-false}"
+	INSTALL_RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-install-XXXXXX" 2>/dev/null || echo "")"
+	if [ -z "$INSTALL_RUN_DIR" ] || [ ! -d "$INSTALL_RUN_DIR" ]; then
+		INSTALL_RUN_DIR="/tmp/dotfiles-install-$$"
+		mkdir -p "$INSTALL_RUN_DIR" || {
+			log_error "Could not create install run directory"
+			exit 1
+		}
+	fi
+	export INSTALL_RUN_DIR
+	mkdir -p "${INSTALL_RUN_DIR}/steps"
 
-  if [ "$REINSTALL_TOOLS" = "true" ]; then
-    log_info "Starting Chezmoi dotfiles manager installation (force mode)..."
-  else
-    log_info "Starting Chezmoi dotfiles manager installation..."
-  fi
+	if [ "$REINSTALL_TOOLS" = "true" ]; then
+		log_info "Starting Chezmoi dotfiles manager installation (force mode)..."
+	else
+		log_info "Starting Chezmoi dotfiles manager installation..."
+	fi
+	log_info "Install run directory: $INSTALL_RUN_DIR"
 
-  if [ -n "${_DOTFILES_LOG:-}" ]; then
-	log_info "Install log: $_DOTFILES_LOG"
-  fi
+	run_logged_step environment || exit $?
 
-  # Set up environment and validate requirements
-  setup_environment
+	prefetch_chezmoi_version_start
 
-# Install Homebrew on macOS (primary source for cosign, mise, chezmoi)
-if ! install_homebrew; then
-	log_info "Homebrew not available, tools will be downloaded to $BIN_DIR"
-fi
+	if run_homebrew_logged_step; then
+		:
+	else
+		log_info "Homebrew not available, tools will be downloaded to $BIN_DIR"
+	fi
 
-  # Install Mise (optional, continue on failure)
-  if ! install_mise; then
-    log_info "Mise installation failed, but continuing with chezmoi setup"
-  fi
+	prefetch_chezmoi_version_finish
 
-  # Install Chezmoi
-  install_chezmoi
+	if ! run_logged_step mise; then
+		log_info "Mise installation failed, but continuing with chezmoi setup"
+	fi
 
-  # Add BIN_DIR to PATH
-  add_to_path
+	run_logged_step chezmoi || exit $?
 
-  # Get the actual chezmoi path
-  chezmoi="$(command -v chezmoi)"
+	add_to_path
 
-  log_info "Initializing dotfiles from $script_dir..."
-  log_info "Summary: Chezmoi available at $chezmoi and configured successfully"
+	chezmoi_bin="$(command -v chezmoi)"
 
-  # Execute the initialization command with proper argument handling
-  set -- --apply --source="$script_dir" --working-tree="$script_dir"
+	log_info "Initializing dotfiles from $script_dir..."
+	log_info "Summary: Chezmoi available at $chezmoi_bin and configured successfully"
 
-  # Force chezmoi to re-run run_once_ scripts when reinstalling
-  if [ "$REINSTALL_TOOLS" = "true" ]; then
-	set -- "$@" --force
-  fi
-  
-  # Add promptString arguments if environment variables are set
-  if [ -n "${GIT_USER_NAME:-}" ]; then
-    set -- "$@" --promptString "Git user.name=$GIT_USER_NAME"
-  fi
-  if [ -n "${GIT_USER_EMAIL:-}" ]; then
-    set -- "$@" --promptString "Git user.email=$GIT_USER_EMAIL"
-  fi
-  
-  # Add any additional passthrough arguments
-  if [ -n "$CHEZMOI_ARGS" ]; then
-    # shellcheck disable=SC2086
-    set -- "$@" $CHEZMOI_ARGS
-  fi
-  
-  # Execute the initialization command
-  exec "$chezmoi" init "$@"
+	set -- --apply --source="$script_dir" --working-tree="$script_dir"
+
+	if [ "$REINSTALL_TOOLS" = "true" ]; then
+		set -- "$@" --force
+	fi
+
+	if [ -n "${GIT_USER_NAME:-}" ]; then
+		set -- "$@" --promptString "Git user.name=$GIT_USER_NAME"
+	fi
+	if [ -n "${GIT_USER_EMAIL:-}" ]; then
+		set -- "$@" --promptString "Git user.email=$GIT_USER_EMAIL"
+	fi
+
+	if [ -n "$CHEZMOI_ARGS" ]; then
+		# shellcheck disable=SC2086
+		set -- "$@" $CHEZMOI_ARGS
+	fi
+
+	exec "$chezmoi_bin" init "$@"
 }
 
 main "$@"
