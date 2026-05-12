@@ -7,6 +7,7 @@ context: default
 allowed-tools:
   - Read
   - Edit
+  - Bash(gh run view:*)
   - Bash(gh pr list:*)
   - Bash(gh pr view:*)
   - Bash(gh pr checks:*)
