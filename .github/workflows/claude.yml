@@ -25,6 +25,7 @@ jobs:
         (github.actor != 'dependabot[bot]' && contains(fromJson('["meaganewaller"]'), github.actor))
       )
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       pull-requests: read
@@ -36,6 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Run Claude Code
         id: claude
