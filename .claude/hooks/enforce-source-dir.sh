@@ -12,6 +12,11 @@
 
 set -euo pipefail
 
+# Resolve HOME and PROJECT_DIR to canonical paths (masOS /var -> /private/var)
+ORIG_HOME="$HOME"
+HOME="$(realpath "$HOME")"
+CLAUDE_PROJECT_DIR=$(realpath "${CLAUDE_PROJECT_DIR:-.}")
+
 # Read hook input from stdin
 input=$(cat)
 
@@ -88,9 +93,10 @@ MSG
       exit 0
     fi
 
-    # Check if command references home directory
-    if echo "$command" | grep -qF "$HOME/" \
-    || echo "$command" | grep -qE '(~/|\$HOME/)'; then
+	# Check if command references home directory (check both resolved and original)
+    if echo "$command" | grep -qF "$HOME/" ||
+	echo "$command" | grep -qF "$ORIG_HOME/" ||
+	echo "$command" | grep -qE '^(~/|\$HOME/)'; then
       jq -n --arg ctx "$(cat <<MSG
 Note: This command references files in ~/. This is a chezmoi-managed repo — do
 not modify files in ~/ directly. To find source files, use:
