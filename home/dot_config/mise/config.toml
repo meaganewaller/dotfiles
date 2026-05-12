@@ -46,4 +46,5 @@ pipx = "1.7.1"
 "cargo:https://github.com/davidbeesley/claude-chill" = { version = "rev:b821abdd2aaa4bdb86fd9dce83c92dca980d70ad" }
 
 # Node tools via npm
+"npm:@owloops/claude-powerline" = "1.17.2"
 # "npm@git-mob" = "4.0.1"
