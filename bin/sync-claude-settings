@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+# sync-claude-settings -- Sync managed settings into Claude Code settings.json
+#
+# Always sets: statusLine (powerline prompt)
+#
+# Usage:
+#  bin/sync-claude-settings    # auto-detect from chezmoi data
+#
+# requires: chezmoi, jq
+
+[[ -n "${DEBUG:-}" ]] && set -o xtrace
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
+
+SETTINGS="${HOME}/.claude/settings.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+require_command() {
+	local cmd="$1"
+	local hint="${2:-}"
+
+	if ! command -v "${cmd}" >/dev/null 2>&1; then
+	  printf 'error: required command "%s" not found in PATH\n' "${cmd}" >&2
+	  [[ -n "${hint:-}" ]] && printf '  %s\n' "${hint}" >&2
+	  exit 1
+	fi
+}
+
+# Ensure settings file exists with at least an empty object
+ensure_settings() {
+    mkdir -p "$(dirname "${SETTINGS}")"
+    if [[ ! -f "${SETTINGS}" ]]; then
+        printf '{}\n' > "${SETTINGS}"
+    fi
+}
+
+# Back up settings before any mutation
+backup_settings() {
+    cp "${SETTINGS}" "${SETTINGS}.bak"
+    printf 'backed up %s → %s.bak\n' "${SETTINGS}" "${SETTINGS}"
+}
+
+# Set the statusLine command (uses mise-installed claude-powerline)
+set_status_line() {
+    printf 'setting statusLine in %s\n' "${SETTINGS}"
+	jq '.statusLine = {"type": "command", "command": "$HOME/.local/libexec/claude-powerline-theme"}' \
+}
+
+# Validate the resulting settings.json: valid JSON with expected keys intact
+validate_settings() {
+    printf 'validating %s...\n' "${SETTINGS}"
+
+    if ! jq empty "${SETTINGS}" 2>/dev/null; then
+        printf 'error: %s is not valid JSON — restoring backup\n' "${SETTINGS}" >&2
+        cp "${SETTINGS}.bak" "${SETTINGS}"
+        printf 'restored %s from backup\n' "${SETTINGS}" >&2
+        exit 1
+    fi
+
+    # Verify we didn't nuke keys that Claude Code owns
+    local missing
+    missing=$(jq -r '[
+        (if .env              then null else "env" end),
+        (if .model            then null else "model" end)
+    ] | map(select(. != null)) | join(", ")' "${SETTINGS}")
+
+    if [[ -n "${missing}" ]]; then
+        printf 'error: missing expected keys after merge: %s — restoring backup\n' "${missing}" >&2
+        cp "${SETTINGS}.bak" "${SETTINGS}"
+        printf 'restored %s from backup\n' "${SETTINGS}" >&2
+        exit 1
+    fi
+
+    printf 'validation passed\n'
+}
+
+
+main() {
+	require_command chezmoi
+	require_command jq "install jq: https://jqlang.github.io/jq/"
+
+	ensure_settings
+	backup_settings
+	set_status_line
+
+	validate_settings
+}
+
+main "$@"
