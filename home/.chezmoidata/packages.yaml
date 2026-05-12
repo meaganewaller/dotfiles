@@ -7,8 +7,6 @@ packages:
       - awscli
       - coreutils
       - curl
-      - mas
-      - mise
       - pkl-lsp
       - tree
       - ccusage
@@ -45,7 +43,6 @@ packages:
       - loopback
       - font-maple-mono-nf-cn
       - ghostty
-    mas: []
 
   linux:
     dnf:
