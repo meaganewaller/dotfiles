@@ -14,5 +14,6 @@
   "cursor.composer.shouldAllowCustomModes": true,
   "workbench.preferredDarkColorTheme": "Tinacious Design (High Contrast)",
   "editor.fontFamily": "'Maple Mono NF CN', 'Menlo', 'Monaco', 'Consolas', 'Ubuntu Mono', 'source-code-pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace",
-  "editor.fontLigatures": true
+  "editor.fontLigatures": true,
+  "git.confirmSync": false
 }
