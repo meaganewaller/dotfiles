@@ -41,14 +41,13 @@ The skill prefers mise over Homebrew, pins exact versions, and follows the repos
 
 Use the Package Manager subagent (not `/install`) only for:
 - **Version conflicts** or upgrade decisions
-- **Container images** (Docker Compose, devcontainer)
+- **Container images** (Docker Compose)
 - **Security-sensitive changes** requiring review
 - **Bulk updates** or Renovate configuration
 - **GitHub Actions** version/digest updates
 
 Files requiring subagent review:
 - Docker Compose files (image tags/digests)
-- Devcontainer images and features
 - Chezmoi externals (home/.chezmoiexternal.toml.tmpl)
 - GitHub Actions versions/digests in workflows
 
