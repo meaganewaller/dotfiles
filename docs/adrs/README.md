@@ -17,3 +17,4 @@ When you add a new ADR, append a row to the index table below.
 | ADR | Title | Date | Status | Summary |
 | --- | --- | --- | --- | --- |
 | [0001](0001-specialized-agent-shell.md) | Agents need a specialized shell | 2026-05-12 | accepted | Branch `dot_zshrc` early for agent contexts so POSIX-style commands and fast startup win; keep mise/PATH via explicit env and vendor fingerprints (`CLAUDECODE`, Cursor vars, etc.). |
+| [0002](0002-tmux-plugins-via-chezmoi-externals.md) | Tmux plugins via Chezmoi externals | 2026-05-12 | proposed | Prefer Chezmoi `archive` / `git-repo` externals (Renovate-pinned) for plugin trees instead of TPM, tpack, or git submodules; aligns with existing `.tmux` external. |
