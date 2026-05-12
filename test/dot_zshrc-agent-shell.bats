@@ -9,6 +9,11 @@ load test_helper
   cat >"$TEST_TMPDIR/chezmoi.toml" <<EOF
 [data]
 chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$REPO_ROOT" }
+
+[data.aliases]
+replacements = []
+custom = []
+fallbacks = []
 EOF
 
   run chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_zshrc.tmpl"
@@ -23,6 +28,11 @@ EOF
   cat >"$TEST_TMPDIR/chezmoi.toml" <<EOF
 [data]
 chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$REPO_ROOT" }
+
+[data.aliases]
+replacements = []
+custom = []
+fallbacks = []
 EOF
 
   chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_zshrc.tmpl" >"$TEST_TMPDIR/rendered.zshrc"
