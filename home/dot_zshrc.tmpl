@@ -208,6 +208,11 @@ alias -s md="glow --pager"
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
+{{- if and (lookPath "gh") (lookPath "mise") }}
+# Wrap mise to use GitHub token from gh CLI
+# Fixes "API rate limit exceeded" errors when mise downloads tools from GH releases
+alias mise='GITHUB_TOKEN="$(gh auth token)" command mise'
+
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
