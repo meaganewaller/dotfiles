@@ -16,7 +16,7 @@ Collaborate on problems by pressure-testing assumptions, surfacing constraints, 
 ## Arguments
 
 ```
-[problem, question, or decision to think through]
+$ARGUMENTS
 ```
 
 Examples:
