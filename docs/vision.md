@@ -27,6 +27,6 @@ Agents amplify execution; they do not replace ownership of those categories.
 ## Relationship to the rest of the docs
 
 - **[Core principles](core-principles.md)** — concrete decision filters derived from this vision.
-- **Operational detail** — installation, Chezmoi layout, package pins, and Renovate behavior remain in `README.md`, `AGENTS.md`, `docs/renovate.md`, and ADRs under `docs/adrs/`.
+- **Operational detail** — installation and tech stack in `README.md`; Chezmoi workflow in `docs/agents/chezmoi.md`; navigation and package policy in `AGENTS.md`; pins and Renovate in `docs/renovate.md`; ADRs under `docs/adrs/`.
 
 The vision is stable; the implementation will evolve. When in doubt, update the principles and ADRs before growing new one-off conventions.
