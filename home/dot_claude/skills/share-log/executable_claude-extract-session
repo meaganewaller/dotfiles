@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Delegate to the PR skill's session extractor (single implementation to maintain).
+set -euo pipefail
+_here=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)
+exec "${_here}/../pr/claude-extract-session" "$@"
