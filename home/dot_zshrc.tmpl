@@ -215,7 +215,11 @@ alias grep='grep -Hn --color=auto'
 
 # Shortcut to use claude with API credentials from 1Password instead of normal login
 {{- if and (lookPath "op") (lookPath "claude") }}
-alias claude-api='ANTHROPIC_API_KEY=$(op read "op://Private/Claude - Onlooker API Key/credential") command claude
+{{- if lookPath "claude-chill" }}
+alias claude-api='ANTHROPIC_API_KEY=$(op read "op://Private/Claude Dotfiles API Key/key") claude-chill -- claude'
+{{- else }}
+alias claude-api='ANTHROPIC_API_KEY=$(op read "op://Private/Claude Dotfiles API Key/key") command claude
+{{- end }}
 {{- end }}
 
 # Suffix aliases - automatically open files by extension
