@@ -67,7 +67,8 @@ GIT_USER_NAME="CI User" GIT_USER_EMAIL="ci@example.com" ./install
 | [docs/renovate.md](docs/renovate.md) | Pins, Renovate, and version manifests |
 | [docs/zsh.md](docs/zsh.md) | Shell layout and agent-aware zsh behavior |
 | [docs/adrs/README.md](docs/adrs/README.md) | Architecture decision records index |
-| [AGENTS.md](AGENTS.md) | Agent and human workflow for this tree |
+| [docs/agents/chezmoi.md](docs/agents/chezmoi.md) | Chezmoi edit / diff / apply workflow and troubleshooting |
+| [AGENTS.md](AGENTS.md) | Component inventory and navigation (start here for agents) |
 
 ---
 
