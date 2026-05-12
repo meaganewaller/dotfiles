@@ -19,8 +19,9 @@ teardown() {
 }
 
 # Helper: run the hook with a JSON payload
+# Invoke with bash so the hook does not need the executable bit; here-string is stdin for bash.
 run_hook() {
-  run "$HOOK_SCRIPT" <<< "$1"
+  run bash "$HOOK_SCRIPT" <<<"$1"
 }
 
 # --- Write/Edit/MultiEdit: deny when targeting ~/ ---
