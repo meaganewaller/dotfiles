@@ -6,7 +6,7 @@ This guide explains how Renovate is configured in this repository, how the custo
 
 - Renovate config lives at `renovate.json5` and runs weekly (before 9am Monday), opening labeled PRs (`deps`, `automated`) with low concurrency.
 - We pin everything important to immutable versions or digests for reproducibility and supply‑chain safety.
-- Standard managers are enabled (pip, mise, docker-compose, devcontainer, actions) and custom regex managers were added for Chezmoi externals and select version files.
+- Standard managers are enabled (pip, mise, docker-compose, actions) and custom regex managers were added for Chezmoi externals and select version files.
 - Renovate updates these pins automatically and groups safe updates for fast review/automerge.
 
 ---
@@ -24,17 +24,15 @@ Enabled managers and file discovery:
 
 - `mise`: `.mise.toml`, `home/dot_config/mise/config.toml` (includes npm and Python tools via custom regex managers)
 - `docker-compose`: `home/dot_config/docker-compose/*.yml`
-- `devcontainer`: `.devcontainer/devcontainer.json`
 - `github-actions`: `.github/workflows/*.yml` (with digest pinning)
 
 Grouping and automerge rules:
 
 - `github-actions`: group by manager, automerge minor/patch/digest
-- `devcontainer`: group by manager, automerge minor/patch/digest
 - `docker-compose`: group by manager, automerge digest updates
 - `mise`: grouped as `mise-tools` (no automerge; includes npm and Python packages)
 
-Why: high-signal, low-risk updates (actions/devcontainer/digests) are auto‑merged to keep things current; others require review.
+Why: high-signal, low-risk updates (actions/digests) are auto‑merged to keep things current; others require review.
 
 ---
 
@@ -55,9 +53,6 @@ These files purposely centralize versions so Renovate can update them automatica
     - npm packages (`"npm:@scope/package" = "X.Y.Z"`)
     - Python/pipx tools (`"pipx:package" = "X.Y.Z"`)
   - Renovate updates all these via custom regex managers with appropriate datasources (npm, pypi, github-releases).
-
-- `.devcontainer/devcontainer.json`
-  - Base image and all features pinned to immutable `@sha256:` digests. Updated by `devcontainer` manager.
 
 - `home/dot_config/docker-compose/*.yml`
   - Service images pinned with tag+digest (e.g., `image: repo:tag@sha256:...`). Digest updates are auto‑merged.
@@ -132,7 +127,7 @@ Note: When adding new externals, add a matching regex rule so Renovate can keep 
 
 ## End‑to‑End Flow (What Renovate Updates)
 
-- Docker/Devcontainer: PRs updating only digests or minor/patch releases; digests grouped and auto‑merged.
+- Docker: PRs updating only digests or minor/patch releases; digests grouped and auto‑merged.
 - GitHub Actions: digest pinning and minor/patch updates grouped and auto‑merged.
 - Mise tools: PRs update `.mise.toml` and `home/dot_config/mise/config.toml` pins, including:
   - Native runtimes (Python, Node.js, etc.)
@@ -163,7 +158,7 @@ Note: When adding new externals, add a matching regex rule so Renovate can keep 
   - Pin to a specific commit SHA (tarball URL or `revision = "<sha>"`).
   - Add a matching `customManagers` rule using `git-refs` so Renovate can update it.
 
-- Docker/Devcontainer:
+- Docker:
   - Keep tag+digest pattern for images and features.
   - Renovate will update digests; human‑readable tag remains for clarity.
 
