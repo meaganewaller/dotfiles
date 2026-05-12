@@ -15,7 +15,10 @@ Practical layout, package policy, and workflows for agents and humans live in **
 ### Quick start
 
 ```bash
-git clone https://github.com/meaganewaller/dotfiles.git && cd dotfiles && ./install
+# Clone to the expected path
+mkdir -p ~/src/github.com/meaganewaller
+git clone https://github.com/meaganewaller/dotfiles.git ~/src/github.com/meaganewaller/dotfiles
+cd ~/src/github.com/meaganewaller/dotfiles
 ```
 
 ### Advanced usage
