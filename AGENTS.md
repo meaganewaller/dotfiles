@@ -1,5 +1,7 @@
 # AGENTS.md
 
+@AGENTS.local.md
+
 Coding agents (and humans) use this file as the **entry map** for this repository. **`CLAUDE.md` is a symlink here**—one source of truth.
 
 - **Why this repo exists** — [Vision](docs/vision.md), [Core principles](docs/core-principles.md), [README](README.md).
