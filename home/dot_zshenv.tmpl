@@ -14,8 +14,8 @@ if [[ -d "$HOME/.local/bin" && ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Add mise shims to PATH early so tools are available during plugin loading
-# (mise activate in .zshrc adds hooks for dynamic version switching later)
+# Mise shims provide tool resolution in interactive and non-interactive shells.
+# https://mise.jdx.dev/cli/activate.html#shims
 if [[ -d "$HOME/.local/share/mise/shims" && ":$PATH:" != *":$HOME/.local/share/mise/shims:"* ]]; then
   export PATH="$HOME/.local/share/mise/shims:$PATH"
 fi
@@ -31,3 +31,13 @@ export LESS="-FRX"
 export NPM_CONFIG_IGNORE_SCRIPTS=1
 export NPM_CONFIG_AUDIT=false
 export NPM_CONFIG_FUND=false
+
+{{- if and (eq .chezmoi.os "darwin") (glob (joinPath .chezmoi.homeDir "Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock")) }}
+# 1Password SSH agent
+export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- end }}
+
+# Source system-specific overrides and additions *last*
+if [[ -r "$HOME/.zshenv.local" ]]; then
+  source "$HOME/.zshenv.local"
+fi
