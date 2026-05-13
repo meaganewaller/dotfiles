@@ -2,12 +2,16 @@
 # This template is processed during `chezmoi init` to create the actual config file.
 # Variables are prompted from the user and stored in the [data] section.
 
-{{- $gitName := promptString "Git user.name" -}}
-{{- $gitEmail := promptString "Git user.email" -}}
-
+{{- $gitName := "" -}}
+{{- $gitEmail := "" -}}
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
-{{- if not (or (env "CI") (env "GITHUB_ACTIONS")) -}}
+{{- if or (env "CI") (env "GITHUB_ACTIONS") -}}
+{{- $gitName = env "GIT_USER_NAME" -}}
+{{- $gitEmail = env "GIT_USER_EMAIL" -}}
+{{- else -}}
+{{- $gitName = promptString "Git user.name" -}}
+{{- $gitEmail = promptString "Git user.email" -}}
 {{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" -}}
 {{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" -}}
 {{- end -}}
