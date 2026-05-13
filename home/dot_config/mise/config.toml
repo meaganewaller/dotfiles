@@ -8,43 +8,51 @@
 #   4. pipx: - Python CLI tools (requires python)
 #   5. npm: - Node CLI tools (requires node)
 
+[settings]
+color_theme = "catppuccin"
+lockfile = true
+
 [tools]
 # Runtimes (install first - required by pipx/npm backends)
-node = "24.13.0"
-python = "3.14.2"
-rust = "1.87.0"
-pkl = "0.30.2"
+node = "latest"
+python = "latest"
+pkl = "latest"
+rust = "stable"
 
-# Aqua registry (preferred for CLI tools)
-"aqua:dandavison/delta" = "0.18.2"
-"aqua:jqlang/jq" = "1.7.1"
+eza = "latest"
 
-"aqua:atuinsh/atuin" = "18.11.0"
-"aqua:sharkdp/bat" = "0.26.1"
-"aqua:muesli/duf" = "0.9.1"
-"aqua:bootandy/dust" = "1.2.4"
-eza = "0.23.4"
-"aqua:sharkdp/fd" = "10.3.0"
-"aqua:junegunn/fzf" = "0.67.0"
-"aqua:charmbracelet/glow" = "2.1.1"
-"aqua:jesseduffield/lazygit" = "0.59.0"
-"aqua:BurntSushi/ripgrep" = "15.1.0"
-"aqua:starship/starship" = "1.24.2"
-"aqua:mikefarah/yq" = "4.52.2"
-
-# GitHub release (tools not in aqua)
-# github:owner/repo = "x.y.z"
+"github:BurntSushi/ripgrep" = "latest"
+"github:ajeetdsouza/zoxide" = { version = "latest", platforms.linux-arm64 = { asset_pattern = "zoxide-*-aarch64-unknown-linux-musl.tar.gz" } }
+"github:atuinsh/atuin" = "latest"
+"github:buildkite/cli" = "latest"
+"github:carapace-sh/carapace-bin" = "latest"
+"github:charmbracelet/glow" = "latest"
+"github:cli/cli" = "latest"
+"github:dandavison/delta" = "latest"
+"github:dlvhdr/gh-dash" = "latest"
+"github:gitleaks/gitleaks" = "latest"
+"github:jesseduffield/lazygit" = "latest"
+"github:jqlang/jq" = "latest"
+"github:jdx/hk" = "latest"
+"github:junegunn/fzf" = "latest"
+"github:mikefarah/yq" = "latest"
+"github:muesli/duf" = "latest"
+"github:neovim/neovim" = "latest"
+"github:sharkdp/bat" = "latest"
+"github:sharkdp/fd" = "latest"
+"github:sst/opencode" = "latest"
+"github:starship/starship" = "latest"
 
 # pipx itself (must be installed before any pipx: packages)
-pipx = "1.7.1"
+pipx = "latest"
 
 # Python tools via pipx
-"pipx:claude-conversation-extractor" = "1.1.2"
-"pipx:gitingest" = "0.3.1"
-
-# Cargo tools (built from source)
-"cargo:https://github.com/davidbeesley/claude-chill" = { version = "rev:b821abdd2aaa4bdb86fd9dce83c92dca980d70ad" }
+"pipx:claude-conversation-extractor" = "latest"
+"pipx:gitingest" = "latest"
 
 # Node tools via npm
-"npm:@owloops/claude-powerline" = "1.17.2"
-# "npm@git-mob" = "4.0.1"
+"npm:@playwright/mcp" = "latest"
+"npm:@owloops/claude-powerline" = "latest"
+"npm:bktide" = "latest"
+"npm:ccusage" = "latest"
+"npm:git-mob" = "latest"

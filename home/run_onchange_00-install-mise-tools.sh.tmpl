@@ -1,18 +1,13 @@
 #!/bin/bash
 
-# In CI (e.g. GitHub Actions ubuntu-latest) we only need `chezmoi init --apply` to succeed.
-# Skip the full global mise tool graph: long downloads, rate limits, and optional host deps.
-if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
-	echo "CI detected; skipping global mise tool install"
-	exit 0
-fi
-
 # mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# mise lock hash: {{ include "dot_config/mise/lock.toml" | sha256sum }}
+
 [ -n "${DEBUG:-}" ] && set -o xtrace
 set -o errexit
 set -o nounset
 
-# Only run if mise is available
+# Only run mise if available
 if ! command -v mise >/dev/null 2>&1; then
     echo "mise not found, skipping tool installation"
     exit 0
