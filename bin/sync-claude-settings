@@ -65,15 +65,19 @@ validate_settings() {
         exit 1
     fi
 
-    # Verify we didn't nuke keys that Claude Code owns
+    # Verify we didn't nuke keys that existed in the pre-merge backup.
+    # Uses the backup as the source of truth so a fresh install (empty {})
+    # passes with no required keys.
     local missing
-    missing=$(jq -r '[
-        (if .env              then null else "env" end),
-        (if .model            then null else "model" end)
-    ] | map(select(. != null)) | join(", ")' "${SETTINGS}")
+    missing=$(jq -r --slurpfile backup "${SETTINGS}.bak" '
+        . as $current |
+        ($backup[0] | keys_unsorted) |
+        map(select($current[.] == null)) |
+        join(", ")
+    ' "${SETTINGS}")
 
     if [[ -n "${missing}" ]]; then
-        printf 'error: missing expected keys after merge: %s — restoring backup\n' "${missing}" >&2
+        printf 'error: keys removed by merge (were in backup): %s — restoring backup\n' "${missing}" >&2
         cp "${SETTINGS}.bak" "${SETTINGS}"
         printf 'restored %s from backup\n' "${SETTINGS}" >&2
         exit 1
