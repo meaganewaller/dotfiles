@@ -18,6 +18,7 @@ node = "latest"
 python = "latest"
 pkl = "latest"
 rust = "stable"
+ruby = "latest"
 
 eza = "latest"
 

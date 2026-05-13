@@ -6,4 +6,14 @@
 #   - type: git-repo — optional revision (string) when pinning beyond URL defaults
 #
 tmux_plugins:
-  extras: []
+  extras:
+    - path: ".config/tmux/plugins/tmux-sensible"
+      type: git-repo
+      url: https://github.com/tmux-plugins/tmux-sensible.git
+      revision: 25cb91f42d020f675bb0a2ce3fbd3a5d96119efa
+      refreshPeriod: "168h"
+    - path: ".config/tmux/plugins/tmux-powerline"
+      type: git-repo
+      url: https://github.com/erikw/tmux-powerline.git
+      revision: 6cddf8051823815db77fc00dcbb6bcca9afbdec2
+      refreshPeriod: "168h"
