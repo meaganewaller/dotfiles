@@ -38,6 +38,14 @@ jobs:
       - name: Install chezmoi
         run: |
           GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" ./install
+      - name: Dump install logs on failure
+        if: failure()
+        run: |
+          find /tmp/dotfiles-install-*/steps -name "*.log" 2>/dev/null | sort | while read -r f; do
+            echo "====== $f ======"
+            cat "$f"
+            echo
+          done
       - name: Install test dependencies
         run: |
           ./bin/setup
