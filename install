@@ -367,13 +367,13 @@ EOF
 setup_environment() {
   log_debug "Setting up environment..."
 
-  # Create temporary directory for downloads
-  temp_dir="$(mktemp -d)"
-  if [ ! -d "$temp_dir" ]; then
-    log_error "Failed to create temporary directory"
+  # temp_dir is created in main() before any step subshells run, so it is
+  # already set when this function executes. Verify it is still usable.
+  if [ -z "${temp_dir:-}" ] || [ ! -d "$temp_dir" ]; then
+    log_error "Temporary directory not available: ${temp_dir:-<unset>}"
     exit 1
   fi
-  log_debug "Created temporary directory: $temp_dir"
+  log_debug "Temporary directory: $temp_dir"
 
   # Ensure BIN_DIR exists
   if ! mkdir -p "$BIN_DIR"; then
@@ -966,6 +966,12 @@ main() {
 	fi
 	export INSTALL_RUN_DIR
 	mkdir -p "${INSTALL_RUN_DIR}/steps"
+
+	# Create temp_dir here in the parent process so all step subshells inherit it.
+	# setup_environment runs inside run_logged_step's subshell, so any temp_dir it
+	# sets never propagates back — leaving it "" when later steps (cosign, chezmoi)
+	# try to use it, producing paths like "/cosign" instead of "/tmp/xxx/cosign".
+	temp_dir="$(mktemp -d)"
 
 	if [ "$REINSTALL_TOOLS" = "true" ]; then
 		log_info "Starting Chezmoi dotfiles manager installation (force mode)..."
