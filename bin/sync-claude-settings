@@ -46,7 +46,12 @@ backup_settings() {
 # Set the statusLine command (uses mise-installed claude-powerline)
 set_status_line() {
     printf 'setting statusLine in %s\n' "${SETTINGS}"
-	jq '.statusLine = {"type": "command", "command": "$HOME/.local/libexec/claude-powerline-theme"}' \
+    local tmp
+    tmp="$(mktemp "${SETTINGS}.tmp.XXXXXX")"
+    jq --arg cmd "${HOME}/.local/libexec/claude-powerline-theme" \
+        '.statusLine = {"type": "command", "command": $cmd}' \
+        "${SETTINGS}" >"${tmp}"
+    mv "${tmp}" "${SETTINGS}"
 }
 
 # Validate the resulting settings.json: valid JSON with expected keys intact
