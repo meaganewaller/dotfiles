@@ -1,18 +1,29 @@
 packages:
   darwin:
     brews: 
+      # Security & Auth
       - cosign
       - git-crypt
       - gnupg
+      - ca-certificates
+
+      # CLI Utilities
       - awscli
       - coreutils
       - curl
+      - mise
       - pkl-lsp
       - tree
+
+      # System Monitoring & Performance
       - ccusage
       - htop
-      - ca-certificates
+
+      # Terminal Multiplexing & Shells
+      - tmux
       - zsh
+
+      # Docker & Containerization
       - devcontainer
       - docker
       - docker-buildx
@@ -20,36 +31,59 @@ packages:
       - docker-compose
       - docker-credential-helper
       - docker-credential-helper-ecr
+
+      # Media & Compression
       - ffmpeg
       - flac
-      - gh
-      - git
-      - git-lfs
-      - tmux
-      - mermaid-cli
       - lz4
       - lzo
       - xz
       - zstd
-    casks:
-      - 1password-cli
-      - 1password
-      - ngrok
-      - visual-studio-code
-      - cursor
-      - slack
-      - obsidian
-      - vlc
-      - loopback
-      - font-maple-mono-nf-cn
-      - ghostty
 
-  linux:
-    dnf:
-      - ca-certificates
+
+      # Git & Version Control
+      - gh
       - git
       - git-lfs
+
+      # Documentation & Visualization
+      - mermaid-cli
+      - pandoc
+      - texinfo
+    casks:
+      # Development Tools
+      - cursor
+      - ngrok
+      - visual-studio-code
+
+      # Communication
+      - slack
+
+      # Notes
+      - obsidian
+
+      # Media
+      - vlc
+
+      # Security & Authentication
+      - 1password-cli
+      - 1password
+
+      # Audio
+      - loopback
+
+      # Fonts
+      - font-maple-mono-nf-cn
+
+      # Terminals
+      - ghostty
+  linux:
+    dnf:
+      # Core Tools
+      - ca-certificates
       - gh
+      - git
+      - git-lfs
       - htop
       - neovim
       - tmux
