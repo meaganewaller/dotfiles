@@ -127,6 +127,16 @@ install_emit_report() {
 					printf "      %s\n" "$_ln" >&2
 				done
 			fi
+			# In CI or on failure, print log contents for failed steps
+			_step_failed=0
+			if [ -f "$_meta" ] && grep -q 'state=failed' "$_meta" 2>/dev/null; then
+				_step_failed=1
+			fi
+			if [ "$_step_failed" -eq 1 ] && [ -s "$_f" ]; then
+				printf "      --- log output ---\n" >&2
+				sed 's/^/      /' "$_f" >&2
+				printf "      ---\n" >&2
+			fi
 		done
 	fi
 	printf "\033[33m====================================================\033[0m\n\n" >&2
@@ -646,22 +656,22 @@ install_mise() {
   elif command -v apt-get >/dev/null 2>&1; then
     log_info "Installing mise via apt repository..."
     system=$(detect_system)
-    
+
     # Determine architecture for apt repository
     case "$system" in
       linux_amd64) repo_arch="amd64" ;;
       linux_arm64) repo_arch="arm64" ;;
-      *) 
+      *)
         log_info "Unsupported architecture for mise apt repository: $system"
         return 1
         ;;
     esac
-    
+
     # Install required dependencies and set up repository
     if run_with_sudo apt-get update -y && run_with_sudo apt-get install -y gpg wget curl; then
       if run_with_sudo install -dm 755 /etc/apt/keyrings; then
         download_cmd=$(get_download_cmd)
-        
+
         if $download_cmd https://mise.jdx.dev/gpg-key.pub | gpg --dearmor | run_with_sudo tee /etc/apt/keyrings/mise-archive-keyring.gpg >/dev/null; then
           echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=$repo_arch] https://mise.jdx.dev/deb stable main" | run_with_sudo tee /etc/apt/sources.list.d/mise.list
           if run_with_sudo apt-get update && try_package_install "mise" "apt" "run_with_sudo apt-get install -y mise"; then
