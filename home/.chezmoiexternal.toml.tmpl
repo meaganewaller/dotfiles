@@ -43,3 +43,27 @@
     type = "git-repo"
     url = "https://github.com/gpakosz/.tmux.git"
     refreshPeriod = "24h"
+
+# Extra tmux plugin trees (catalog: home/.chezmoidata/tmux-plugins.yaml)
+{{- range .tmux_plugins.extras }}
+["{{ .path }}"]
+    type = "{{ .type }}"
+    url = {{ .url | quote }}
+{{- with .refreshPeriod }}
+    refreshPeriod = {{ . | quote }}
+{{- end }}
+{{- if eq .type "archive" }}
+{{- with .exact }}
+    exact = {{ . }}
+{{- end }}
+{{- with .stripComponents }}
+    stripComponents = {{ . }}
+{{- end }}
+{{- end }}
+{{- if eq .type "git-repo" }}
+{{- with .revision }}
+    revision = {{ . | quote }}
+{{- end }}
+{{- end }}
+
+{{ end }}
