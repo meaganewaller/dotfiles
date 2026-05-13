@@ -1,25 +1,86 @@
 # Ghostty Configuration
+# 
+# Reload while running: cmd+shift+,
+# Open this file:       cmd+, (the actual version)
+# Command palette:      cmd+shift+p (search any action)
+# Full reference:       https://ghostty.org/docs/config/reference
+#
+# Tip: Ghostty's macOS defaults already cover most useful keybinds
+# (splits, tabs, fullscreen, jump-to-prompt, font sizing, equalize
+# splits, toggle split zoom, etc.). Don't re-bind unless you want
+# something different. See `ghostty +list-keybinds` for the list.
 
-font-family = Maple Mono NF CN
+# --- Typography ---------------------------------------------------------------
+font-family = Maple Mono NF CN Light
+font-family-bold = Maple Mono NF CN ExtraBold
+font-family-italic = Maple Mono NF CN Italic
+font-family-bold-italic = Maple Mono NF CN BoldItalic
+font-thicken = false
 font-size = 14
-font-feature = +calt,+liga,+dlig
+# Programming ligatures (==, !=, =>, ->, etc.) and stylistic alts.
+font-feature = +calt
+font-feature = +liga
+font-feature = +ss02
 
-shell-integration = zsh
-shell-integration-features = cursor,sudo,title
+# --- Theme --------------------------------------------------------------------
+# Auto-switches with macOS Light/Dark mode.
+theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 
-{{ if eq .chezmoi.os "darwin" -}}
-# Keybindings (macOS)
-keybind = global:cmd+grave_accent=toggle_quick_terminal
-keybind = cmd+d=new_split:right
-keybind = cmd+shift+d=new_split:down
-keybind = cmd+t=new_tab
-keybind = cmd+w=close_tab
-{{ else -}}
-# Keybindings (Linux)
-keybind = ctrl+shift+d=new_split:right
-keybind = ctrl+shift+e=new_split:down
-keybind = ctrl+shift+t=new_tab
-keybind = ctrl+shift+w=close_tab
-{{ end -}}
-# Theme
-theme = light:catppuccin-latte.conf,dark:catppuccin-mocha.conf
+{{ if eq .chezmoi.os "darwin" }}
+# Subtle translucency + blur on macOS.
+background-opacity = 0.96
+background-blur = 20
+unfocused-split-opacity = 0.85
+{{ end }}
+
+# --- Window & Layout ----------------------------------------------------------
+window-padding-x = 14
+window-padding-y = 10
+window-padding-balance = true
+window-save-state = always
+window-colorspace       = display-p3
+window-inherit-working-directory = true
+window-inherit-font-size         = true
+
+{{ if eq .chezmoi.os "darwin" }}
+macos-titlebar-style = tabs
+macos-option-as-alt = left
+macos-window-shadow = true
+{{ end }}
+
+# --- Cursor, mouse, selection -------------------------------------------------
+cursor-style = block
+cursor-style-blink = true
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = precision:1.5,discrete:5
+
+# --- Behavior -----------------------------------------------------------------
+confirm-close-surface = false
+# ~100 MB of scrollback history per surface.
+scrollback-limit      = 100000000
+shell-integration     = detect
+# cursor passthrough + sudo support + window title + $PATH from login shell
+shell-integration-features = cursor,sudo,title,path
+resize-overlay        = after-first
+
+# ─── Quick (Quake-style) drop-down terminal ──────────────────────────
+# Press cmd+ctrl+` anywhere to summon a slim terminal at the top of
+# the screen. Press again to dismiss. Note: requires Accessibility
+# permission for the global hotkey on first use.
+keybind = global:super+ctrl+grave_accent=toggle_quick_terminal
+quick-terminal-position           = top
+# Appear on whichever screen the mouse cursor is on.
+quick-terminal-screen             = mouse
+quick-terminal-animation-duration = 0.15
+quick-terminal-autohide           = true
+
+# ─── Extras on top of defaults ───────────────────────────────────────
+# Reset a wedged terminal (after a crashed TUI, broken escape state).
+keybind = super+shift+r=reset
+# One-shot: dim every other split, useful when reading long output.
+keybind = super+ctrl+z=toggle_split_zoom
+
+# ─── Custom shaders --------------------------------------------------
+custom-shader = ~/.config/ghostty/shaders/blaze.glsl
+custom-shader = ~/.config/ghostty/shaders/ripple.glsl
+custom-shader-animation = true
