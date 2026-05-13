@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
-
+#
 # sync-claude-settings -- Sync managed settings into Claude Code settings.json
 #
-# Always sets: statusLine (powerline prompt)
-#
-# Usage:
-#  bin/sync-claude-settings    # auto-detect from chezmoi data
-#
-# requires: chezmoi, jq
 
 [[ -n "${DEBUG:-}" ]] && set -o xtrace
 set -o errexit
@@ -19,83 +13,447 @@ SETTINGS="${HOME}/.claude/settings.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 require_command() {
-	local cmd="$1"
-	local hint="${2:-}"
+  local cmd="$1"
+  local hint="${2:-}"
 
-	if ! command -v "${cmd}" >/dev/null 2>&1; then
-	  printf 'error: required command "%s" not found in PATH\n' "${cmd}" >&2
-	  [[ -n "${hint:-}" ]] && printf '  %s\n' "${hint}" >&2
-	  exit 1
-	fi
+  if ! command -v "${cmd}" >/dev/null 2>&1; then
+    printf 'error: required command "%s" not found in PATH\n' "${cmd}" >&2
+    [[ -n "${hint}" ]] && printf '  hint: %s\n' "${hint}" >&2
+    exit 1
+  fi
 }
 
 # Ensure settings file exists with at least an empty object
 ensure_settings() {
-    mkdir -p "$(dirname "${SETTINGS}")"
-    if [[ ! -f "${SETTINGS}" ]]; then
-        printf '{}\n' > "${SETTINGS}"
-    fi
+  mkdir -p "$(dirname "${SETTINGS}")"
+  if [[ ! -f "${SETTINGS}" ]]; then
+    printf '{}\n' >"${SETTINGS}"
+  fi
 }
 
 # Back up settings before any mutation
 backup_settings() {
-    cp "${SETTINGS}" "${SETTINGS}.bak"
-    printf 'backed up %s → %s.bak\n' "${SETTINGS}" "${SETTINGS}"
+  cp "${SETTINGS}" "${SETTINGS}.bak"
+  printf 'backed up %s → %s.bak\n' "${SETTINGS}" "${SETTINGS}"
 }
 
 # Set the statusLine command (uses mise-installed claude-powerline)
 set_status_line() {
-    printf 'setting statusLine in %s\n' "${SETTINGS}"
-    local tmp
-    tmp="$(mktemp "${SETTINGS}.tmp.XXXXXX")"
-    jq --arg cmd "${HOME}/.local/libexec/claude-powerline-theme" \
-        '.statusLine = {"type": "command", "command": $cmd}' \
-        "${SETTINGS}" >"${tmp}"
-    mv "${tmp}" "${SETTINGS}"
+  printf 'setting statusLine in %s\n' "${SETTINGS}"
+  jq '.statusLine = {"type": "command", "command": "$HOME/.local/libexec/claude-powerline-theme"}' \
+    "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+}
+
+# Set feature flags that should always be present
+set_feature_flags() {
+  printf 'setting feature flags in %s\n' "${SETTINGS}"
+  jq '.env = ((.env // {}) + {
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    })
+    | .skipDangerousModePermissionPrompt = true
+    | .skipAutoPermissionPrompt = true
+    | .autoDreamEnabled = true
+    | .alwaysThinkingEnabled = true
+    | .includeCoAuthoredBy = false
+    | .effortLevel = "xhigh"
+    | .autoUpdatesChannel = "latest"' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+}
+
+# Set global tool permissions so we don't re-approve common tools per-project
+set_permissions() {
+  printf 'setting global permissions in %s\n' "${SETTINGS}"
+  jq '.permissions = {
+        "defaultMode": "auto",
+        "allow": [
+            "Bash(arch:*)",
+            "Bash(base64:*)",
+            "Bash(basename:*)",
+            "Bash(bash -n:*)",
+            "Bash(bats:*)",
+            "Bash(bc:*)",
+            "Bash(bktide snapshot:*)",
+            "Bash(bundle:*)",
+            "Bash(cargo:*)",
+            "Bash(cat:*)",
+            "Bash(chezmoi diff:*)",
+            "Bash(clear:*)",
+            "Bash(column:*)",
+            "Bash(comm:*)",
+            "Bash(cut:*)",
+            "Bash(date:*)",
+            "Bash(defaults read:*)",
+            "Bash(df:*)",
+            "Bash(diff:*)",
+            "Bash(dig:*)",
+            "Bash(dmesg:*)",
+            "Bash(du:*)",
+            "Bash(dirname:*)",
+            "Bash(docker compose:*)",
+            "Bash(docker-compose:*)",
+            "Bash(docker:*)",
+            "Bash(echo:*)",
+            "Bash(env:*)",
+            "Bash(expr:*)",
+            "Bash(fd:*)",
+            "Bash(file:*)",
+            "Bash(find:*)",
+            "Bash(fmt:*)",
+            "Bash(fold:*)",
+            "Bash(free:*)",
+            "Bash(getconf:*)",
+            "Bash(getent:*)",
+            "Bash(ginkgo:*)",
+            "Bash(gh cache list:*)",
+            "Bash(gh gist list:*)",
+            "Bash(gh gist view:*)",
+            "Bash(gh issue list:*)",
+            "Bash(gh issue status:*)",
+            "Bash(gh issue view:*)",
+            "Bash(gh label list:*)",
+            "Bash(gh pr diff:*)",
+            "Bash(gh pr list:*)",
+            "Bash(gh pr status:*)",
+            "Bash(gh pr view:*)",
+            "Bash(gh project field-list:*)",
+            "Bash(gh project item-list:*)",
+            "Bash(gh project list:*)",
+            "Bash(gh project view:*)",
+            "Bash(gh release list:*)",
+            "Bash(gh release verify-asset:*)",
+            "Bash(gh release verify:*)",
+            "Bash(gh release view:*)",
+            "Bash(gh repo clone:*)",
+            "Bash(gh repo gitignore:*)",
+            "Bash(gh repo license:*)",
+            "Bash(gh repo list:*)",
+            "Bash(gh repo sync:*)",
+            "Bash(gh repo view:*)",
+            "Bash(gh run cancel:*)",
+            "Bash(gh run list:*)",
+            "Bash(gh run rerun:*)",
+            "Bash(gh run view:*)",
+            "Bash(gh run watch:*)",
+            "Bash(gh search:*)",
+            "Bash(gh workflow list:*)",
+            "Bash(gh workflow run:*)",
+            "Bash(gh workflow view:*)",
+            "Bash(git add:*)",
+            "Bash(git branch:*)",
+            "Bash(git check-ignore:*)",
+            "Bash(git checkout:*)",
+            "Bash(git cherry-pick:*)",
+            "Bash(git commit:*)",
+            "Bash(git diff:*)",
+            "Bash(git fetch:*)",
+            "Bash(git init:*)",
+            "Bash(git log:*)",
+            "Bash(git ls-tree:*)",
+            "Bash(git merge:*)",
+            "Bash(git mv:*)",
+            "Bash(git pull:*)",
+            "Bash(git rebase:*)",
+            "Bash(git remote:*)",
+            "Bash(git rev-parse:*)",
+            "Bash(git rm:*)",
+            "Bash(git show:*)",
+            "Bash(git stash:*)",
+            "Bash(git status:*)",
+            "Bash(git switch:*)",
+            "Bash(git tag:*)",
+            "Bash(git worktree:*)",
+            "Bash(go:*)",
+            "Bash(gofmt:*)",
+            "Bash(goimports:*)",
+            "Bash(golangci-lint:*)",
+            "Bash(grep:*)",
+            "Bash(hadolint:*)",
+            "Bash(head:*)",
+            "Bash(hk:*)",
+            "Bash(host:*)",
+            "Bash(hostnamectl:*)",
+            "Bash(hostname:*)",
+            "Bash(id:*)",
+            "Bash(ip:*)",
+            "Bash(jq:*)",
+            "Bash(journalctl:*)",
+            "Bash(limactl:*)",
+            "Bash(ls:*)",
+            "Bash(lsblk:*)",
+            "Bash(lscpu:*)",
+            "Bash(lsof:*)",
+            "Bash(make:*)",
+            "Bash(man:*)",
+            "Bash(md5:*)",
+            "Bash(mise --cd*lock:*)",
+            "Bash(mise doctor:*)",
+            "Bash(mise fmt:*)",
+            "Bash(mise install:*)",
+            "Bash(mise latest:*)",
+            "Bash(mise lock:*)",
+            "Bash(mise ls:*)",
+            "Bash(mise ls-remote:*)",
+            "Bash(mise outdated:*)",
+            "Bash(mise prune:*)",
+            "Bash(mise registry:*)",
+            "Bash(mise run:*)",
+            "Bash(mise search:*)",
+            "Bash(mise tool:*)",
+            "Bash(mise uninstall:*)",
+            "Bash(mise watch:*)",
+            "Bash(mise where:*)",
+            "Bash(mise which:*)",
+            "Bash(mkdir:*)",
+            "Bash(mktemp:*)",
+            "Bash(molecule:*)",
+            "Bash(mount:*)",
+            "Bash(networkctl:*)",
+            "Bash(nl:*)",
+            "Bash(node --check:*)",
+            "Bash(npm run:*)",
+            "Bash(npm test:*)",
+            "Bash(nproc:*)",
+            "Bash(paste:*)",
+            "Bash(perl -c:*)",
+            "Bash(pip show:*)",
+            "Bash(pipx list:*)",
+            "Bash(pkl:*)",
+            "Bash(plutil:*)",
+            "Bash(podman:*)",
+            "Bash(printenv:*)",
+            "Bash(printf:*)",
+            "Bash(ps:*)",
+            "Bash(pytest:*)",
+            "Bash(python -m py_compile:*)",
+            "Bash(python3 -m py_compile:*)",
+            "Bash(readlink:*)",
+            "Bash(realpath:*)",
+            "Bash(rev:*)",
+            "Bash(rg:*)",
+            "Bash(rmdir:*)",
+            "Bash(rspec:*)",
+            "Bash(ruby -c:*)",
+            "Bash(rustc:*)",
+            "Bash(rustfmt:*)",
+            "Bash(sed:*)",
+            "Bash(seq:*)",
+            "Bash(shasum:*)",
+            "Bash(sh -n:*)",
+            "Bash(shellcheck:*)",
+            "Bash(shuf:*)",
+            "Bash(sleep:*)",
+            "Bash(sort:*)",
+            "Bash(sqlc:*)",
+            "Bash(ss:*)",
+            "Bash(stat:*)",
+            "Bash(staticcheck:*)",
+            "Bash(strings:*)",
+            "Bash(sw_vers:*)",
+            "Bash(sync:*)",
+            "Bash(systemctl cat:*)",
+            "Bash(systemctl daemon-reload:*)",
+            "Bash(systemctl is-active:*)",
+            "Bash(systemctl is-enabled:*)",
+            "Bash(systemctl is-failed:*)",
+            "Bash(systemctl list-unit-files:*)",
+            "Bash(systemctl list-units:*)",
+            "Bash(systemctl show:*)",
+            "Bash(systemctl status:*)",
+            "Bash(tac:*)",
+            "Bash(tail:*)",
+            "Bash(tmux capture-pane:*)",
+            "Bash(tmux display-message:*)",
+            "Bash(tmux has-session:*)",
+            "Bash(tmux kill-session:*)",
+            "Bash(tmux list-buffers:*)",
+            "Bash(tmux list-clients:*)",
+            "Bash(tmux list-commands:*)",
+            "Bash(tmux list-keys:*)",
+            "Bash(tmux list-panes:*)",
+            "Bash(tmux list-sessions:*)",
+            "Bash(tmux list-windows:*)",
+            "Bash(tmux new-session:*)",
+            "Bash(tmux show-buffer:*)",
+            "Bash(tmux show-hooks:*)",
+            "Bash(tmux show-messages:*)",
+            "Bash(tmux show-options:*)",
+            "Bash(tmux show-window-options:*)",
+            "Bash(timedatectl:*)",
+            "Bash(touch:*)",
+            "Bash(tput:*)",
+            "Bash(tr:*)",
+            "Bash(tree:*)",
+            "Bash(type:*)",
+            "Bash(uname:*)",
+            "Bash(uniq:*)",
+            "Bash(uptime:*)",
+            "Bash(uv sync:*)",
+            "Bash(wc:*)",
+            "Bash(which:*)",
+            "Bash(whoami:*)",
+            "Bash(xxd:*)",
+            "Bash(zsh -n:*)",
+            "Read('"${HOME}"'/go/pkg/mod/**)",
+            "Read(//tmp/bktide/**)",
+            "Skill(commit:*)",
+            "Skill(think:*)",
+            "WebFetch(domain:developer.1password.com)",
+            "WebFetch(domain:docs.anthropic.com)",
+            "WebFetch(domain:docs.docker.com)",
+            "WebFetch(domain:docs.github.com)",
+            "WebFetch(domain:docs.rs)",
+            "WebFetch(domain:duckduckgo.com)",
+            "WebFetch(domain:gist.githubusercontent.com)",
+            "WebFetch(domain:github.com)",
+            "WebFetch(domain:mise.jdx.dev)",
+            "WebFetch(domain:raw.githubusercontent.com)",
+            "WebFetch(domain:rubygems.org)",
+            "WebFetch(domain:slsa.dev)",
+            "WebFetch(domain:stackoverflow.com)",
+            "WebFetch(domain:www.google.com)",
+            "WebFetch(domain:www.rubydoc.info)"
+        ]
+    }' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+}
+
+# Register third-party plugin marketplaces and enable plugins
+set_plugins() {
+  printf 'setting plugin marketplaces and enabled plugins in %s\n' "${SETTINGS}"
+  jq '
+        .extraKnownMarketplaces = ((.extraKnownMarketplaces // {}) + {
+            "pickled-claude-plugins": {
+                "source": {
+                    "source": "github",
+                    "repo": "technicalpickles/pickled-claude-plugins"
+                }
+            }
+        })
+        | .enabledPlugins = ((.enabledPlugins // {}) + {
+            "ci-cd-tools@pickled-claude-plugins": true
+        })
+    ' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+}
+
+# Remove Bedrock model env vars (use_bedrock=false path)
+cleanup_model_env_vars() {
+  if jq -e '.env.ANTHROPIC_MODEL // .env.ANTHROPIC_DEFAULT_HAIKU_MODEL // .env.ANTHROPIC_DEFAULT_OPUS_MODEL // .env.ANTHROPIC_DEFAULT_SONNET_MODEL' "${SETTINGS}" >/dev/null 2>&1; then
+    printf 'removing Bedrock model env vars from %s\n' "${SETTINGS}"
+    jq 'del(
+            .env.ANTHROPIC_DEFAULT_HAIKU_MODEL,
+            .env.ANTHROPIC_DEFAULT_OPUS_MODEL,
+            .env.ANTHROPIC_DEFAULT_SONNET_MODEL,
+            .env.ANTHROPIC_MODEL
+        )' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+  else
+    printf 'no Bedrock model env vars to remove\n'
+  fi
+}
+
+# Set default model for the Anthropic Enterprise / direct path (non-Bedrock)
+set_default_model() {
+  printf 'setting default model in %s\n' "${SETTINGS}"
+  jq '.model = "opus[1m]"' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+}
+
+# Merge Bedrock model env vars into settings (use_bedrock=true path)
+merge_model_env_vars() {
+  local models haiku sonnet opus
+
+  printf 'resolving Bedrock model IDs...\n'
+  if ! models=$("${SCRIPT_DIR}/resolve-bedrock-models"); then
+    printf 'warning: resolve-bedrock-models failed — skipping Bedrock model env vars\n' >&2
+    return 1
+  fi
+
+  haiku=$(printf '%s' "${models}" | jq -r '.haiku // empty')
+  sonnet=$(printf '%s' "${models}" | jq -r '.sonnet // empty')
+  opus=$(printf '%s' "${models}" | jq -r '.opus // empty')
+
+  if [[ -z "${haiku}" || -z "${sonnet}" || -z "${opus}" ]]; then
+    printf 'warning: incomplete model resolution (haiku=%s sonnet=%s opus=%s) — skipping\n' \
+      "${haiku:-<missing>}" "${sonnet:-<missing>}" "${opus:-<missing>}" >&2
+    return 1
+  fi
+
+  # Append [1m] suffix to Opus and Sonnet for 1M token context window
+  # (Haiku does not support extended context)
+  opus="${opus}[1m]"
+  sonnet="${sonnet}[1m]"
+
+  printf 'haiku  = %s\n' "${haiku}"
+  printf 'sonnet = %s\n' "${sonnet}"
+  printf 'opus   = %s\n' "${opus}"
+
+  jq --arg haiku "${haiku}" \
+    --arg sonnet "${sonnet}" \
+    --arg opus "${opus}" \
+    '.env = ((.env // {}) + {
+          "ANTHROPIC_DEFAULT_HAIKU_MODEL": $haiku,
+          "ANTHROPIC_DEFAULT_OPUS_MODEL": $opus,
+          "ANTHROPIC_DEFAULT_SONNET_MODEL": $sonnet,
+          "ANTHROPIC_MODEL": $opus
+        })
+        | .model = $opus' \
+    "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+
+  printf 'merged model env vars into %s\n' "${SETTINGS}"
 }
 
 # Validate the resulting settings.json: valid JSON with expected keys intact
 validate_settings() {
-    printf 'validating %s...\n' "${SETTINGS}"
+  printf 'validating %s...\n' "${SETTINGS}"
 
-    if ! jq empty "${SETTINGS}" 2>/dev/null; then
-        printf 'error: %s is not valid JSON — restoring backup\n' "${SETTINGS}" >&2
-        cp "${SETTINGS}.bak" "${SETTINGS}"
-        printf 'restored %s from backup\n' "${SETTINGS}" >&2
-        exit 1
-    fi
+  if ! jq empty "${SETTINGS}" 2>/dev/null; then
+    printf 'error: %s is not valid JSON — restoring backup\n' "${SETTINGS}" >&2
+    cp "${SETTINGS}.bak" "${SETTINGS}"
+    printf 'restored %s from backup\n' "${SETTINGS}" >&2
+    exit 1
+  fi
 
-    # Verify we didn't nuke keys that existed in the pre-merge backup.
-    # Uses the backup as the source of truth so a fresh install (empty {})
-    # passes with no required keys.
-    local missing
-    missing=$(jq -r --slurpfile backup "${SETTINGS}.bak" '
-        . as $current |
-        ($backup[0] | keys_unsorted) |
-        map(select($current[.] == null)) |
-        join(", ")
-    ' "${SETTINGS}")
+  # Verify we didn't nuke keys that Claude Code owns
+  local missing
+  missing=$(jq -r '[
+        (if .env              then null else "env" end),
+        (if .model            then null else "model" end),
+        (if .permissions      then null else "permissions" end)
+    ] | map(select(. != null)) | join(", ")' "${SETTINGS}")
 
-    if [[ -n "${missing}" ]]; then
-        printf 'error: keys removed by merge (were in backup): %s — restoring backup\n' "${missing}" >&2
-        cp "${SETTINGS}.bak" "${SETTINGS}"
-        printf 'restored %s from backup\n' "${SETTINGS}" >&2
-        exit 1
-    fi
+  if [[ -n "${missing}" ]]; then
+    printf 'error: missing expected keys after merge: %s — restoring backup\n' "${missing}" >&2
+    cp "${SETTINGS}.bak" "${SETTINGS}"
+    printf 'restored %s from backup\n' "${SETTINGS}" >&2
+    exit 1
+  fi
 
-    printf 'validation passed\n'
+  printf 'validation passed\n'
 }
 
-
 main() {
-	require_command chezmoi
-	require_command jq "install jq: https://jqlang.github.io/jq/"
+  require_command chezmoi
+  require_command jq "install jq: https://jqlang.github.io/jq/"
 
-	ensure_settings
-	backup_settings
-	set_status_line
+  ensure_settings
+  backup_settings
+  set_status_line
+  set_feature_flags
+  set_permissions
+  set_plugins
 
-	validate_settings
+  local use_bedrock
+  use_bedrock=$(chezmoi data --format json | jq -r '.claude.use_bedrock')
+
+  if [[ "${use_bedrock}" != "true" ]]; then
+    printf 'use_bedrock=%s — cleaning up model env vars and setting default model\n' "${use_bedrock}"
+    cleanup_model_env_vars
+    set_default_model
+    return 0
+  fi
+
+  printf 'use_bedrock=true — resolving and merging Bedrock models\n'
+  if ! merge_model_env_vars; then
+    return 0
+  fi
+
+  validate_settings
 }
 
 main "$@"
