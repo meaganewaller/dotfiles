@@ -1,0 +1,9 @@
+#!/bin/bash
+# Sync ~/.claude/settings.json
+# sync-script hash: {{ output "sha256sum" (joinPath .chezmoi.workingTree "bin/sync-claude-settings") | trim }}
+
+[[ -n "${DEBUG:-}" ]] && set -o xtrace
+set -o errexit
+set -o nounset
+
+"{{ .chezmoi.workingTree }}/bin/sync-claude-settings"
