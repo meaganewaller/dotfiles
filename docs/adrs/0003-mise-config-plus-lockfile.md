@@ -1,6 +1,6 @@
 ---
 status: "proposed"
-date: 2026-05-12
+date: 2026-05-13
 decision-makers: [Meagan Waller]
 consulted: []
 informed: []
@@ -68,6 +68,7 @@ This ADR proposes a **split responsibility**:
 - **Positive**: `run_onchange` tracks lockfile changes—no “forgot to run mise after Renovate merged” drift.
 - **Negative**: Contributors must learn `mise lock` / merge conflict resolution on `mise.lock`; Renovate config may need a new or tuned rule set.
 - **Negative**: Backends without full checksum+URL support still get weaker guarantees—document per-tool expectations in [docs/package-management.md](../package-management.md) when implemented.
+- **Negative (managed workstations — `mise lock --global`)**: In mise **2026.5.6** (verify for your installed version), `mise lock --global` builds its scope from every config path where `is_global_config` is true. That set includes **system** config (e.g. `/etc/mise/config.toml` on macOS), not only the user global file under `~/.config/mise/`. mise then tries to write **`/etc/mise/mise.lock`** (via a temp file in the same directory). On a work machine where `/etc/mise` is IT-managed and not user-writable, that step fails with **permission denied** after `~/.config/mise/mise.lock` may already have been updated, so **`mise lock --global` cannot be completed on that host**. This does not negate using lockfiles for repo-owned or user-owned config; it constrains *where* the user-global lockfile can be refreshed (e.g. a personal machine or CI image without a corporate `/etc/mise` layer, or project-only `mise lock` for `mise.toml`). Implicit lockfile updates during `mise install` / `mise use` follow separate rules and do not require writing under `/etc/mise`.
 
 ### Confirmation
 
