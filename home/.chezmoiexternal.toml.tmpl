@@ -37,13 +37,6 @@
     include = ["*/themes/**"]
     refreshPeriod = "168h"
 
-# Tmux configuration external
-# Clone gpakosz/.tmux configuration repository
-[".tmux"]
-    type = "git-repo"
-    url = "https://github.com/gpakosz/.tmux.git"
-    refreshPeriod = "24h"
-
 # Extra tmux plugin trees (catalog: home/.chezmoidata/tmux-plugins.yaml)
 {{- range .tmux_plugins.extras }}
 ["{{ .path }}"]

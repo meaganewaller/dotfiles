@@ -90,7 +90,7 @@ How the pieces fit together in **this** repository (not an exhaustive list of ev
 | **Dependency PRs** | [Renovate](https://github.com/renovatebot/renovate) — `renovate.json5`, labels `deps` / `automated` ([docs](docs/renovate.md)) |
 | **Shell** | zsh — [Oh My Zsh](https://ohmyz.sh/), [Starship](https://starship.rs/), (see [docs/zsh.md](docs/zsh.md); agent-minimal path in `home/dot_zshrc.tmpl` per [ADR 0001](docs/adrs/0001-specialized-agent-shell.md)) |
 | **Editor** | [Neovim](https://neovim.io/) — [LazyVim](https://www.lazyvim.org/) / [lazy.nvim](https://github.com/folke/lazy.nvim) (`home/dot_config/nvim/`) |
-| **Terminal multiplexer** | [tmux](https://github.com/tmux/tmux) — `home/dot_tmux.conf.local` |
+| **Terminal multiplexer** | [tmux](https://github.com/tmux/tmux) — `home/dot_config/tmux/tmux.conf` |
 | **Repo & PRs** | git, [GitHub CLI](https://cli.github.com/) (`gh`) |
 
 ---
