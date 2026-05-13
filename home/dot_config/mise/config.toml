@@ -23,7 +23,6 @@ eza = "latest"
 
 "github:BurntSushi/ripgrep" = "latest"
 "github:ajeetdsouza/zoxide" = { version = "latest", platforms.linux-arm64 = { asset_pattern = "zoxide-*-aarch64-unknown-linux-musl.tar.gz" } }
-"github:atuinsh/atuin" = "latest"
 "github:buildkite/cli" = "latest"
 "github:carapace-sh/carapace-bin" = "latest"
 "github:charmbracelet/glow" = "latest"

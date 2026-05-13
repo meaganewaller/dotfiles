@@ -50,7 +50,7 @@ The configuration adds `~/.local/bin` to the front of PATH if it exists and isn'
 
 ## Interactive Shell Configuration (dot_zshrc)
 
-When AI coding agents (Claude Code, Cursor agent, CI, etc.) run commands through your zsh, they need standard command behavior and fast startup. `home/dot_zshrc.tmpl` therefore branches at the top: if the shell is classified as an **agent shell**, it skips Oh My Zsh, atuin, autosuggestions, syntax highlighting, and human-centric aliases (such as `cat` → `bat`), while still activating **mise**, keeping **fpath** / `autoload` for shared functions like `c`, prepending the git-safe `bin` PATH entry, and using a simple `PROMPT`.
+When AI coding agents (Claude Code, Cursor agent, CI, etc.) run commands through your zsh, they need standard command behavior and fast startup. `home/dot_zshrc.tmpl` therefore branches at the top: if the shell is classified as an **agent shell**, it skips Oh My Zsh, autosuggestions, syntax highlighting, and human-centric aliases (such as `cat` → `bat`), while still activating **mise**, keeping **fpath** / `autoload` for shared functions like `c`, prepending the git-safe `bin` PATH entry, and using a simple `PROMPT`.
 
 **Detection (single place in the template):** `_dotfiles_is_agent_shell` returns true when any of these hold:
 

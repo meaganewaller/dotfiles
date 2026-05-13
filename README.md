@@ -88,7 +88,7 @@ How the pieces fit together in **this** repository (not an exhaustive list of ev
 | **Bootstrap / trust** | `./install` — prefers OS package managers, otherwise GitHub releases; optional [cosign](https://docs.sigstore.dev/cosign/overview/) verification for downloads |
 | **CI** | [GitHub Actions](https://github.com/features/actions) — ShellCheck on scripts, matrix install + [BATS](https://github.com/bats-core/bats-core) via `./bin/test`, [jdx/mise-action](https://github.com/jdx/mise-action) |
 | **Dependency PRs** | [Renovate](https://github.com/renovatebot/renovate) — `renovate.json5`, labels `deps` / `automated` ([docs](docs/renovate.md)) |
-| **Shell** | zsh — [Oh My Zsh](https://ohmyz.sh/), [Starship](https://starship.rs/), [Atuin](https://atuin.sh/) (see [docs/zsh.md](docs/zsh.md); agent-minimal path in `home/dot_zshrc.tmpl` per [ADR 0001](docs/adrs/0001-specialized-agent-shell.md)) |
+| **Shell** | zsh — [Oh My Zsh](https://ohmyz.sh/), [Starship](https://starship.rs/), (see [docs/zsh.md](docs/zsh.md); agent-minimal path in `home/dot_zshrc.tmpl` per [ADR 0001](docs/adrs/0001-specialized-agent-shell.md)) |
 | **Editor** | [Neovim](https://neovim.io/) — [LazyVim](https://www.lazyvim.org/) / [lazy.nvim](https://github.com/folke/lazy.nvim) (`home/dot_config/nvim/`) |
 | **Terminal multiplexer** | [tmux](https://github.com/tmux/tmux) — `home/dot_tmux.conf.local` |
 | **Repo & PRs** | git, [GitHub CLI](https://cli.github.com/) (`gh`) |

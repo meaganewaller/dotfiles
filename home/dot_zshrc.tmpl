@@ -1,6 +1,6 @@
 # =============================================================================
 # AI / coding-agent minimal shell (ADR 0001 — docs/adrs/0001-specialized-agent-shell.md)
-# When active: skip Oh My Zsh, atuin, autosuggestions, syntax highlighting, and
+# When active: skip Oh My Zsh, autosuggestions, syntax highlighting, and
 # human-centric aliases so tools see POSIX-like commands; keep mise + PATH + fpath.
 # Opt-in: DOTFILES_AGENT_SHELL=1  Opt-out: DOTFILES_AGENT_SHELL=0
 # Fingerprints: CLAUDECODE=1 (Claude Code), non-empty CURSOR_AGENT (Cursor agent).
@@ -25,11 +25,6 @@ if (( ! _dotfiles_is_agent_shell )); then
   )
   
   source "$ZSH"/oh-my-zsh.sh
-  
-  # Initialize atuin for magical shell history
-  {{- if lookPath "atuin" }}
-  eval "$(atuin init zsh)"
-  {{- end }}
   
   # Initialize zoxide for fast directory jumping
   {{- if lookPath "zoxide" }}
