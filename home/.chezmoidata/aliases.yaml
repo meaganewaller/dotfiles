@@ -30,3 +30,7 @@ aliases:
     - replaces: vim
       chain:
         - { tool: nvim, command: nvim }
+
+  credentials:
+    - { tool: claude, alias: claude-api, env: ANTHROPIC_API_KEY, op_ref_key: claude_api }
+    - { tool: bktide, env: BUILDKITE_API_TOKEN, op_ref_key: buildkite }
