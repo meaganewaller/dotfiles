@@ -17,5 +17,5 @@ When you add a new ADR, append a row to the index table below.
 | ADR | Title | Date | Status | Summary |
 | --- | --- | --- | --- | --- |
 | [0001](0001-specialized-agent-shell.md) | Agents need a specialized shell | 2026-05-12 | accepted | Branch `dot_zshrc` early for agent contexts so POSIX-style commands and fast startup win; keep mise/PATH via explicit env and vendor fingerprints (`CLAUDECODE`, Cursor vars, etc.). |
-| [0002](0002-tmux-plugins-via-chezmoi-externals.md) | Tmux plugins via Chezmoi externals | 2026-05-12 | proposed | Prefer Chezmoi `archive` / `git-repo` externals (Renovate-pinned) for plugin trees instead of TPM, tpack, or git submodules; aligns with existing `.tmux` external. |
+| [0002](0002-tmux-plugins-via-chezmoi-externals.md) | Tmux plugins via Chezmoi externals | 2026-05-13 | accepted | Plugin catalog in `home/.chezmoidata/tmux-plugins.yaml`; `.chezmoiexternal.toml.tmpl` emits externals from that list—no TPM/tpack/submodules for routine plugins. |
 | [0003](0003-mise-config-plus-lockfile.md) | Mise config + lockfile | 2026-05-12 | proposed | Fuzzy/`latest` in `mise.toml` / global config; exact pins + checksums + URLs in committed `mise.lock`; Renovate PRs update locks; Chezmoi `run_onchange` hashes lockfile so `mise install` re-runs when it changes. |

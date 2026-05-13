@@ -1,0 +1,9 @@
+# Tmux plugin trees fetched as Chezmoi externals (see docs/adrs/0002-tmux-plugins-via-chezmoi-externals.md).
+# Each entry under `extras` becomes a block in `.chezmoiexternal.toml.tmpl`.
+#
+# Supported shapes:
+#   - type: archive — optional exact (bool), stripComponents (int)
+#   - type: git-repo — optional revision (string) when pinning beyond URL defaults
+#
+tmux_plugins:
+  extras: []

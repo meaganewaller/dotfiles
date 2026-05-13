@@ -15,7 +15,7 @@ if command -v dnf >/dev/null 2>&1; then
     echo "Installing packages via dnf..."
 
     sudo dnf install -y \
-{{ range .packages.linux.dnf -}}
+{{ range (default list (index .packages.linux "dnf")) -}}
         {{ . }} \
 {{ end }}
 
@@ -24,7 +24,7 @@ elif command -v apt-get >/dev/null 2>&1; then
 
     sudo apt-get update -qq
     sudo apt-get install -y \
-{{ range .packages.linux.apt -}}
+{{ range (default list (index .packages.linux "apt")) -}}
         {{ . }} \
 {{ end }}
 
