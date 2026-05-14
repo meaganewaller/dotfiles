@@ -14,6 +14,10 @@
 auto-update-channel = {{ .ghostty.auto_update_channel | default "stable" }}
 
 # --- Typography --------------------------------------------------------------
+{{ if eq .chezmoi.os "linux" -}}
+window-decoration = false
+{{- end }}
+
 font-family = {{ .ghostty.font_family | default "Maple Mono NF CN" }}
 font-family-bold = {{ .ghostty.font_family_bold | default "Maple Mono NF CN Bold" }}
 font-family-italic = {{ .ghostty.font_family_italic | default "Maple Mono NF CN Italic" }}
@@ -40,10 +44,20 @@ cursor-style-blink = false
 selection-background = {{ .ghostty.selection_background | default "#3b3555" }}
 selection-foreground = {{ .ghostty.selection_foreground | default "#f8f5ff" }}
 
+{{ if eq .chezmoi.os "darwin" }}
+macos-titlebar-style = transparent
+macos-titlebar-proxy-icon = hidden
+macos-option-as-alt = left
+macos-window-shadow = true
+{{ end }}
+
 custom-shader-animation = true
 custom-shader = shaders/cursor_slash.glsl
 custom-shader = shaders/cursor_smear.glsl
-gtk-custom-css = "~/.config/ghostty/css/tabs.css"
+quick-terminal-position = bottom
+quick-terminal-screen = mouse
+quick-terminal-autohide = true
+quick-terminal-animation-duration = 0.15
 scrollback-limit = 25000000
 
 # Custom pastel ANSI palette
@@ -77,28 +91,32 @@ unfocused-split-opacity = 0.85
 {{ end }}
 
 # --- Window & Layout ---------------------------------------------------------
-window-padding-x = {{ .ghostty.window_padding_x | default 14 }}
-window-padding-y = {{ .ghostty.window_padding_y | default 10 }}
+window-padding-x = {{ .ghostty.window_padding_x | default 10 }}
+window-padding-y = {{ .ghostty.window_padding_y | default 8 }}
+window-theme = auto
 window-padding-balance = true
 window-save-state = always
 window-colorspace = display-p3
 window-inherit-working-directory = true
 window-inherit-font-size = true
-window-decoration = true
 window-padding-color = extend
 window-vsync = true
 window-height = {{ .ghostty.window_height | default 30 }}
 window-width = {{ .ghostty.window_width | default 110 }}
-window-theme = auto
 
-{{ if eq .chezmoi.os "darwin" }}
-macos-titlebar-style = tabs
-macos-option-as-alt = left
-macos-window-shadow = true
-{{ end }}
 
 # --- Cursor, mouse, selection ------------------------------------------------
 cursor-style = block
 cursor-style-blink = true
 cursor-style = block
 cursor-style-blink = true
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+
+# --- Security ----------------------------------------------------------------
+clipboard-paste-protection = true
+clipboard-paste-bracketed-safe = true
+
+# --- Shell Integration -------------------------------------------------------
+shell-integration = detect
+
