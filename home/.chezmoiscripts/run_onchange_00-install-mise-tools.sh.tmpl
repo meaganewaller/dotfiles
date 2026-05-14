@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# mise config hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
 # mise lock hash: {{ include "dot_config/mise/mise.lock" | sha256sum }}
 
 [ -n "${DEBUG:-}" ] && set -o xtrace
