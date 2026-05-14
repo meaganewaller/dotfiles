@@ -1,0 +1,22 @@
+# Ghostty-specific configuration
+# Define the auto_update_channel key to avoid template errors.
+ghostty:
+  auto_update_channel: stable
+  font_family: "Maple Mono NF CN Light"
+  font_family_bold: "Maple Mono NF CN ExtraBold"
+  font_family_italic: "Maple Mono NF CN Light Italic"
+  font_family_bold_italic: "Maple Mono NF CN ExtraBold Italic"
+  font_size: 12
+  background_image:
+  background_image_opacity:
+  background: 
+  foreground: 
+  cursor_color:
+  selection_background:
+  selection_foreground:
+  window_padding_x:
+  window_padding_y:
+  window_width:
+  window_height:
+  background_blur:
+  background_opacity:
