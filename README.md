@@ -1,5 +1,7 @@
 # dotfiles
 
+[![CI](https://github.com/meaganewaller/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/meaganewaller/dotfiles/actions/workflows/ci.yml)
+
 > There's no place like `~`
 
 This repository is a **Chezmoi-managed developer environment** with a deliberate goal: **coding agents should be able to run and reconcile most day-to-day maintenance**, while **humans supply intent, tradeoffs, taste, and aesthetic judgment**. The repo stays the source of truth; machines converge to what is committed here.
