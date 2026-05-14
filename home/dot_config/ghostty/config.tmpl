@@ -1,5 +1,5 @@
 # Ghostty Configuration
-# 
+#
 # Reload while running: cmd+shift+,
 # Open this file:       cmd+, (the actual version)
 # Command palette:      cmd+shift+p (search any action)
@@ -10,21 +10,58 @@
 # splits, toggle split zoom, etc.). Don't re-bind unless you want
 # something different. See `ghostty +list-keybinds` for the list.
 
-# --- Typography ---------------------------------------------------------------
-font-family = Maple Mono NF CN Light
-font-family-bold = Maple Mono NF CN ExtraBold
-font-family-italic = Maple Mono NF CN Italic
-font-family-bold-italic = Maple Mono NF CN BoldItalic
+# --- Auto Update -------------------------------------------------------------
+auto-update-channel = {{ .ghostty.auto_update_channel | default "stable" }}
+
+# --- Typography --------------------------------------------------------------
+font-family = {{ .ghostty.font_family | default "Maple Mono NF CN" }}
+font-family-bold = {{ .ghostty.font_family_bold | default "Maple Mono NF CN Bold" }}
+font-family-italic = {{ .ghostty.font_family_italic | default "Maple Mono NF CN Italic" }}
+font-family-bold-italic = {{ .ghostty.font_family_bold_italic | default "Maple Mono NF CN Bold Italic" }}
+bold-is-bright = true
 font-thicken = false
-font-size = 14
-# Programming ligatures (==, !=, =>, ->, etc.) and stylistic alts.
+link-url = true
+font-size = {{ .ghostty.font_size | default 13.6 }}
 font-feature = +calt
 font-feature = +liga
 font-feature = +ss02
+adjust-cell-height = 2
 
-# --- Theme --------------------------------------------------------------------
-# Auto-switches with macOS Light/Dark mode.
+# --- Theme -------------------------------------------------------------------
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+background-image = {{ .ghostty.background_image | default "~/.config/ghostty/bg/cyber-y2k-anime-desktop-wallpapers.png" }}
+background-image-opacity = {{ .ghostty.background_image_opacity | default 0.15 }}
+background-image-fit = cover
+background = {{ .ghostty.background | default "#1f1b2e" }}
+foreground = {{ .ghostty.foreground | default "#f8f5ff" }}
+cursor-color = {{ .ghostty.cursor_color | default "#f5c2e7" }}
+cursor-style = bar
+cursor-style-blink = false
+selection-background = {{ .ghostty.selection_background | default "#3b3555" }}
+selection-foreground = {{ .ghostty.selection_foreground | default "#f8f5ff" }}
+
+# Custom pastel ANSI palette
+palette = 0=#2a243f
+palette = 1=#ff7aa2
+palette = 2=#b8f28f
+palette = 3=#ffd480
+palette = 4=#8bb8ff
+palette = 5=#f6a8ff
+palette = 6=#8fe9ff
+palette = 7=#efe9ff
+palette = 8=#6a6284
+palette = 9=#ff95b7
+palette = 10=#c9f7a8
+palette = 11=#ffe0a3
+palette = 12=#a9cbff
+palette = 13=#f9beff
+palette = 14=#aaf2ff
+palette = 15=#ffffff
+
+minimum-contrast = 1.1
+background-opacity = {{ .ghostty.background_opacity | default 0.94 }}
+background-opacity-cells = true
+background-blur = {{ .ghostty.background_blur | default 20 }}
 
 {{ if eq .chezmoi.os "darwin" }}
 # Subtle translucency + blur on macOS.
@@ -33,14 +70,20 @@ background-blur = 20
 unfocused-split-opacity = 0.85
 {{ end }}
 
-# --- Window & Layout ----------------------------------------------------------
-window-padding-x = 14
-window-padding-y = 10
+# --- Window & Layout ---------------------------------------------------------
+window-padding-x = {{ .ghostty.window_padding_x | default 14 }}
+window-padding-y = {{ .ghostty.window_padding_y | default 10 }}
 window-padding-balance = true
 window-save-state = always
-window-colorspace       = display-p3
+window-colorspace = display-p3
 window-inherit-working-directory = true
-window-inherit-font-size         = true
+window-inherit-font-size = true
+window-decoration = true
+window-padding-color = extend
+window-vsync = true
+window-height = {{ .ghostty.window_height | default 30 }}
+window-width = {{ .ghostty.window_width | default 110 }}
+window-theme = auto
 
 {{ if eq .chezmoi.os "darwin" }}
 macos-titlebar-style = tabs
@@ -48,39 +91,8 @@ macos-option-as-alt = left
 macos-window-shadow = true
 {{ end }}
 
-# --- Cursor, mouse, selection -------------------------------------------------
+# --- Cursor, mouse, selection ------------------------------------------------
 cursor-style = block
 cursor-style-blink = true
-mouse-hide-while-typing = true
-mouse-scroll-multiplier = precision:1.5,discrete:5
-
-# --- Behavior -----------------------------------------------------------------
-confirm-close-surface = false
-# ~100 MB of scrollback history per surface.
-scrollback-limit      = 100000000
-shell-integration     = detect
-# cursor passthrough + sudo support + window title + $PATH from login shell
-shell-integration-features = cursor,sudo,title,path
-resize-overlay        = after-first
-
-# ─── Quick (Quake-style) drop-down terminal ──────────────────────────
-# Press cmd+ctrl+` anywhere to summon a slim terminal at the top of
-# the screen. Press again to dismiss. Note: requires Accessibility
-# permission for the global hotkey on first use.
-keybind = global:super+ctrl+grave_accent=toggle_quick_terminal
-quick-terminal-position           = top
-# Appear on whichever screen the mouse cursor is on.
-quick-terminal-screen             = mouse
-quick-terminal-animation-duration = 0.15
-quick-terminal-autohide           = true
-
-# ─── Extras on top of defaults ───────────────────────────────────────
-# Reset a wedged terminal (after a crashed TUI, broken escape state).
-keybind = super+shift+r=reset
-# One-shot: dim every other split, useful when reading long output.
-keybind = super+ctrl+z=toggle_split_zoom
-
-# ─── Custom shaders --------------------------------------------------
-custom-shader = ~/.config/ghostty/shaders/blaze.glsl
-custom-shader = ~/.config/ghostty/shaders/ripple.glsl
-custom-shader-animation = true
+cursor-style = block
+cursor-style-blink = true

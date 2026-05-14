@@ -1,0 +1,49 @@
+tabbar .box {
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: none;
+}
+
+tabbar tabbox {
+  padding: 2px 4px;
+  min-height: 24px;
+}
+
+tabbar tab {
+  margin: 0 2px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  background-color: #45475a;
+  color: #cdd6f4;
+  min-height: 18px;
+  transition: background-color 150ms ease-in-out;
+}
+
+tabbar tab:selected {
+  background-color: #ebbcba;
+   color: #191724;
+  font-weight: bold;
+}
+
+tabbar tab:hover:not(:selected) {
+  background-color: #5d87a3;
+  color: #1c1b19;
+}
+
+tabbar tab label {
+  font-family: "Maple Mono NF CN";
+  font-style: italic;
+  font-size: 15px;
+}
+
+tabbar tab button.image-button {
+  opacity: 0;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+  margin: 0 0 0 4px;
+  border-radius: 99px;
+}
+
+tabbar tab:hover button.image-button {
+  opacity: 1;
+}
