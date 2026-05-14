@@ -5,6 +5,7 @@
 [env]
 # supports arbitrary env vars so mise can be used like direnv/dotenv
 NODE_ENV = "development"
+_.fnox-env = { tools = true, profile = "{{ if .work_profile }}work{{ else }}personal{{ end }}" }
 
 [settings]
 verbose = false
@@ -16,15 +17,11 @@ gpg_verify = true
 always_keep_download = false
 always_keep_install = false
 minimum_release_age = "3d"
-trusted_config_paths = [
-    {{ .chezmoi.workTree | quote }},
-    {{ joinPath .git.ghq_root "meaganewaller" "dotfiles" | quote }}
-]
-
+trusted_config_paths = ["~/src/github.com/meaganewaller", "~/workspace"]
 experimental = true
 lockfile = true
 pin = true
-env_File = ".env" # load env varsr from a dotenv file, see `MISE_ENV_FILE`
+env_file = ".env" # load env varsr from a dotenv file, see `MISE_ENV_FILE`
 disable_backends = ["asdf", "ubi", "vfox", "dotnet"]
 disable_tools = ["java"]
 
@@ -36,6 +33,9 @@ uvx = true
 
 [settings.ruby]
 compile = false
+
+[plugins]
+fnox-env = "https://github.com/jdx/mise-env-fnox"
 
 [tools]
 # Backends
@@ -49,6 +49,7 @@ bun     = "1"
 go      = "1"
 python  = ["3.14"]
 ruby    = "3"
+fnox    = "latest"
 
 # Package Manager
 "aqua:pnpm/pnpm"    = "11"     # Fast, disk space efficient package manager
