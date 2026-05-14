@@ -22,7 +22,7 @@ jobs:
         github.event.sender.permissions.admin == true ||
         github.event.sender.permissions.maintain == true ||
         github.event.sender.type == 'Owner' ||
-        (github.actor != 'dependabot[bot]' && contains(fromJson('["meaganewaller"]'), github.actor))
+        github.actor == 'renovate[bot]'
       )
     runs-on: ubuntu-latest
     timeout-minutes: 30
