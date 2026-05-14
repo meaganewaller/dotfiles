@@ -4,5 +4,8 @@
     "Catppuccin",
     "liga",
     "vsync"
-  ]
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "git add": true
+  }
 }
