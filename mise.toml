@@ -3,7 +3,7 @@
 [tools]
 "aqua:bats-core/bats-core" = "v1.13.0"
 "aqua:koalaman/shellcheck" = "v0.11.0"
-"aqua:mikefarah/yq" = "v4.47.1"
+"aqua:mikefarah/yq" = "v4.53.2"
 "aqua:suzuki-shunsuke/ghalint" = "latest"
 hk = "1.35.0"
 jq = "latest"
