@@ -1,0 +1,197 @@
+{{- /* 
+# -*-mode:toml-*- vim:ft=toml.gotexttmpl
+*/ -}}
+
+[env]
+# supports arbitrary env vars so mise can be used like direnv/dotenv
+NODE_ENV = "development"
+
+[settings]
+verbose = false
+jobs = 4
+raw = false
+yes = false
+paranoid = false
+gpg_verify = true
+always_keep_download = false
+always_keep_install = false
+minimum_release_age = "3d"
+trusted_config_paths = [
+    {{ .chezmoi.workTree | quote }},
+    {{ joinPath .git.ghq_root "meaganewaller" "dotfiles" | quote }}
+]
+
+experimental = true
+lockfile = true
+pin = true
+env_File = ".env" # load env varsr from a dotenv file, see `MISE_ENV_FILE`
+disable_backends = ["asdf", "ubi", "vfox", "dotnet"]
+disable_tools = ["java"]
+
+[settings.python]
+uv_venv_auto = true
+
+[settings.pipx]
+uvx = true
+
+[settings.ruby]
+compile = false
+
+[tools]
+# Backends
+aqua = "latest"
+
+# Runtime & Languages
+rust    = "1"
+node    = "24"
+deno    = "2"
+bun     = "1"
+go      = "1"
+python  = ["3.14"]
+ruby    = "3"
+
+# Package Manager
+"aqua:pnpm/pnpm"    = "11"     # Fast, disk space efficient package manager
+"aqua:astral-sh/uv" = "latest" # Python package and project manager, written in Rust
+
+# CLI tools
+
+{{- if eq .chezmoi.os "darwin" }}
+"aqua:mas-cli/mas" = "latest" # App Store
+{{- end }}
+
+## Shell
+"aqua:starship/starship"     = "latest" # Shell prompt
+"aqua:rossmacarthur/sheldon" = "latest" # Shell plugin manager
+
+## Editor
+"aqua:neovim/neovim"           = "latest" # Hyper extensive editor
+"aqua:tree-sitter/tree-sitter" = "latest" # language parser
+
+## Alternative CLI
+"aqua:fish-shell/fish-shell"   = "latest" # The user-friendly command line shell.
+"aqua:ajeetdsouza/zoxide"      = "latest" # Smarter cd command
+"aqua:sharkdp/bat"             = "latest" # cat alternative
+"aqua:sharkdp/fd"              = "latest" # find alternative
+"aqua:BurntSushi/ripgrep"      = "latest" # grep alternative
+"aqua:phiresky/ripgrep-all"    = "latest" # extended ripgrep for pdf, docs, archives, img, movies, etc
+"aqua:junegunn/fzf"            = "latest" # Fuzzy finder
+"aqua:ClementTsang/bottom"     = "latest" # Process monitor
+"aqua:watchexec/watchexec"     = "latest" # Modify detector
+"aqua:Byron/dua-cli"           = "latest" # Disk usage
+"aqua:fastfetch-cli/fastfetch" = "latest" # System information
+"aqua:svenstaro/genact"        = "latest" # nonsense activity generator
+"aqua:tealdeer-rs/tealdeer"    = "latest" # Too long don't read
+"aqua:tstack/lnav"             = "latest" # Log file navigator
+"aqua:ducaale/xh"              = "latest" # Friendly and fast tool for sending HTTP requests
+"github:yt-dlp/yt-dlp"         = { version = "latest", bin = "yt-dlp" }  # Downloader
+"github:steipete/gogcli"       = "latest" # Google Suite CLI
+## Git
+"aqua:o2sh/onefetch"            = "latest" # Repository information
+"aqua:simonwhitaker/gibo"       = "latest" # .gitignore boilerplates
+"aqua:jdx/hk"                   = "latest" # git hooks and project lints
+"github:modem-dev/hunk"         = { version = "latest", bin = "hunk" } # Review-first terminal diff viewer for agentic coders
+"github:gitui-org/gitui"        = "latest" # Blazing 💥 fast terminal-ui for git written in rust 🦀
+"github:max-sixty/worktrunk"    = "latest" # Git worktree management, designed for parallel AI agent workflows
+"npm:commitizen"                = "latest" # commit message utility
+"npm:cz-conventional-changelog" = "latest" # Generate a CHANGELOG from git metadata.
+
+### GitHub
+"aqua:cli/cli"                = "latest" # gh command: GitHub CLI
+"aqua:x-motemen/ghq"          = "latest" # Remote repository manager
+"aqua:suzuki-shunsuke/pinact" = "latest" # Version Pinner for GitHub Actions
+
+## Dotfiles
+"aqua:twpayne/chezmoi" = "latest" # Dotfiles manager
+
+## Language Server
+"npm:bash-language-server"             = "latest" # Bash, Zsh
+"npm:fish-lsp"                         = "latest" # Fish
+"npm:vscode-json-languageserver"       = "latest" # JSON
+"npm:yaml-language-server"             = "latest" # YAML
+"npm:typescript-language-server"       = "latest" # JavaScript, TypeScript
+"npm:@tailwindcss/language-server"     = "latest" # TailWind CSS
+"aqua:LuaLS/lua-language-server"       = "latest" # Lua
+"aqua:artempyanykh/marksman"           = "latest" # Markdown
+"aqua:tombi-toml/tombi"                = "latest" # TOML
+"aqua:hashicorp/terraform-ls"          = "latest" # Terraform
+"go:golang.org/x/tools/gopls"          = "latest" # Go
+"github:clangd/clangd"                 = "latest" # C/C++
+"github:latex-lsp/texlab"              = "latest" # LaTex
+"github:docker/docker-language-server" = "latest" # Dockerfile, compose.yml
+"github:sqls-server/sqls"              = "latest" # SQL
+"aqua:Automattic/harper/harper-ls"     = "latest" # Offline, privacy-first grammar checker. Fast, open-source, Rust-powered
+
+## Debugger
+"github:vadimcn/vscode-lldb"           = "latest" # C/C++, Rust, Zig, Swift
+"go:github.com/go-delve/delve/cmd/dlv" = "latest" # Go
+
+## Formatter / Linter
+"aqua:mvdan/sh"               = "latest" # Shell formatter
+"aqua:biomejs/biome"          = "latest" # eslint & prettier replacement
+"aqua:astral-sh/ruff"         = "latest" # Python linter and code formatter, written in Rust
+"aqua:astral-sh/ty"           = "latest" # Python type checker and language server, written in Rust
+"aqua:google/yamlfmt"         = "latest" # YAML formatter
+"aqua:rhysd/actionlint"       = "latest" # YAML Linter for GitHub Actions workflows
+"aqua:zizmorcore/zizmor"      = "latest" # Static analysis for GitHub Actions
+"aqua:golangci/golangci-lint" = "latest" # Go linter aggregator
+"aqua:hadolint/hadolint"      = "latest" # Dockerfile Linter
+"aqua:JohnnyMorganz/StyLua"   = "latest" # Lua Linter
+"aqua:quarylabs/sqruff"       = "latest" # Fast SQL formatter/linter
+"aqua:crate-ci/typos"         = "latest" # Typo
+"aqua:rvben/rumdl"            = "latest" # Fast Markdown linter and formatter written in Rust
+
+## Network
+"github:domcyrus/rustnet" = "latest" # Per-process network monitoring for your terminal
+
+## Daatbase / Data Analysis
+"github:achristmascarl/rainfrog" = "latest" # 🐸 a database tool for the terminal
+"github:medialab/xan"            = "latest" # CSV visualization toolkit
+
+## Documents
+"github:jgm/pandoc"                   = "latest" # Universal markup converter
+"github:1jehuang/mermaid-rs-renderer" = "latest" # faster Mermaid renderer
+"pipx:pylatexenc"                     = "latest" # LaTeX parser to use `render-markdown.nvim`
+
+## JSON / YAML / Markdown
+"aqua:jqlang/jq"            = "latest" # CLI processor for JSON
+"aqua:mikefarah/yq"         = "latest" # CLI processor for YAML, JSON, XML, CSV, TSV, TOML, HCL, base64
+"aqua:charmbracelet/glow"   = "latest" # Render markdown on the CLI
+"github:jfernandez/mdserve" = { version = "latest", bin = "mdserve" }
+
+## Security
+"aqua:FiloSottile/age"           = "latest" # Simple encrypt / decrypt tool
+"github:betterleaks/betterleaks" = "latest" # A Better Secrets Scanner built for configurability and speed
+"github:jdx/fnox"                = "latest" # encrypted/remote secret manager
+"github:AikidoSec/safe-chain"    = "latest" # Protect against malicious code installed via npm, yarn, pnpm, npx, pnpx, pip, uv and poetry
+
+## Utility
+"github:ksdme/ut" = "latest" # A Rust based utilty toolbox for developers
+
+## Container
+"aqua:lima-vm/lima"         = "latest" # Linux virtual machines, with a focus on running containers
+"aqua:abiosoft/colima"      = "latest" # Container runtimes on macOS (and Linux) with minimal setup
+"aqua:docker/cli"           = "latest" # Docker CLI
+"aqua:docker/buildx"        = "latest" # Docker CLI plugin for extended build capabilities with BuildKit
+"aqua:docker/compose"       = "latest" # Define and run multi-container applications with Docker
+"aqua:wagoodman/dive"       = "latest" # A tool for exploring each layer in a docker image
+"github:azu/dockerfile-pin" = "latest" # Docker image digest pinner
+"npm:@devcontainers/cli"    = "latest" # Dev Container CLI
+
+## AI Tools
+### Local / Cloud LLM frontend
+"aqua:ollama/ollama" = { version = "latest", minimum_release_age = "2d" }
+
+### AI Agents
+"aqua:anomalyco/opencode" = { version = "latest", minimum_release_age = "2d" }
+"npm:@google/gemini-cli"  = { version = "latest", minimum_release_age = "2d" }
+
+### AI utility
+"aqua:rtk-ai/rtk"            = "latest" # High-performance CLI proxy that reduces LLM token consumption by 60-90%
+"github:dyoshikawa/rulesync" = "latest" # A Utility CLI for AI Coding Agents
+"github:googleworkspace/cli" = "latest" # Google Workspace CLI
+
+### MCP servers
+"pipx:mcp-server-time"  = "latest" # MCP server for time and timezone conversion capabilities
+"pipx:mcp-server-git"   = "latest" # MCP server for Git interaction and automation
+"pipx:mcp-server-fetch" = "latest" # MCP server for Web contents fetching

@@ -6,14 +6,17 @@
 {{- $gitEmail := "" -}}
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
+{{- $workProfile := false -}}
 {{- if or (env "CI") (env "GITHUB_ACTIONS") -}}
 {{- $gitName = env "GIT_USER_NAME" -}}
 {{- $gitEmail = env "GIT_USER_EMAIL" -}}
+{{- $workProfile = env "WORK_PROFILE" -}}
 {{- else -}}
-{{- $gitName = promptString "Git user.name" -}}
-{{- $gitEmail = promptString "Git user.email" -}}
+{{- $gitName = promptStringOnce . "git.name" "Git user.name" -}}
+{{- $gitEmail = promptStringOnce . "git.email" "Git user.email" -}}
 {{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" -}}
 {{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" -}}
+{{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
 {{- end -}}
 
 # Source Directory Configuration
@@ -21,6 +24,9 @@
 # This enables storing the dotfiles repository in a custom location while still
 # using chezmoi for management. The workingTree variable points to the repo root.
 sourceDir = "{{ .chezmoi.workingTree }}"
+
+[data]
+    work_profile = {{ $workProfile }}
 
 # Data Section
 # Variables defined here are available in all templates via the .data namespace.
