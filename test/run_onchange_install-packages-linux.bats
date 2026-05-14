@@ -17,7 +17,7 @@ load test_helper
 }
 
 @test "renders correctly on linux with packages" {
-    local script_file="home/run_onchange_install-packages-linux.sh.tmpl"
+    local script_file="home/.chezmoiscripts/run_onchange_install-packages-linux.sh.tmpl"
 
     cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
 [data]
@@ -44,7 +44,7 @@ EOF
 }
 
 @test "does not render on non-linux systems" {
-    local script_file="home/run_onchange_install-packages-linux.sh.tmpl"
+    local script_file="home/.chezmoiscripts/run_onchange_install-packages-linux.sh.tmpl"
 
     cat >"$TEST_TMPDIR/darwin-config.toml" <<EOF
 [data]
@@ -60,7 +60,7 @@ EOF
 }
 
 @test "produces valid shell syntax" {
-    local script_file="home/run_onchange_install-packages-linux.sh.tmpl"
+    local script_file="home/.chezmoiscripts/run_onchange_install-packages-linux.sh.tmpl"
 
     cat >"$TEST_TMPDIR/syntax-config.toml" <<EOF
 [data]
@@ -75,7 +75,7 @@ EOF
 }
 
 @test "handles empty dnf section gracefully" {
-    local script_file="home/run_onchange_install-packages-linux.sh.tmpl"
+    local script_file="home/.chezmoiscripts/run_onchange_install-packages-linux.sh.tmpl"
 
     cat >"$TEST_TMPDIR/empty-config.toml" <<EOF
 [data]

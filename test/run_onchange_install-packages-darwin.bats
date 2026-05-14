@@ -36,7 +36,7 @@ load test_helper
 
 @test "renders correctly on darwin with packages" {
   # Test our ACTUAL script with our ACTUAL packages data
-  local script_file="home/run_onchange_install-packages-darwin.sh.tmpl"
+  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
   # Create config with our actual data
   cat >"$TEST_TMPDIR/real-config.toml" <<EOF
@@ -69,7 +69,7 @@ EOF
 
 @test "does not render on non-darwin systems" {
   # Test our ACTUAL script on non-darwin systems
-  local script_file="home/run_onchange_install-packages-darwin.sh.tmpl"
+  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
   # Create config with linux OS
   cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
@@ -88,7 +88,7 @@ EOF
 
 @test "produces valid shell syntax" {
   # Test that our ACTUAL script renders to valid shell syntax
-  local script_file="home/run_onchange_install-packages-darwin.sh.tmpl"
+  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
   # Create config with our actual data
   cat >"$TEST_TMPDIR/syntax-config.toml" <<EOF
