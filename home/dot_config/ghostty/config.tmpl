@@ -40,6 +40,12 @@ cursor-style-blink = false
 selection-background = {{ .ghostty.selection_background | default "#3b3555" }}
 selection-foreground = {{ .ghostty.selection_foreground | default "#f8f5ff" }}
 
+custom-shader-animation = true
+custom-shader = shaders/cursor_slash.glsl
+custom-shader = shaders/cursor_smear.glsl
+gtk-custom-css = "~/.config/ghostty/css/tabs.css"
+scrollback-limit = 25000000
+
 # Custom pastel ANSI palette
 palette = 0=#2a243f
 palette = 1=#ff7aa2
