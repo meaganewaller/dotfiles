@@ -10,6 +10,13 @@ if [[ "${DEBUG:-}" == "1" ]]; then
     echo "🔄 Installing/updating Neovim plugins due to configuration changes..."
 fi
 
+# Skip on CI: Lazy! sync hits the network for every plugin and is the slowest
+# part of chezmoi apply; not worth the runtime in CI.
+if [[ -n "${CI:-}" ]] || [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    echo "Running in CI, skipping Neovim plugin sync"
+    exit 0
+fi
+
 # Check if nvim is available
 if ! command -v nvim >/dev/null 2>&1; then
     echo "Warning: Neovim not found, skipping plugin installation"

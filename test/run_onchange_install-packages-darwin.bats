@@ -42,11 +42,13 @@ load test_helper
   cat >"$TEST_TMPDIR/real-config.toml" <<EOF
 [data]
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-    packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
-  # Render our actual script
-  run chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
+  # Render our actual script. The template branches on $CI / $GITHUB_ACTIONS
+  # at render time; clear them so this test exercises the dev-machine path
+  # (brews + casks). The CI-only path is covered by a separate test below.
+  run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
   [ "$status" -eq 0 ]
 
   # Test our script's behavior:
@@ -60,11 +62,31 @@ EOF
   [[ "$output" == *"brew bundle"* ]]
 
   # 4. Should contain our actual package
-  [[ "$output" == *"font-fira-code-nerd-font"* ]]
+  [[ "$output" == *"font-maple-mono-nf-cn"* ]]
 
   # 5. Should handle missing Homebrew gracefully
   [[ "$output" == *"Homebrew not found"* ]]
   [[ "$output" == *"exit 0"* ]]
+}
+
+@test "skips casks when CI env is set" {
+  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+  cat >"$TEST_TMPDIR/ci-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq"], casks = ["font-maple-mono-nf-cn"] } }
+EOF
+
+  CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
+  [ "$status" -eq 0 ]
+
+  # Brews still installed (catches bundle drift in CI)
+  [[ "$output" == *'brew "jq"'* ]]
+
+  # Casks omitted from the rendered bundle
+  [[ "$output" != *"font-maple-mono-nf-cn"* ]]
+  [[ "$output" != *'cask "'* ]]
 }
 
 @test "does not render on non-darwin systems" {
@@ -75,7 +97,7 @@ EOF
   cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
 [data]
     chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-    packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
   # Render our actual script on linux
@@ -98,7 +120,7 @@ EOF
 
   # Add our actual packages data
   cat >>"$TEST_TMPDIR/syntax-config.toml" <<EOF
-    packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
   # Render our actual script

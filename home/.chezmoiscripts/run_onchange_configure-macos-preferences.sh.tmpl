@@ -5,6 +5,13 @@
 set -o errexit
 set -o nounset
 
+# Skip on CI: these tweaks need a GUI session (osascript / System Events,
+# killall Dock, killall ControlCenter, wallpaper via System Events).
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "Running in CI, skipping macOS preferences"
+    exit 0
+fi
+
 # Disable Spotlight's Cmd+Space (HotKey 64)
 # Parameters: ASCII 32 (space), virtual keycode 49 (space), modifiers 1048576 (Cmd)
 if [ "$(plutil -extract AppleSymbolicHotKeys.64.enabled raw -o - ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null)" = "false" ]; then
