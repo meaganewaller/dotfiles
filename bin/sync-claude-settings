@@ -315,6 +315,44 @@ set_permissions() {
     }' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
 }
 
+# Register default global hooks (managed via chezmoi at ~/.claude/hooks/)
+set_hooks() {
+  printf 'setting hooks in %s\n' "${SETTINGS}"
+  jq '.hooks = {
+        "PreToolUse": [
+          {
+            "matcher": "Write|Edit|MultiEdit",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "bash ~/.claude/hooks/check-secrets.sh"
+              }
+            ]
+          },
+          {
+            "matcher": "Bash",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "bash ~/.claude/hooks/guard-destructive.sh"
+              }
+            ]
+          }
+        ],
+        "PostToolUse": [
+          {
+            "matcher": "Write|Edit",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "bash ~/.claude/hooks/migration-reminder.sh"
+              }
+            ]
+          }
+        ]
+      }' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+}
+
 # Register third-party plugin marketplaces and enable plugins
 set_plugins() {
   printf 'setting plugin marketplaces and enabled plugins in %s\n' "${SETTINGS}"
@@ -436,6 +474,7 @@ main() {
   set_status_line
   set_feature_flags
   set_permissions
+  set_hooks
   set_plugins
 
   local use_bedrock
