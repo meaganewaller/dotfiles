@@ -16,16 +16,16 @@ fi
 echo "Installing global mise tools..."
 
 # Provide a GitHub token to mise's aqua/github backends to avoid the 60/hr
-# unauthenticated rate limit. Order of preference:
-#   1. GITHUB_TOKEN already in env (CI passes it via secrets.GITHUB_TOKEN)
-#   2. gh CLI's auth token (typical developer machine)
-#   3. nothing — mise will install anyway but may rate-limit
+# unauthenticated rate limit. mise reads MISE_GITHUB_TOKEN in preference to
+# GITHUB_TOKEN, so when CI passes MISE_GITHUB_TOKEN via the step env there's
+# nothing to do here — mise sees it directly. On a developer machine where
+# neither is set, fall back to gh's stored auth token.
 {{- if lookPath "gh" }}
-if [ -z "${GITHUB_TOKEN:-}" ]; then
+if [ -z "${MISE_GITHUB_TOKEN:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
     GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
+    export GITHUB_TOKEN
 fi
 {{- end }}
-export GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 
 mise install --yes
 
