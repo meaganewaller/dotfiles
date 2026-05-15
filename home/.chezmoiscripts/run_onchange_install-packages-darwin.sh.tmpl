@@ -11,15 +11,25 @@ if ! command -v brew >/dev/null 2>&1; then
     exit 0
 fi
 
+{{ if or (env "CI") (env "GITHUB_ACTIONS") -}}
+echo "Installing packages via brew bundle (CI: brews only, casks skipped)..."
+{{- else -}}
 echo "Installing packages via brew bundle..."
+{{- end }}
 
 brew bundle --file=/dev/stdin <<EOF
 {{ range .packages.darwin.brews -}}
 brew {{ . | quote }}
 {{ end -}}
+{{- /* Casks are skipped on CI: most are GUI apps (Cursor, 1Password, Slack,
+       VS Code, Ghostty, Obsidian, VLC, Loopback) that take many minutes to
+       download/install and some require licenses or GUI auth. Brew drift
+       (the formula list) is still validated. */ -}}
+{{ if not (or (env "CI") (env "GITHUB_ACTIONS")) -}}
 {{ range .packages.darwin.casks -}}
 cask {{ . | quote }}
 {{ end -}}
+{{- end }}
 EOF
 echo "Package installation complete"
 {{ end -}}
