@@ -42,6 +42,11 @@ jobs:
       - name: Setup mise
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
       - name: Install chezmoi
+        # GITHUB_TOKEN gives mise's aqua/github backends authenticated rate
+        # limits (5000/hr) instead of the 60/hr anonymous cap. Without it the
+        # large global mise tool list trips the limit partway through install.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" WORK_PROFILE=false ./install
       - name: Dump install logs on failure
@@ -53,6 +58,8 @@ jobs:
             echo
           done
       - name: Install test dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./bin/setup
       - name: Run test suite
