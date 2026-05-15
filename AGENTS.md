@@ -44,6 +44,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | Edit / apply dotfiles | [docs/agents/chezmoi.md](docs/agents/chezmoi.md) |
 | Pins, Renovate, digests | [docs/renovate.md](docs/renovate.md), [docs/package-management.md](docs/package-management.md) |
 | Shell, agent-minimal zsh | [docs/zsh.md](docs/zsh.md) |
+| Fish shell (alternative) | [docs/fish.md](docs/fish.md) |
 | Install / env vars | [README.md](README.md) |
 | Add a CLI with correct pins | `/install` skill; then Chezmoi workflow above |
 
