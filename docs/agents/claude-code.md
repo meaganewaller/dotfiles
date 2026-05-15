@@ -18,7 +18,20 @@ What is **not** in source control:
 - `~/.claude/settings.json` — generated and refreshed at runtime by [`bin/sync-claude-settings`](../../bin/sync-claude-settings), invoked from `home/.chezmoiscripts/run_onchange_sync-claude-settings.sh.tmpl`. The script sets `statusLine`, feature flags, the global `permissions` allowlist, hook registrations, plugin marketplaces, and the default model — and validates the result is still parseable JSON.
 - `~/.claude/settings.local.json` — machine-local overlay. Not managed; deliberately left to the user / host.
 
-This split is intentional: **`home/dot_claude/` ships content** (skills, agents, hooks, themes), and **`bin/sync-claude-settings` ships wiring** (which hooks fire, which permissions are granted, which model is default). Either side can change without disturbing the other.
+This split is intentional: **`home/dot_claude/` ships content** (skills, agents, hooks, themes), and **`bin/sync-claude-settings` ships wiring** (which hooks fire, which permissions are granted, which model is default).
+
+The two sides are **not independent** — anything that needs *registration* lives in both places at once:
+
+| Change | Content edit | Wiring edit also required? |
+| --- | --- | --- |
+| New skill (`home/dot_claude/skills/<name>/SKILL.md`) | yes | no — Claude Code auto-discovers from `~/.claude/skills/` |
+| New subagent (`home/dot_claude/agents/<name>.md`) | yes | no — auto-discovered from `~/.claude/agents/` |
+| New hook (`home/dot_claude/hooks/executable_<name>.sh`) | yes | **yes** — register in `set_hooks` in `bin/sync-claude-settings`, or the hook is on disk but never fires |
+| New permission pattern (allowing a new tool/command) | n/a | **yes** — add to `set_permissions` in `bin/sync-claude-settings` |
+| New plugin marketplace | n/a | **yes** — add to `set_plugins` in `bin/sync-claude-settings` |
+| Default model / feature flag change | n/a | **yes** — `set_default_model` / `set_feature_flags` in `bin/sync-claude-settings` |
+
+How to evolve this contract — declarative `settings.json.tmpl` vs. the current imperative sync script, and how a machine-local overlay would merge in — is the subject of a forthcoming ADR. Tracking issue: [#25](https://github.com/meaganewaller/dotfiles/issues/25).
 
 ## Skill vs. subagent — when to use each
 
@@ -112,7 +125,7 @@ Registered today (wired into `settings.json` by `bin/sync-claude-settings`):
 1. Place at `home/dot_claude/hooks/executable_<name>.sh` so chezmoi writes it executable.
 2. Read tool input as JSON from stdin; parse with `jq`. Check `.tool_name` early and `exit 0` for tools you don't care about — hooks fire for every tool call.
 3. Exit 0 for "allow", non-zero (with a message on stderr) for "block".
-4. Add the registration in `bin/sync-claude-settings` (`set_hooks`) so it's actually wired in `settings.json`.
+4. **Register** in `bin/sync-claude-settings` (`set_hooks`). Without this step the script is on disk at `~/.claude/hooks/` but `settings.json` never references it, so it never fires. Then `chezmoi apply` — the run_onchange wrapper re-runs the sync script when its hash changes.
 
 ## Settings split (managed vs. local)
 
