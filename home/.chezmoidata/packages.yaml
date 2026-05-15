@@ -1,11 +1,14 @@
 packages:
   darwin:
-    brews: 
+    brews:
       # Security & Auth
       - cosign
       - git-crypt
       - gnupg
       - ca-certificates
+
+      # AI Tools
+      - aichat
 
       # CLI Utilities
       - awscli
@@ -40,11 +43,11 @@ packages:
       - xz
       - zstd
 
-
       # Git & Version Control
       - gh
       - git
       - git-lfs
+      - worktrunk
 
       # Documentation & Visualization
       - mermaid-cli

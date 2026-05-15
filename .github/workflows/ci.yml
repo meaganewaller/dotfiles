@@ -55,6 +55,8 @@ jobs:
             mise-${{ runner.os }}-
       - name: Setup mise
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
         with:
           # We manage caching ourselves above (with a broader key); disable
           # mise-action's built-in cache to avoid two caches racing on the
@@ -67,7 +69,7 @@ jobs:
         # token capped at 1000/hr per repo — combined with the mise cache
         # above, that's plenty.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
         run: |
           GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" WORK_PROFILE=false ./install
       - name: Dump install logs on failure
@@ -80,7 +82,7 @@ jobs:
           done
       - name: Install test dependencies
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
         run: |
           ./bin/setup
       - name: Run test suite

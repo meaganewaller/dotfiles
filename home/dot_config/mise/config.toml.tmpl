@@ -22,7 +22,7 @@ experimental = true
 lockfile = true
 pin = true
 env_file = ".env" # load env varsr from a dotenv file, see `MISE_ENV_FILE`
-disable_backends = ["asdf", "ubi", "vfox", "dotnet"]
+disable_backends = ["asdf", "vfox", "dotnet"]
 disable_tools = ["java"]
 
 [settings.python]
@@ -93,8 +93,9 @@ fnox    = "latest"
 "aqua:jdx/hk"                   = "latest" # git hooks and project lints
 "github:modem-dev/hunk"         = { version = "latest", bin = "hunk" } # Review-first terminal diff viewer for agentic coders
 "github:gitui-org/gitui"        = "latest" # Blazing 💥 fast terminal-ui for git written in rust 🦀
-"github:max-sixty/worktrunk"    = "latest" # Git worktree management, designed for parallel AI agent workflows
-"github:jesseduffield/lazygit"  = "latest" # Terminal UI for Git
+"github:max-sixty/worktrunk"      = "latest" # Git worktree management, designed for parallel AI agent workflows
+"github:jesseduffield/lazygit"    = "latest" # Terminal UI for Git
+"ubi:miltonparedes/kitmux"        = "0.1.0-rc.1" # tmux command palette for projects, sessions, and worktrees
 "npm:commitizen"                = "latest" # commit message utility
 "npm:cz-conventional-changelog" = "latest" # Generate a CHANGELOG from git metadata.
 
