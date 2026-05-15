@@ -25,7 +25,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | **Chezmoi source** | `home/` | `dot_*` → `~`; templates `.tmpl`; `run_onchange_*`; [detail](docs/agents/chezmoi.md) |
 | **Template / package data** | `home/.chezmoidata/` | Brew lists, aliases, etc. consumed by templates |
 | **Chezmoi externals** | `home/.chezmoiexternal.toml.tmpl` | Third-party snippets; Renovate-sensitive |
-| **Global Claude Code config (managed)** | `home/dot_claude/` | Skills, agents, commands → `~/.claude/` via Chezmoi |
+| **Global Claude Code config (managed)** | `home/dot_claude/` | Skills, agents, hooks, themes → `~/.claude/` via Chezmoi; details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
 | **Repo-local Claude overrides** | `.claude/` (this repo only) | Hooks, extra skills—not necessarily synced to `~` |
 | **Installer** | `./install` | Chezmoi bootstrap; env vars in [README](README.md) |
 | **Dev scripts** | `bin/` | e.g. `bin/setup` (mise dev tools), `bin/test` (BATS) |
