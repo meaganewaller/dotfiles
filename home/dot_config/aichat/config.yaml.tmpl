@@ -1,4 +1,4 @@
 model: claude-haiku-4-5-20251001
 clients:
   - type: claude
-    api_key: {{ onepasswordRead "op://Private/Claude Dotfiles API Key/key" | trim }}
+    api_key: {{ if lookPath "op" }}{{ onepasswordRead "op://Private/Claude Dotfiles API Key/key" | trim }}{{ else }}placeholder{{ end }}
