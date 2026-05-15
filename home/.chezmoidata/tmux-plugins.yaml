@@ -17,3 +17,8 @@ tmux_plugins:
       url: https://github.com/erikw/tmux-powerline.git
       revision: 6cddf8051823815db77fc00dcbb6bcca9afbdec2
       refreshPeriod: "168h"
+    - path: ".config/tmux/plugins/tmux-prefix-highlight"
+      type: git-repo
+      url: https://github.com/tmux-plugins/tmux-prefix-highlight
+      revision: 06cbb4ecd3a0a918ce355c70dc56d79debd455c7
+      refreshPeriod: "168h"

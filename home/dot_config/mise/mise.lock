@@ -1598,3 +1598,10 @@ backend = "core:ruby"
 [[tools.rust]]
 version = "1.95.0"
 backend = "core:rust"
+
+[[tools."ubi:miltonparedes/kitmux"]]
+version = "0.1.0-rc.1"
+backend = "ubi:miltonparedes/kitmux"
+
+[tools."ubi:miltonparedes/kitmux"."platforms.macos-arm64-kitmux"]
+checksum = "blake3:7e32aa2b6317b07ffc7b595604dcd31ad26cee881dee706540f6213bc10f1532"
