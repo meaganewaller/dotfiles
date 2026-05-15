@@ -1,6 +1,6 @@
 ---
-status: "proposed"
-date: 2026-05-13
+status: "accepted"
+date: 2026-05-15
 decision-makers: [Meagan Waller]
 consulted: []
 informed: []
@@ -43,22 +43,20 @@ This ADR proposes a **split responsibility**:
 3. **Dual layer: fuzzy / `latest` in config + committed `mise.lock`** — Config expresses policy; lockfile expresses resolved reality; Renovate targets lockfile (and optionally bumps config ranges separately).
 4. **Per-environment lockfiles only** (`mise.*.lock`) — Useful for split CI/dev; more files and clearer `MISE_ENV` discipline—optional add-on to (3).
 
-## Decision Outcome (proposed)
+## Decision Outcome
 
-**Adopt option (3)** for managed paths in this repository, with optional (4) where a split CI/dev story is needed later.
+**Adopted option (3)** for managed paths in this repository, with optional (4) where a split CI/dev story is needed later.
 
 1. **Enable lockfiles** where this repo owns the config (`[settings] lockfile = true` in the relevant `mise.toml` / `config.toml`, or `mise settings lockfile=true` documented for bootstrap—exact placement is an implementation detail).
-2. **Commit `mise.lock`** next to the config it locks (e.g. `mise.lock` beside root `mise.toml`; `mise.lock` beside `home/dot_config/mise/config.toml` **if** mise resolves a single lockfile path for that file—confirm layout against mise’s [environment lockfile rules](https://mise.jdx.dev/) before implementing).
+2. **Commit `mise.lock`** next to the config it locks. In this repo that means `./mise.lock` beside the root `mise.toml` (repo dev tools) and `home/dot_config/mise/mise.lock` beside `home/dot_config/mise/config.toml.tmpl` (user global tools). See mise's [environment lockfile rules](https://mise.jdx.dev/) for the resolution order if additional configs are added later.
 3. **Allow fuzzy specifiers** in committed config **only where** Renovate + review policy say that is acceptable; otherwise keep coarse but explicit ranges (e.g. major) and let the lockfile carry the micro version.
-4. **Renovate** — Extend or add rules so dependency PRs update **`mise.lock`** (and `mise.*.lock` if used) in addition to—or instead of—micro-bumping every line in `config.toml`, per tool backend support. (Native Renovate `mise` support for lockfiles may require validation in this repo; fallback: **custom regex manager** on lockfile TOML fragments if needed.)
-5. **Chezmoi `run_onchange_00-install-mise-tools.sh.tmpl`** — Include **hashes of both** `dot_config/mise/config.toml` and the relevant `mise.lock` (and any additional committed lockfile paths) in the generated script so `chezmoi apply` re-triggers `mise install` when **either** changes. Example pattern (illustrative):
+4. **Renovate** — The native `mise` manager (configured in `renovate.json5`) opens PRs against the committed lockfiles. Custom regex managers remain available for tools whose backends Renovate can't yet introspect, but the default `mise` manager is doing the work today.
+5. **Chezmoi `run_onchange_00-install-mise-tools.sh.tmpl`** — Hashes of **both** the config template and the lockfile are embedded in the generated script, so `chezmoi apply` re-triggers `mise install` when either changes:
 
    ```gotemplate
-   # mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+   # mise config hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
    # mise lock hash: {{ include "dot_config/mise/mise.lock" | sha256sum }}
    ```
-
-   Exact paths must match where lockfiles live after `mise lock` is run from the chezmoi source tree.
 
 6. **CI** — Prefer `mise install` with committed lockfile; consider `MISE_LOCKED=1` once every tool in scope has lockfile URLs for CI platforms (see mise **strict lockfile** documentation).
 
