@@ -45,8 +45,10 @@ load test_helper
     packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
 EOF
 
-  # Render our actual script
-  run chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
+  # Render our actual script. The template branches on $CI / $GITHUB_ACTIONS
+  # at render time; clear them so this test exercises the dev-machine path
+  # (brews + casks). The CI-only path is covered by a separate test below.
+  run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
   [ "$status" -eq 0 ]
 
   # Test our script's behavior:
@@ -65,6 +67,26 @@ EOF
   # 5. Should handle missing Homebrew gracefully
   [[ "$output" == *"Homebrew not found"* ]]
   [[ "$output" == *"exit 0"* ]]
+}
+
+@test "skips casks when CI env is set" {
+  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+  cat >"$TEST_TMPDIR/ci-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq"], casks = ["font-fira-code-nerd-font"] } }
+EOF
+
+  CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
+  [ "$status" -eq 0 ]
+
+  # Brews still installed (catches bundle drift in CI)
+  [[ "$output" == *'brew "jq"'* ]]
+
+  # Casks omitted from the rendered bundle
+  [[ "$output" != *"font-fira-code-nerd-font"* ]]
+  [[ "$output" != *'cask "'* ]]
 }
 
 @test "does not render on non-darwin systems" {
