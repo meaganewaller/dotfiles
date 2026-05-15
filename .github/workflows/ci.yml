@@ -23,12 +23,18 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest] # macos-latest
+        os: [ubuntu-latest, macos-latest]
+    # macOS notes:
+    #   - The chezmoi run_onchange scripts gate on $CI / $GITHUB_ACTIONS to
+    #     skip GUI-bound work (macOS preferences, nvim Lazy! sync, Claude Code
+    #     installer) and Homebrew casks (GUI apps / paid software / GUI auth).
+    #   - Brew formulas (CLI tools) still install so we catch bundle drift.
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:

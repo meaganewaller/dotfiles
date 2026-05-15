@@ -9,6 +9,13 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# Skip on CI: Claude Code isn't exercised in the install matrix and the
+# curl-pipe installer is unnecessary network traffic for green CI.
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+  echo "Running in CI, skipping Claude Code install"
+  exit 0
+fi
+
 # Skip if claude is already installed
 if command -v claude >/dev/null 2>&1; then
   echo "Claude Code already installed: $(claude --version 2>/dev/null || echo 'version unknown')"
