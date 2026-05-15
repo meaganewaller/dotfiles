@@ -39,9 +39,35 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+      # Cache the entire mise data dir keyed on BOTH lockfiles. jdx/mise-action's
+      # built-in cache only sees the project mise.toml (root) — it can't see the
+      # user-global config in home/dot_config/mise/, which is laid down by
+      # ./install in a later step. Caching both here lets every subsequent
+      # `mise install` invocation (project AND global) short-circuit on hit,
+      # which is what we need to stay under the secrets.GITHUB_TOKEN App
+      # installation rate limit (1000/hr per repo).
+      - name: Restore mise data dir
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.local/share/mise
+          key: mise-${{ runner.os }}-${{ hashFiles('mise.lock', 'home/dot_config/mise/mise.lock') }}
+          restore-keys: |
+            mise-${{ runner.os }}-
       - name: Setup mise
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        with:
+          # We manage caching ourselves above (with a broader key); disable
+          # mise-action's built-in cache to avoid two caches racing on the
+          # same path.
+          cache: false
       - name: Install chezmoi
+        # GITHUB_TOKEN authenticates both mise (its github backend) and aqua
+        # (which mise delegates to for most CLI tools) so they stop hitting
+        # the 60/hr anonymous cap. secrets.GITHUB_TOKEN is an App installation
+        # token capped at 1000/hr per repo — combined with the mise cache
+        # above, that's plenty.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" WORK_PROFILE=false ./install
       - name: Dump install logs on failure
@@ -53,6 +79,8 @@ jobs:
             echo
           done
       - name: Install test dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./bin/setup
       - name: Run test suite

@@ -15,13 +15,18 @@ fi
 
 echo "Installing global mise tools..."
 
-# Install all tools defined in global config
-# Authenticate with GitHub via gh CLI to avoid API rate limits
+# Authenticate to GitHub so mise (and the aqua backend it delegates to) get
+# the 5000/hr authenticated rate limit instead of the 60/hr anonymous cap.
+# CI sets GITHUB_TOKEN via the step env; on a developer machine, fall back
+# to gh's stored auth token.
 {{- if lookPath "gh" }}
-GITHUB_TOKEN=$(gh auth token) mise install --yes
-{{- else }}
-mise install --yes
+if [ -z "${GITHUB_TOKEN:-}" ]; then
+    GITHUB_TOKEN="$(gh auth token 2>/dev/null || true)"
+    export GITHUB_TOKEN
+fi
 {{- end }}
+
+mise install --yes
 
 echo "Pruning unused mise tool versions and stale caches..."
 mise prune --yes
