@@ -42,7 +42,7 @@ load test_helper
   cat >"$TEST_TMPDIR/real-config.toml" <<EOF
 [data]
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-    packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
   # Render our actual script. The template branches on $CI / $GITHUB_ACTIONS
@@ -62,7 +62,7 @@ EOF
   [[ "$output" == *"brew bundle"* ]]
 
   # 4. Should contain our actual package
-  [[ "$output" == *"font-fira-code-nerd-font"* ]]
+  [[ "$output" == *"font-maple-mono-nf-cn"* ]]
 
   # 5. Should handle missing Homebrew gracefully
   [[ "$output" == *"Homebrew not found"* ]]
@@ -75,7 +75,7 @@ EOF
   cat >"$TEST_TMPDIR/ci-config.toml" <<EOF
 [data]
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-    packages = { darwin = { brews = ["jq"], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = ["jq"], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
   CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
@@ -85,7 +85,7 @@ EOF
   [[ "$output" == *'brew "jq"'* ]]
 
   # Casks omitted from the rendered bundle
-  [[ "$output" != *"font-fira-code-nerd-font"* ]]
+  [[ "$output" != *"font-maple-mono-nf-cn"* ]]
   [[ "$output" != *'cask "'* ]]
 }
 
@@ -97,7 +97,7 @@ EOF
   cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
 [data]
     chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-    packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
   # Render our actual script on linux
@@ -120,7 +120,7 @@ EOF
 
   # Add our actual packages data
   cat >>"$TEST_TMPDIR/syntax-config.toml" <<EOF
-    packages = { darwin = { brews = [], casks = ["font-fira-code-nerd-font"] } }
+    packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
   # Render our actual script
