@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Chezmoi workflow and troubleshooting
+    url: https://github.com/meaganewaller/dotfiles/blob/main/docs/agents/chezmoi.md
+    about: Edit / diff / apply, common drift causes, partial apply.
+  - name: Pinned manifests and Renovate
+    url: https://github.com/meaganewaller/dotfiles/blob/main/docs/renovate.md
+    about: For version-bump questions, prefer Renovate or the Package Manager subagent before filing an issue.
+  - name: Repository philosophy
+    url: https://github.com/meaganewaller/dotfiles/blob/main/docs/core-principles.md
+    about: Decision filters — read before proposing an enhancement or ADR.
+  - name: Component inventory (AGENTS.md)
+    url: https://github.com/meaganewaller/dotfiles/blob/main/AGENTS.md
+    about: Where things live; start here if you're not sure which subsystem owns your concern.
