@@ -881,12 +881,20 @@ download_chezmoi() {
 
 # Function to install chezmoi
 install_chezmoi() {
-  # Check if chezmoi is already available and not forcing reinstall
-  if command -v chezmoi >/dev/null 2>&1 && [ "${REINSTALL_TOOLS:-false}" != "true" ]; then
+  # Check if chezmoi is already available AND functional. `command -v chezmoi`
+  # alone isn't enough: on CI, jdx/mise-action's built-in cache can restore a
+  # stale `chezmoi` shim under ~/.local/share/mise/shims/ from a prior run
+  # (where chezmoi was configured in the user-global mise config that doesn't
+  # exist yet on this run). The shim exists but has no version mapping, so
+  # `chezmoi --version` fails. Probe it before trusting it.
+  if command -v chezmoi >/dev/null 2>&1 && chezmoi --version >/dev/null 2>&1 && [ "${REINSTALL_TOOLS:-false}" != "true" ]; then
     log_info "Chezmoi is already installed: $(command -v chezmoi)"
     log_info "Version: $(chezmoi --version 2>/dev/null || echo "unknown")"
     log_info "Use REINSTALL_TOOLS=true to reinstall"
     return 0
+  fi
+  if command -v chezmoi >/dev/null 2>&1; then
+    log_info "Found non-functional chezmoi at $(command -v chezmoi) (likely a stale mise shim); falling through to install"
   fi
 
   # First, ensure cosign is available if signature verification is enabled
@@ -1000,7 +1008,25 @@ main() {
 
 	add_to_path
 
-	chezmoi_bin="$(command -v chezmoi)"
+	# Resolve a chezmoi binary that actually works. `command -v` may surface
+	# a stale mise shim (e.g. when CI's mise-action cache restores a shim
+	# from a prior run where the user-global mise config was active, but
+	# that config doesn't exist yet on this run). Probe `--version` and fall
+	# back to known install locations if the PATH-resolved one is broken.
+	chezmoi_bin="$(command -v chezmoi 2>/dev/null || true)"
+	if [ -z "$chezmoi_bin" ] || ! "$chezmoi_bin" --version >/dev/null 2>&1; then
+		[ -n "$chezmoi_bin" ] && log_info "chezmoi at $chezmoi_bin is non-functional (likely a stale mise shim); searching install locations"
+		for _cz_candidate in "$BIN_DIR/chezmoi" "/opt/homebrew/bin/chezmoi" "/usr/local/bin/chezmoi" "/home/linuxbrew/.linuxbrew/bin/chezmoi"; do
+			if [ -x "$_cz_candidate" ] && "$_cz_candidate" --version >/dev/null 2>&1; then
+				chezmoi_bin="$_cz_candidate"
+				break
+			fi
+		done
+	fi
+	if [ -z "$chezmoi_bin" ] || ! "$chezmoi_bin" --version >/dev/null 2>&1; then
+		log_error "Could not find a working chezmoi binary after installation"
+		exit 1
+	fi
 
 	log_info "Initializing dotfiles from $script_dir..."
 	log_info "Summary: Chezmoi available at $chezmoi_bin and configured successfully"
