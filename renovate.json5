@@ -17,6 +17,8 @@
   enabledManagers: [
     'mise',
     'github-actions',
+    'custom.regex',
+    'custom.jsonata',
   ],
   lockFileMaintenance: {
     enabled: true,
@@ -53,6 +55,17 @@
         '^cosign\\s*=\\s*"(?<currentValue>v?[^"]+)"',
       ],
       depNameTemplate: 'sigstore/cosign',
+      datasourceTemplate: 'github-releases',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^hk\\.pkl$/',
+      ],
+      matchStrings: [
+        'github\\.com/jdx/hk/releases/download/(?<currentValue>v[^/]+)/hk@[^#"]+',
+      ],
+      depNameTemplate: 'jdx/hk',
       datasourceTemplate: 'github-releases',
     },
     {
