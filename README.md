@@ -71,6 +71,7 @@ GIT_USER_NAME="CI User" GIT_USER_EMAIL="ci@example.com" ./install
 | [docs/core-principles.md](docs/core-principles.md) | Decision filters for changes and automation |
 | [docs/renovate.md](docs/renovate.md) | Pins, Renovate, and version manifests |
 | [docs/zsh.md](docs/zsh.md) | Shell layout and agent-aware zsh behavior |
+| [docs/fish.md](docs/fish.md) | Fish as alternative shell (no agent branching) |
 | [docs/adrs/README.md](docs/adrs/README.md) | Architecture decision records index |
 | [docs/agents/chezmoi.md](docs/agents/chezmoi.md) | Chezmoi edit / diff / apply workflow and troubleshooting |
 | [AGENTS.md](AGENTS.md) | Component inventory and navigation (start here for agents) |
@@ -90,7 +91,7 @@ How the pieces fit together in **this** repository (not an exhaustive list of ev
 | **Bootstrap / trust** | `./install` — prefers OS package managers, otherwise GitHub releases; optional [cosign](https://docs.sigstore.dev/cosign/overview/) verification for downloads |
 | **CI** | [GitHub Actions](https://github.com/features/actions) — ShellCheck on scripts, matrix install + [BATS](https://github.com/bats-core/bats-core) via `./bin/test`, [jdx/mise-action](https://github.com/jdx/mise-action) |
 | **Dependency PRs** | [Renovate](https://github.com/renovatebot/renovate) — `renovate.json5`, labels `deps` / `automated` ([docs](docs/renovate.md)) |
-| **Shell** | zsh — [Oh My Zsh](https://ohmyz.sh/), [Starship](https://starship.rs/), (see [docs/zsh.md](docs/zsh.md); agent-minimal path in `home/dot_zshrc.tmpl` per [ADR 0001](docs/adrs/0001-specialized-agent-shell.md)) |
+| **Shell** | zsh (primary) — [Oh My Zsh](https://ohmyz.sh/), [Starship](https://starship.rs/), (see [docs/zsh.md](docs/zsh.md); agent-minimal path in `home/dot_zshrc.tmpl` per [ADR 0001](docs/adrs/0001-specialized-agent-shell.md)). [Fish](https://fishshell.com/) (alternative) — see [docs/fish.md](docs/fish.md). |
 | **Editor** | [Neovim](https://neovim.io/) — [LazyVim](https://www.lazyvim.org/) / [lazy.nvim](https://github.com/folke/lazy.nvim) (`home/dot_config/nvim/`) |
 | **Terminal multiplexer** | [tmux](https://github.com/tmux/tmux) — `home/dot_config/tmux/tmux.conf` |
 | **Repo & PRs** | git, [GitHub CLI](https://cli.github.com/) (`gh`) |
