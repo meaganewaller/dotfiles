@@ -18,6 +18,8 @@ jobs:
           persist-credentials: false
       - name: Setup mise
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
       - name: Run linting checks
         run: hk check
 
@@ -71,7 +73,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
         run: |
-          GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" WORK_PROFILE=false ./install
+          GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" WORK_PROFILE=false GITHUB_TOKEN="$GITHUB_TOKEN" ./install
       - name: Dump install logs on failure
         if: failure()
         run: |
@@ -84,7 +86,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
         run: |
-          ./bin/setup
+          GITHUB_TOKEN="$GITHUB_TOKEN" ./bin/setup
       - name: Run test suite
         run: |
           ./bin/test
