@@ -40,20 +40,24 @@ resolve_path() {
   fi
 }
 
-# Check if a resolved path is under $HOME but NOT under $CLAUDE_PROJECT_DIR
-# and NOT under ~/.claude (Claude Code's own workspace: plans, memory, settings)
-is_home_not_project() {
+# Check if a resolved path is a chezmoi-managed destination we should protect.
+# Fast-path filters first (paths outside $HOME, inside the project source, or
+# under ~/.claude can never be managed destinations), then ask chezmoi
+# directly so we don't over-trigger on unrelated repos that happen to live
+# under $HOME (e.g. ~/src/...).
+is_chezmoi_managed() {
   local resolved="$1"
-  [[ "$resolved" == "$HOME"/* ]] \
-    && [[ "$resolved" != "$CLAUDE_PROJECT_DIR"/* ]] \
-    && [[ "$resolved" != "$HOME/.claude"/* ]]
+  [[ "$resolved" == "$HOME"/* ]] || return 1
+  [[ "$resolved" == "$CLAUDE_PROJECT_DIR"/* ]] && return 1
+  [[ "$resolved" == "$HOME/.claude"/* ]] && return 1
+  chezmoi source-path "$resolved" >/dev/null 2>&1
 }
 
 case "$tool_name" in
   Write | Edit | MultiEdit)
     [[ -z "$file_path" ]] && exit 0
     resolved=$(resolve_path "$file_path")
-    if is_home_not_project "$resolved"; then
+    if is_chezmoi_managed "$resolved"; then
       jq -n --arg reason "$(cat <<MSG
 BLOCKED: Do not edit files in ~/ directly. This is a chezmoi-managed dotfiles repo.
 
@@ -70,7 +74,7 @@ MSG
   Read)
     [[ -z "$file_path" ]] && exit 0
     resolved=$(resolve_path "$file_path")
-    if is_home_not_project "$resolved"; then
+    if is_chezmoi_managed "$resolved"; then
       jq -n --arg ctx "$(cat <<MSG
 Note: You are reading a chezmoi-managed destination file. This is deployed from
 the source tree — do not edit it directly. To find the source file, run:
