@@ -19,3 +19,17 @@ run = "hk fix"
 [tasks.test]
 description = "Run test suite"
 run = "bats test/"
+
+[tasks."ci:lint"]
+description = "Run lint as CI does (hk check, not hk fix)"
+run = "hk check"
+env = { CI = "true", GITHUB_ACTIONS = "true" }
+
+[tasks."ci:test"]
+description = "Run tests as CI does (with CI and GITHUB_ACTIONS set)"
+run = "bats test/"
+env = { CI = "true", GITHUB_ACTIONS = "true" }
+
+[tasks."ci:all"]
+description = "Run the full CI shape locally (lint + test, no install)"
+depends = ["ci:lint", "ci:test"]
