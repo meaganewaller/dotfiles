@@ -70,7 +70,15 @@ Exclude:
 - **Arguments provide message** → use it (adjust format if needed)
 - **No message** → draft based on staged changes, explain reasoning
 
-**Mood emoji:** End every subject line with a GitHub emoji that reflects the vibe of the conversation or task. Intuit mood from context — the ticket being worked on, the user's tone, frustration level, excitement, etc.
+**Mood emoji:** End every subject line with a GitHub emoji that reflects the *content and vibe of this specific change*. Intuit mood from context — the ticket being worked on, the user's tone, frustration level, excitement, etc.
+
+**Anti-pattern — do NOT pick the emoji from the conventional-commit type.** `feat` is not always `:sparkles:`, `fix` is not always `:bug:`, `chore` is not always `:broom:`. The emoji describes *this change*, not the type label:
+
+- `feat` could be `:relieved:` (finally shipping a long-running effort), `:coffin:` (the new feature replaces a dead subsystem), or `:thinking:` (an exploratory MVP).
+- `fix` could be `:tada:` (closes a flaky test that's bitten us for months), `:rage:` (had to dig into vendor code to find it), or `:relieved:` (root cause finally pinned down).
+- `chore(deps)` could be `:fire:` (chained bumps shipping fast) or `:nail_care:` (final lockfile polish).
+
+If the emoji is mechanically derivable from the type, you've picked the wrong emoji — re-read the diff and the conversation.
 
 Palette (use these or any GitHub emoji that fits):
 
@@ -89,7 +97,26 @@ Palette (use these or any GitHub emoji that fits):
 | :rocket: | `:rocket:` | shipping, deploying, launching |
 | :nail_care: | `:nail_care:` | polish, aesthetics, making it pretty |
 
-### 4. Execute Commit
+### 4. Verify Language (American English)
+
+Before running `git commit`, scan the subject + body and convert any British spellings to American English. This applies to commit messages and any PR/issue copy drafted alongside them — not to code identifiers or third-party names that legitimately ship British spellings (e.g. `Element.cloneNode`).
+
+| British | American |
+|---------|----------|
+| colour, favourite, behaviour, honour, flavour | color, favorite, behavior, honor, flavor |
+| normalise, organise, customise, optimise, recognise, prioritise, summarise | normalize, organize, customize, optimize, recognize, prioritize, summarize |
+| normalisation, organisation, customisation, optimisation | normalization, organization, customization, optimization |
+| cancelled, labelled, signalled, modelled, travelled | canceled, labeled, signaled, modeled, traveled |
+| centre, theatre, fibre, metre, litre | center, theater, fiber, meter, liter |
+| analyse, paralyse, catalyse | analyze, paralyze, catalyze |
+| licence (noun), defence, offence, pretence | license, defense, offense, pretense |
+| catalogue, dialogue, analogue | catalog, dialog, analog |
+| grey, programme (computing), whilst, amongst | gray, program, while, among |
+| judgement, acknowledgement, ageing | judgment, acknowledgment, aging |
+
+If unsure, prefer the spelling the codebase already uses; fall back to American English when there is no precedent.
+
+### 5. Execute Commit
 
 ```bash
 git commit -m "$(cat <<'EOF'
@@ -100,7 +127,7 @@ EOF
 )"
 ```
 
-### 5. Verify
+### 6. Verify
 
 Run `git status` to confirm clean state or show remaining changes.
 

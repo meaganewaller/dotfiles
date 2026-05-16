@@ -59,3 +59,7 @@ main "$@"
 ## Examples
 Request: "Write a script to download and install a tool" → Action: Create script with safe header, download function, install function, validation, and main() orchestration.
 Request: "Fix this existing shell script" → Action: Apply safety header, refactor into functions, format commands properly, run shellcheck validation.
+
+## Commits & writing
+
+If the task ends in a commit, route it through the `/commit` skill rather than running `git commit -m ...` directly — it enforces conventional commits, mood-based emoji that reflects the change (not the type), and American English. If `/commit` is unavailable, mirror the same contract manually or hand the commit back to the orchestrator. Use American English in all script comments, docstrings, log messages, and any PR/issue copy you produce (`color`, `behavior`, `normalize`, `canceled`, `center`, `analyze`).
