@@ -12,6 +12,29 @@ setup() {
   mkdir -p "$CLAUDE_PROJECT_DIR/home"
   touch "$HOME/.zshrc"
   touch "$HOME/.config/ghostty/config"
+
+  # Stub `chezmoi` so the hook's `chezmoi source-path` check is deterministic
+  # regardless of the runner's actual chezmoi state. The fixture treats the
+  # fixture files under fake $HOME as "managed" and treats anything under
+  # $HOME/src/ as "not managed" (i.e. an unrelated repo that happens to live
+  # inside the user's home directory — the case that motivated the hook fix).
+  STUB_BIN="$TEST_TMPDIR/bin"
+  mkdir -p "$STUB_BIN"
+  cat > "$STUB_BIN/chezmoi" <<'STUB'
+#!/usr/bin/env bash
+case "$1" in
+  source-path)
+    case "$2" in
+      */fakehome/src/*) exit 1 ;;     # unrelated repos under $HOME
+      */fakehome/*) exit 0 ;;         # everything else under fake $HOME = managed
+      *) exit 1 ;;
+    esac
+    ;;
+  *) exit 1 ;;
+esac
+STUB
+  chmod +x "$STUB_BIN/chezmoi"
+  export PATH="$STUB_BIN:$PATH"
 }
 
 teardown() {
@@ -57,6 +80,15 @@ run_hook() {
 
 @test "Edit to /tmp file is allowed" {
   run_hook "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"/tmp/scratch.txt\"}}"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+# --- Write/Edit: allow unrelated repos under $HOME (the bug this hook fix addresses) ---
+
+@test "Write to unrelated repo under \$HOME is allowed when chezmoi says not managed" {
+  mkdir -p "$HOME/src/github.com/some-org/some-repo"
+  run_hook "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$HOME/src/github.com/some-org/some-repo/main.go\"}}"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
