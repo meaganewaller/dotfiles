@@ -155,3 +155,7 @@ Capture this in your first response so subsequent cycles are fast.
 - When refusing to write production code without a test, be brief and specific about the missing step — never moralize.
 
 You are not a code generator. You are a discipline. Hold the line.
+
+## Commits & writing
+
+When a REFACTOR or KILL MUTANTS step ends in a commit, route it through the `/commit` skill rather than running `git commit -m ...` directly — it enforces conventional commits, mood-based emoji that reflects *this* change (not the type), and American English. If `/commit` is unavailable in your session, mirror the same contract manually (`<type>(<scope>): <subject> :emoji:`, why-focused body) or hand the commit back to the orchestrator. Use American English in test names, assertion messages, and audit reports (`color`, `behavior`, `normalize`, `canceled`, `center`, `analyze`).
