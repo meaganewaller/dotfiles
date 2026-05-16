@@ -81,7 +81,11 @@ find_session_number() {
     #   N. <folder>
     #      Session: <truncated-id>...
     local list_output
-    list_output=$(claude-extract --list 2>&1) || die "failed to list sessions"
+    if ! list_output=$(claude-extract --list 2>&1); then
+        log "claude-extract --list failed; output was:"
+        printf '%s\n' "${list_output}" >&2
+        die "failed to list sessions"
+    fi
 
     local current_number=""
     local found_number=""
