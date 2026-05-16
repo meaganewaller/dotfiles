@@ -29,6 +29,7 @@
   mise: {
     managerFilePatterns: [
       '/^home/dot_config/mise/config\\.toml$/',
+      '/^mise\\.toml$/',
     ],
   },
   'github-actions': {
