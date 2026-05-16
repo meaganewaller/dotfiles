@@ -121,8 +121,11 @@ extract_session() {
     # Create temporary directory for extraction
     tmpdir=$(mktemp -d) || die "failed to create temporary directory"
 
-    # Ensure cleanup on exit
-    trap 'rm -rf "${tmpdir}"' EXIT
+    # Ensure cleanup on exit. Expand $tmpdir at trap registration (double quotes)
+    # rather than at trap firing — the local var goes out of scope when the
+    # function returns, but EXIT fires later, triggering set -u.
+    # shellcheck disable=SC2064
+    trap "rm -rf -- '${tmpdir}'" EXIT
 
     log "extracting session #${session_number}..."
 
