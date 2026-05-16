@@ -1,0 +1,100 @@
+name: Cold-start
+
+# Exercises a from-scratch bootstrap with no caches. This is what catches
+# "we accidentally broke a fresh install" and upstream drift (Homebrew formula
+# moves, mise plugin changes, etc.).
+#
+# Triggers:
+#   - push to main                 → blocking. Bootstrap-breaking changes
+#                                    shouldn't ship.
+#   - PR touching install logic    → blocking. Path filter below.
+#   - PR with cold-start label     → blocking. Manual opt-in for changes
+#                                    that path filter doesn't catch.
+#   - Nightly cron                 → notify only. Drift catcher; we don't
+#                                    want a Homebrew flake at 3am blocking
+#                                    the next morning's PRs.
+#   - workflow_dispatch            → manual run for debugging.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - 'install'
+      - 'bin/**'
+      - 'home/**/run_*'
+      - '**/Brewfile*'
+      - '.github/actions/bootstrap-dotfiles/**'
+      - '.github/workflows/cold-start.yml'
+  schedule:
+    # 07:00 UTC daily. Pick a time that isn't on the hour to avoid the
+    # GitHub Actions scheduler thundering herd.
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: cold-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Gate job: only run test-cold on PRs when the path filter matched OR the
+  # cold-start label is present. The path filter on `on.pull_request` above
+  # already handles the path case, but the label case needs an explicit check
+  # since `types: [labeled]` fires for any label.
+  decide:
+    runs-on: ubuntu-24.04
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+    steps:
+      - id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # On PRs: the workflow only triggers if paths matched OR a label was
+          # added. If a label was added, require it to be cold-start specifically.
+          if echo "$LABELS" | grep -q '"cold-start"'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.action }}" = "labeled" ]; then
+            # Some other label was added; ignore.
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            # synchronize/opened/reopened that matched the path filter.
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  test-cold:
+    needs: decide
+    if: needs.decide.outputs.run == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    # Nightly runs are notify-only: a flaky upstream shouldn't show up as a
+    # red X on main. Everything else blocks.
+    continue-on-error: ${{ github.event_name == 'schedule' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+    # macOS notes:
+    #   - The chezmoi run_onchange scripts gate on $CI / $GITHUB_ACTIONS to
+    #     skip GUI-bound work (macOS preferences, nvim Lazy! sync, Claude Code
+    #     installer) and Homebrew casks (GUI apps / paid software / GUI auth).
+    #   - Brew formulas (CLI tools) still install so we catch bundle drift.
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Bootstrap (cold, no caches)
+        uses: ./.github/actions/bootstrap-dotfiles
+        with:
+          use-cache: 'false'
+          github-token: ${{ secrets.MISE_GITHUB_TOKEN }}
+      - name: Run test suite
+        run: ./bin/test
