@@ -31,7 +31,7 @@ The two sides are **not independent** — anything that needs *registration* liv
 | New plugin marketplace | n/a | **yes** — add to `set_plugins` in `bin/sync-claude-settings` |
 | Default model / feature flag change | n/a | **yes** — `set_default_model` / `set_feature_flags` in `bin/sync-claude-settings` |
 
-How to evolve this contract — declarative `settings.json.tmpl` vs. the current imperative sync script, and how a machine-local overlay would merge in — is the subject of a forthcoming ADR. Tracking issue: [#25](https://github.com/meaganewaller/dotfiles/issues/25).
+How to evolve this contract — declarative `settings.json.tmpl` vs. the current imperative sync script, and how a machine-local overlay would merge in — is decided in ADR [0004](../adrs/0004-claude-settings-management.md) (proposed): hybrid, with static lists moving to `home/.chezmoidata/claude-*.yaml` rendered by a chezmoi template, and `bin/sync-claude-settings` shrinking to a Bedrock-only runtime overlay. Migration follow-ups will land separately; the imperative shape described below remains accurate until then. Tracking issue: [#25](https://github.com/meaganewaller/dotfiles/issues/25).
 
 ## Skill vs. subagent — when to use each
 
