@@ -15,6 +15,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 2. **Progressive disclosure** — This file inventories components; deep procedures live in `docs/` and skills.
 3. **Packages** — New tools: **`/install <package>`** (pinned manifests, repo conventions). **Package Manager subagent** for sensitive or bulk changes (list below)—not ad-hoc version bumps in those files.
 4. **Hooks** — In this repo, `.claude/hooks/` may enforce source-only edits; still follow the rules even when hooks are off.
+5. **Pull requests** — Always populate `.github/PULL_REQUEST_TEMPLATE.md` when opening a PR (whether via the `/pr` skill or a direct `gh pr create`). Fill it honestly: only tick Scope items the change actually touches, only tick Verification items you actually ran, and call out tools you couldn't run (e.g. "`gitleaks` not installed locally — CI will check") instead of skipping silently. Same for issue templates under `.github/ISSUE_TEMPLATE/`.
 
 ---
 
