@@ -1,14 +1,27 @@
 name: CI
 
+# Fast path: lint + cached bootstrap + test suite. Runs on every PR and every
+# push to main. Ubuntu only — macOS lives in cold-start.yml because it's slow
+# and PRs rarely need it.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+
+# Cancel superseded PR runs to stop burning minutes on stale pushes. Don't
+# cancel main runs — a half-finished run can leave caches in a weird state.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -23,70 +36,19 @@ jobs:
       - name: Run linting checks
         run: hk check
 
-  test:
-    runs-on: ${{ matrix.os }}
+  test-cached:
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    # macOS notes:
-    #   - The chezmoi run_onchange scripts gate on $CI / $GITHUB_ACTIONS to
-    #     skip GUI-bound work (macOS preferences, nvim Lazy! sync, Claude Code
-    #     installer) and Homebrew casks (GUI apps / paid software / GUI auth).
-    #   - Brew formulas (CLI tools) still install so we catch bundle drift.
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      # Cache the entire mise data dir keyed on BOTH lockfiles. jdx/mise-action's
-      # built-in cache only sees the project mise.toml (root) — it can't see the
-      # user-global config in home/dot_config/mise/, which is laid down by
-      # ./install in a later step. Caching both here lets every subsequent
-      # `mise install` invocation (project AND global) short-circuit on hit,
-      # which is what we need to stay under the secrets.GITHUB_TOKEN App
-      # installation rate limit (1000/hr per repo).
-      - name: Restore mise data dir
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Bootstrap (cached)
+        uses: ./.github/actions/bootstrap-dotfiles
         with:
-          path: ~/.local/share/mise
-          key: mise-${{ runner.os }}-${{ hashFiles('mise.lock', 'home/dot_config/mise/mise.lock') }}
-          restore-keys: |
-            mise-${{ runner.os }}-
-      - name: Setup mise
-        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
-        with:
-          # We manage caching ourselves above (with a broader key); disable
-          # mise-action's built-in cache to avoid two caches racing on the
-          # same path.
-          cache: false
-      - name: Install chezmoi
-        # GITHUB_TOKEN authenticates both mise (its github backend) and aqua
-        # (which mise delegates to for most CLI tools) so they stop hitting
-        # the 60/hr anonymous cap. secrets.GITHUB_TOKEN is an App installation
-        # token capped at 1000/hr per repo — combined with the mise cache
-        # above, that's plenty.
-        env:
-          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
-        run: |
-          GIT_USER_NAME="CI Test User" GIT_USER_EMAIL="ci@example.com" WORK_PROFILE=false GITHUB_TOKEN="$GITHUB_TOKEN" ./install
-      - name: Dump install logs on failure
-        if: failure()
-        run: |
-          find /tmp/dotfiles-install-*/steps -name "*.log" 2>/dev/null | sort | while read -r f; do
-            echo "====== $f ======"
-            cat "$f"
-            echo
-          done
-      - name: Install test dependencies
-        env:
-          GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
-        run: |
-          GITHUB_TOKEN="$GITHUB_TOKEN" ./bin/setup
+          use-cache: 'true'
+          github-token: ${{ secrets.MISE_GITHUB_TOKEN }}
       - name: Run test suite
-        run: |
-          ./bin/test
+        run: ./bin/test

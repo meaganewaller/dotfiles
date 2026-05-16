@@ -1033,7 +1033,15 @@ main() {
 
 	set -- --apply --source="$script_dir" --working-tree="$script_dir"
 
-	if [ "$REINSTALL_TOOLS" = "true" ]; then
+	# Pass --force when:
+	#   - REINSTALL_TOOLS=true (explicit user request to overwrite drift)
+	#   - CI=true (no TTY available; chezmoi's drift confirmation prompt
+	#     would deadlock the run with "could not open a new TTY". Cached
+	#     chezmoi state restored from an actions/cache hit can disagree
+	#     with the source tree when source under home/ has changed since
+	#     the cache was written, which trips drift detection. In CI the
+	#     source is the truth and the environment is disposable.)
+	if [ "$REINSTALL_TOOLS" = "true" ] || [ -n "${CI:-}" ]; then
 		set -- "$@" --force
 	fi
 

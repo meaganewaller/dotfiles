@@ -1,0 +1,102 @@
+# Composite action that bootstraps the dotfiles repo in CI.
+#
+# Used by both the cached (PR-time) and cold (main/nightly) test jobs. The
+# use-cache input is the single switch that distinguishes them. Keeping both
+# paths in one file means the cold path can't drift from the cached path —
+# the steps are identical, only the caches change.
+name: Bootstrap dotfiles
+description: >
+  Run ./install (and friends) with optional caching. The cached path is for
+  fast PR feedback; the cold path exercises a fresh-machine bootstrap.
+
+inputs:
+  use-cache:
+    description: >
+      When 'true', restore mise/brew/chezmoi caches before ./install. When
+      'false', run cold — no caches restored, no caches saved. Cold runs are
+      what catch "we broke a fresh install" regressions.
+    required: true
+  github-token:
+    description: >
+      Token passed to mise/aqua for their GitHub backends. Use the
+      MISE_GITHUB_TOKEN secret (App installation token, 1000/hr per repo)
+      rather than GITHUB_TOKEN (60/hr anonymous if mise doesn't see it).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
+
+    # ---- Cached path only ----------------------------------------------------
+    # Each cache is gated on inputs.use-cache. Cold runs skip them entirely so
+    # we genuinely exercise the from-scratch bootstrap.
+
+    # mise data dir, keyed on BOTH lockfiles (project + user-global). See the
+    # comment that was in the old ci.yml — this is the same rationale.
+    - name: Restore mise data dir
+      if: inputs.use-cache == 'true'
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ~/.local/share/mise
+        key: mise-${{ runner.os }}-${{ hashFiles('mise.lock', 'home/dot_config/mise/mise.lock') }}
+
+    # Homebrew dominates macOS bootstrap time. Cache the download cache and
+    # the installed Cellar. Brewfile path may need adjusting to whatever your
+    # chezmoi source name actually is.
+    - name: Cache Homebrew
+      if: inputs.use-cache == 'true' && runner.os == 'macOS'
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Cellar
+        key: brew-${{ runner.os }}-${{ hashFiles('**/Brewfile', 'home/private_dot_Brewfile') }}
+
+    # chezmoi's run_onchange_* state. When this hits, chezmoi apply skips
+    # every run_onchange script whose hash hasn't changed. This is the
+    # single biggest cached-path speedup, especially on macOS where the
+    # brew bundle script lives behind a run_onchange.
+    - name: Cache chezmoi state
+      if: inputs.use-cache == 'true'
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: |
+          ~/.config/chezmoi/chezmoistate.boltdb
+          ~/Library/Application Support/chezmoi/chezmoistate.boltdb
+        key: chezmoi-state-${{ runner.os }}-${{ hashFiles('home/**/run_*', '**/Brewfile*') }}
+
+    # ---- Shared path ---------------------------------------------------------
+
+    - name: Setup mise
+      uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      with:
+        # We manage caching ourselves (see above); disable mise-action's
+        # built-in cache to avoid two caches racing on the same path. On the
+        # cold path there are no caches at all, which is the point.
+        cache: false
+
+    - name: Run ./install
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        GIT_USER_NAME="CI Test User" \
+        GIT_USER_EMAIL="ci@example.com" \
+        WORK_PROFILE=false \
+        GITHUB_TOKEN="$GITHUB_TOKEN" \
+        ./install
+
+    - name: Dump install logs on failure
+      if: failure()
+      shell: bash
+      run: |
+        find /tmp/dotfiles-install-*/steps -name "*.log" 2>/dev/null | sort | while read -r f; do
+          echo "====== $f ======"
+          cat "$f"
+          echo
+        done
