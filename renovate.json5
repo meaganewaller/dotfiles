@@ -153,5 +153,16 @@
       datasourceTemplate: 'git-refs',
       packageNameTemplate: 'https://github.com/{{{depName}}}',
     },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/dot_config/nvim/nvim-pack-lock\\.json$/',
+      ],
+      matchStrings: [
+        '"(?<depName>[^"]+)":\\s*\\{\\s*"rev":\\s*"(?<currentDigest>[a-f0-9]{40})",\\s*"src":\\s*"(?<packageName>[^"]+)"',
+      ],
+      datasourceTemplate: 'git-refs',
+      currentValueTemplate: 'HEAD',
+    },
   ],
 }
