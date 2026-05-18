@@ -49,3 +49,38 @@ if ok_files then
     end
   end, { desc = "Files: toggle explorer at current buffer" })
 end
+
+-- mini.clue — keymap hint popup after a prefix is pressed. Triggers list
+-- only the prefixes we actually use (custom + the common vim built-ins);
+-- gen_clues fills in descriptions for the built-in ones automatically.
+local ok_clue, clue = pcall(require, "mini.clue")
+if ok_clue then
+  clue.setup({
+    triggers = {
+      { mode = "n", keys = "<Leader>" },
+      { mode = "x", keys = "<Leader>" },
+      { mode = "n", keys = "g" },
+      { mode = "x", keys = "g" },
+      { mode = "n", keys = "[" },
+      { mode = "n", keys = "]" },
+      { mode = "n", keys = "z" },
+      { mode = "x", keys = "z" },
+      { mode = "n", keys = '"' },
+      { mode = "x", keys = '"' },
+      { mode = "i", keys = "<C-r>" },
+      { mode = "c", keys = "<C-r>" },
+      { mode = "n", keys = "<C-w>" },
+    },
+    clues = {
+      clue.gen_clues.builtin_completion(),
+      clue.gen_clues.g(),
+      clue.gen_clues.marks(),
+      clue.gen_clues.registers(),
+      clue.gen_clues.windows(),
+      clue.gen_clues.z(),
+      { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
+      { mode = "n", keys = "<Leader>l", desc = "+LSP" },
+    },
+    window = { delay = 200 },
+  })
+end
