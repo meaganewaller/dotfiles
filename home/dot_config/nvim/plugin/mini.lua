@@ -20,6 +20,7 @@ setup("mini.surround")
 setup("mini.comment")
 setup("mini.ai")
 setup("mini.files")
+setup("mini.completion")
 setup("mini.statusline", { use_icons = false })
 
 -- Buffer management bindings paired with mini.bufremove so closing a
