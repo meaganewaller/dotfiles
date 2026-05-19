@@ -1,159 +1,240 @@
 # Neovim Configuration
 
-This dotfiles repository includes a complete Neovim configuration based on [LazyVim](https://lazyvim.org/), a modern Neovim configuration framework built on top of [lazy.nvim](https://github.com/folke/lazy.nvim).
+This dotfiles repository ships a Neovim configuration built directly on top of
+Neovim's own primitives — no framework, no plugin-manager DSL. Plugins are
+fetched and managed with [`vim.pack`](https://neovim.io/doc/user/pack.html)
+(built in to Neovim 0.12+), LSP is wired up with the native
+`vim.lsp.config` / `vim.lsp.enable` API (0.11+), and config is split into
+ordinary Lua modules.
 
 ## Overview
 
-- **Base Framework**: LazyVim - provides sensible defaults and plugin management
-- **Plugin Manager**: lazy.nvim - fast and modern plugin manager
-- **Configuration Location**: `home/dot_config/nvim/`
-- **Colorscheme**: Tokyo Night (with Habamax fallback)
-- **Features**: LSP, treesitter, telescope, which-key, and more out of the box
+- **Plugin manager**: `vim.pack` (built in)
+- **Completion**: [`blink.cmp`](https://github.com/Saghen/blink.cmp)
+- **Picker**: [`fzf-lua`](https://github.com/ibhagwan/fzf-lua)
+- **File tree**: [`oil.nvim`](https://github.com/stevearc/oil.nvim)
+- **Marks / quick switch**: [`harpoon`](https://github.com/ThePrimeagen/harpoon) (`harpoon2` branch)
+- **Git**: [`gitsigns.nvim`](https://github.com/lewis6991/gitsigns.nvim) + [`vim-fugitive`](https://github.com/tpope/vim-fugitive)
+- **Statusline**: [`lualine`](https://github.com/nvim-lualine/lualine.nvim) + `nvim-web-devicons`
+- **Keymap hints**: [`which-key.nvim`](https://github.com/folke/which-key.nvim)
+- **Syntax**: [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) (`main` branch)
+- **Colorschemes**: a curated set with a runtime fzf-lua picker (default: `catppuccin-mocha`)
+- **Configuration location**: `home/dot_config/nvim/`
 
-## Directory Structure
+LSP servers come from `PATH` — install them with `mise` or your system
+package manager. There is no Mason equivalent in this config.
+
+## Directory structure
 
 ```
 home/dot_config/nvim/
-├── init.lua                    # Main entry point - bootstraps lazy.nvim
+├── init.lua                       # bootstrap: leader keys, then require() each module
+├── nvim-pack-lock.json            # vim.pack revision pins (committed)
 ├── lua/
-│   ├── config/
-│   │   ├── autocmds.lua       # Custom autocommands
-│   │   ├── keymaps.lua        # Custom key mappings
-│   │   ├── lazy.lua           # Lazy.nvim bootstrap and configuration
-│   │   └── options.lua        # Neovim options and settings
-│   └── plugins/
-│       ├── example.lua        # Example plugin configuration (remove if not needed)
-│       └── tmux-navigator.lua # Tmux integration for seamless pane navigation
+│   ├── options.lua                # editing options (indent, search, undo, wildmenu, …)
+│   ├── ui.lua                     # UI options + custom tabline
+│   ├── window.lua                 # <Space>w window splits / navigation / resize
+│   ├── keymaps.lua                # top-level keymaps (<leader>g git, etc.)
+│   ├── autocmds.lua               # yank highlight, trim trailing whitespace
+│   ├── picker/
+│   │   ├── init.lua               # fzf-lua setup
+│   │   └── keymaps.lua            # <leader>f… find / grep / theme picker
+│   ├── theme/
+│   │   ├── init.lua               # managed colorscheme list + apply helpers
+│   │   └── light.lua              # (placeholder)
+│   └── utils/                     # tiny helpers (functions, icons, remaps)
+└── plugin/                        # auto-sourced by Neovim after init.lua
+    ├── 00-packs.lua               # vim.pack.add(specs) + stale-plugin pruning
+    ├── blink.lua                  # completion config
+    ├── gitsigns.lua
+    ├── harpoon.lua
+    ├── lsp.lua                    # vim.lsp.config + LspAttach keymaps
+    ├── lualine.lua
+    ├── oil.lua                    # <leader>e to open
+    ├── picker.lua                 # → require("picker")
+    ├── theme.lua                  # → require("theme")
+    ├── treesitter.lua             # install + start parsers
+    └── whichkey.lua
 ```
 
-## Key Features
+Two conventions worth knowing:
 
-### LazyVim Integration
-- Automatic plugin management and updates
-- Sensible defaults for modern development
-- Built-in LSP support with mason.nvim
-- Treesitter syntax highlighting
-- Telescope fuzzy finding
-- Which-key for discoverable keybindings
+- **Files in `lua/` are loaded explicitly** from `init.lua` via `require()`,
+  so the bootstrap order is deterministic.
+- **Files in `plugin/` are auto-sourced by Neovim** after `init.lua` finishes.
+  The `00-` prefix on `00-packs.lua` guarantees plugins are added before any
+  other plugin-config file runs.
 
-### Custom Plugins
+## How plugins are managed
 
-#### Tmux Navigator
-**Plugin**: `christoomey/vim-tmux-navigator`
-**Location**: `lua/plugins/tmux-navigator.lua`
-
-Enables seamless navigation between Neovim splits and tmux panes using:
-- `Ctrl+h` - Move left
-- `Ctrl+j` - Move down  
-- `Ctrl+k` - Move up
-- `Ctrl+l` - Move right
-- `Ctrl+\` - Move to previous pane/split
-
-## Configuration Files
-
-### init.lua
-Simple bootstrap that loads the lazy.nvim configuration:
-```lua
-require("config.lazy")
-```
-
-### lua/config/lazy.lua
-- Bootstraps lazy.nvim if not installed
-- Configures LazyVim with custom settings
-- Sets up plugin loading from the `plugins/` directory
-- Enables automatic plugin update checking
-
-### lua/config/ Files
-- **keymaps.lua**: Add custom keybindings here
-- **options.lua**: Override Neovim options  
-- **autocmds.lua**: Custom autocommands
-- All files are automatically loaded by LazyVim
-
-### lua/plugins/ Files
-Each `.lua` file in this directory is automatically loaded as a plugin specification. Files should return a table with plugin configuration.
-
-## Adding New Plugins
-
-Create a new file in `lua/plugins/` that returns a plugin spec:
+`plugin/00-packs.lua` declares the plugin set as a list of `vim.pack` specs:
 
 ```lua
--- lua/plugins/example.lua
-return {
-  "plugin/name",
-  config = function()
-    -- Plugin setup
-  end,
-  keys = {
-    { "<leader>x", "<cmd>PluginCommand<cr>", desc = "Plugin action" },
-  },
+local specs = {
+  { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
+  { src = "https://github.com/Saghen/blink.cmp", version = vim.version.range("1.0") },
+  "https://github.com/ibhagwan/fzf-lua",
+  -- …
 }
+
+-- Prune anything previously installed that's no longer in `specs`.
+local wanted = {}
+for _, spec in ipairs(specs) do wanted[spec_name(spec)] = true end
+for _, plugin in ipairs(vim.pack.get()) do
+  if not wanted[plugin.spec.name] then table.insert(stale, plugin.spec.name) end
+end
+if #stale > 0 then vim.pack.del(stale) end
+
+vim.pack.add(specs)
 ```
 
-## Common Workflows
+That's the whole plugin manager. `vim.pack` writes pinned revisions to
+`nvim-pack-lock.json` alongside `init.lua` — that file is committed so other
+machines (and `chezmoi apply`) reproduce the same plugin versions. Plugin
+sources themselves live under `stdpath("data")`.
 
-### Installing/Updating Plugins
-- `:Lazy` - Open lazy.nvim interface
-- `:Lazy sync` - Install/update all plugins
-- `:Lazy clean` - Remove unused plugins
+### Adding a plugin
 
-### LSP Management  
-- `:Mason` - Manage LSP servers, formatters, linters
-- `:LspInfo` - Show LSP client information
-- `:Lazy extras` - Install additional language support
+1. Append a spec to the `specs` table in `plugin/00-packs.lua`.
+2. If the plugin needs setup, add a sibling `plugin/<name>.lua` that calls
+   `require("...").setup(...)` and any keymaps. It will be auto-sourced on the
+   next launch.
 
-### Key Discovery
-- `<leader>` (space by default) - Opens which-key menu
-- `:Telescope keymaps` - Search all keybindings
-- `:LazyVim` - Open LazyVim help and configuration
+### Removing a plugin
 
-## Customization
+Delete its entry from `specs` (and any sibling `plugin/<name>.lua`). The next
+launch will detect it's stale and call `vim.pack.del()` to remove it.
 
-### Overriding LazyVim Defaults
-Create plugin files that override LazyVim's default configurations:
+### Updating
+
+`:lua vim.pack.update()` — or restart Neovim and let it pull updates as part
+of `vim.pack.add()`.
+
+## LSP
+
+`plugin/lsp.lua` uses the native API — no `nvim-lspconfig`, no Mason. Each
+server config is gated on the binary being present in `PATH`:
 
 ```lua
--- lua/plugins/overrides.lua
-return {
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      -- Override LazyVim options
-    },
-  },
-}
+for name, cfg in pairs(servers) do
+  if vim.fn.executable(cfg.cmd[1]) == 1 then
+    vim.lsp.config(name, cfg)
+    vim.lsp.enable(name)
+  end
+end
 ```
 
-### Disabling LazyVim Plugins
-```lua
-return {
-  { "plugin/name", enabled = false },
-}
-```
+Currently wired: `lua_ls`, `rust_analyzer`, `ts_ls`, `gopls`. Add new servers
+by extending the `servers` table and installing the binary (typically via
+`mise use -g <tool>@<version>`).
 
-## Tmux Integration
+Buffer-local keymaps are attached via `LspAttach`:
 
-The configuration includes seamless navigation between Neovim and tmux:
+| Map | Action |
+| --- | --- |
+| `gd` / `gD` | Definition / declaration |
+| `gr` / `gi` | References / implementation |
+| `K` | Hover |
+| `<Space>lr` | Rename |
+| `<Space>la` | Code action |
+| `<Space>lf` | Format (async) |
+| `<Space>ld` | Line diagnostics float |
+| `[d` / `]d` | Prev / next diagnostic |
 
-1. **Automatic Detection**: Tmux detects when Neovim is running
-2. **Smart Navigation**: `Ctrl+hjkl` navigates within Neovim or between tmux panes
-3. **Copy Mode Support**: Navigation works in tmux copy mode
-4. **Fallback Bindings**: Prefix-based navigation available as backup
+## Keymaps
 
-See `doc/tmux.md` for tmux-side configuration details.
+`<leader>` is `<Space>`. `<localleader>` is also `<Space>`. (Note: `options.lua`
+also sets `vim.g.mapleader = ","` for historical reasons — the `<Space>` in
+`init.lua` wins because it runs first.)
+
+### Finding things — `<leader>f…` (fzf-lua)
+
+| Map | Action |
+| --- | --- |
+| `<leader>ff` | Files |
+| `<leader>fr` | Recent files |
+| `<leader>fc` | Config files (`stdpath("config")`) |
+| `<leader>fg` | Live grep |
+| `<leader>fs` / `<leader>fS` | Grep word / WORD under cursor |
+| `<leader>fk` | Keymaps |
+| `<leader>fh` | Help tags |
+| `<leader>fd` | Workspace diagnostics |
+| `<leader>fb` | Buffers |
+| `<leader>fu` | Undo tree |
+| `<leader>ft` | Theme picker (live-preview managed colorschemes) |
+
+### Git — `<leader>g…` (vim-fugitive, lazy-loaded)
+
+| Map | Action |
+| --- | --- |
+| `<leader>gs` | `:Git` (status) |
+| `<leader>gb` | `:Git blame` |
+| `<leader>gd` | `:Gvdiffsplit` |
+| `<leader>gw` | `:Gwrite` (stage current file) |
+| `<leader>gl` | `:Git log --oneline --decorate --graph` |
+| `<leader>gc` | `:Git commit` |
+| `<leader>gp` / `<leader>gP` | Push / pull --rebase |
+| `<leader>gr` | `:Gread` (restore file) |
+
+`gitsigns` shows hunk markers in the sign column and inline blame on the
+current line.
+
+### Files / windows / other
+
+| Map | Action |
+| --- | --- |
+| `<leader>e` | Open `oil` |
+| `<leader>a` | Harpoon: add file |
+| `<C-e>` | Harpoon: toggle quick menu |
+| `<Space>ws` / `wv` | Split horizontal / vertical |
+| `<Space>wc` / `wo` | Close / only |
+| `<Space>w=` / `wm` | Equalize / maximize |
+| `<C-Up/Down/Left/Right>` | Resize current window |
+| `<Esc>` (normal) | Clear search highlight |
+| `<C-f>` | `tmux-sessionizer.sh` in a new tmux window |
+
+> ⚠️ `<C-h/j/k/l>` is bound in **two** places: `lua/window.lua` maps it to
+> `<C-w>h/j/k/l` (window navigation), and `plugin/harpoon.lua` maps it to
+> `harpoon:list():select(1..4)`. `plugin/` runs after `init.lua`, so harpoon
+> wins. If you want tmux-aware navigation back, rework one of those bindings.
+
+## Themes
+
+The colorscheme picker (`<leader>ft`) is restricted to a curated list in
+`lua/theme/init.lua`. The default is `catppuccin-mocha`. The picker forces
+`background=dark` and ignores `ColorScheme` events fired by itself so live
+preview doesn't loop.
+
+To add or remove themes, edit `managed_themes` in `lua/theme/init.lua` and
+make sure the corresponding plugin is in `plugin/00-packs.lua`.
+
+## Common workflows
+
+| Task | Command |
+| --- | --- |
+| Update plugins | `:lua vim.pack.update()` |
+| Inspect installed plugins | `:lua = vim.pack.get()` |
+| Remove stale plugins | Restart Neovim (handled by `00-packs.lua`) |
+| Reinstall treesitter parsers | `:TSUpdate` (triggered automatically on plugin change) |
+| LSP info | `:lua = vim.lsp.get_clients()` |
+| LSP log | `:LspLog` |
+| Health check | `:checkhealth` |
+
+## Tmux integration
+
+`<C-f>` opens a fresh tmux window running `tmux-sessionizer.sh`. There is no
+`vim-tmux-navigator` plugin in this config — see the harpoon caveat above
+about `<C-h/j/k/l>`.
 
 ## Troubleshooting
 
-### Plugin Issues
-- `:Lazy log` - View plugin installation logs  
-- `:Lazy health` - Check plugin health
-- `:checkhealth` - Neovim health check
-
-### LSP Issues
-- `:LspLog` - View LSP logs
-- `:Mason log` - View Mason installation logs
-
-### Performance
-LazyVim is configured for optimal performance with:
-- Disabled unused built-in plugins
-- Lazy loading for most plugins
-- Optimized RTP (runtime path)
+- **A plugin won't install** — `:lua = vim.pack.get()` shows the current
+  state; `:lua vim.pack.update()` re-runs the fetch.
+- **Treesitter parser is missing** — `tree-sitter` CLI must be on `PATH`
+  (install via `mise`). `plugin/treesitter.lua` emits a notification if it
+  can't build a parser.
+- **LSP server didn't start** — make sure the binary in `servers[name].cmd[1]`
+  is on `PATH`. The config silently skips servers whose binary is missing.
+- **Theme didn't apply on launch** — check that the plugin for that theme is
+  declared in `plugin/00-packs.lua` and that the spec name matches what
+  `lua/theme/init.lua` is calling.
