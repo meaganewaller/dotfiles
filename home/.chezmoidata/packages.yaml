@@ -57,6 +57,7 @@ packages:
 
       # MacOS Tooling
       - antoniorodr/memo/memo
+      - steipete/tap/remindctl
     casks:
       # Development Tools
       - cursor
