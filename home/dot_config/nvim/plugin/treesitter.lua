@@ -1,54 +1,49 @@
--- Treesitter via the native package manager. nvim-treesitter's `main`
--- branch is the modern Lua-only API for nvim 0.10+; setup() configures
--- highlight/indent and TSInstall fetches parsers on demand.
+local parsers = {
+  "lua",
+  "python",
+  "typescript",
+  "javascript",
+  "bash",
+  "json",
+  "yaml",
+  "markdown",
+  "html",
+  "css",
+}
 
-vim.pack.add({
-  { src = "https://github.com/nvim-treesitter/nvim-treesitter" },
+vim.cmd.packadd("nvim-treesitter")
+
+require("nvim-treesitter").setup({
+  install_dir = vim.fn.stdpath("data") .. "/site",
 })
 
-local ok, ts = pcall(require, "nvim-treesitter.configs")
-if not ok then return end
+local installed = {}
+for _, parser in ipairs(require("nvim-treesitter").get_installed()) do
+  installed[parser] = true
+end
 
-ts.setup({
-  ensure_installed = {
-    "bash",
-    "c",
-    "diff",
-    "fish",
-    "git_config",
-    "gitcommit",
-    "gitignore",
-    "go",
-    "html",
-    "json",
-    "lua",
-    "luadoc",
-    "markdown",
-    "markdown_inline",
-    "python",
-    "query",
-    "regex",
-    "ruby",
-    "rust",
-    "toml",
-    "tsx",
-    "typescript",
-    "vim",
-    "vimdoc",
-    "yaml",
-  },
-  auto_install = true,
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false,
-  },
-  indent = { enable = true },
+local missing = {}
+for _, parser in ipairs(parsers) do
+  if not installed[parser] then
+    table.insert(missing, parser)
+  end
+end
+
+if #missing > 0 and vim.fn.executable("tree-sitter") == 1 then
+  require("nvim-treesitter").install(missing)
+elseif #missing > 0 then
+  vim.schedule(function()
+    vim.notify("nvim-treesitter: install tree-sitter-cli to build missing parsers", vim.log.levels.WARN)
+  end)
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("treesitter_start", { clear = true }),
+  callback = function(args)
+    if not pcall(vim.treesitter.start, args.buf) then
+      return
+    end
+
+    vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end,
 })
-
--- Use treesitter for folds when a parser is attached, but keep folds
--- open by default so opening a file doesn't feel claustrophobic.
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldenable = true
-vim.opt.foldlevel = 99
-vim.opt.foldlevelstart = 99
