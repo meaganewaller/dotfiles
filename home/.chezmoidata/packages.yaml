@@ -54,6 +54,9 @@ packages:
       - mermaid-cli
       - pandoc
       - texinfo
+
+      # MacOS Tooling
+      - antoniorodr/memo/memo
     casks:
       # Development Tools
       - cursor

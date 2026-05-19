@@ -1,5 +1,6 @@
 {{ if ne .chezmoi.os "darwin" }}
 private_Library/**
+home/dot_claude/skills/apple-notes
 {{ end }}
 
 .oh-my-zsh/.git/
