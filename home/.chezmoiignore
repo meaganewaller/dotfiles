@@ -1,6 +1,7 @@
 {{ if ne .chezmoi.os "darwin" }}
-private_Library/**
-home/dot_claude/skills/apple-notes
+Library/**
+.claude/skills/apple-notes
+.claude/skills/apple-reminders
 {{ end }}
 
 .oh-my-zsh/.git/
