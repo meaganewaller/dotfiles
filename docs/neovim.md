@@ -29,6 +29,7 @@ package manager. There is no Mason equivalent in this config.
 ```
 home/dot_config/nvim/
 ├── init.lua                       # bootstrap: leader keys, then require() each module
+├── nvim-pack-lock.json            # vim.pack revision pins (committed)
 ├── lua/
 │   ├── options.lua                # editing options (indent, search, undo, wildmenu, …)
 │   ├── ui.lua                     # UI options + custom tabline
@@ -87,8 +88,10 @@ if #stale > 0 then vim.pack.del(stale) end
 vim.pack.add(specs)
 ```
 
-That's the whole plugin manager. No external lockfile — `vim.pack` keeps its
-own state under `stdpath("data")`.
+That's the whole plugin manager. `vim.pack` writes pinned revisions to
+`nvim-pack-lock.json` alongside `init.lua` — that file is committed so other
+machines (and `chezmoi apply`) reproduce the same plugin versions. Plugin
+sources themselves live under `stdpath("data")`.
 
 ### Adding a plugin
 
