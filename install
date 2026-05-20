@@ -173,8 +173,13 @@ prefetch_chezmoi_version_start() {
 	(
 		set -e
 		download_cmd_pf=$(get_download_cmd)
+		# Capture only the tag_name value via a single sed pattern so this
+		# works for both pretty and minified JSON. The previous
+		# `grep '"tag_name"' | cut -d'"' -f4` picked the wrong field
+		# (the .url) when GitHub served minified JSON on a single line.
 		$download_cmd_pf "$GITHUB_API_URL/repos/$CHEZMOI_REPO/releases/latest" |
-			grep '"tag_name"' | cut -d'"' -f4 | sed 's/^v//' >"$_pf_out"
+			sed -nE 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v?([^"]+)".*/\1/p' |
+			head -n 1 >"$_pf_out"
 	) >>"$_pf_log" 2>&1 &
 	PREFETCH_PID=$!
 	printf "pid=%s\n" "$PREFETCH_PID" >>"$_pf_meta"
