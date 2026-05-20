@@ -37,9 +37,29 @@ local function apply_theme(theme_name)
   return ok
 end
 
+-- Resolve the active theme from the universal switcher's state file.
+-- See docs/adrs/0005-universal-theme-switcher.md.
+local function read_state_theme()
+  local state = (vim.env.XDG_STATE_HOME or (vim.env.HOME .. "/.local/state")) .. "/theme/nvim"
+  local f = io.open(state, "r")
+  if not f then
+    return nil
+  end
+  local line = f:read("l")
+  f:close()
+  if not line then
+    return nil
+  end
+  line = line:gsub("%s+$", "")
+  if line == "" then
+    return nil
+  end
+  return line
+end
+
 local function ensure_default_theme()
-  local default_theme = "catppuccin-mocha"
-  apply_theme(default_theme)
+  local theme = read_state_theme() or "catppuccin-mocha"
+  apply_theme(theme)
 end
 
 ensure_default_theme()

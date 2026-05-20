@@ -1,11 +1,29 @@
 #!/bin/sh
-# Detect system appearance and exec claude-powerline with the matching Catppuccin config.
-# Merges shared.json (display, segments, limits) with the theme file (colors only).
+# Resolve the active claude-powerline palette and exec claude-powerline with it.
+#
+# Resolution order:
+#   1. ~/.local/state/theme/current via theme-lookup (universal switcher)
+#   2. macOS appearance via ~/.local/libexec/dotfiles/appearance (legacy fallback)
+#
+# Merges shared.json (display, segments, limits) with the resolved palette
+# file (colors only) and exec's claude-powerline.
+
 dir="$HOME/.claude/powerline"
-case "$("$HOME/.local/libexec/dotfiles/appearance")" in
-  dark) theme="catppuccin-mocha.json" ;;
-  *)    theme="catppuccin-latte.json" ;;
-esac
+state="${XDG_STATE_HOME:-$HOME/.local/state}/theme/current"
+lookup="$HOME/.local/libexec/dotfiles/theme-lookup"
+
+theme=""
+if [ -f "$state" ] && [ -x "$lookup" ]; then
+  theme=$("$lookup" claude-powerline 2>/dev/null || true)
+fi
+
+if [ -z "$theme" ]; then
+  case "$("$HOME/.local/libexec/dotfiles/appearance")" in
+    dark) theme="catppuccin-mocha.json" ;;
+    *)    theme="catppuccin-latte.json" ;;
+  esac
+fi
+
 merged=$(jq -s '.[0] * .[1]' "$dir/shared.json" "$dir/$theme")
 tmp="${TMPDIR:-/tmp}/claude-powerline-config.json"
 printf '%s\n' "$merged" > "$tmp"

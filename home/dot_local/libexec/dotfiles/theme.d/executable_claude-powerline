@@ -1,0 +1,17 @@
+#!/bin/sh
+# theme.d/claude-powerline — validate the catalog has a palette for this theme.
+#
+# The wrapper at ~/.local/libexec/claude-powerline-theme reads the state file
+# on every prompt render, so there is no per-tool overlay to write here. This
+# script exists so the cross-check in run_onchange_verify-theme-registry can
+# pair `claude-powerline` keys in themes.yaml with a real applier.
+
+set -eu
+
+theme="${1:-}"
+if [ -z "$theme" ]; then
+  echo "theme.d/claude-powerline: missing theme name argument" >&2
+  exit 64
+fi
+
+"$HOME/.local/libexec/dotfiles/theme-lookup" claude-powerline "$theme" >/dev/null
