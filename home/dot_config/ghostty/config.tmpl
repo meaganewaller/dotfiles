@@ -32,11 +32,10 @@ font-feature = +ss02
 adjust-cell-height = 2
 
 # --- Theme -------------------------------------------------------------------
-# Baseline theme tracks system appearance; the universal switcher's overlay
-# (config-file below) can pin a specific palette and overrides this.
+# Baseline theme tracks system appearance; the universal switcher overlay at
+# the bottom of this file overrides everything declared in between.
 # See docs/adrs/0005-universal-theme-switcher.md.
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
-config-file = ?~/.local/state/theme/ghostty.conf
 background-image = {{ .ghostty.background_image | default "~/.config/ghostty/bg/cyber-y2k-anime-desktop-wallpapers.png" }}
 background-image-opacity = {{ .ghostty.background_image_opacity | default 0.15 }}
 background-image-fit = cover
@@ -123,3 +122,10 @@ clipboard-paste-bracketed-safe = true
 
 # --- Shell Integration -------------------------------------------------------
 shell-integration = detect
+
+# --- Universal theme switcher overlay ---------------------------------------
+# Must be the LAST directive: Ghostty's `theme = …` resets palette, background,
+# foreground, cursor, selection, and the 16 ANSI colors to that theme's values.
+# Loading the overlay here lets `theme <name>` override the custom palette
+# block above. Absent overlay (?-prefix) = baseline custom palette stays.
+config-file = ?~/.local/state/theme/ghostty.conf
