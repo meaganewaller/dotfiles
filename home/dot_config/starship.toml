@@ -7,6 +7,7 @@ format = """
 [╭](fg:separator)\
 $status\
 $directory\
+$git_branch\
 $cmd_duration\
 $line_break\
 [╰](fg:separator)\
@@ -23,8 +24,9 @@ separator  = "#35312c"
 background = "#35312c"
 
 directory  = "#9f31e2"
-duration   = "#e26f31"
+duration   = "#E4FF30"
 status     = "#e23140"
+branch     = "#FF3EA5"
 
 ###########################################
 
@@ -43,6 +45,10 @@ pipestatus = true
 pipestatus_separator = "-"
 pipestatus_segment_format = "$status"
 pipestatus_format = "[─](fg:separator)[](fg:status)[](fg:icon bg:status)[](fg:status bg:background)[ $pipestatus](bg:background)[](fg:background)"
+disabled = false
+
+[git_branch]
+format = "[─](fg:separator)[](fg:branch)[](fg:icon bg:branch)[](fg:branch bg:background)[ $branch](bg:background)[](fg:background)"
 disabled = false
 
 [cmd_duration]
