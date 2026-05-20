@@ -18,6 +18,8 @@
 #   nvim applier:       {{ include "dot_local/libexec/dotfiles/theme.d/executable_nvim" | sha256sum }}
 #   ghostty applier:    {{ include "dot_local/libexec/dotfiles/theme.d/executable_ghostty" | sha256sum }}
 #   c-powerline applier:{{ include "dot_local/libexec/dotfiles/theme.d/executable_claude-powerline" | sha256sum }}
+#   starship applier:   {{ include "dot_local/libexec/dotfiles/theme.d/executable_starship" | sha256sum }}
+#   starship base cfg:  {{ include "dot_config/starship.toml" | sha256sum }}
 
 set -o errexit -o nounset -o pipefail
 
@@ -79,11 +81,16 @@ if (( ${#orphan_appliers[@]} )); then
   exit 1
 fi
 
-# Seed the default theme on first apply so overlay consumers (Ghostty's
-# config-file, tmux source-file) find their files. Runs after file placement,
-# so $HOME/.local/bin/theme is present.
+# Re-apply the current theme on every fire so all overlays (tmux, ghostty,
+# starship, …) refresh when any theme-relevant input changed — including the
+# base starship.toml, which the starship applier copies into its overlay.
+# Falls back to the catalog default if no state file exists yet.
 state_file="${XDG_STATE_HOME:-$HOME/.local/state}/theme/current"
-if [[ ! -f "$state_file" ]]; then
-  echo "verify-theme-registry: applying default theme '$default_palette' (first apply)"
-  "$HOME/.local/bin/theme" "$default_palette" || true
+if [[ -f "$state_file" ]]; then
+  current=$(head -n1 "$state_file" | tr -d '[:space:]')
+  [[ -z "$current" ]] && current="$default_palette"
+else
+  current="$default_palette"
 fi
+echo "verify-theme-registry: applying theme '$current'"
+"$HOME/.local/bin/theme" "$current" || true
