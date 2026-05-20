@@ -20,8 +20,10 @@ themes:
       nvim: catppuccin-mocha
       claude-powerline: catppuccin-mocha.json
       ghostty: Catppuccin Mocha
+      starship: catppuccin-mocha
     catppuccin-latte:
       tmux: catppuccin-latte
       nvim: catppuccin-latte
       claude-powerline: catppuccin-latte.json
       ghostty: Catppuccin Latte
+      starship: catppuccin-latte

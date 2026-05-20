@@ -1,0 +1,25 @@
+#!/bin/sh
+# theme.d/starship — write the active starship palette name overlay.
+#
+# starship reads $STARSHIP_PALETTE on each prompt render. The shell rcfiles
+# (home/dot_zshrc.tmpl, home/dot_config/fish/conf.d/starship-init.fish)
+# re-read this file in a prompt hook and re-export the variable, so live
+# switching takes effect on the next prompt of running shells too.
+
+set -eu
+
+theme="${1:-}"
+if [ -z "$theme" ]; then
+  echo "theme.d/starship: missing theme name argument" >&2
+  exit 64
+fi
+
+palette=$("$HOME/.local/libexec/dotfiles/theme-lookup" starship "$theme")
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+mkdir -p "$state_dir"
+overlay="$state_dir/starship"
+
+tmp="${overlay}.tmp"
+printf '%s\n' "$palette" > "$tmp"
+mv "$tmp" "$overlay"
