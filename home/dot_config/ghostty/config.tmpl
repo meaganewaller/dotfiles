@@ -32,7 +32,11 @@ font-feature = +ss02
 adjust-cell-height = 2
 
 # --- Theme -------------------------------------------------------------------
+# Baseline theme tracks system appearance; the universal switcher's overlay
+# (config-file below) can pin a specific palette and overrides this.
+# See docs/adrs/0005-universal-theme-switcher.md.
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+config-file = ?~/.local/state/theme/ghostty.conf
 background-image = {{ .ghostty.background_image | default "~/.config/ghostty/bg/cyber-y2k-anime-desktop-wallpapers.png" }}
 background-image-opacity = {{ .ghostty.background_image_opacity | default 0.15 }}
 background-image-fit = cover
@@ -119,4 +123,3 @@ clipboard-paste-bracketed-safe = true
 
 # --- Shell Integration -------------------------------------------------------
 shell-integration = detect
-

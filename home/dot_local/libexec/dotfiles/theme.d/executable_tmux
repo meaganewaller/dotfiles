@@ -1,0 +1,58 @@
+#!/bin/sh
+# theme.d/tmux — write tmux pane-style overlay and hot-reload running server.
+#
+# Reads the per-tool palette token via theme-lookup, expands it into the
+# tmux `set -g pane-...-style` commands that match, writes them to
+# ~/.local/state/theme/tmux.conf, and tmux source-files that overlay
+# into the live server when one is reachable.
+#
+# Palette support is keyed off the token, not the theme name — a new theme
+# that maps `tmux: catppuccin-mocha` reuses the existing palette block.
+
+set -eu
+
+theme="${1:-}"
+if [ -z "$theme" ]; then
+  echo "theme.d/tmux: missing theme name argument" >&2
+  exit 64
+fi
+
+token=$("$HOME/.local/libexec/dotfiles/theme-lookup" tmux "$theme")
+
+case "$token" in
+  catppuccin-mocha)
+    # Active border: Lavender | Inactive border: Overlay 0
+    # Active pane bg: Base | Inactive pane bg: Mantle
+    pane_border="fg=#6c7086,bg=#181825"
+    pane_active="fg=#b4befe,bg=#181825"
+    window_style="bg=#181825"
+    window_active="bg=#1e1e2e"
+    ;;
+  catppuccin-latte)
+    pane_border="fg=#9ca0b0,bg=#e6e9ef"
+    pane_active="fg=#7287fd,bg=#e6e9ef"
+    window_style="bg=#e6e9ef"
+    window_active="bg=#eff1f5"
+    ;;
+  *)
+    echo "theme.d/tmux: no palette implementation for token '$token'" >&2
+    exit 65
+    ;;
+esac
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+mkdir -p "$state_dir"
+overlay="$state_dir/tmux.conf"
+
+tmp="${overlay}.tmp"
+cat > "$tmp" <<EOF
+set -g pane-border-style "$pane_border"
+set -g pane-active-border-style "$pane_active"
+set -g window-style "$window_style"
+set -g window-active-style "$window_active"
+EOF
+mv "$tmp" "$overlay"
+
+if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+  tmux source-file "$overlay"
+fi
