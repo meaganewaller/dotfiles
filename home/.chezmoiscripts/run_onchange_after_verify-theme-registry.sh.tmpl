@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Cross-check the universal theme switcher registry, then seed the default
+# theme on first apply.
+#
+# The cross-check uses source-tree paths and catalog data baked in at template
+# render time, so it does not depend on chezmoi having placed files in $HOME.
+# The seed step uses $HOME after files have been placed (run_onchange_after_).
+#
+# Invariant: { appliers in source } == { tool keys in default palette }.
+# Other palettes are allowed to be subsets — lookup falls back through the
+# default at runtime, but the default must be complete.
+#
+# Hash inputs (re-fires when any of these change):
+#   themes data:        {{ include ".chezmoidata/themes.yaml" | sha256sum }}
+#   entrypoint:         {{ include "dot_local/bin/executable_theme" | sha256sum }}
+#   lookup helper:      {{ include "dot_local/libexec/dotfiles/executable_theme-lookup" | sha256sum }}
+#   tmux applier:       {{ include "dot_local/libexec/dotfiles/theme.d/executable_tmux" | sha256sum }}
+#   nvim applier:       {{ include "dot_local/libexec/dotfiles/theme.d/executable_nvim" | sha256sum }}
+#   ghostty applier:    {{ include "dot_local/libexec/dotfiles/theme.d/executable_ghostty" | sha256sum }}
+#   c-powerline applier:{{ include "dot_local/libexec/dotfiles/theme.d/executable_claude-powerline" | sha256sum }}
+
+set -o errexit -o nounset -o pipefail
+
+src_theme_d={{ joinPath .chezmoi.sourceDir "dot_local/libexec/dotfiles/theme.d" | quote }}
+default_palette={{ .themes.default | quote }}
+default_tools=(
+{{- range $tool, $_ := index .themes.palettes .themes.default }}
+  {{ $tool | quote }}
+{{- end }}
+)
+
+if [[ ! -d "$src_theme_d" ]]; then
+  echo "verify-theme-registry: source applier dir missing at $src_theme_d" >&2
+  exit 1
+fi
+
+applier_tools=()
+for f in "$src_theme_d"/executable_*; do
+  [[ -e "$f" ]] || continue
+  applier_tools+=("$(basename "$f" | sed 's/^executable_//')")
+done
+
+if (( ${#applier_tools[@]} == 0 )); then
+  echo "verify-theme-registry: no appliers found in $src_theme_d" >&2
+  exit 1
+fi
+
+# Every tool key in the default palette must have a matching applier.
+missing_appliers=()
+for tool in "${default_tools[@]}"; do
+  found=0
+  for applier in "${applier_tools[@]}"; do
+    [[ "$applier" == "$tool" ]] && { found=1; break; }
+  done
+  (( found )) || missing_appliers+=("$tool")
+done
+
+# Every applier must have a key in the default palette.
+orphan_appliers=()
+for applier in "${applier_tools[@]}"; do
+  found=0
+  for tool in "${default_tools[@]}"; do
+    [[ "$applier" == "$tool" ]] && { found=1; break; }
+  done
+  (( found )) || orphan_appliers+=("$applier")
+done
+
+if (( ${#missing_appliers[@]} )); then
+  echo "verify-theme-registry: default palette '$default_palette' references tools with no applier:" >&2
+  printf '  - %s\n' "${missing_appliers[@]}" >&2
+  echo "  expected source file: home/dot_local/libexec/dotfiles/theme.d/executable_<tool>" >&2
+  exit 1
+fi
+
+if (( ${#orphan_appliers[@]} )); then
+  echo "verify-theme-registry: appliers missing from default palette '$default_palette':" >&2
+  printf '  - %s\n' "${orphan_appliers[@]}" >&2
+  echo "  add a key for each in home/.chezmoidata/themes.yaml under palettes.$default_palette" >&2
+  exit 1
+fi
+
+# Seed the default theme on first apply so overlay consumers (Ghostty's
+# config-file, tmux source-file) find their files. Runs after file placement,
+# so $HOME/.local/bin/theme is present.
+state_file="${XDG_STATE_HOME:-$HOME/.local/state}/theme/current"
+if [[ ! -f "$state_file" ]]; then
+  echo "verify-theme-registry: applying default theme '$default_palette' (first apply)"
+  "$HOME/.local/bin/theme" "$default_palette" || true
+fi
