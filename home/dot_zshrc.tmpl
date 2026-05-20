@@ -27,14 +27,17 @@ if (( ! _dotfiles_is_agent_shell )); then
   source "$ZSH"/oh-my-zsh.sh
 
   # Universal theme switcher → starship palette
-  # See docs/adrs/0005-universal-theme-switcher.md. The state file is
-  # written by ~/.local/libexec/dotfiles/theme.d/starship; re-reading it
-  # in precmd means live `theme <name>` switches take effect on the next
-  # prompt of any already-running shell.
+  # See docs/adrs/0005-universal-theme-switcher.md. theme-lookup resolves
+  # state file → catalog default → fail, so STARSHIP_PALETTE is always set
+  # to something valid as long as the catalog is on disk. precmd re-runs
+  # the lookup each prompt so live `theme <name>` switches land in
+  # already-running shells.
   _dotfiles_theme_starship() {
-    local state="${XDG_STATE_HOME:-$HOME/.local/state}/theme/starship"
-    [[ -r "$state" ]] || return 0
-    export STARSHIP_PALETTE="$(head -n1 "$state")"
+    local lookup="$HOME/.local/libexec/dotfiles/theme-lookup"
+    [[ -x "$lookup" ]] || return 0
+    local palette
+    palette="$("$lookup" starship 2>/dev/null)" || return 0
+    [[ -n "$palette" ]] && export STARSHIP_PALETTE="$palette"
   }
   autoload -Uz add-zsh-hook
   add-zsh-hook precmd _dotfiles_theme_starship

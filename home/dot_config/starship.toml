@@ -1,7 +1,6 @@
 # starship.toml
 
 add_newline = false
-palette = "default"
 
 format = """
 [╭](fg:separator)\
