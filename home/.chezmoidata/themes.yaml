@@ -1,0 +1,29 @@
+# Universal theme switcher catalog.
+# See docs/adrs/0005-universal-theme-switcher.md for the design.
+#
+# Shape:
+#   themes.default          — fallback theme name when no state file exists
+#                             or when a tool has no mapping for the active theme.
+#   themes.palettes.<name>  — per-tool palette tokens for theme <name>.
+#                             Keys MUST match an applier file under
+#                             home/dot_local/libexec/dotfiles/theme.d/executable_<key>.
+#                             The run_onchange_verify-theme-registry script cross-checks
+#                             this at chezmoi apply time.
+#
+# Adding a new theme: add a row under `palettes` with a value for every tool key.
+# Adding a new tool:  add the matching applier file AND a key for it in every palette.
+themes:
+  default: catppuccin-mocha
+  palettes:
+    catppuccin-mocha:
+      tmux: catppuccin-mocha
+      nvim: catppuccin-mocha
+      claude-powerline: catppuccin-mocha.json
+      ghostty: Catppuccin Mocha
+      starship: catppuccin-mocha
+    catppuccin-latte:
+      tmux: catppuccin-latte
+      nvim: catppuccin-latte
+      claude-powerline: catppuccin-latte.json
+      ghostty: Catppuccin Latte
+      starship: catppuccin-latte

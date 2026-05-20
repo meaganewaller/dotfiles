@@ -32,17 +32,15 @@ font-feature = +ss02
 adjust-cell-height = 2
 
 # --- Theme -------------------------------------------------------------------
+# Baseline theme tracks system appearance; the universal switcher overlay at
+# the bottom of this file overrides everything declared in between.
+# See docs/adrs/0005-universal-theme-switcher.md.
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 background-image = {{ .ghostty.background_image | default "~/.config/ghostty/bg/cyber-y2k-anime-desktop-wallpapers.png" }}
 background-image-opacity = {{ .ghostty.background_image_opacity | default 0.15 }}
 background-image-fit = cover
-background = {{ .ghostty.background | default "#1f1b2e" }}
-foreground = {{ .ghostty.foreground | default "#f8f5ff" }}
-cursor-color = {{ .ghostty.cursor_color | default "#f5c2e7" }}
 cursor-style = bar
 cursor-style-blink = false
-selection-background = {{ .ghostty.selection_background | default "#3b3555" }}
-selection-foreground = {{ .ghostty.selection_foreground | default "#f8f5ff" }}
 
 {{ if eq .chezmoi.os "darwin" }}
 macos-titlebar-style = transparent
@@ -59,24 +57,6 @@ quick-terminal-screen = mouse
 quick-terminal-autohide = true
 quick-terminal-animation-duration = 0.15
 scrollback-limit = 25000000
-
-# Custom pastel ANSI palette
-palette = 0=#2a243f
-palette = 1=#ff7aa2
-palette = 2=#b8f28f
-palette = 3=#ffd480
-palette = 4=#8bb8ff
-palette = 5=#f6a8ff
-palette = 6=#8fe9ff
-palette = 7=#efe9ff
-palette = 8=#6a6284
-palette = 9=#ff95b7
-palette = 10=#c9f7a8
-palette = 11=#ffe0a3
-palette = 12=#a9cbff
-palette = 13=#f9beff
-palette = 14=#aaf2ff
-palette = 15=#ffffff
 
 minimum-contrast = 1.1
 background-opacity = {{ .ghostty.background_opacity | default 0.94 }}
@@ -120,3 +100,9 @@ clipboard-paste-bracketed-safe = true
 # --- Shell Integration -------------------------------------------------------
 shell-integration = detect
 
+# --- Universal theme switcher overlay ---------------------------------------
+# Must be the LAST directive: Ghostty's `theme = …` resets palette, background,
+# foreground, cursor, selection, and the 16 ANSI colors to that theme's values.
+# Loading the overlay here lets `theme <name>` override the custom palette
+# block above. Absent overlay (?-prefix) = baseline custom palette stays.
+config-file = ?~/.local/state/theme/ghostty.conf

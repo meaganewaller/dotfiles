@@ -1,0 +1,38 @@
+#!/bin/sh
+# theme.d/nvim — write Neovim colorscheme overlay and poke live nvim sockets.
+#
+# The colorscheme name lands in ~/.local/state/theme/nvim. The Lua init at
+# home/dot_config/nvim/lua/theme/init.lua reads this on startup; running
+# instances are notified via any nvim --serverlist sockets we can find.
+#
+# A poke failure is non-fatal — fresh nvim launches will pick up the state
+# file regardless.
+
+set -eu
+
+theme="${1:-}"
+if [ -z "$theme" ]; then
+  echo "theme.d/nvim: missing theme name argument" >&2
+  exit 64
+fi
+
+colorscheme=$("$HOME/.local/libexec/dotfiles/theme-lookup" nvim "$theme")
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+mkdir -p "$state_dir"
+overlay="$state_dir/nvim"
+
+tmp="${overlay}.tmp"
+printf '%s\n' "$colorscheme" > "$tmp"
+mv "$tmp" "$overlay"
+
+if command -v nvim >/dev/null 2>&1; then
+  sockets=$(nvim --serverlist 2>/dev/null || true)
+  if [ -n "$sockets" ]; then
+    printf '%s\n' "$sockets" | while IFS= read -r socket; do
+      [ -n "$socket" ] || continue
+      nvim --server "$socket" --remote-expr \
+        "execute('silent! colorscheme $colorscheme')" >/dev/null 2>&1 || true
+    done
+  fi
+fi

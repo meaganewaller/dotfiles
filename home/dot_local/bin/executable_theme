@@ -1,0 +1,131 @@
+#!/bin/sh
+# theme — universal theme switcher.
+#
+# Usage:
+#   theme              print the active theme (or catalog default if no state)
+#   theme list         print catalog theme names, one per line
+#   theme <name>       set <name> as active; run every applier under theme.d/
+#   theme <name> -n    dry-run: validate <name>, list appliers, no writes
+#
+# Design: see docs/adrs/0005-universal-theme-switcher.md.
+#
+# The active theme is stored at ${XDG_STATE_HOME:-$HOME/.local/state}/theme/current
+# and is NOT tracked by chezmoi — switching themes never dirties the source tree.
+
+set -eu
+
+CATALOG="${THEME_CATALOG:-${XDG_CONFIG_HOME:-$HOME/.config}/theme/themes.json}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+STATE_FILE="$STATE_DIR/current"
+THEME_D="$HOME/.local/libexec/dotfiles/theme.d"
+
+require_catalog() {
+  if [ ! -f "$CATALOG" ]; then
+    echo "theme: catalog not found at $CATALOG" >&2
+    echo "       run 'chezmoi apply' to render it from home/.chezmoidata/themes.yaml" >&2
+    exit 65
+  fi
+}
+
+catalog_default() {
+  jq -r '.default // empty' "$CATALOG"
+}
+
+catalog_themes() {
+  jq -r '.palettes | keys[]' "$CATALOG"
+}
+
+theme_exists() {
+  jq -e --arg t "$1" '.palettes[$t]' "$CATALOG" >/dev/null 2>&1
+}
+
+current_theme() {
+  if [ -f "$STATE_FILE" ]; then
+    head -n 1 "$STATE_FILE" | tr -d '[:space:]'
+  else
+    catalog_default
+  fi
+}
+
+usage() {
+  cat <<'EOF'
+Usage:
+  theme              print the active theme
+  theme list         list available themes
+  theme <name>       activate <name> across all registered tools
+  theme <name> -n    dry-run: validate and list appliers, no writes
+EOF
+}
+
+cmd="${1:-}"
+arg2="${2:-}"
+
+require_catalog
+
+case "$cmd" in
+  "")
+    current_theme
+    ;;
+  list)
+    catalog_themes
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    theme="$cmd"
+    dry_run=0
+    case "$arg2" in
+      -n|--dry-run) dry_run=1 ;;
+      "") ;;
+      *)
+        echo "theme: unexpected argument: $arg2" >&2
+        usage >&2
+        exit 64
+        ;;
+    esac
+
+    if ! theme_exists "$theme"; then
+      echo "theme: unknown theme '$theme'" >&2
+      echo "available themes:" >&2
+      catalog_themes | sed 's/^/  /' >&2
+      exit 64
+    fi
+
+    appliers=$(find "$THEME_D" -type f -perm -u+x 2>/dev/null | sort)
+    if [ -z "$appliers" ]; then
+      echo "theme: no appliers found in $THEME_D" >&2
+      exit 65
+    fi
+
+    if [ "$dry_run" -eq 1 ]; then
+      printf 'theme: would set active theme to %s\n' "$theme"
+      printf 'theme: would run appliers:\n'
+      printf '%s\n' "$appliers" | sed 's|^|  |'
+      exit 0
+    fi
+
+    mkdir -p "$STATE_DIR"
+    tmp="$STATE_FILE.tmp"
+    printf '%s\n' "$theme" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+
+    rc=0
+    # Iterate without a pipe so failures actually update `rc` in this shell.
+    # Applier filenames don't contain whitespace.
+    # shellcheck disable=SC2086
+    set -- $appliers
+    for applier in "$@"; do
+      [ -x "$applier" ] || continue
+      name=$(basename "$applier")
+      if "$applier" "$theme"; then
+        printf '  ok   %s\n' "$name"
+      else
+        code=$?
+        printf '  fail %s (exit %s)\n' "$name" "$code" >&2
+        rc=1
+      fi
+    done
+    exit "$rc"
+    ;;
+esac

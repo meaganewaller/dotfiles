@@ -1,0 +1,49 @@
+#!/bin/sh
+# theme-lookup TOOL [THEME] — print the per-tool palette token for THEME.
+#
+# When THEME is omitted, read it from the state file at
+# ${XDG_STATE_HOME:-$HOME/.local/state}/theme/current. When the requested theme
+# has no mapping for TOOL, fall back to the catalog default. Exits non-zero if
+# the catalog is missing or no mapping resolves.
+#
+# Usage:
+#   theme-lookup tmux                  # active theme's tmux token
+#   theme-lookup nvim catppuccin-latte # explicit theme's nvim token
+
+set -eu
+
+tool="${1:?usage: theme-lookup TOOL [THEME]}"
+theme="${2:-}"
+
+catalog="${THEME_CATALOG:-${XDG_CONFIG_HOME:-$HOME/.config}/theme/themes.json}"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/theme/current"
+
+if [ ! -f "$catalog" ]; then
+  echo "theme-lookup: catalog not found at $catalog" >&2
+  exit 65
+fi
+
+default=$(jq -r '.default // empty' "$catalog")
+if [ -z "$default" ]; then
+  echo "theme-lookup: catalog missing .default" >&2
+  exit 65
+fi
+
+if [ -z "$theme" ]; then
+  if [ -f "$state" ]; then
+    theme=$(head -n 1 "$state" | tr -d '[:space:]')
+  fi
+  [ -n "$theme" ] || theme="$default"
+fi
+
+value=$(jq -r --arg t "$theme" --arg k "$tool" '.palettes[$t][$k] // empty' "$catalog")
+if [ -z "$value" ]; then
+  value=$(jq -r --arg t "$default" --arg k "$tool" '.palettes[$t][$k] // empty' "$catalog")
+fi
+
+if [ -z "$value" ]; then
+  echo "theme-lookup: no mapping for tool=$tool theme=$theme (default=$default also unmapped)" >&2
+  exit 65
+fi
+
+printf '%s\n' "$value"

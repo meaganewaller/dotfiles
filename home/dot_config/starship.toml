@@ -1,7 +1,6 @@
 # starship.toml
 
 add_newline = false
-palette = "default"
 
 format = """
 [╭](fg:separator)\
@@ -21,12 +20,33 @@ prompt_ok  = "#8047c1"
 prompt_err = "#e23140"
 icon       = "#161514"
 separator  = "#35312c"
-background = "#35312c"
-
+background = "#7c7f93"
 directory  = "#9f31e2"
 duration   = "#E4FF30"
 status     = "#e23140"
 branch     = "#FF3EA5"
+
+[palettes.catppuccin-latte]
+prompt_ok  = "#40a02b"
+prompt_err = "#d20f39"
+icon       = "#bcc0cc"
+separator  = "#5c5f77"
+background = "#eff1f5"
+directory  = "#8839ef"
+duration   = "#df8e1d"
+status     = "#dd7878"
+branch     = "#ea76cb"
+
+[palettes.catppuccin-mocha]
+prompt_ok  = "#a6e3a1"
+prompt_err = "#f38ba8"
+icon       = "#f5e0dc"
+separator  = "#74c7ec"
+background = "#313244"
+directory  = "#cba6f7"
+duration   = "#fab387"
+status     = "#f5c2e7"
+branch     = "#89b4fa"
 
 ###########################################
 
