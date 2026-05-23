@@ -1,9 +1,26 @@
 [user]
 	name = {{ .git.name }}
 	email = {{ .git.email }}
+	signingkey = ~/.ssh/id_ed25519.pub
 
 [init]
 	defaultBranch = main
+
+# SSH commit signing. The pubkey at signingkey must also be registered on
+# GitHub as an SSH signing key (Settings → SSH and GPG keys → New SSH key →
+# Key type: "Signing Key") so server-side verification passes — auth keys
+# alone are not enough.
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+
+[commit]
+	gpgsign = true
+
+[tag]
+	gpgsign = true
 
 [core]
 	editor = nvim

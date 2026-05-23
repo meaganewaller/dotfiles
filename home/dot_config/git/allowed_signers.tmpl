@@ -1,0 +1,5 @@
+# Trust map for local SSH commit-signature verification.
+# Each line: <email> [namespaces=git] <pubkey>
+# `git log --show-signature` consults this to mark our own commits as
+# verified (G) instead of "could not be verified" (E).
+{{ .git.email }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPI1vsdxlsRTJN5PZxwH+3mb3F6MoGjbTfoph5V6mRGA
