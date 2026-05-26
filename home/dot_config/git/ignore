@@ -8,6 +8,10 @@ Icon[]
 # Thumbnails
 ._*
 
+# Environment files
+*.env
+*.env.local
+
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
@@ -85,3 +89,9 @@ tags
 compose.local.yml
 **/docker-compose.local.yml
 docker-compose.local.yml
+
+# Node modules
+node_modules/
+
+# Databases
+*.db
