@@ -287,8 +287,9 @@ function reload! {
     exec "$zsh_path" "$@"
 }
 
-if [[ -d "$HOME/.gusto/init.sh" ]]; then
+if [ -f "$HOME/.gusto/init.sh" ]; then
   source "$HOME/.gusto/init.sh"
+	export GUSTO_SSH_SELF_MANAGED=1
 fi
 
 # Git-safe PATH modification - MUST RUN LAST
