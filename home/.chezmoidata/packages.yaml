@@ -9,6 +9,7 @@ packages:
 
       # AI Tools
       - aichat
+      - ccusage
 
       # CLI Utilities
       - awscli
@@ -20,12 +21,14 @@ packages:
       - tree
 
       # System Monitoring & Performance
-      - ccusage
       - htop
 
       # Terminal Multiplexing & Shells
       - tmux
       - zsh
+
+      # Menu Bar
+      - FelixKratz/formulae/sketchybar
 
       # Docker & Containerization
       - devcontainer
@@ -82,6 +85,8 @@ packages:
 
       # Fonts
       - font-maple-mono-nf-cn
+      - font-pixelify-sans
+      - font-departure-mono
 
       # Terminals
       - ghostty
