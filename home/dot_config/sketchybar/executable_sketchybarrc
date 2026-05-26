@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# sketchybar — whimsical pixel-font menu bar.
+#
+# Colors are pulled in from the universal theme switcher's runtime overlay at
+# $XDG_STATE_HOME/theme/sketchybar.sh (see ADR-0005). The overlay sets COLOR_*
+# env vars; the defaults below match catppuccin-mocha so a fresh machine that
+# never ran `theme <name>` still gets a coherent palette.
+#
+# Reload after edits or theme switches:  sketchybar --reload
+
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+
+# ── palette defaults (catppuccin-mocha) ────────────────────────────────────
+export COLOR_BAR=0xcc1e1e2e          # base @ ~80% alpha
+export COLOR_ITEM_BG=0xff313244      # surface0
+export COLOR_FG=0xffcdd6f4           # text
+export COLOR_ACCENT=0xfff5c2e7       # pink
+export COLOR_ACCENT_ALT=0xffcba6f7   # mauve
+
+# ── theme overlay override ─────────────────────────────────────────────────
+THEME_OVERLAY="${XDG_STATE_HOME:-$HOME/.local/state}/theme/sketchybar.sh"
+# shellcheck source=/dev/null
+[ -r "$THEME_OVERLAY" ] && . "$THEME_OVERLAY"
+
+# ── fonts ──────────────────────────────────────────────────────────────────
+FONT_LABEL="Pixelify Sans:Medium:13.0"
+FONT_ICON="Pixelify Sans:Bold:14.0"
+
+# ── bar ────────────────────────────────────────────────────────────────────
+sketchybar --bar position=top \
+                 height=30 \
+                 blur_radius=24 \
+                 color="$COLOR_BAR" \
+                 padding_left=8 \
+                 padding_right=8 \
+                 corner_radius=0 \
+                 margin=0 \
+                 sticky=on
+
+# ── item defaults ──────────────────────────────────────────────────────────
+sketchybar --default updates=when_shown \
+                     icon.font="$FONT_ICON" \
+                     icon.color="$COLOR_ACCENT" \
+                     icon.padding_left=8 \
+                     icon.padding_right=4 \
+                     label.font="$FONT_LABEL" \
+                     label.color="$COLOR_FG" \
+                     label.padding_left=4 \
+                     label.padding_right=8 \
+                     background.color="$COLOR_ITEM_BG" \
+                     background.corner_radius=6 \
+                     background.height=22 \
+                     padding_left=3 \
+                     padding_right=3
+
+# ── right side (added right-to-left in render order) ───────────────────────
+
+# battery — pixel-block icon scales with charge
+sketchybar --add item battery right \
+           --set  battery update_freq=30 \
+                          script="$PLUGIN_DIR/battery.sh" \
+           --subscribe battery system_woke power_source_change
+
+# sparkle separator between battery and clock
+sketchybar --add item sparkle.r right \
+           --set  sparkle.r label="✦" \
+                            label.color="$COLOR_ACCENT_ALT" \
+                            label.padding_left=2 \
+                            label.padding_right=2 \
+                            background.drawing=off \
+                            icon.drawing=off
+
+# clock — "Tuesday May 26th 1:25PM"
+sketchybar --add item clock right \
+           --set  clock update_freq=10 \
+                        icon="⋆" \
+                        script="$PLUGIN_DIR/clock.sh"
+
+sketchybar --update
