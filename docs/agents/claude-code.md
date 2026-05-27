@@ -64,20 +64,32 @@ Current skills:
 
 | Skill | One-liner |
 | --- | --- |
+| `1password` | 1Password CLI sign-in, desktop integration, and secret injection |
 | `adr` | Thought partner for writing Architecture Decision Records |
+| `agent-browser` | Browser automation CLI for agents (prefer over built-in browser tools) |
 | `agents-md` | Bootstrap or update `AGENTS.md` for coding agents |
+| `apple-notes` | Apple Notes via memo CLI (create, view, edit, delete, search, export) |
+| `apple-reminders` | Apple Reminders via remindctl (list, add, edit, complete, delete) |
+| `babysit-pr` | Monitor open PRs toward merge (CI, reviews, conflicts); pairs with `/loop` |
+| `behavior-audit` | Compliance audit for skills, `AGENTS.md`, and hooks via scenario testing |
 | `bk` | Buildkite CI helpers |
 | `commit` | Conventional commits with intentional file selection |
 | `copy` | Clipboard helper |
+| `diff-explain` | Explain a diff in plain English (staged, commits, branches, PRs) |
 | `doc` | Diátaxis-aware documentation writing |
 | `export-log` / `share-log` | Export / share the current session log |
 | `gfm` | GitHub-flavored Markdown helpers |
 | `gitingest` | Pull a git repo's structure into context |
 | `hk` | hk (Pkl-based lint manager) helpers |
 | `install-tool` | Tool installation via mise (matches the `/install` policy) |
+| `jira-integration` | Jira tickets via MCP or REST (fetch, update, comment, transition) |
 | `mob` | Mob programming helpers |
 | `pr` | Open a pull request (opens browser for final review) |
+| `pr-review` | Inline PR review comments and thread replies via `gh` and GraphQL |
+| `search-first` | Research-before-coding; search tools, libraries, and patterns before custom code |
 | `share-plan` | Post an implementation plan to a GitHub issue |
+| `split-pr` | Suggest how to split current changes into smaller, reviewable PRs |
+| `tailwind-design-system` | Production Tailwind design systems (tokens, components, accessibility) |
 | `think` | Trade-off analysis aligned against vision / core principles |
 | `write-skill` | Author or tune a new skill |
 | `write-subagent` | Author or tune a new subagent |
