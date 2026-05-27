@@ -363,10 +363,31 @@ set_plugins() {
                     "source": "github",
                     "repo": "technicalpickles/pickled-claude-plugins"
                 }
-            }
+            },
+			"meaganewaller-marketplace": {
+				"source": {
+					"source": "github",
+					"repo": "meaganewaller/marketplace"
+				}
+			},
+			"onlooker-community": {
+				"source": {
+					"source": "github",
+					"repo": "onlooker-community/ecosystem"
+				}
+			}
         })
         | .enabledPlugins = ((.enabledPlugins // {}) + {
-            "ci-cd-tools@pickled-claude-plugins": true
+            "ci-cd-tools@pickled-claude-plugins": true,
+			"fnox@meaganewaller-marketplace": true,
+			"git@meaganewaller-marketplace": true,
+			"mise@meaganewaller-marketplace": true,
+			"tools@meaganewaller-marketplace": true,
+			"ecosystem@onlooker-community": true,
+			"archivist@onlooker-community": true,
+			"tribunal@onlooker-community": true,
+			"echo@onlooker-community": true,
+			"governor@onlooker-community": true
         })
     ' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
 }
