@@ -11,6 +11,10 @@ set -euo pipefail
 
 input=$(cat)
 
+# Run from the project root so git diff and `bats test/` resolve correctly
+# regardless of where the hook was invoked from.
+cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}" || exit 0
+
 # Prevent infinite loops: if the stop hook is already active, allow the stop
 stop_hook_active=$(echo "$input" | jq -r '.stop_hook_active // false')
 if [[ "$stop_hook_active" == "true" ]]; then
