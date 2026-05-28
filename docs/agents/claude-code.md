@@ -96,6 +96,20 @@ Current skills:
 
 **First-party vs. external:** every skill above lives in source under `home/dot_claude/skills/`, so all are first-party to this repo. There is no external skill marketplace synced into this tree today; plugin marketplaces are registered in the runtime `settings.json` via `bin/sync-claude-settings` (e.g. `pickled-claude-plugins`), but those install into Claude Code's own plugin store, not into `home/dot_claude/skills/`.
 
+## Inspecting skills
+
+`bin/skill-info` surfaces git-derived metadata for the skills above without storing anything in frontmatter:
+
+```bash
+bin/skill-info                 # all skills, newest-modified first
+bin/skill-info <name>          # full history for one skill
+bin/skill-info --stale 180     # skills not touched in 180+ days
+```
+
+Dates and commit subjects come from `git log --follow` on each `SKILL.md`, so the listing is always current and never drifts. Conventional-commit mood emoji (`:nail_care:`, `:sparkles:`, etc.) are rendered as the actual UTF-8 glyphs in the output.
+
+Use it before a sweep ("which skills are stale enough to revisit?") or to recall when a behavioral change landed without scanning `git log` manually.
+
 ## Subagents inventory
 
 Each subagent is a single `.md` file at `home/dot_claude/agents/<name>.md`:
