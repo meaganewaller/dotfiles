@@ -36,6 +36,25 @@ git_last() {
   git -C "$REPO_ROOT" log --follow -1 --format='%ad%x09%s' --date=short -- "$1" 2>/dev/null
 }
 
+# render_emoji -- replace GitHub shortcodes from the /commit palette with the
+# actual UTF-8 emoji. Unknown shortcodes pass through unchanged, so this is
+# safe to apply to any text. Only the palette used by this repo's commit
+# convention is mapped; expand here as the palette grows.
+render_emoji() {
+  sed -e 's/:sparkles:/✨/g' \
+      -e 's/:tada:/🎉/g' \
+      -e 's/:fire:/🔥/g' \
+      -e 's/:bug:/🐛/g' \
+      -e 's/:face_with_spiral_eyes:/😵‍💫/g' \
+      -e 's/:rage:/😡/g' \
+      -e 's/:relieved:/😌/g' \
+      -e 's/:broom:/🧹/g' \
+      -e 's/:thinking:/🤔/g' \
+      -e 's/:coffin:/⚰️/g' \
+      -e 's/:rocket:/🚀/g' \
+      -e 's/:nail_care:/💅/g'
+}
+
 # days_since <YYYY-MM-DD> -- integer days from that date to today.
 # Tries BSD date first (macOS), then GNU date (Linux); falls back to 0.
 days_since() {
@@ -121,16 +140,18 @@ case "${1:-}" in
     print_help
     ;;
   --stale)
-    list_skills "${2:-180}"
+    list_skills "${2:-180}" | render_emoji
     ;;
   '')
-    printf '%-26s  %-10s  %-10s  %s\n' 'SKILL' 'MODIFIED' 'ADDED' 'LAST SUBJECT'
-    printf '%-26s  %-10s  %-10s  %s\n' '--------------------------' '----------' '----------' '------------'
-    list_skills ''
+    {
+      printf '%-26s  %-10s  %-10s  %s\n' 'SKILL' 'MODIFIED' 'ADDED' 'LAST SUBJECT'
+      printf '%-26s  %-10s  %-10s  %s\n' '--------------------------' '----------' '----------' '------------'
+      list_skills ''
+    } | render_emoji
     ;;
   *)
     if [ -d "$SKILLS_DIR/$1" ]; then
-      show_skill "$1"
+      show_skill "$1" | render_emoji
     else
       echo "skill-info: unknown skill or option: $1" >&2
       echo "Try: bin/skill-info --help" >&2
