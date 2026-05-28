@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# skill-info -- Inspect dotfiles skills with git-derived metadata.
+#
+# Usage:
+#   bin/skill-info               List all skills, newest-modified first.
+#   bin/skill-info <name>        Show full history for a single skill.
+#   bin/skill-info --stale [N]   List skills not modified in N+ days (default 180).
+#   bin/skill-info --help        Show this help.
+#
+# All dates come from git. Nothing is stored in frontmatter; rerun for fresh data.
+#
+
+[ -n "${DEBUG:-}" ] && set -o xtrace
+set -o errexit
+set -o nounset
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "skill-info: must be run inside a git repository" >&2
+  exit 1
+}
+SKILLS_DIR="$REPO_ROOT/home/dot_claude/skills"
+
+[ -d "$SKILLS_DIR" ] || {
+  echo "skill-info: skills directory not found at $SKILLS_DIR" >&2
+  exit 1
+}
+
+# git_first_date <path> -- YYYY-MM-DD of the first commit that touched path (follows renames).
+git_first_date() {
+  git -C "$REPO_ROOT" log --follow --reverse --format='%ad' --date=short -- "$1" 2>/dev/null | head -1
+}
+
+# git_last <path> -- "YYYY-MM-DD<TAB>subject" of the most recent commit touching path.
+git_last() {
+  git -C "$REPO_ROOT" log --follow -1 --format='%ad%x09%s' --date=short -- "$1" 2>/dev/null
+}
+
+# days_since <YYYY-MM-DD> -- integer days from that date to today.
+# Tries BSD date first (macOS), then GNU date (Linux); falls back to 0.
+days_since() {
+  ts=
+  if ts=$(date -j -f '%Y-%m-%d' "$1" '+%s' 2>/dev/null); then
+    :
+  elif ts=$(date -d "$1" '+%s' 2>/dev/null); then
+    :
+  else
+    echo 0
+    return
+  fi
+  now=$(date '+%s')
+  echo $(( (now - ts) / 86400 ))
+}
+
+list_skills() {
+  threshold=${1:-}
+  # Emit a sort-key prefix so we can lexically sort by date (YYYY-MM-DD is
+  # naturally orderable) and strip it on the way out. "9999..." sorts untracked
+  # rows to the bottom under -r without using locale-sensitive options.
+  for d in "$SKILLS_DIR"/*/; do
+    skill_md="$d/SKILL.md"
+    [ -f "$skill_md" ] || continue
+    name=$(basename "$d")
+
+    last_line=$(git_last "$skill_md")
+    if [ -z "$last_line" ]; then
+      first='-'
+      last_date='(untracked)'
+      subject='-'
+      sort_key='0000-00-00'
+    else
+      first=$(git_first_date "$skill_md")
+      last_date=${last_line%%	*}
+      subject=${last_line#*	}
+      sort_key=$last_date
+    fi
+
+    if [ -n "$threshold" ] && [ "$last_date" != "(untracked)" ]; then
+      age=$(days_since "$last_date")
+      [ "$age" -ge "$threshold" ] || continue
+    fi
+
+    printf '%s|%-26s  %-10s  %-10s  %s\n' "$sort_key" "$name" "$last_date" "$first" "$subject"
+  done | sort -r | cut -d'|' -f2-
+}
+
+show_skill() {
+  name=$1
+  skill_md="$SKILLS_DIR/$name/SKILL.md"
+  [ -f "$skill_md" ] || {
+    echo "skill-info: no SKILL.md at home/dot_claude/skills/$name/" >&2
+    exit 1
+  }
+  first_line=$(git -C "$REPO_ROOT" log --follow --reverse --format='%ad  %h  %s' --date=short -- "$skill_md" 2>/dev/null | head -1)
+  last_line=$(git -C "$REPO_ROOT" log --follow -1 --format='%ad  %h  %s' --date=short -- "$skill_md" 2>/dev/null)
+
+  printf 'Skill:    %s\n' "$name"
+  printf 'Path:     home/dot_claude/skills/%s/SKILL.md\n' "$name"
+  printf 'Added:    %s\n' "${first_line:-(untracked)}"
+  printf 'Modified: %s\n' "${last_line:-(untracked)}"
+  printf '\nHistory:\n'
+  git -C "$REPO_ROOT" log --follow --format='  %ad  %h  %s' --date=short -- "$skill_md" 2>/dev/null || true
+}
+
+print_help() {
+  cat <<'EOF'
+skill-info -- Inspect dotfiles skills with git-derived metadata.
+
+Usage:
+  bin/skill-info               List all skills, newest-modified first.
+  bin/skill-info <name>        Show full history for a single skill.
+  bin/skill-info --stale [N]   List skills not modified in N+ days (default 180).
+  bin/skill-info --help        Show this help.
+
+All dates come from git. Nothing is stored in frontmatter; rerun for fresh data.
+EOF
+}
+
+case "${1:-}" in
+  -h|--help)
+    print_help
+    ;;
+  --stale)
+    list_skills "${2:-180}"
+    ;;
+  '')
+    printf '%-26s  %-10s  %-10s  %s\n' 'SKILL' 'MODIFIED' 'ADDED' 'LAST SUBJECT'
+    printf '%-26s  %-10s  %-10s  %s\n' '--------------------------' '----------' '----------' '------------'
+    list_skills ''
+    ;;
+  *)
+    if [ -d "$SKILLS_DIR/$1" ]; then
+      show_skill "$1"
+    else
+      echo "skill-info: unknown skill or option: $1" >&2
+      echo "Try: bin/skill-info --help" >&2
+      exit 1
+    fi
+    ;;
+esac
