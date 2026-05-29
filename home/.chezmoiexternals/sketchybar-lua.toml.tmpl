@@ -1,0 +1,10 @@
+{{ if eq .chezmoi.os "darwin" }}
+# SbarLua - Lua API for sketchybar (darwin only)
+# Cloned so a build script can run: make -C ~/.local/share/sketchybar_lua/src install
+# Pinned to an immutable commit SHA; Renovate bumps the `revision` (see renovate.json5).
+[".local/share/sketchybar_lua/src"]
+    type = "git-repo"
+    url = "https://github.com/FelixKratz/SbarLua.git"
+    revision = "dba9cc421b868c918d5c23c408544a28aadf2f2f"
+    refreshPeriod = "168h"
+{{ end }}
