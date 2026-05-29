@@ -1,0 +1,52 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Build & install the SbarLua module (sketchybar.so) from the pinned external source.
+#
+# The source tree is cloned by the chezmoiexternal at ~/.local/share/sketchybar_lua/src
+# (pinned to a commit SHA; bumped by Renovate). This `_after_` script runs once the
+# external has been materialized, compiles the module, and installs it to
+# ~/.local/share/sketchybar_lua/sketchybar.so — the path the rcfile adds to package.cpath.
+#
+# Re-fires whenever the pinned revision changes:
+#   external pin: {{ include ".chezmoiexternals/sketchybar-lua.toml.tmpl" | sha256sum }}
+
+[ -n "${DEBUG:-}" ] && set -o xtrace
+set -o errexit
+set -o nounset
+set -o pipefail
+
+# Skip on CI: sketchybar is a macOS GUI menu bar, not exercised in the install matrix,
+# and the build pulls in clang/make time for no CI value.
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+  echo "Running in CI, skipping SbarLua build"
+  exit 0
+fi
+
+src="$HOME/.local/share/sketchybar_lua/src"
+module="$HOME/.local/share/sketchybar_lua/sketchybar.so"
+
+# The external clones this on apply. If it isn't here yet, don't fail the whole
+# apply — just report so a re-run (or `chezmoi apply` after the external lands) builds it.
+if [ ! -d "$src" ]; then
+  echo "SbarLua source not found at $src (chezmoi external not applied yet); skipping build" >&2
+  exit 0
+fi
+
+if ! command -v make >/dev/null 2>&1; then
+  echo "make not found — install the Xcode Command Line Tools (xcode-select --install)" >&2
+  exit 0
+fi
+
+echo "Building SbarLua module from $src ..."
+# Clean first: this script only re-fires when the pinned revision changes, and a
+# stale vendored-Lua object from the previous pin could ABI-mismatch the new build.
+make -C "$src" clean >/dev/null 2>&1 || true
+make -C "$src" install
+
+if [ -f "$module" ]; then
+  echo "SbarLua installed: $module"
+else
+  echo "SbarLua build ran but $module is missing — check the build output above" >&2
+  exit 1
+fi
+{{ end -}}

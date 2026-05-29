@@ -29,6 +29,7 @@ packages:
 
       # Menu Bar
       - FelixKratz/formulae/sketchybar
+      - lua # interpreter for the SbarLua-driven sketchybarrc (ABI-matches SbarLua's vendored Lua)
 
       # Docker & Containerization
       - devcontainer

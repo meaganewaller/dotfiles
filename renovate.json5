@@ -142,6 +142,19 @@
       packageNameTemplate: 'https://github.com/zsh-users/zsh-syntax-highlighting',
     },
     {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/\\.chezmoiexternals/sketchybar-lua\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        'revision\\s*=\\s*"(?<currentDigest>[a-f0-9]{7,40})"',
+      ],
+      datasourceTemplate: 'git-refs',
+      currentValueTemplate: 'main',
+      depNameTemplate: 'FelixKratz/SbarLua',
+      packageNameTemplate: 'https://github.com/FelixKratz/SbarLua',
+    },
+    {
       customType: 'jsonata',
       fileFormat: 'yaml',
       managerFilePatterns: [
