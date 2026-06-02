@@ -94,6 +94,7 @@ packages:
 
       # Window Management
       - nikitabobko/tap/aerospace
+      - loop # manual window snapping for floating windows; coexists with aerospace (see ADR 0007)
   linux:
     dnf:
       # Core Tools
