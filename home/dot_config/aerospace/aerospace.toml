@@ -46,6 +46,16 @@ outer.top = 8
 outer.right = 8
 
 # ── Workspaces → monitors ─────────────────────────────────────────────────────
+# PREREQUISITE (macOS Display settings, not config): stagger the monitors so each
+# one keeps a free bottom corner. AeroSpace hides an inactive workspace by parking
+# its windows off-screen in a monitor's bottom-left or bottom-right corner. When two
+# displays sit flush along an edge they *share* that corner, so the parked windows
+# spill onto the neighboring screen — e.g. a portrait monitor flush against the
+# ultrawide's bottom shows the ultrawide's hidden windows along its lower edge.
+# Offset the displays (don't align their edges) so every monitor has an open bottom
+# corner to hide into. Fix the arrangement, not the config.
+# See https://nikitabobko.github.io/AeroSpace/guide#proper-monitor-arrangement
+#
 # Multi-monitor calm (Phase 1 refinement). Without this, an unassigned workspace
 # defaults to the *main* monitor, so all of 1–9 piled onto the ultrawide and
 # `alt+1..9` yanked windows around that one screen while the other two displays
