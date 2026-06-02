@@ -82,6 +82,68 @@ sbar.default({
   padding_right = 3,
 })
 
+-- ── AeroSpace workspaces (left) ──────────────────────────────────────────────
+-- Per-monitor lanes: each display's bar shows only the workspaces AeroSpace pins
+-- to that monitor (see workspace-to-monitor-force-assignment in aerospace.toml:
+-- ultrawide 1-5 · built-in 6-8 · DELL 9). sketchybar's `display` number is the
+-- AppKit NSScreen id, which AeroSpace also reports per monitor — so we map
+-- workspace → monitor → NSScreen dynamically and survive macOS renumbering the
+-- displays, rather than hardcoding fragile display numbers. AeroSpace fires the
+-- `aerospace_workspace_change` event on every switch (exec-on-workspace-change
+-- in aerospace.toml). Rearranging monitors needs a `sketchybar --reload` to
+-- recompute the mapping.
+local AEROSPACE = "/opt/homebrew/bin/aerospace"
+
+local function aerospace(args)
+  local handle = io.popen(AEROSPACE .. " " .. args .. " 2>/dev/null")
+  if not handle then return "" end
+  local out = handle:read("*a") or ""
+  handle:close()
+  return out
+end
+
+-- monitor-id → sketchybar display (NSScreen) number
+local monitor_to_display = {}
+for mid, ns in aerospace(
+  "list-monitors --format '%{monitor-id} %{monitor-appkit-nsscreen-screens-id}'"
+):gmatch("(%d+)%s+(%d+)") do
+  monitor_to_display[mid] = tonumber(ns)
+end
+
+-- One pill per workspace, pinned to its monitor's bar. Clicking it switches.
+local workspace_items = {}
+for mid, display in pairs(monitor_to_display) do
+  for ws in aerospace("list-workspaces --monitor " .. mid):gmatch("%S+") do
+    workspace_items[ws] = sbar.add("item", "space." .. ws, {
+      position     = "left",
+      display      = display,
+      icon         = { drawing = "off" },
+      label        = { string = ws, font = FONT_ICON, padding_left = 8, padding_right = 8 },
+      click_script = AEROSPACE .. " workspace " .. ws,
+    })
+  end
+end
+
+-- Highlight the workspace currently visible on each monitor (one pill per bar).
+local function update_workspaces()
+  local visible = {}
+  for ws in aerospace("list-workspaces --visible --monitor all"):gmatch("%S+") do
+    visible[ws] = true
+  end
+  for ws, item in pairs(workspace_items) do
+    if visible[ws] then
+      item:set({ label = { color = colors.bar }, background = { color = colors.accent } })
+    else
+      item:set({ label = { color = colors.fg }, background = { color = colors.item_bg } })
+    end
+  end
+end
+
+-- A single hidden controller drives the global refresh on each workspace change.
+sbar.add("event", "aerospace_workspace_change")
+sbar.add("item", "spaces.controller", { drawing = "off" })
+  :subscribe({ "aerospace_workspace_change", "system_woke" }, update_workspaces)
+
 -- ── right side (added right-to-left in render order) ────────────────────────
 
 -- battery — pixel-block icon scales with charge; charging swaps to a bolt.
@@ -161,6 +223,7 @@ clock:subscribe("routine", update_clock)
 -- Render once immediately so items show before their first periodic tick.
 update_battery()
 update_clock()
+update_workspaces()
 
 sbar.update()
 

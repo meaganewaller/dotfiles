@@ -36,14 +36,30 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 # Don't fight macOS's own hide behavior.
 automatically-unhide-macos-hidden-apps = false
 
-# ── Gaps ──────────────────────────────────────────────────────────────────── (Phase 1: defined but unused while floating; tuned in Phase 3)
+# Tell sketchybar when the focused workspace changes, so the per-monitor
+# workspace pills can re-highlight (Phase 2: aerospace ↔ sketchybar). The pill
+# rendering + highlight logic lives in ~/.config/sketchybar/sketchybarrc; here we
+# only fire the event carrying the now-focused workspace. Full path so it
+# resolves under AeroSpace's launchd environment.
+exec-on-workspace-change = ['/bin/bash', '-c',
+  '/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$AEROSPACE_FOCUSED_WORKSPACE',
+]
+
+# ── Gaps ──────────────────────────────────────────────────────────────────── (Phase 1: outer gaps unused while floating; tuned in Phase 3)
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
 outer.left = 8
 outer.bottom = 8
-outer.top = 8
 outer.right = 8
+# Reserve room for the sketchybar bar (top, 30px) so tiled windows don't sit under
+# it. Per-monitor: the built-in's notch menu bar is already taller than the bar, so
+# it needs only the normal 8px gap; external displays have a ~24px menu bar, so the
+# 30px bar overhangs the tiling area — we add the overflow on top of the 8px gap.
+# NOTE: only takes effect once a workspace TILES (Phase 1 floats everything, and
+# AeroSpace never repositions floating windows). The external value is a starting
+# estimate — fine-tune it the first time a workspace tiles and we can see the edge.
+outer.top = [{ monitor."Built-in Retina Display" = 8 }, 14]
 
 # ── Workspaces → monitors ─────────────────────────────────────────────────────
 # PREREQUISITE (macOS Display settings, not config): stagger the monitors so each
