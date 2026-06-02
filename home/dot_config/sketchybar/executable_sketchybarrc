@@ -53,6 +53,15 @@ sketchybar --default updates=when_shown \
                      padding_left=3 \
                      padding_right=3
 
+# ── left side ──────────────────────────────────────────────────────────────
+
+# front_app — frontmost app icon + name
+sketchybar --add item front_app left \
+           --set  front_app \
+                  label.padding_left=6 \
+                  script="$PLUGIN_DIR/front_app.sh" \
+           --subscribe front_app front_app_switched
+
 # ── right side (added right-to-left in render order) ───────────────────────
 
 # battery — pixel-block icon scales with charge

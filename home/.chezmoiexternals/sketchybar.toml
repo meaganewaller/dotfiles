@@ -1,0 +1,10 @@
+# sketchybar-app-font — app icon glyphs for sketchybar
+["Library/Fonts/sketchybar-app-font.ttf"]
+    type = "file"
+    url = "https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.62/sketchybar-app-font.ttf"
+    refreshPeriod = "168h"
+
+[".config/sketchybar/icon_map.sh"]
+    type = "file"
+    url = "https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.62/icon_map.sh"
+    refreshPeriod = "168h"
