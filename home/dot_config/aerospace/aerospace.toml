@@ -45,6 +45,29 @@ outer.bottom = 8
 outer.top = 8
 outer.right = 8
 
+# ── Workspaces → monitors ─────────────────────────────────────────────────────
+# Multi-monitor calm (Phase 1 refinement). Without this, an unassigned workspace
+# defaults to the *main* monitor, so all of 1–9 piled onto the ultrawide and
+# `alt+1..9` yanked windows around that one screen while the other two displays
+# held unreachable workspaces. Pinning each workspace to a monitor gives every
+# screen its own stable lane: `alt+N` jumps to that workspace's monitor and only
+# that monitor changes — windows never cross screens on a switch.
+#
+# Monitors are matched by name (regex), so this survives macOS renumbering them.
+# If a monitor is disconnected (e.g. undocked), AeroSpace falls back to the main
+# display for its workspaces — so an undocked laptop still reaches 1–9.
+#   S34J55x  = ultrawide (main) · Built-in = laptop · DELL U2417H = portrait
+[workspace-to-monitor-force-assignment]
+1 = 'S34J55x'
+2 = 'S34J55x'
+3 = 'S34J55x'
+4 = 'S34J55x'
+5 = 'S34J55x'
+6 = 'Built-in'
+7 = 'Built-in'
+8 = 'Built-in'
+9 = 'DELL U2417H'
+
 # ── Calm baseline: float everything ──────────────────────────────────────────
 # PHASE 1 keystone. This catch-all rule floats every newly-detected window, so
 # AeroSpace behaves like "virtual desktops with great keybinds" and never
