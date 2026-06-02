@@ -1,0 +1,92 @@
+# AeroSpace — tiling window manager for macOS (https://nikitabobko.github.io/AeroSpace/)
+#
+# This config is intentionally adopted in PHASES so the bar of "usable" never
+# drops. Each phase is a separate PR. See docs as we go; the phase a block
+# belongs to is noted inline so future phases are obvious diffs.
+#
+#   Phase 1 (this file) — CALM BASELINE. Every window floats, so the screen
+#     looks exactly like plain macOS. The only new powers are workspace
+#     navigation. Goal: build muscle memory before any auto-tiling.
+#   Phase 2+ — tiling is introduced deliberately, one workspace at a time.
+#
+# AeroSpace hot-reloads this file on save — no reload command needed.
+# Full reference: https://nikitabobko.github.io/AeroSpace/guide
+
+# Start AeroSpace at login (managed here rather than via macOS Login Items).
+start-at-login = true
+
+# Commands run once, after AeroSpace starts.
+after-startup-command = []
+
+# ── Normalizations ──────────────────────────────────────────────────────────
+# Left at defaults for Phase 1. They only affect tiled containers, and in
+# Phase 1 nothing is tiled, so they're inert until we start tiling.
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# Default layout for the root container. Irrelevant in Phase 1 because the
+# catch-all float rule below keeps every window floating; it becomes meaningful
+# in Phase 2 when we let a workspace tile.
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# Follow focus across monitors with the mouse (gentle, no window movement).
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# Don't fight macOS's own hide behavior.
+automatically-unhide-macos-hidden-apps = false
+
+# ── Gaps ──────────────────────────────────────────────────────────────────── (Phase 1: defined but unused while floating; tuned in Phase 3)
+[gaps]
+inner.horizontal = 8
+inner.vertical = 8
+outer.left = 8
+outer.bottom = 8
+outer.top = 8
+outer.right = 8
+
+# ── Calm baseline: float everything ──────────────────────────────────────────
+# PHASE 1 keystone. This catch-all rule floats every newly-detected window, so
+# AeroSpace behaves like "virtual desktops with great keybinds" and never
+# rearranges your windows. In Phase 2 we narrow/remove this so a chosen
+# workspace can tile.
+[[on-window-detected]]
+run = ['layout floating']
+
+# ── Keybindings ───────────────────────────────────────────────────────────────
+# Main modifier is alt (option): the AeroSpace community default. It rarely
+# clashes with app/macOS shortcuts and leaves cmd free for Raycast (cmd+space)
+# and normal app use.
+[mode.main.binding]
+
+# Reload config by hand if a hot-reload ever gets stuck (escape hatch).
+alt-shift-c = 'reload-config'
+
+# Workspace navigation — the only new powers in Phase 1.
+# alt+<n>: jump to workspace N.
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+
+# alt+shift+<n>: send the focused window to workspace N (stay put).
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+
+# Quick toggle back to the previous workspace (tab-like).
+alt-tab = 'workspace-back-and-forth'
+
+# NOTE: focus movement (alt+h/j/k/l), layout toggles, fullscreen, app→workspace
+# rules, sketchybar indicators, and resize/service modes arrive in Phases 2–6.
