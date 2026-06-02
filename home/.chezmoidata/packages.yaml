@@ -91,6 +91,9 @@ packages:
 
       # Terminals
       - ghostty
+
+      # Window Management
+      - nikitabobko/tap/aerospace
   linux:
     dnf:
       # Core Tools
