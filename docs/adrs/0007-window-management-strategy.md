@@ -18,7 +18,7 @@ versus [`home/.chezmoidata/packages.yaml`](../../home/.chezmoidata/packages.yaml
 [AeroSpace](https://nikitabobko.github.io/AeroSpace/) (a tiling window manager built on virtual
 workspaces rather than macOS Spaces) is the desired direction. But adopting a tiling WM the obvious
 way — install it, let it tile everything — is exactly the failure mode that has stalled this before:
-windows fly to positions you didn't choose, the manual arrangements you rely on disappear, and there's
+windows fly to positions I didn't choose, the manual arrangements I rely on disappear, and there's
 no graceful way to "arrange this one thing by hand" mid-flow. Going all-in on tiling in a single step
 trades one working setup for a broken-feeling one and a steep relearning cliff.
 
