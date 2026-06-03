@@ -1,0 +1,21 @@
+# Configuration for the `/pr` skill (home/dot_claude/skills/pr/).
+#
+# `gist_remote_blocklist` lists git-remote patterns for repositories whose
+# conversation logs must NEVER leave the machine. When the repo behind the
+# current working directory has a remote matching any of these, the `/pr`
+# skill skips session extraction, skips the secret Gist, and omits the
+# conversation-log link from the PR body entirely.
+#
+# Matching (see executable_claude-session-gist.tmpl):
+#   - Each of the repo's git remotes is normalized to a canonical
+#     `host/org/repo` form (scheme, `user@`, and the scp-style `:` are
+#     stripped) and lowercased.
+#   - Patterns are shell globs (`*` wildcards) matched case-insensitively
+#     against that normalized form. So `*github.com/gusto/*` matches both the
+#     HTTPS and SSH remotes for github.com/Gusto/<repo>.
+#
+# This file is the single source of truth; the patterns are rendered into the
+# shim at `chezmoi apply` time. Edit here, never the generated script.
+pr:
+  gist_remote_blocklist:
+    - "*github.com/gusto/*"
