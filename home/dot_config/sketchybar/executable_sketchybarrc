@@ -44,6 +44,9 @@ end
 -- ── fonts ──────────────────────────────────────────────────────────────────
 local FONT_LABEL = "Pixelify Sans:Medium:13.0"
 local FONT_ICON  = "Pixelify Sans:Bold:14.0"
+-- App glyphs ride sketchybar-app-font (kvndrsslr/sketchybar-app-font): the
+-- font renders the `:shortcode:` strings from icon_map.lua as ligature glyphs.
+local FONT_APP   = "sketchybar-app-font:Regular:16.0"
 
 -- ── bar ──────────────────────────────────────────────────────────────────
 sbar.bar({
@@ -144,6 +147,45 @@ sbar.add("event", "aerospace_workspace_change")
 sbar.add("item", "spaces.controller", { drawing = "off" })
   :subscribe({ "aerospace_workspace_change", "system_woke" }, update_workspaces)
 
+-- ── front app (left, right of the workspace pills) ──────────────────────────
+-- Shows the focused application's name with its glyph. icon_map.lua maps an app
+-- name → a `:shortcode:` string that FONT_APP renders as a ligature; unknown
+-- apps fall back to `:default:`. The map is a pinned chezmoi external at
+-- ~/.config/sketchybar/icon_map.lua, kept in lockstep with the
+-- font-sketchybar-app-font cask. pcall-guarded so the bar still loads on a
+-- fresh machine before the external has been fetched.
+package.path = package.path .. ";" .. home .. "/.config/sketchybar/?.lua"
+local ok_icons, app_icons = pcall(require, "icon_map")
+if not ok_icons or type(app_icons) ~= "table" then
+  app_icons = {}
+end
+
+local function app_glyph(name)
+  return app_icons[name] or ":default:"
+end
+
+local front_app = sbar.add("item", "front_app", {
+  position = "left",
+  icon     = { font = FONT_APP },
+  label    = { font = FONT_LABEL },
+})
+
+-- The front_app_switched event carries the new app name in env.INFO; at startup
+-- there's no event, so fall back to asking AeroSpace for the focused window.
+local function update_front_app(env)
+  local name = env and env.INFO
+  if not name or name == "" then
+    name = aerospace("list-windows --focused --format '%{app-name}'"):match("^%s*(.-)%s*$")
+  end
+  if not name or name == "" then return end
+  front_app:set({
+    icon  = { string = app_glyph(name) },
+    label = { string = name },
+  })
+end
+
+front_app:subscribe("front_app_switched", update_front_app)
+
 -- ── right side (added right-to-left in render order) ────────────────────────
 
 -- battery — pixel-block icon scales with charge; charging swaps to a bolt.
@@ -224,6 +266,7 @@ clock:subscribe("routine", update_clock)
 update_battery()
 update_clock()
 update_workspaces()
+update_front_app()
 
 sbar.update()
 
