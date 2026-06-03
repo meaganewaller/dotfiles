@@ -18,5 +18,4 @@
 # shim at `chezmoi apply` time. Edit here, never the generated script.
 pr:
   gist_remote_blocklist:
-    - "*gusto-systems.com*"
     - "*github.com/gusto/*"
