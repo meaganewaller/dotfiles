@@ -6,7 +6,7 @@ model: sonnet
 allowed-tools:
   - Glob
   - Read
-  - Bash(~/.claude/skills/pr/claude-extract-session:*)
+  - Bash(~/.claude/skills/pr/claude-session-gist:*)
 ---
 
 # Create Pull Request
@@ -87,26 +87,31 @@ Palette (use these or any GitHub emoji that fits):
 🤖 [Conversation log](GIST_URL)
 ```
 
+The trailing horizontal rule and `🤖 [Conversation log]` line are **conditional** — include them only if the gist step in 3.1 actually produced a URL. For blocklisted repositories (see below), omit both entirely.
+
 If user provided additional context in arguments, incorporate it appropriately into the PR body.
 
 Draft the content but don't show it to the user for approval - proceed directly to creation.
 
 ### 3.1 Export Conversation Log and Create Gist
 
-Export **only the current session** and pipe directly to a secret Gist:
+Publish the current session through the gist shim, which extracts **only the current session** and pipes it to a secret Gist:
 
 ```bash
-~/.claude/skills/pr/claude-extract-session "${CLAUDE_SESSION_ID}" \
-  | gh gist create --filename "pr-conversation-<branch-name>.md" -
+~/.claude/skills/pr/claude-session-gist "${CLAUDE_SESSION_ID}"
 ```
 
 The shim:
 - Takes the current session ID (provided by the `${CLAUDE_SESSION_ID}` substitution)
-- Extracts **only that session** with `--detailed` output
-- Writes markdown to stdout (no files created on disk)
-- Pipes directly to `gh gist create` (secret by default)
+- **Checks the current repo's git remote against the gist blocklist first** (work repos whose conversation logs must never leave the machine — defined in `home/.chezmoidata/pr.yaml`, rendered into the shim at `chezmoi apply` time)
+- For a **blocklisted** repo: refuses before extracting or uploading anything — prints an explanation to stderr, exits `3`, and writes **nothing to stdout**
+- Otherwise: extracts with `--detailed` output, pipes directly to `gh gist create` (secret by default), and prints **only the Gist URL** to stdout
 
-Capture the Gist URL from the output and include it in the PR body after the horizontal rule.
+**Handle the result:**
+- **Got a URL on stdout** → include it in the PR body after the horizontal rule.
+- **Exit code 3 / no URL** → the repo is blocklisted. Do **not** retry, do **not** attempt extraction another way. Omit the horizontal rule and `🤖 [Conversation log]` line from the PR body, and note in the final report that the conversation log was skipped because this repository is on the gist blocklist.
+
+This is a hard guarantee enforced by the shim, not just a guideline — never work around it.
 
 ### 4. Push and Create PR
 
