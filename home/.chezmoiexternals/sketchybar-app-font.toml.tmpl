@@ -1,0 +1,15 @@
+{{ if eq .chezmoi.os "darwin" }}
+# sketchybar-app-font icon_map.lua (darwin only)
+# Shortcode -> glyph mappings for the sketchybar-app-font glyph font.
+# MUST stay in lockstep with the `font-sketchybar-app-font` cask in
+# home/.chezmoidata/packages.yaml: the font glyphs and these shortcode
+# mappings are versioned together, so the release tag below has to match
+# the cask version. Renovate bumps the tag below, but it does NOT manage brew
+# casks — re-verify the cask when this updates (see the LOCKSTEP note in
+# renovate.json5). Pinned to the release tag embedded in the URL.
+[".config/sketchybar/icon_map.lua"]
+    type = "file"
+    url = "https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.62/icon_map.lua"
+    executable = false
+    refreshPeriod = "168h"
+{{ end }}

@@ -70,6 +70,24 @@
       datasourceTemplate: 'github-releases',
     },
     {
+      // LOCKSTEP: the icon_map.lua release tag below and the
+      // `font-sketchybar-app-font` cask in home/.chezmoidata/packages.yaml are
+      // the SAME upstream project and must move together. Casks live in
+      // packages.yaml, which Renovate does not manage (brew is not in
+      // enabledManagers), so they cannot be grouped into one PR here. When this
+      // PR bumps the tag, manually re-run `brew info --cask font-sketchybar-app-font`
+      // and confirm the cask matches; do not let the two drift.
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/\\.chezmoiexternals/sketchybar-app-font\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        'kvndrsslr/sketchybar-app-font/releases/download/(?<currentValue>v[^/]+)/icon_map\\.lua',
+      ],
+      depNameTemplate: 'kvndrsslr/sketchybar-app-font',
+      datasourceTemplate: 'github-releases',
+    },
+    {
       customType: 'regex',
       managerFilePatterns: [
         '/^home/dot_config/go-tools/tools\\.txt$/',

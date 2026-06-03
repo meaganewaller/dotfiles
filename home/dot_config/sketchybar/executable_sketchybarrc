@@ -44,6 +44,9 @@ end
 -- ── fonts ──────────────────────────────────────────────────────────────────
 local FONT_LABEL = "Pixelify Sans:Medium:13.0"
 local FONT_ICON  = "Pixelify Sans:Bold:14.0"
+-- App glyphs ride sketchybar-app-font (kvndrsslr/sketchybar-app-font): the
+-- font renders the `:shortcode:` strings from icon_map.lua as ligature glyphs.
+local FONT_APP   = "sketchybar-app-font:Regular:16.0"
 
 -- ── bar ──────────────────────────────────────────────────────────────────
 sbar.bar({
@@ -102,6 +105,19 @@ local function aerospace(args)
   return out
 end
 
+-- Generic shell capture + whitespace trim, reused by the status widgets below.
+local function capture(cmd)
+  local handle = io.popen(cmd .. " 2>/dev/null")
+  if not handle then return "" end
+  local out = handle:read("*a") or ""
+  handle:close()
+  return out
+end
+
+local function trim(s)
+  return (s or ""):match("^%s*(.-)%s*$")
+end
+
 -- monitor-id → sketchybar display (NSScreen) number
 local monitor_to_display = {}
 for mid, ns in aerospace(
@@ -144,6 +160,45 @@ sbar.add("event", "aerospace_workspace_change")
 sbar.add("item", "spaces.controller", { drawing = "off" })
   :subscribe({ "aerospace_workspace_change", "system_woke" }, update_workspaces)
 
+-- ── front app (left, right of the workspace pills) ──────────────────────────
+-- Shows the focused application's name with its glyph. icon_map.lua maps an app
+-- name → a `:shortcode:` string that FONT_APP renders as a ligature; unknown
+-- apps fall back to `:default:`. The map is a pinned chezmoi external at
+-- ~/.config/sketchybar/icon_map.lua, kept in lockstep with the
+-- font-sketchybar-app-font cask. pcall-guarded so the bar still loads on a
+-- fresh machine before the external has been fetched.
+package.path = package.path .. ";" .. home .. "/.config/sketchybar/?.lua"
+local ok_icons, app_icons = pcall(require, "icon_map")
+if not ok_icons or type(app_icons) ~= "table" then
+  app_icons = {}
+end
+
+local function app_glyph(name)
+  return app_icons[name] or ":default:"
+end
+
+local front_app = sbar.add("item", "front_app", {
+  position = "left",
+  icon     = { font = FONT_APP },
+  label    = { font = FONT_LABEL },
+})
+
+-- The front_app_switched event carries the new app name in env.INFO; at startup
+-- there's no event, so fall back to asking AeroSpace for the focused window.
+local function update_front_app(env)
+  local name = env and env.INFO
+  if not name or name == "" then
+    name = aerospace("list-windows --focused --format '%{app-name}'"):match("^%s*(.-)%s*$")
+  end
+  if not name or name == "" then return end
+  front_app:set({
+    icon  = { string = app_glyph(name) },
+    label = { string = name },
+  })
+end
+
+front_app:subscribe("front_app_switched", update_front_app)
+
 -- ── right side (added right-to-left in render order) ────────────────────────
 
 -- battery — pixel-block icon scales with charge; charging swaps to a bolt.
@@ -181,6 +236,133 @@ local function update_battery()
 end
 
 battery:subscribe({ "routine", "system_woke", "power_source_change" }, update_battery)
+
+-- volume — pixel-block icon scales with level; driven by sketchybar's built-in
+-- volume_change event (env.INFO = 0-100), so live changes cost no process. INFO
+-- carries no mute flag, so a live 0% reads as muted; the accurate level+mute is
+-- queried once at startup.
+local volume = sbar.add("item", "volume", { position = "right" })
+
+local function volume_block(v)
+  if v >= 80 then     return "█"
+  elseif v >= 60 then return "▇"
+  elseif v >= 40 then return "▅"
+  elseif v >= 20 then return "▃"
+  else                return "▂"
+  end
+end
+
+local function render_volume(level, muted)
+  if muted or level <= 0 then
+    volume:set({ icon = "×", label = "muted" })
+  else
+    volume:set({ icon = volume_block(level), label = level .. "%" })
+  end
+end
+
+local VOLUME_QUERY =
+  [[osascript -e 'set s to (get volume settings)' -e 'return (output volume of s as text) & "|" & (output muted of s as text)']]
+
+local function update_volume(env)
+  local level = tonumber(env and env.INFO)
+  if level then
+    render_volume(level, level <= 0)
+    return
+  end
+  local lvl, muted = trim(capture(VOLUME_QUERY)):match("(%d+)%s*|%s*(%a+)")
+  render_volume(tonumber(lvl) or 0, muted == "true")
+end
+
+volume:subscribe("volume_change", update_volume)
+
+-- bluetooth — focused device's battery. system_profiler is slow enough (1-3s)
+-- to freeze SbarLua's synchronous event loop, so the read runs in a detached
+-- subshell that triggers bluetooth_update back to us. ioreg is the fast path
+-- (HID + AirPods exposing BatteryPercent*); system_profiler is the fallback.
+-- The item stays hidden until a battery is found, so an empty pill never shows.
+sbar.add("event", "bluetooth_update")
+
+local bluetooth = sbar.add("item", "bluetooth", {
+  position = "right",
+  drawing  = "off",
+  icon     = { string = "✲", color = colors.accent_alt },
+})
+
+bluetooth:subscribe("bluetooth_update", function(env)
+  local pct = tonumber(env and env.battery)
+  if not pct then
+    bluetooth:set({ drawing = "off" })
+  else
+    bluetooth:set({ drawing = "on", label = pct .. "%" })
+  end
+end)
+
+local BLUETOOTH_REFRESH = [[(
+  pct=$(ioreg -l 2>/dev/null \
+    | grep -oE '"BatteryPercent(Combined)?" = [0-9]+' \
+    | grep -oE '[0-9]+' | head -1)
+  if [ -z "$pct" ]; then
+    pct=$(system_profiler SPBluetoothDataType 2>/dev/null \
+      | awk -F': ' '/Battery Level/ {gsub(/[^0-9]/, "", $2); print $2; exit}')
+  fi
+  /opt/homebrew/bin/sketchybar --trigger bluetooth_update battery="${pct:-}"
+) >/dev/null 2>&1 &]]
+
+local function refresh_bluetooth()
+  os.execute(BLUETOOTH_REFRESH)
+end
+
+sbar.add("item", "bluetooth.controller", { drawing = "off", update_freq = 120 })
+  :subscribe({ "routine", "system_woke" }, refresh_bluetooth)
+
+-- wifi — SSID via `ipconfig getsummary` (fast; `airport -I` was removed in
+-- macOS 14). macOS may withhold the SSID without Location Services permission,
+-- in which case this reads "offline" even while connected — grant sketchybar
+-- (or the launching terminal) Location access to see the name.
+local wifi_dev = trim(capture(
+  "networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2; exit}'"
+))
+if wifi_dev == "" then wifi_dev = "en0" end
+
+local wifi = sbar.add("item", "wifi", { position = "right", update_freq = 20 })
+
+local function update_wifi()
+  local ssid = trim(capture(
+    "ipconfig getsummary " .. wifi_dev .. " | awk -F' SSID : ' '/ SSID : / {print $2; exit}'"
+  ))
+  if ssid == "" then
+    wifi:set({ icon = "·", label = "offline" })
+  else
+    wifi:set({ icon = "≋", label = ssid })
+  end
+end
+
+wifi:subscribe({ "routine", "system_woke" }, update_wifi)
+
+-- vpn — glyph-only; draws only when a tunnel is up. Checks Cloudflare WARP first
+-- (warp-cli, this machine's corp tunnel), then classic VPN configs via scutil.
+local vpn = sbar.add("item", "vpn", {
+  position    = "right",
+  drawing     = "off",
+  icon        = { string = "⊕", color = colors.accent_alt },
+  label       = { drawing = "off" },
+  update_freq = 20,
+})
+
+local VPN_CHECK = [[connected=0
+if command -v warp-cli >/dev/null 2>&1; then
+  warp-cli status 2>/dev/null | grep -q "Connected" && connected=1
+fi
+if [ "$connected" -eq 0 ]; then
+  scutil --nc list 2>/dev/null | grep -q "(Connected)" && connected=1
+fi
+printf '%s' "$connected"]]
+
+local function update_vpn()
+  vpn:set({ drawing = trim(capture(VPN_CHECK)) == "1" and "on" or "off" })
+end
+
+vpn:subscribe({ "routine", "system_woke" }, update_vpn)
 
 -- sparkle separator between battery and clock
 sbar.add("item", "sparkle.r", {
@@ -224,6 +406,11 @@ clock:subscribe("routine", update_clock)
 update_battery()
 update_clock()
 update_workspaces()
+update_front_app()
+update_volume()
+update_wifi()
+update_vpn()
+refresh_bluetooth()
 
 sbar.update()
 
