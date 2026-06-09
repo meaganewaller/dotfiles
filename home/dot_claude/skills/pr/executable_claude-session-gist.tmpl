@@ -103,8 +103,12 @@ repo_is_blocked() {
         url=$(git remote get-url "${remote}" 2>/dev/null) || continue
         norm=$(normalize_remote "${url}")
         for pattern in "${BLOCKED_REMOTE_PATTERNS[@]}"; do
+            # RHS must stay UNQUOTED so [[ == ]] treats it as a glob, not a
+            # literal; quoting it silently turns the blocklist into exact-match
+            # and lets work repos through.
+            local pattern_lc="${pattern,,}"
             # shellcheck disable=SC2053 # intentional glob match
-            if [[ "${norm}" == "${pattern,,}" ]]; then
+            if [[ "${norm}" == ${pattern_lc} ]]; then
                 log "blocked: remote '${url}' matches pattern '${pattern}'"
                 return 0
             fi
