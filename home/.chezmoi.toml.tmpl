@@ -7,6 +7,7 @@
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
 {{- $workProfile := false -}}
+{{- $useBedrock := false -}}
 {{- if or (env "CI") (env "GITHUB_ACTIONS") -}}
 {{- $gitName = env "GIT_USER_NAME" -}}
 {{- $gitEmail = env "GIT_USER_EMAIL" -}}
@@ -17,6 +18,7 @@
 {{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" -}}
 {{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" -}}
 {{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
+{{- $useBedrock = promptBoolOnce . "claude.use_bedrock" "Use AWS Bedrock for Claude Code? y/N" -}}
 {{- end -}}
 
 # Source Directory Configuration
@@ -43,3 +45,9 @@ cache = true
 [data.credentials]
 claude_api = {{ $credClaudeApi | quote }}
 buildkite = {{ $credBuildkite | quote }}
+
+# Claude Code: when true, bin/sync-claude-settings resolves AWS Bedrock model IDs
+# (via bin/resolve-bedrock-models) and merges them into settings.json; when false,
+# those env vars are stripped and the Anthropic-direct default model is used.
+[data.claude]
+use_bedrock = {{ $useBedrock }}
