@@ -66,6 +66,15 @@ declared() {
   jq -c "((.claudeData${1} // []) + (.claudeExternalExtra${1} // []))[]" <<<"${DATA}"
 }
 
+# Marketplaces built into Claude Code: present on every install, not addable or
+# removable by us, so they must never be reported as drift (nor pruned). Extend
+# this list if Claude Code ships more built-ins.
+BUILTIN_MARKETPLACES='claude-plugins-official'
+
+is_builtin_marketplace() {
+  grep -qxF "$1" <<<"${BUILTIN_MARKETPLACES}"
+}
+
 reconcile_marketplaces() {
   log 'marketplaces:'
   local existing declared_names name repo
@@ -173,6 +182,8 @@ prune_extra() {
   while IFS= read -r item; do
     [[ -z "${item}" ]] && continue
     grep -qxF "${item}" <<<"${declared_names}" && continue
+    # Built-in marketplaces are not ours to manage — never flag or prune them.
+    [[ "${kind}" == marketplace ]] && is_builtin_marketplace "${item}" && continue
     if [[ "${PRUNE}" == true ]]; then
       log "  - prune ${kind} ${item}"
       case "${kind}" in

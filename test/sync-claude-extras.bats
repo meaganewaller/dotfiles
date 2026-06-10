@@ -19,7 +19,7 @@ make_stubs() {
 #!/usr/bin/env bash
 echo "\$*" >> "$CLAUDE_LOG"
 case "\$*" in
-  "plugin marketplace list --json") echo '[{"name":"mp-existing"}]' ;;
+  "plugin marketplace list --json") echo '[{"name":"mp-existing"},{"name":"claude-plugins-official"},{"name":"mp-orphan"}]' ;;
   "plugin list --json") echo '[{"id":"p-existing@mp-existing","scope":"user"},{"id":"p-orphan@mp-existing","scope":"user"}]' ;;
   *) echo '[]' ;;
 esac
@@ -85,6 +85,11 @@ run_extras() {
   # An installed-but-undeclared plugin is reported as drift, not removed.
   [[ "$output" == *"drift: plugin p-orphan@mp-existing"* ]]
 
+  # A built-in marketplace is never flagged as drift (not ours to manage)...
+  [[ "$output" != *"drift: marketplace claude-plugins-official"* ]]
+  # ...but a non-built-in undeclared marketplace still is.
+  [[ "$output" == *"drift: marketplace mp-orphan"* ]]
+
   # Dry run: only read-only `list` calls hit the claude CLI — no add/install/remove.
   run grep -E 'install|add|remove|uninstall' "$CLAUDE_LOG"
   [ "$status" -ne 0 ]
@@ -126,6 +131,11 @@ run_extras() {
   # The undeclared plugin is uninstalled; declared ones are not.
   grep -qF 'plugin uninstall p-orphan@mp-existing' "$CLAUDE_LOG"
   run grep -F 'uninstall p-existing@mp-existing' "$CLAUDE_LOG"
+  [ "$status" -ne 0 ]
+
+  # The undeclared non-built-in marketplace is removed; the built-in is not.
+  grep -qF 'plugin marketplace remove mp-orphan' "$CLAUDE_LOG"
+  run grep -F 'marketplace remove claude-plugins-official' "$CLAUDE_LOG"
   [ "$status" -ne 0 ]
 }
 
