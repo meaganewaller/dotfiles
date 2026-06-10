@@ -1,0 +1,59 @@
+# Claude Code extras (plugin marketplaces, plugins, MCP servers) reconciled into
+# the user-scope install by bin/sync-claude-extras on `chezmoi apply`.
+#
+# ONLY PUBLIC ENTRIES HERE. Private/work/machine-specific entries live in
+# machine-local [data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml,
+# merged on top of this data at reconcile time — never committed here.
+#
+# Reconciliation is additive: items declared here are added if missing; items
+# installed but not declared are reported as drift, and only removed with
+# `bin/sync-claude-extras --prune`. Plugins are intentionally not version-pinned.
+
+claudeData:
+  # Marketplaces to register: claude plugin marketplace add <repo>
+  # claude-plugins-official is built in — it does not need to be registered.
+  marketplaces:
+    - name: meaganewaller-marketplace
+      repo: meaganewaller/marketplace
+    - name: onlooker-community
+      repo: onlooker-community/ecosystem
+    - name: pickled-claude-plugins
+      repo: technicalpickles/pickled-claude-plugins
+    - name: anthropic-agent-skills
+      repo: anthropics/skills
+
+  # Plugins to install at user scope: claude plugin install <name>@<marketplace>
+  plugins:
+    - ci-cd-tools@pickled-claude-plugins
+    - example-skills@anthropic-agent-skills
+    # meaganewaller-marketplace
+    - decision-journal@meaganewaller-marketplace
+    - dev-collective@meaganewaller-marketplace
+    - dotfiles@meaganewaller-marketplace
+    - fnox@meaganewaller-marketplace
+    - git@meaganewaller-marketplace
+    - meta@meaganewaller-marketplace
+    - mise@meaganewaller-marketplace
+    - ruby-rails@meaganewaller-marketplace
+    - tools@meaganewaller-marketplace
+    - typescript-architect@meaganewaller-marketplace
+    # onlooker-community
+    - archivist@onlooker-community
+    - assayer@onlooker-community
+    - compass@onlooker-community
+    - counsel@onlooker-community
+    - curator@onlooker-community
+    - echo@onlooker-community
+    - ecosystem@onlooker-community
+    - governor@onlooker-community
+    - historian@onlooker-community
+    - librarian@onlooker-community
+    - scribe@onlooker-community
+    - tribunal@onlooker-community
+    - warden@onlooker-community
+
+  # MCP servers to add at user scope:
+  #   claude mcp add -s user [-t <transport>] <name> <url|command>
+  # None are public; private/internal servers live in machine-local
+  # [data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml, not here.
+  mcpServers: []
