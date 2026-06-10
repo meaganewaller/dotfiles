@@ -6,8 +6,15 @@ GUARD="home/dot_local/libexec/executable_block-adhoc-installers"
 
 # Feed the guard a PreToolUse payload for the given Bash command on stdin.
 # Prints the guard's stdout (a deny decision when blocked, nothing when allowed).
+#
+# Materialize the payload first and feed it via a here-string rather than a live
+# `jq | guard` pipe: on the escape-hatch path the guard exits before reading
+# stdin, which SIGPIPEs a piped writer and leaks a "Broken pipe" error onto
+# stderr (captured by `run`). A here-string has no concurrent writer to kill.
 run_guard() {
-  jq -cn --arg c "$1" '{tool_input: {command: $c}}' | bash "$GUARD"
+  local payload
+  payload="$(jq -cn --arg c "$1" '{tool_input: {command: $c}}')"
+  bash "$GUARD" <<<"$payload"
 }
 
 assert_blocked() {
