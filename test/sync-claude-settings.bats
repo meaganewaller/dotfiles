@@ -75,8 +75,21 @@ run_sync() {
   [ "$status" -eq 0 ]
   run jq -e '.model' "$settings"
   [ "$status" -eq 0 ]
-  run jq -e '.extraKnownMarketplaces."pickled-claude-plugins"' "$settings"
-  [ "$status" -eq 0 ]
+
+  # All four repo hooks are wired: three at ~/.claude/hooks + the libexec guard.
+  local cmds
+  cmds=$(jq -r '[.hooks[][].hooks[].command] | join("\n")' "$settings")
+  echo "$cmds" | grep -qF 'check-secrets.sh'
+  echo "$cmds" | grep -qF 'guard-destructive.sh'
+  echo "$cmds" | grep -qF 'migration-reminder.sh'
+  echo "$cmds" | grep -qF 'block-adhoc-installers'
+
+  # Plugins / marketplaces are no longer written into settings.json (ADR 0008);
+  # bin/sync-claude-extras owns them via the claude CLI.
+  run jq -e 'has("extraKnownMarketplaces")' "$settings"
+  [ "$status" -ne 0 ]
+  run jq -e 'has("enabledPlugins")' "$settings"
+  [ "$status" -ne 0 ]
 }
 
 @test "creates a backup before mutating settings" {
@@ -140,4 +153,37 @@ EOF
     "$TEST_HOME_DIR/.claude/settings.json" | shasum | awk '{print $1}')
 
   [ "$first_hash" = "$second_hash" ]
+}
+
+@test "set_hooks preserves foreign hook groups and is idempotent" {
+  mkdir -p "$TEST_HOME_DIR/.claude"
+  cat >"$TEST_HOME_DIR/.claude/settings.json" <<'EOF'
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "/plugin/foreign-hook.sh" } ] }
+    ]
+  }
+}
+EOF
+
+  run run_sync
+  [ "$status" -eq 0 ]
+  local settings="$TEST_HOME_DIR/.claude/settings.json"
+
+  # A hook group we don't own survives the re-sync.
+  run jq -e '[.hooks.PreToolUse[].hooks[].command] | index("/plugin/foreign-hook.sh") != null' "$settings"
+  [ "$status" -eq 0 ]
+
+  # Our guard (and the other repo hooks) are present alongside it.
+  run jq -e '[.hooks[][].hooks[].command] | index("$HOME/.local/libexec/block-adhoc-installers") != null' "$settings"
+  [ "$status" -eq 0 ]
+
+  # Re-running yields byte-identical hooks (idempotent merge).
+  local first second
+  first=$(jq -S '.hooks' "$settings")
+  run run_sync
+  [ "$status" -eq 0 ]
+  second=$(jq -S '.hooks' "$settings")
+  [ "$first" = "$second" ]
 }

@@ -1,12 +1,15 @@
 ---
-status: "proposed"
+status: "superseded"
 date: 2026-05-16
 decision-makers: [Meagan Waller]
 consulted: []
 informed: []
+superseded-by: [0008]
 ---
 
 # Hybrid declarative-plus-imperative management of `~/.claude/settings.json`
+
+> **Superseded by [ADR 0008](0008-claude-config-two-managers.md) (2026-06-10).** This ADR was proposed but never implemented. A spike found that `extraKnownMarketplaces` / `enabledPlugins` / `mcpServers` are owned and rewritten by the `claude` CLI, so rendering them from a `settings.json` template (this ADR's plan) still races the CLI rather than resolving the contention. ADR 0008 keeps this ADR's "declarative intent in `.chezmoidata/`" idea but realizes the plugin/MCP surface **through the `claude` CLI** (`bin/sync-claude-extras`) instead of a settings template, and consciously leaves permissions/hooks imperative. The analysis below is retained for context.
 
 ## Context and Problem Statement
 

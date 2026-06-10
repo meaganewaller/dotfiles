@@ -315,87 +315,40 @@ set_permissions() {
     }' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
 }
 
-# Register default global hooks (managed via chezmoi at ~/.claude/hooks/)
+# Register the repo's global hooks (managed via chezmoi). Three live at
+# ~/.claude/hooks/ (check-secrets, guard-destructive, migration-reminder); the
+# ad-hoc-installer guard lives on PATH at ~/.local/libexec/.
+#
+# Merge, don't overwrite: drop any existing hook group that contains one of OUR
+# commands, then re-append our canonical groups. Hook groups contributed by
+# plugins or the claude CLI (which own none of our commands) are left intact.
+# Idempotent — re-running yields the same set.
+#
+# Note: plugin marketplaces, enabled plugins, and MCP servers are NOT managed
+# here. The claude CLI is their single writer, driven by bin/sync-claude-extras.
+# See docs/agents/claude-code.md and ADR 0008.
 set_hooks() {
-  printf 'setting hooks in %s\n' "${SETTINGS}"
-  jq '.hooks = {
-        "PreToolUse": [
-          {
-            "matcher": "Write|Edit|MultiEdit",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "bash ~/.claude/hooks/check-secrets.sh"
-              }
-            ]
-          },
-          {
-            "matcher": "Bash",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "bash ~/.claude/hooks/guard-destructive.sh"
-              }
-            ]
-          }
-        ],
-        "PostToolUse": [
-          {
-            "matcher": "Write|Edit",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "bash ~/.claude/hooks/migration-reminder.sh"
-              }
-            ]
-          }
-        ]
-      }' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
-}
-
-# Register third-party plugin marketplaces and enable plugins
-set_plugins() {
-  printf 'setting plugin marketplaces and enabled plugins in %s\n' "${SETTINGS}"
+  printf 'setting global hooks in %s\n' "${SETTINGS}"
   jq '
-        .extraKnownMarketplaces = ((.extraKnownMarketplaces // {}) + {
-            "pickled-claude-plugins": {
-                "source": {
-                    "source": "github",
-                    "repo": "technicalpickles/pickled-claude-plugins"
-                }
-            },
-						"meaganewaller-marketplace": {
-							"source": {
-								"source": "github",
-								"repo": "meaganewaller/marketplace"
-							}
-						},
-						"onlooker-community": {
-							"source": {
-								"source": "github",
-								"repo": "onlooker-community/ecosystem"
-							}
-						},
-						"anthropic-agent-skills": {
-							"source": {
-								"source": "github",
-								"repo": "anthropics/skills"
-							}
-						}
-        })
-        | .enabledPlugins = ((.enabledPlugins // {}) + {
-            "ci-cd-tools@pickled-claude-plugins": true,
-						"fnox@meaganewaller-marketplace": true,
-						"git@meaganewaller-marketplace": true,
-						"mise@meaganewaller-marketplace": true,
-						"tools@meaganewaller-marketplace": true,
-						"ecosystem@onlooker-community": true,
-						"archivist@onlooker-community": true,
-						"tribunal@onlooker-community": true,
-						"echo@onlooker-community": true,
-						"governor@onlooker-community": true,
-						"example-skills@anthropic-agent-skills": true
-        })
+        {
+          "PreToolUse": [
+            { "matcher": "Write|Edit|MultiEdit", "command": "bash ~/.claude/hooks/check-secrets.sh" },
+            { "matcher": "Bash",                  "command": "bash ~/.claude/hooks/guard-destructive.sh" },
+            { "matcher": "Bash",                  "command": "$HOME/.local/libexec/block-adhoc-installers" }
+          ],
+          "PostToolUse": [
+            { "matcher": "Write|Edit", "command": "bash ~/.claude/hooks/migration-reminder.sh" }
+          ]
+        } as $owned
+        | [ $owned[][].command ] as $ourcmds
+        | .hooks = (.hooks // {})
+        | reduce ($owned | keys[]) as $phase (.;
+            .hooks[$phase] = (
+              [ (.hooks[$phase] // [])[]
+                | select( any(.hooks[]?; .command as $c | $ourcmds | index($c)) | not ) ]
+              + ( $owned[$phase] | map({ matcher: .matcher, hooks: [ { type: "command", command: .command } ] }) )
+            )
+          )
     ' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
 }
 
@@ -503,21 +456,18 @@ main() {
   set_feature_flags
   set_permissions
   set_hooks
-  set_plugins
 
   local use_bedrock
   use_bedrock=$(chezmoi data --format json | jq -r '.claude.use_bedrock')
 
-  if [[ "${use_bedrock}" != "true" ]]; then
+  if [[ "${use_bedrock}" == "true" ]]; then
+    printf 'use_bedrock=true — resolving and merging Bedrock models\n'
+    # On failure, fall through with whatever model is already set; still validate.
+    merge_model_env_vars || printf 'continuing without Bedrock model env vars\n' >&2
+  else
     printf 'use_bedrock=%s — cleaning up model env vars and setting default model\n' "${use_bedrock}"
     cleanup_model_env_vars
     set_default_model
-    return 0
-  fi
-
-  printf 'use_bedrock=true — resolving and merging Bedrock models\n'
-  if ! merge_model_env_vars; then
-    return 0
   fi
 
   validate_settings

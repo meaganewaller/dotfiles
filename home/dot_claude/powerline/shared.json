@@ -1,38 +1,43 @@
 {
-    "theme": "custom",
-    "display": {
-      "padding": 1,
-      "style": "capsule",
-      "charset": "unicode",
-      "colorCompatibility": "auto",
-      "autoWrap": true,
-      "budget": {
-        "today": { "amount": 0 }
-      },
-      "lines": [
-        {
-          "segments": {
-            "directory": {
-              "enabled": true,
-              "style": "basename"
-            },
-            "model": {
-              "enabled": true
-            },
-            "context": {
-              "enabled": true,
-              "showPercentageOnly": true,
-              "displayStyle": "text"
-            },
-            "today": {
-              "enabled": true,
-              "type": "cost"
-            }
+  "display": {
+    "autoWrap": true,
+    "budget": {
+      "today": {
+        "amount": 0
+      }
+    },
+    "charset": "unicode",
+    "colorCompatibility": "auto",
+    "lines": [
+      {
+        "segments": {
+          "context": {
+            "displayStyle": "text",
+            "enabled": true,
+            "showPercentageOnly": true
+          },
+          "directory": {
+            "enabled": true,
+            "style": "basename"
+          },
+          "git": {
+            "enabled": true
+          },
+          "model": {
+            "enabled": true
+          },
+          "today": {
+            "enabled": true,
+            "type": "cost"
           }
         }
-      ]
-    },
-    "modelContextLimits": {
-      "sonnet": 200000
-    }
-  }
+      }
+    ],
+    "padding": 1,
+    "style": "capsule"
+  },
+  "modelContextLimits": {
+    "sonnet": 200000
+  },
+  "theme": "custom"
+}
