@@ -6,6 +6,8 @@ Precedence: project CLAUDE.md > this file > external docs.
 
 Use mise exclusively (`mise use TOOL@VERSION`). No brew, apt, npm -g, or pipx unless mise lacks the tool—then ask first. No version bumps without explicit instruction.
 
+This is enforced at runtime by the `block-adhoc-installers` PreToolUse hook: ad-hoc installers/runners (`npx`, `bunx`, `uvx`, `pipx`, `pip install`, `npm -g`, `gem`/`brew`/`cargo`/`go install`, …) are denied and redirected to the `/install` skill. A human can bypass with `CLAUDE_ALLOW_ADHOC_INSTALL=1`; an agent cannot set it for itself.
+
 ## Commits
 
 Always route commits through the `/commit` skill — both the main agent and subagents — for every commit, even tiny ones. Do not craft `git commit -m "..."` ad hoc. The skill enforces conventional commits, intentional file selection, mood-based emoji that reflects *this* change (not the type label), and American English.

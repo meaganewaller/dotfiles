@@ -1,0 +1,13 @@
+#!/bin/bash
+# Reconcile Claude Code extras (plugin marketplaces, plugins, MCP servers) into
+# the user-scope install. Re-fires when the reconciler, the public data, or the
+# machine-local extras change.
+# reconciler hash: {{ output "sha256sum" (joinPath .chezmoi.workingTree "bin/sync-claude-extras") | trim }}
+# base data hash:  {{ include ".chezmoidata/claude.yaml" | sha256sum }}
+# extras hash:     {{ dig "claudeExternalExtra" dict . | toJson | sha256sum }}
+
+[[ -n "${DEBUG:-}" ]] && set -o xtrace
+set -o errexit
+set -o nounset
+
+"{{ .chezmoi.workingTree }}/bin/sync-claude-extras"

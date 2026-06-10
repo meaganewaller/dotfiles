@@ -24,6 +24,8 @@ allowed-tools:
 
 # Install Tool
 
+> This skill is the sanctioned install path. The `block-adhoc-installers` hook denies ad-hoc installers (`npx`, `pipx`, `pip install`, `npm -g`, `brew`/`gem`/`cargo`/`go install`, …) and redirects here, so tools stay captured in mise and the dotfiles.
+
 ## Arguments
 ```
 $ARGUMENTS
