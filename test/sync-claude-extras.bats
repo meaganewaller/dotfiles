@@ -4,25 +4,24 @@ load test_helper
 
 SCRIPT="bin/sync-claude-extras"
 
-# Stub the `claude` and `chezmoi` CLIs the reconciler shells out to. The claude
-# stub logs every invocation to $CLAUDE_LOG so tests can assert which mutating
-# commands ran (none, under --check). chezmoi data returns a fixed declared set
-# with one already-present and one missing item per type, plus an undeclared
-# plugin to exercise drift detection.
+# Set up the reconciler's inputs. The `claude` CLI no longer exposes installed
+# state headlessly, so the reconciler READS state from Claude Code's JSON files
+# (known_marketplaces.json / installed_plugins.json) and only invokes `claude`
+# for WRITES. The claude stub therefore just logs its args to $CLAUDE_LOG, so
+# tests can assert which mutating commands ran (none, under --check). chezmoi
+# data returns a fixed declared set with one already-present and one missing
+# item per type, plus undeclared items to exercise drift detection.
 make_stubs() {
   STUBDIR="$TEST_TMPDIR/stub"
   CLAUDE_LOG="$TEST_TMPDIR/claude.log"
-  mkdir -p "$STUBDIR"
+  PLUGINS_DIR="$TEST_TMPDIR/plugins"
+  mkdir -p "$STUBDIR" "$PLUGINS_DIR"
   : >"$CLAUDE_LOG"
 
+  # claude stub: writes only now — log the invocation.
   cat >"$STUBDIR/claude" <<EOF
 #!/usr/bin/env bash
 echo "\$*" >> "$CLAUDE_LOG"
-case "\$*" in
-  "plugin marketplace list --json") echo '[{"name":"mp-existing"},{"name":"claude-plugins-official"},{"name":"mp-orphan"}]' ;;
-  "plugin list --json") echo '[{"id":"p-existing@mp-existing","scope":"user"},{"id":"p-orphan@mp-existing","scope":"user"}]' ;;
-  *) echo '[]' ;;
-esac
 EOF
   chmod +x "$STUBDIR/claude"
 
@@ -47,11 +46,31 @@ JSON
 fi
 EOF
   chmod +x "$STUBDIR/chezmoi"
+
+  # Installed state, as Claude Code records it. mp-existing/p-existing are
+  # declared (ok); claude-plugins-official is built-in (skipped); mp-orphan and
+  # p-orphan are undeclared (drift / prune candidates).
+  cat >"$PLUGINS_DIR/known_marketplaces.json" <<'EOF'
+{
+  "mp-existing":             { "source": { "source": "github", "repo": "owner/existing" } },
+  "claude-plugins-official": { "source": { "source": "github", "repo": "anthropics/claude-plugins-official" } },
+  "mp-orphan":               { "source": { "source": "github", "repo": "owner/orphan" } }
+}
+EOF
+  cat >"$PLUGINS_DIR/installed_plugins.json" <<'EOF'
+{
+  "version": 2,
+  "plugins": {
+    "p-existing@mp-existing": [ { "scope": "user" } ],
+    "p-orphan@mp-existing":   [ { "scope": "user" } ]
+  }
+}
+EOF
 }
 
 run_extras() {
   run env PATH="$STUBDIR:$PATH" HOME="$TEST_HOME_DIR" GITHUB_TOKEN=stub-token \
-    CLAUDE_LOG="$CLAUDE_LOG" bash "$SCRIPT" "$@"
+    CLAUDE_LOG="$CLAUDE_LOG" CLAUDE_PLUGINS_DIR="$PLUGINS_DIR" bash "$SCRIPT" "$@"
 }
 
 @test "claude.yaml is valid YAML with the structure the reconciler expects" {

@@ -6,8 +6,13 @@
 # Declared state is read from chezmoi data:
 #  .claudeData          committed, public   (home/.chezmoidata/claude.yaml)
 #  .claudeExternalExtra machine-local       ([data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml)
-# and realized through the `claude` CLI, which is the single writer of the
-# extraKnownMarketplaces / enabledPlugins / mcpServers settings.
+#
+# Current (installed) state is read from Claude Code's own JSON state files
+# (~/.claude/plugins/known_marketplaces.json + installed_plugins.json, and
+# ~/.claude.json for MCP) because the `claude` CLI no longer exposes it headlessly.
+# Changes are still realized through the `claude` CLI — the single writer of
+# extraKnownMarketplaces / enabledPlugins / mcpServers — but note those writes
+# currently require an interactive (TTY) claude session.
 #
 # Idempotent and additive: only missing items are added. Items installed but not
 # declared are reported, never removed, unless --prune is given. Plugins/marketplaces
@@ -23,6 +28,12 @@ set -o errexit
 set -o errtrace
 set -o nounset
 set -o pipefail
+
+# Claude Code records installed state in plain JSON here (the CLI no longer
+# exposes it headlessly). Overridable for tests via CLAUDE_PLUGINS_DIR.
+PLUGINS_DIR="${CLAUDE_PLUGINS_DIR:-${HOME}/.claude/plugins}"
+MARKETPLACES_FILE="${PLUGINS_DIR}/known_marketplaces.json"
+INSTALLED_PLUGINS_FILE="${PLUGINS_DIR}/installed_plugins.json"
 
 CHECK=false
 PRUNE=false
@@ -54,7 +65,8 @@ run_claude() {
     return 0
   fi
   if ! claude "$@"; then
-    warn "  warning: 'claude $*' failed — continuing"
+    warn "  could not run 'claude $*' — plugin/MCP writes need an interactive"
+    warn "  claude session (the CLI is not headless); run it manually. Continuing."
     return 1
   fi
 }
@@ -78,7 +90,8 @@ is_builtin_marketplace() {
 reconcile_marketplaces() {
   log 'marketplaces:'
   local existing declared_names name repo
-  existing="$(claude plugin marketplace list --json 2>/dev/null | jq -r '.[].name' || true)"
+  # Installed marketplaces come from Claude Code's state file (keys are names).
+  existing="$(jq -r 'keys[]' "${MARKETPLACES_FILE}" 2>/dev/null || true)"
 
   declared_names=''
   while IFS=$'\t' read -r name repo; do
@@ -97,10 +110,12 @@ reconcile_marketplaces() {
 
 reconcile_plugins() {
   log 'plugins:'
-  local existing_json existing_ids declared_ids id
-  existing_json="$(claude plugin list --json 2>/dev/null || echo '[]')"
-  # User-scope ids only are eligible for prune; managed/project are left alone.
-  existing_ids="$(jq -r '.[].id' <<<"${existing_json}")"
+  local existing_ids user_ids declared_ids id
+  # Installed plugins come from Claude Code's state file, keyed "<id>@<marketplace>";
+  # each value is an array of install records carrying scope.
+  existing_ids="$(jq -r '(.plugins // {}) | keys[]' "${INSTALLED_PLUGINS_FILE}" 2>/dev/null || true)"
+  # Only user-scope ids are eligible for prune; managed/project are left alone.
+  user_ids="$(jq -r '(.plugins // {}) | to_entries[] | select(any(.value[]?; .scope == "user")) | .key' "${INSTALLED_PLUGINS_FILE}" 2>/dev/null || true)"
 
   declared_ids=''
   while IFS= read -r id; do
@@ -114,8 +129,6 @@ reconcile_plugins() {
     fi
   done < <(declared '.plugins' | jq -r '.') # plugins are strings; unquote the compact JSON
 
-  local user_ids
-  user_ids="$(jq -r '.[] | select(.scope == "user") | .id' <<<"${existing_json}")"
   prune_extra 'plugin' "${user_ids}" "${declared_ids}"
 }
 
