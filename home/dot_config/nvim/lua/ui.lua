@@ -1,6 +1,7 @@
 local o = vim.opt
 
 o.showmatch = true
+o.showcmd = true
 o.cmdheight = 1
 o.signcolumn = "auto:2"
 o.termguicolors = true
@@ -17,6 +18,8 @@ o.list = true
 o.fillchars = { vert = "▒" }
 o.splitbelow = true
 o.splitright = true
+
+o.pumborder = "single"
 
 -- custom tabline
 local noname = "[unnamed]"

@@ -7,10 +7,27 @@ local function fugitive(command)
   end
 end
 
-map("v", "<", "<gv")
-map("v", ">", ">gv")
-map("n", "<Esc>", "<cmd>nohlsearch<cr>", { desc = "Clear search highlight" })
-map("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer.sh<CR>", { desc = "Tmux sessionizer" })
+map("i", "jk", "<Esc>", { noremap = true, desc = "Exit insert mode" })
+
+-- Window navigation
+map("n", "<C-J>", "<C-W><C-J>", { desc = "Move to the window below" })
+map("n", "<C-K>", "<C-W><C-K>", { desc = "Move to the window above" })
+map("n", "<C-H>", "<C-W><C-H>", { desc = "Move to the window left" })
+map("n", "<C-L>", "<C-W><C-L>", { desc = "Move to the window right" })
+
+-- Clear highlights
+map("n", "<C-S>", ":nohlsearch<CR>", { noremap = true, silent = true, desc = "Clear search highlights" })
+
+-- Buffer navigation
+map("n", "]b", ":bprevious<CR>", { noremap = true, silent = true, desc = "Go to previous buffer" })
+map("n", "[b", ":bnext<CR>", { noremap = true, silent = true, desc = "Go to next buffer" })
+
+-- Toggle relative line numbers
+map("n", "<leader>r", ":set rnu!<CR>", { noremap = true, silent = true, desc = "Toggle relative line numbers" })
+
+-- %% expands to current file directory
+vim.cmd([[cnoremap <expr> %% getcmdtype() == ':' ? expand('%:h').'/' : '%%']])
+
 map("n", "<leader>gs", fugitive("Git"), { desc = "Git status" })
 map("n", "<leader>gb", fugitive("Git blame"), { desc = "Git blame" })
 map("n", "<leader>gd", fugitive("Gvdiffsplit"), { desc = "Git diff" })

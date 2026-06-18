@@ -3,13 +3,11 @@
 -- security
 vim.opt.modelines = 0
 
--- set leader key to comma
-vim.g.mapleader = ","
-
 -- hide buffers, not close them
 vim.opt.hidden = true
 
 -- maintain undo history between sessions
+vim.opt.history = 1000
 vim.opt.swapfile = false
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
@@ -55,8 +53,7 @@ vim.opt.inccommand = "split"
 -- use indents of 2
 vim.opt.shiftwidth = 2
 
--- tabs are tabs
-vim.opt.expandtab = false
+vim.opt.expandtab = true
 
 -- an indentation every 2 columns
 vim.opt.tabstop = 2
@@ -66,3 +63,11 @@ vim.opt.softtabstop = 2
 
 -- enable auto indentation
 vim.opt.autoindent = true
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
+
+vim.opt.autocomplete = true
+vim.cmd.packadd("nvim.undotree")
+vim.cmd.packadd("nvim.difftool")
