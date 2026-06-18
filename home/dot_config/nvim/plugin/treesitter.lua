@@ -1,5 +1,13 @@
 local parsers = {
+  "ruby",
+  "tsx",
+  "c",
+  "cpp",
+  "go",
+  "elixir",
   "lua",
+  "vim",
+  "vimdoc",
   "python",
   "typescript",
   "javascript",
@@ -15,6 +23,8 @@ vim.cmd.packadd("nvim-treesitter")
 
 require("nvim-treesitter").setup({
   install_dir = vim.fn.stdpath("data") .. "/site",
+  highlight = { enable = true },
+  indent = { enable = true },
 })
 
 local installed = {}
