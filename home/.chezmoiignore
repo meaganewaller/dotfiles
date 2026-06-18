@@ -9,3 +9,4 @@ Library/**
 .oh-my-zsh/log/
 
 .claude/skills/skill-optimization-workspace/**
+.config/nvim/nvim-pack-lock.json
