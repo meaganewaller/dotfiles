@@ -95,3 +95,6 @@ node_modules/
 
 # Databases
 *.db
+
+# Buildkite local configuration
+.bk.yaml
