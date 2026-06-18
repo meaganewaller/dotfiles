@@ -26,13 +26,71 @@ local servers = {
   },
   ts_ls = {
     cmd = { "typescript-language-server", "--stdio" },
-    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
     root_markers = { "package.json", "tsconfig.json", "jsconfig.json", ".git" },
   },
   gopls = {
     cmd = { "gopls" },
     filetypes = { "go", "gomod", "gowork", "gotmpl" },
-    root_markers = { "go.work", "go.mod", ".git" },
+    root_markers = { "go.mod", "go.work", ".git" },
+    settings = {
+      gopls = {
+        analyses = {
+          unusedparams = true,
+        },
+        staticcheck = true,
+      },
+    },
+  },
+  jsonls = {
+    cmd = { "vscode-json-language-server", "--stdio" },
+    filetypes = { "json", "jsonc" },
+    root_markers = { ".git" },
+    on_attach = function(client, _)
+      client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
+        json = {
+          schemas = require("schemastore").json.schemas(),
+          validate = { enable = true },
+        },
+      })
+      client.notify("workspace/didChangeConfiguration", { settings = client.settings })
+    end,
+  },
+  elixirls = {
+    cmd = { "elixir-ls" },
+    filetypes = { "elixir", "eelixir", "heex", "surface" },
+    root_markers = { "mix.exs", ".git" },
+  },
+  solargraph = {
+    cmd = { vim.fn.expand("~/.local/share/mise/shims/solargraph"), "stdio" },
+    filetypes = { "ruby" },
+    root_markers = { "Gemfile", ".git" },
+    settings = {
+      solargraph = {
+        diagnostics = true,
+        completion = true,
+        formatting = true,
+      },
+    },
+  },
+  pyright = {
+    cmd = { "pyright-langserver", "--stdio" },
+    filetypes = { "python" },
+    root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
+    settings = {
+      python = {
+        analysis = {
+          autoSearchPaths = true,
+          useLibraryCodeForTypes = true,
+          diagnosticMode = "openFilesOnly",
+        },
+      },
+    },
+  },
+  clangd = {
+    cmd = { "clangd", "--background-index", "--clang-tidy" },
+    filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+    root_markers = { "compile_commands.json", "compile_flags.txt", ".clangd", ".git" },
   },
 }
 
@@ -69,16 +127,51 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set("n", lhs, rhs, { buffer = buf, desc = desc })
     end
 
+    local opts = { buffer = buf }
+
+    -- Navigation
     map("gd", vim.lsp.buf.definition, "LSP: definition")
     map("gD", vim.lsp.buf.declaration, "LSP: declaration")
-    map("gr", vim.lsp.buf.references, "LSP: references")
     map("gi", vim.lsp.buf.implementation, "LSP: implementation")
+    map("gr", vim.lsp.buf.references, "LSP: references")
+    map("gy", vim.lsp.buf.type_definition, "LSP: type definition")
+
+    -- Hover and signature
     map("K", vim.lsp.buf.hover, "LSP: hover")
-    map("<Space>lr", vim.lsp.buf.rename, "LSP: rename")
-    map("<Space>la", vim.lsp.buf.code_action, "LSP: code action")
-    map("<Space>lf", function() vim.lsp.buf.format({ async = true }) end, "LSP: format")
-    map("<Space>ld", vim.diagnostic.open_float, "LSP: line diagnostics")
-    map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "LSP: prev diagnostic")
-    map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "LSP: next diagnostic")
+    vim.keymap.set(
+      "i",
+      "<C-k>",
+      vim.lsp.buf.signature_help,
+      vim.tbl_extend("force", opts, { desc = "LSP: signature help" })
+    )
+
+    -- Actions
+    map("<Leader>lr", vim.lsp.buf.rename, "LSP: rename symbol")
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>la",
+      vim.lsp.buf.code_action,
+      vim.tbl_extend("force", opts, { desc = "LSP: code action" })
+    )
+    map("<Leader>lf", function()
+      vim.lsp.buf.format({ async = true })
+    end, "LSP: format")
+
+    -- Diagnostics
+    map("<leader>ld", vim.diagnostic.open_float, "LSP: line diagnostics")
+    map("[d", function()
+      vim.diagnostic.jump({ count = -1, float = true })
+    end, "LSP: prev diagnostic")
+    map("]d", function()
+      vim.diagnostic.jump({ count = 1, float = true })
+    end, "LSP: next diagnostic")
+    map("<leader>lq", vim.diagnostic.setloclist, "LSP: diagnostics to loclist")
+
+    -- Workspace
+    map("<leader>lwa", vim.lsp.buf.add_workspace_folder, "LSP: add workspace folder")
+    map("<leader>lwr", vim.lsp.buf.remove_workspace_folder, "LSP: remove workspace folder")
+    map("<leader>lwl", function()
+      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, "LSP: list workspace folders")
   end,
 })

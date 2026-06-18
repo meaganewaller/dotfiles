@@ -11,55 +11,83 @@ vim.api.nvim_create_autocmd("PackChanged", {
   end,
 })
 
+local gh = function(repo)
+  return "https://github.com/" .. repo
+end
+
 local specs = {
   -- Treesitter
-  { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
+  { src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
 
   -- Completion
-  { src = "https://github.com/Saghen/blink.cmp", version = vim.version.range("1.0") },
+  { src = gh("Saghen/blink.cmp"), version = vim.version.range("1.0") },
 
   -- Utils
-  "https://github.com/nvim-lua/plenary.nvim",
-  "https://github.com/folke/which-key.nvim",
+  gh("nvim-lua/plenary.nvim"),
+  gh("folke/which-key.nvim"),
+  gh("windwp/nvim-autopairs"),
+  gh("echasnovski/mini.surround"),
+  gh("echasnovski/mini.indentscope"),
+  gh("b0o/schemastore.nvim"),
 
-  -- Picker
-  "https://github.com/ibhagwan/fzf-lua",
+  -- Formatting
+  gh("stevearc/conform.nvim"),
+
+  -- Rails development
+  gh("tpope/vim-rails"),
+
+  -- Picker & search
+  gh("ibhagwan/fzf-lua"),
 
   -- Harpoon
-  { src = "https://github.com/ThePrimeagen/harpoon", version = "harpoon2" },
+  { src = gh("ThePrimeagen/harpoon"), version = "harpoon2" },
 
   -- Git
-  "https://github.com/lewis6991/gitsigns.nvim",
-  "https://github.com/tpope/vim-fugitive",
+  gh("lewis6991/gitsigns.nvim"),
+  gh("tpope/vim-fugitive"),
+  gh("tpope/vim-rhubarb"),
 
   -- Statusline
-  "https://github.com/nvim-tree/nvim-web-devicons", -- Dependency of lualine
-  "https://github.com/nvim-lualine/lualine.nvim",
+  gh("nvim-tree/nvim-web-devicons"), -- Dependency of lualine
+  gh("nvim-lualine/lualine.nvim"),
 
   -- File tree
-  "https://github.com/stevearc/oil.nvim",
+  gh("stevearc/oil.nvim"),
 
   -- TODO Comments
-  "https://github.com/folke/todo-comments.nvim",
+  gh("folke/todo-comments.nvim"),
+
+  -- Agentic Stuff (and their dependencies)
+  gh("yetone/avante.nvim"),
+  { src = gh("github/copilot.vim"), name = "copilot" },
+  { src = gh("CopilotC-Nvim/CopilotChat.nvim"), name = "CopilotChat" },
+  { src = gh("stevearc/dressing.nvim"), name = "dressing" },
+  { src = gh("MunifTanjim/nui.nvim"), name = "nui" },
+  { src = gh("HakonHarnes/img-clip.nvim"), name = "img-clip" },
+  { src = gh("MeanderingProgrammer/render-markdown.nvim"), name = "render-markdown" },
+  { src = gh("zbirenbaum/copilot.lua"), name = "copilot-lua" },
+  { src = gh("coder/claudecode.nvim"), name = "claudecode" },
+  { src = gh("nickjvandyke/opencode.nvim"), name = "opencode" },
+  { src = gh("folke/snacks.nvim"), name = "snacks" },
 
   -- Colorschemes
-  "https://github.com/catppuccin/nvim",
-  "https://github.com/folke/tokyonight.nvim",
-  "https://github.com/ellisonleao/gruvbox.nvim",
-  "https://github.com/rose-pine/neovim",
-  "https://github.com/xero/evangelion.nvim",
-  "https://github.com/rebelot/kanagawa.nvim",
-  "https://github.com/EdenEast/nightfox.nvim",
-  "https://github.com/navarasu/onedark.nvim",
-  "https://github.com/vague-theme/vague.nvim",
-  "https://github.com/danilo-augusto/vim-afterglow",
-  { src = "https://github.com/everviolet/nvim", name = "evergarden" },
-  "https://github.com/xero/miasma.nvim",
-  "https://github.com/trapd00r/neverland-vim-theme",
-  "https://github.com/bettervim/yugen.nvim",
-  "https://github.com/savq/melange-nvim",
-  "https://github.com/zootedb0t/citruszest.nvim",
-  "https://github.com/rockerBOO/boo-colorscheme-nvim",
+  gh("catppuccin/nvim"),
+  gh("folke/tokyonight.nvim"),
+  gh("ellisonleao/gruvbox.nvim"),
+  gh("rose-pine/neovim"),
+  gh("xero/evangelion.nvim"),
+  gh("rebelot/kanagawa.nvim"),
+  gh("EdenEast/nightfox.nvim"),
+  gh("navarasu/onedark.nvim"),
+  gh("vague-theme/vague.nvim"),
+  gh("danilo-augusto/vim-afterglow"),
+  { src = gh("everviolet/nvim"), name = "evergarden" },
+  gh("xero/miasma.nvim"),
+  gh("trapd00r/neverland-vim-theme"),
+  gh("bettervim/yugen.nvim"),
+  gh("savq/melange-nvim"),
+  gh("zootedb0t/citruszest.nvim"),
+  gh("rockerBOO/boo-colorscheme-nvim"),
 }
 
 local function spec_name(spec)
@@ -82,8 +110,18 @@ for _, plugin in ipairs(vim.pack.get()) do
   end
 end
 
+local hooks = function(ev)
+  local name, kind = ev.data.spec.name, ev.data.kind
+
+  if name == "avante" and (kind == "install" or kind == "update") then
+    vim.system({ "make" }, { cwd = ev.data.path })
+  end
+end
+
 if #stale > 0 then
   vim.pack.del(stale)
 end
 
 vim.pack.add(specs)
+
+vim.api.nvim_create_autocmd("PackChanged", { callback = hooks })
