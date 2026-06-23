@@ -241,8 +241,20 @@ alias mise='GITHUB_TOKEN="$(gh auth token)" command mise'
 {{- end }}
 
 {{- if lookPath "claude" }}
-# Always give Claude Code access to source checkouts
-alias claude='claude --add-dir ~/src'
+# Give Claude Code access to source checkouts -- but as a function, not an alias.
+# A plain alias prepends `--add-dir ~/src` to EVERY invocation, and since
+# --add-dir is variadic it swallows subcommands: `claude mcp add ...` becomes
+# `claude --add-dir ~/src mcp add ...`, where --add-dir eats `mcp add` (and the
+# rest) as "directories", so the subcommand never runs. Inject --add-dir only for
+# session launches; pass management subcommands straight through.
+claude() {
+  case "$1" in
+    agents|auth|auto-mode|doctor|install|mcp|plugin|plugins|project|setup-token|ultrareview|update|upgrade)
+      command claude "$@" ;;
+    *)
+      command claude --add-dir ~/src "$@" ;;
+  esac
+}
 {{- end }}
 
 # Reload shell function - re-execs the exact same zsh binary
