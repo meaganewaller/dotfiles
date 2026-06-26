@@ -98,3 +98,8 @@ node_modules/
 
 # Buildkite local configuration
 .bk.yaml
+
+.claude/plans
+.claude/task-summaries
+.claude/arcade
+oil:/
