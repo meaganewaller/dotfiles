@@ -21,11 +21,14 @@ claudeData:
       repo: technicalpickles/pickled-claude-plugins
     - name: anthropic-agent-skills
       repo: anthropics/skills
+    - name: cloudflare
+      repo: cloudflare/skills
 
   # Plugins to install at user scope: claude plugin install <name>@<marketplace>
   plugins:
     - ci-cd-tools@pickled-claude-plugins
     - example-skills@anthropic-agent-skills
+    - cloudflare@cloudflare
     # meaganewaller-marketplace
     - decision-journal@meaganewaller-marketplace
     - dev-collective@meaganewaller-marketplace
