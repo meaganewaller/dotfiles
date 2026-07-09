@@ -23,12 +23,25 @@ claudeData:
       repo: anthropics/skills
     - name: cloudflare
       repo: cloudflare/skills
+    - name: claude-code-plugins
+      repo: anthropics/claude-code
+    - name: superpowers-dev
+      repo: obra/superpowers
+    - name: trailofbits
+      repo: trailofbits/skills
+
 
   # Plugins to install at user scope: claude plugin install <name>@<marketplace>
   plugins:
     - ci-cd-tools@pickled-claude-plugins
+    - claude-api@anthropic-agent-skills
     - example-skills@anthropic-agent-skills
     - cloudflare@cloudflare
+    - plugin-dev@claude-code-plugins
+    - lua-lsp@claude-plugins-official
+    - typescript-lsp@claude-plugins-official
+    - ruby-lsp@claude-plugins-official
+    - superpowers@superpowers-dev
     # meaganewaller-marketplace
     - decision-journal@meaganewaller-marketplace
     - dev-collective@meaganewaller-marketplace
@@ -43,6 +56,7 @@ claudeData:
     # onlooker-community
     - archivist@onlooker-community
     - assayer@onlooker-community
+    - bursar@onlooker-community
     - cartographer@onlooker-community
     - compass@onlooker-community
     - counsel@onlooker-community
@@ -51,7 +65,9 @@ claudeData:
     - ecosystem@onlooker-community
     - governor@onlooker-community
     - historian@onlooker-community
+    - inspector@onlooker-community
     - librarian@onlooker-community
+    - lineage@onlooker-community
     - scribe@onlooker-community
     - tribunal@onlooker-community
     - warden@onlooker-community
@@ -60,4 +76,6 @@ claudeData:
   #   claude mcp add -s user [-t <transport>] <name> <url|command>
   # None are public; private/internal servers live in machine-local
   # [data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml, not here.
-  mcpServers: []
+  mcpServers:
+    - name: buildkite
+      url: https://mcp.buildkite.com/mcp
