@@ -15,6 +15,10 @@ input=$(cat)
 # regardless of where the hook was invoked from.
 cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}" || exit 0
 
+# Hooks run without shell rc files sourced, so mise's shims dir (where `hk`
+# and `bats` actually live) isn't on PATH even though `mise` itself is.
+export PATH="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims:$PATH"
+
 # Prevent infinite loops: if the stop hook is already active, allow the stop
 stop_hook_active=$(echo "$input" | jq -r '.stop_hook_active // false')
 if [[ "$stop_hook_active" == "true" ]]; then

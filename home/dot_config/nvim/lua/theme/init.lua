@@ -101,4 +101,8 @@ M.enforce_dark_background = function()
   vim.o.background = "dark"
 end
 
+M.get_saved_theme = function()
+  return read_state_theme()
+end
+
 return M

@@ -1,3 +1,10 @@
+vim.pack.add({
+  { src = "https://github.com/nvim-lualine/lualine.nvim" },
+  { src = "https://github.com/nvim-tree/nvim-web-devicons" },
+})
+
+require("nvim-web-devicons").setup()
+
 require("lualine").setup({
   sections = {
     lualine_a = { "mode" },
@@ -23,5 +30,3 @@ require("lualine").setup({
 })
 
 vim.opt.laststatus = 3
-
-require("nvim-web-devicons").setup()

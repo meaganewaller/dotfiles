@@ -1,6 +1,9 @@
--- Native LSP using vim.lsp.config + vim.lsp.enable (nvim 0.11+).
--- Servers must already be on PATH; install via mise / system package
--- manager instead of bundling an LSP installer plugin.
+-- Native LSP using vim.lsp.config + vim.lsp.enable (nvim 0.11+). Servers are
+-- hand-configured here instead of depending on nvim-lspconfig, and must
+-- already be on PATH -- install via mise, never Mason or an ad-hoc script.
+vim.pack.add({
+  { src = "https://github.com/b0o/schemastore.nvim" },
+})
 
 local servers = {
   lua_ls = {
@@ -19,11 +22,6 @@ local servers = {
       },
     },
   },
-  rust_analyzer = {
-    cmd = { "rust-analyzer" },
-    filetypes = { "rust" },
-    root_markers = { "Cargo.toml", "rust-project.json", ".git" },
-  },
   ts_ls = {
     cmd = { "typescript-language-server", "--stdio" },
     filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
@@ -35,16 +33,20 @@ local servers = {
     root_markers = { "go.mod", "go.work", ".git" },
     settings = {
       gopls = {
-        analyses = {
-          unusedparams = true,
-        },
+        analyses = { unusedparams = true },
         staticcheck = true,
       },
     },
   },
+  clangd = {
+    cmd = { "clangd", "--background-index", "--clang-tidy" },
+    filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+    root_markers = { "compile_commands.json", "compile_flags.txt", ".clangd", ".git" },
+  },
   jsonls = {
-    cmd = { "vscode-json-language-server", "--stdio" },
+    cmd = { "vscode-json-languageserver", "--stdio" },
     filetypes = { "json", "jsonc" },
+    init_options = { provideFormatter = true },
     root_markers = { ".git" },
     on_attach = function(client, _)
       client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
@@ -56,41 +58,97 @@ local servers = {
       client.notify("workspace/didChangeConfiguration", { settings = client.settings })
     end,
   },
-  elixirls = {
-    cmd = { "elixir-ls" },
-    filetypes = { "elixir", "eelixir", "heex", "surface" },
-    root_markers = { "mix.exs", ".git" },
-  },
-  solargraph = {
-    cmd = { vim.fn.expand("~/.local/share/mise/shims/solargraph"), "stdio" },
-    filetypes = { "ruby" },
-    root_markers = { "Gemfile", ".git" },
+  yamlls = {
+    cmd = { "yaml-language-server", "--stdio" },
+    filetypes = { "yaml", "yaml.docker-compose", "yaml.gitlab", "yaml.helm-values" },
+    root_markers = { ".git" },
     settings = {
-      solargraph = {
-        diagnostics = true,
-        completion = true,
-        formatting = true,
-      },
+      redhat = { telemetry = { enabled = false } },
+      yaml = { format = { enable = true }, schemas = require("schemastore").yaml.schemas() },
     },
   },
-  pyright = {
-    cmd = { "pyright-langserver", "--stdio" },
+  bashls = {
+    cmd = { "bash-language-server", "start" },
+    filetypes = { "bash", "sh" },
+    root_markers = { ".git" },
+  },
+  fish_lsp = {
+    cmd = { "fish-lsp", "start" },
+    filetypes = { "fish" },
+    root_markers = { "config.fish", ".git" },
+  },
+  tailwindcss = {
+    cmd = { "tailwindcss-language-server", "--stdio" },
+    filetypes = {
+      "html",
+      "css",
+      "scss",
+      "less",
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+      "vue",
+      "svelte",
+    },
+    root_markers = {
+      "tailwind.config.js",
+      "tailwind.config.cjs",
+      "tailwind.config.mjs",
+      "tailwind.config.ts",
+      "postcss.config.js",
+      ".git",
+    },
+  },
+  marksman = {
+    cmd = { "marksman", "server" },
+    filetypes = { "markdown", "markdown.mdx" },
+    root_markers = { ".marksman.toml", ".git" },
+  },
+  tombi = {
+    cmd = { "tombi", "lsp" },
+    filetypes = { "toml" },
+    root_markers = { "tombi.toml", "pyproject.toml", ".git" },
+  },
+  terraformls = {
+    cmd = { "terraform-ls", "serve" },
+    filetypes = { "terraform", "terraform-vars" },
+    root_markers = { ".terraform", ".git" },
+  },
+  texlab = {
+    cmd = { "texlab" },
+    filetypes = { "tex", "plaintex", "bib" },
+    root_markers = { ".git", ".latexmkrc", "latexmkrc", ".texlabroot" },
+  },
+  dockerls = {
+    cmd = { "docker-language-server", "start", "--stdio" },
+    filetypes = { "dockerfile" },
+    root_markers = { "Dockerfile", ".git" },
+  },
+  sqls = {
+    cmd = { "sqls" },
+    filetypes = { "sql", "mysql" },
+    root_markers = { ".git" },
+  },
+  harper_ls = {
+    cmd = { "harper-ls", "--stdio" },
+    filetypes = { "markdown", "gitcommit", "lua", "python", "ruby", "go", "rust", "javascript", "typescript", "toml" },
+    root_markers = { ".git" },
+  },
+  biome = {
+    cmd = { "biome", "lsp-proxy" },
+    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "json", "jsonc", "css" },
+    root_markers = { "biome.json", "biome.jsonc", "package.json", ".git" },
+  },
+  ruff = {
+    cmd = { "ruff", "server" },
     filetypes = { "python" },
-    root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
-    settings = {
-      python = {
-        analysis = {
-          autoSearchPaths = true,
-          useLibraryCodeForTypes = true,
-          diagnosticMode = "openFilesOnly",
-        },
-      },
-    },
+    root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml", ".git" },
   },
-  clangd = {
-    cmd = { "clangd", "--background-index", "--clang-tidy" },
-    filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
-    root_markers = { "compile_commands.json", "compile_flags.txt", ".clangd", ".git" },
+  ty = {
+    cmd = { "ty", "server" },
+    filetypes = { "python" },
+    root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
   },
 }
 
@@ -118,7 +176,9 @@ vim.diagnostic.config({
   },
 })
 
--- Buffer-local bindings when a server attaches.
+-- Buffer-local bindings when a server attaches. `gd`/`gD` fill the one real
+-- gap in Neovim's built-in LSP defaults (:h lsp-defaults already covers
+-- rename/references/code action/hover/signature-help globally).
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("lsp_attach", { clear = true }),
   callback = function(args)
@@ -127,51 +187,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set("n", lhs, rhs, { buffer = buf, desc = desc })
     end
 
-    local opts = { buffer = buf }
-
-    -- Navigation
     map("gd", vim.lsp.buf.definition, "LSP: definition")
     map("gD", vim.lsp.buf.declaration, "LSP: declaration")
-    map("gi", vim.lsp.buf.implementation, "LSP: implementation")
-    map("gr", vim.lsp.buf.references, "LSP: references")
-    map("gy", vim.lsp.buf.type_definition, "LSP: type definition")
-
-    -- Hover and signature
-    map("K", vim.lsp.buf.hover, "LSP: hover")
-    vim.keymap.set(
-      "i",
-      "<C-k>",
-      vim.lsp.buf.signature_help,
-      vim.tbl_extend("force", opts, { desc = "LSP: signature help" })
-    )
-
-    -- Actions
-    map("<Leader>lr", vim.lsp.buf.rename, "LSP: rename symbol")
-    vim.keymap.set(
-      { "n", "v" },
-      "<leader>la",
-      vim.lsp.buf.code_action,
-      vim.tbl_extend("force", opts, { desc = "LSP: code action" })
-    )
-    map("<Leader>lf", function()
+    map("<leader>lf", function()
       vim.lsp.buf.format({ async = true })
     end, "LSP: format")
-
-    -- Diagnostics
-    map("<leader>ld", vim.diagnostic.open_float, "LSP: line diagnostics")
-    map("[d", function()
-      vim.diagnostic.jump({ count = -1, float = true })
-    end, "LSP: prev diagnostic")
-    map("]d", function()
-      vim.diagnostic.jump({ count = 1, float = true })
-    end, "LSP: next diagnostic")
     map("<leader>lq", vim.diagnostic.setloclist, "LSP: diagnostics to loclist")
-
-    -- Workspace
-    map("<leader>lwa", vim.lsp.buf.add_workspace_folder, "LSP: add workspace folder")
-    map("<leader>lwr", vim.lsp.buf.remove_workspace_folder, "LSP: remove workspace folder")
-    map("<leader>lwl", function()
-      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, "LSP: list workspace folders")
   end,
 })

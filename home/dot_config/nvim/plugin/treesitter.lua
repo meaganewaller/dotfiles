@@ -1,49 +1,51 @@
-local parsers = {
-  "ruby",
-  "tsx",
-  "c",
-  "cpp",
-  "go",
-  "elixir",
-  "lua",
-  "vim",
-  "vimdoc",
-  "python",
-  "typescript",
-  "javascript",
-  "bash",
-  "json",
-  "yaml",
-  "markdown",
-  "html",
-  "css",
-}
-
-vim.cmd.packadd("nvim-treesitter")
-
-require("nvim-treesitter").setup({
-  install_dir = vim.fn.stdpath("data") .. "/site",
-  highlight = { enable = true },
-  indent = { enable = true },
+vim.pack.add({
+  { src = "https://github.com/nvim-treesitter/nvim-treesitter" },
 })
 
-local installed = {}
-for _, parser in ipairs(require("nvim-treesitter").get_installed()) do
-  installed[parser] = true
-end
+vim.opt.foldlevel = 99 -- treesitter foldexpr folds everything by default; start unfolded
 
-local missing = {}
-for _, parser in ipairs(parsers) do
-  if not installed[parser] then
-    table.insert(missing, parser)
-  end
-end
+local parsers = {
+  "bash",
+  "c",
+  "cpp",
+  "css",
+  "diff",
+  "dockerfile",
+  "fish",
+  "git_config",
+  "gitcommit",
+  "gitignore",
+  "go",
+  "gomod",
+  "gosum",
+  "html",
+  "javascript",
+  "json",
+  "lua",
+  "luadoc",
+  "markdown",
+  "markdown_inline",
+  "python",
+  "query",
+  "regex",
+  "ruby",
+  "rust",
+  "scss",
+  "sql",
+  "terraform",
+  "toml",
+  "tsx",
+  "typescript",
+  "vim",
+  "vimdoc",
+  "yaml",
+}
 
-if #missing > 0 and vim.fn.executable("tree-sitter") == 1 then
-  require("nvim-treesitter").install(missing)
-elseif #missing > 0 then
+if vim.fn.executable("tree-sitter") == 1 then
+  require("nvim-treesitter").install(parsers)
+else
   vim.schedule(function()
-    vim.notify("nvim-treesitter: install tree-sitter-cli to build missing parsers", vim.log.levels.WARN)
+    vim.notify("nvim-treesitter: install tree-sitter-cli to build parsers", vim.log.levels.WARN)
   end)
 end
 
@@ -53,7 +55,8 @@ vim.api.nvim_create_autocmd("FileType", {
     if not pcall(vim.treesitter.start, args.buf) then
       return
     end
-
     vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.wo[0][0].foldmethod = "expr"
   end,
 })
