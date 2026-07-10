@@ -1,4 +1,6 @@
-vim.cmd.packadd("which-key.nvim")
+vim.pack.add({
+  { src = "https://github.com/folke/which-key.nvim" },
+})
 
 local wk = require("which-key")
 
@@ -7,10 +9,9 @@ wk.setup({
 })
 
 wk.add({
-  { "<leader>a", group = "AI/Claude" },
   { "<leader>f", group = "Find" },
-  { "<leader>g", group = "Git" },
-  { "<leader>o", group = "OpenCode" },
+  { "<leader>h", group = "Git hunks" },
   { "<leader>l", group = "LSP" },
-  { "<leader>lw", group = "Workspace" },
+  { "<leader>o", group = "Onlooker" },
+  { "<leader>t", group = "Toggle" },
 })
