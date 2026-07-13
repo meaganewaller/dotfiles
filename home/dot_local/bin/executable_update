@@ -18,10 +18,6 @@ fi
 echo "📂 Updating Chezmoi externals..."
 chezmoi update
 
-# Update Neovim plugins
-echo "🚀 Updating Neovim plugins..."
-nvim --headless "+Lazy! update" +qa
-
 # Clean up Homebrew
 echo "🧹 Cleaning up Homebrew..."
 brew cleanup
