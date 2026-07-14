@@ -9,6 +9,7 @@ packages:
 
       # AI Tools
       - aichat
+      - beads
       - ccusage
 
       # CLI Utilities
@@ -32,11 +33,7 @@ packages:
       - lua # interpreter for the SbarLua-driven sketchybarrc (ABI-matches SbarLua's vendored Lua)
 
       # Docker & Containerization
-      - devcontainer
-      - docker
-      - docker-buildx
       - docker-completion
-      - docker-compose
       - docker-credential-helper
       - docker-credential-helper-ecr
 
@@ -64,7 +61,6 @@ packages:
       - steipete/tap/remindctl
     casks:
       # Development Tools
-      - cursor
       - ngrok
       - visual-studio-code
 
