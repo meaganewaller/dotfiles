@@ -10,3 +10,4 @@ Library/**
 
 .claude/skills/skill-optimization-workspace/**
 .config/nvim/nvim-pack-lock.json
+.config/mise/mise.lock
