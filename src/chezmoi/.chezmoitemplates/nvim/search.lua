@@ -11,4 +11,4 @@ opt.ignorecase = true
 opt.smartcase = true
 
 -- Clear search highlighting on <esc>
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlighting' })
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlighting" })

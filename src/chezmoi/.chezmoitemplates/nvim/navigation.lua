@@ -7,23 +7,23 @@ opt.scrolloff = 5
 opt.sidescrolloff = 10
 
 -- Make j and k navigate display lines rather than physical lines
-keymap.set('n', 'j', 'gj', { desc = 'Move down display line' })
-keymap.set('n', 'k', 'gk', { desc = 'Move up display line' })
+keymap.set("n", "j", "gj", { desc = "Move down display line" })
+keymap.set("n", "k", "gk", { desc = "Move up display line" })
 
 -- Simple window navigation
-keymap.set('n', '<M-h>', '<C-w>h', { desc = 'Move to left window' })
-keymap.set('n', '<M-j>', '<C-w>j', { desc = 'Move to lower window' })
-keymap.set('n', '<M-k>', '<C-w>k', { desc = 'Move to upper window' })
-keymap.set('n', '<M-l>', '<C-w>l', { desc = 'Move to right window' })
+keymap.set("n", "<M-h>", "<C-w>h", { desc = "Move to left window" })
+keymap.set("n", "<M-j>", "<C-w>j", { desc = "Move to lower window" })
+keymap.set("n", "<M-k>", "<C-w>k", { desc = "Move to upper window" })
+keymap.set("n", "<M-l>", "<C-w>l", { desc = "Move to right window" })
 
 -- Basic buffer navigation
-keymap.set('n', '<Leader>bn', ':bnext<CR>', { desc = 'Next buffer', silent = true })
-keymap.set('n', '<Leader>bp', ':bprevious<CR>', { desc = 'Previous buffer', silent = true })
-keymap.set('n', '<Leader>bd', ':bdelete<CR>', { desc = 'Close buffer', silent = true })
+keymap.set("n", "<Leader>bn", ":bnext<CR>", { desc = "Next buffer", silent = true })
+keymap.set("n", "<Leader>bp", ":bprevious<CR>", { desc = "Previous buffer", silent = true })
+keymap.set("n", "<Leader>bd", ":bdelete<CR>", { desc = "Close buffer", silent = true })
 
 -- Center screen when jumping to search results
-keymap.set('n', 'n', 'nzz', { desc = 'Next search result' })
-keymap.set('n', 'N', 'Nzz', { desc = 'Previous search result' })
+keymap.set("n", "n", "nzz", { desc = "Next search result" })
+keymap.set("n", "N", "Nzz", { desc = "Previous search result" })
 
 -- Remember last location in file
 vim.api.nvim_create_autocmd("BufReadPost", {

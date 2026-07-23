@@ -10,7 +10,7 @@ opt.relativenumber = true
 opt.ruler = true
 
 -- Allow backspace to work as expected in insert mode
-opt.backspace = { 'indent', 'eol', 'start' }
+opt.backspace = { "indent", "eol", "start" }
 
 -- Show partial commands in the last line of the screen
 opt.showcmd = true
@@ -28,13 +28,13 @@ opt.cursorline = true
 opt.scrolloff = 3
 
 -- Enable mouse support in all modes
-opt.mouse = 'a'
+opt.mouse = "a"
 
 -- Always show status line
 opt.laststatus = 2
 
 -- Use dark background colors
-opt.background = 'dark'
+opt.background = "dark"
 
 -- Disable bells and visual bells
 opt.errorbells = false

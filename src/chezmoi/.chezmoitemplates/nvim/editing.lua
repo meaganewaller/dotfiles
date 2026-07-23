@@ -2,7 +2,6 @@
 local opt = vim.opt
 local keymap = vim.keymap
 
-
 -- Set a reasonable update time (affects plugins like gitgutter)
 opt.updatetime = 300
 
@@ -11,61 +10,61 @@ opt.showmatch = true
 opt.matchtime = 2
 
 -- Enable spell checking but turn it off by default
-opt.spelllang = 'en_us'
+opt.spelllang = "en_us"
 opt.spell = false
 -- Toggle spell checking with F7
-keymap.set('n', '<F7>', ':setlocal spell!<CR>', { desc = 'Toggle spell checking', silent = true })
+keymap.set("n", "<F7>", ":setlocal spell!<CR>", { desc = "Toggle spell checking", silent = true })
 
 -- Auto-complete settings
-opt.completeopt = { 'menuone', 'noselect' }
+opt.completeopt = { "menuone", "noselect" }
 
 -- Auto-save when focus is lost
 vim.api.nvim_create_autocmd("FocusLost", {
-  command = "silent! wall"
+  command = "silent! wall",
 })
 
 -- Automatically save when exiting insert mode
 vim.api.nvim_create_autocmd("InsertLeave", {
-  command = "silent! update"
+  command = "silent! update",
 })
 
 -- Automatically strip trailing whitespace on save
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*",
-  command = "%s/\\s\\+$//e"
+  command = "%s/\\s\\+$//e",
 })
 
 -- Enable word wrapping for text files
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "text", "markdown", "html", "tex", "adoc" },
-  command = "setlocal wrap linebreak nolist"
+  command = "setlocal wrap linebreak nolist",
 })
 
 -- Automatically continue comments on new lines
-opt.formatoptions:append('r')
+opt.formatoptions:append("r")
 
 -- Allow virtual editing in visual block mode
-opt.virtualedit = 'block'
+opt.virtualedit = "block"
 
 -- Make Y behave like D and C (yank to end of line)
-keymap.set('n', 'Y', 'y$', { desc = 'Yank to end of line' })
+keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
 
 -- Preserve selection when indenting in visual mode
-keymap.set('v', '<', '<gv', { desc = 'Indent left and re-select' })
-keymap.set('v', '>', '>gv', { desc = 'Indent right and re-select' })
+keymap.set("v", "<", "<gv", { desc = "Indent left and re-select" })
+keymap.set("v", ">", ">gv", { desc = "Indent right and re-select" })
 
 -- Maintain cursor position when joining lines
-keymap.set('n', 'J', 'mzJ`z', { desc = 'Join lines and keep cursor' })
+keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor" })
 
 -- Quickly insert an empty new line without entering insert mode
-keymap.set('n', '<Leader>o', 'o<Esc>', { desc = 'Insert blank line below' })
-keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert blank line above' })
+keymap.set("n", "<Leader>o", "o<Esc>", { desc = "Insert blank line below" })
+keymap.set("n", "<Leader>O", "O<Esc>", { desc = "Insert blank line above" })
 
 -- Quick save
-keymap.set('n', '<Leader>w', ':w<CR>', { desc = 'Save file', silent = true })
+keymap.set("n", "<Leader>w", ":w<CR>", { desc = "Save file", silent = true })
 
 -- Disable Ex mode (avoid accidental activation)
-keymap.set('n', 'Q', '<nop>')
+keymap.set("n", "Q", "<nop>")
 
 -- Automatically create directories when saving files
 vim.api.nvim_create_autocmd("BufWritePre", {
