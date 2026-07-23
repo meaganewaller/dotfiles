@@ -1,0 +1,70 @@
+# AI skill deployment catalog.
+#
+# Skills are deployed as static files by chezmoi externals (see .chezmoiexternals/ai-skills.toml.tmpl).
+# Each upstream is pinned to an exact commit and archive checksum.
+# The archive is piped through home/python/skill_filter at apply time to extract one skill per external.
+# Skills marked "absent" are pruned via the .chezmoiremove.tmpl files in dot_claude/, dot_gemini/, dot_cursor/, and dot_codex/;
+# keep the key when deselecting a skill — deleting it outright orphans any installed copy.
+#
+# Every present skill installs to every tool's skill directory; the target
+# directories are hardcoded in the externals and removal templates above.
+#
+# Overlay and per-machine composition (config data takes key-path precedence over this file):
+# - Proxy GitHub downloads:   [data.ai.skills.hosts.github] url_format = "https://artifacts.corp/github/{repo}/tar.gz/{ref}"
+# - Add an internal host:     [ai.skills.hosts.ghe] url_format = "https://ghe.corp/api/v3/repos/{repo}/tarball/{ref}"
+#   in an overlay .chezmoidata file, then set host = "ghe" on overlay sources.
+# - Remove one skill:         [data.ai.skills.external.superpowers.skills] brainstorming = "absent"
+# - Add overlay-only sources in an overlay .chezmoidata file under distinct [ai.skills.external.<name>] keys.
+
+# Archive hosts: each url_format substitutes {repo} and {ref} from the source entry.
+[ai.skills.hosts.github]
+url_format = "https://codeload.github.com/{repo}/tar.gz/{ref}"
+
+# Authored skills: full directory trees under home/ai/skills/<name>/
+# deployed via file:// externals (see .chezmoiexternals/ai-skills.toml.tmpl).
+[ai.skills.authored]
+
+# External sources: [ai.skills.external.<name>] with repo, ref (commit SHA), sha256 (downloaded archive).
+# Optional: host (archive host key, default "github"), skills_root (default "skills"),
+# url (full archive URL for one-off published artifacts, bypasses host construction).
+# Each [.skills] entry maps an upstream skill directory name to a state:
+#   "present" (all tools), "absent" (pruned everywhere), or a single tool name
+#   ("claude", "antigravity", "cursor") to deploy only to that tool.
+[ai.skills.external.superpowers]
+repo = "obra/superpowers"
+ref = "d884ae04edebef577e82ff7c4e143debd0bbec99" # 2026-07-02
+sha256 = "d2c15e07a4637bffc7df15daa062eeb569c9adf6d6ad6ec08dec4ce6539b3910"
+
+[ai.skills.external.superpowers.skills]
+brainstorming = "present"
+executing-plans = "present"
+finishing-a-development-branch = "present"
+receiving-code-review = "present"
+requesting-code-review = "present"
+subagent-driven-development = "present"
+systematic-debugging = "present"
+test-driven-development = "present"
+using-git-worktrees = "present"
+verification-before-completion = "present"
+writing-plans = "present"
+writing-skills = "present"
+
+[ai.skills.external.anthropics-skills]
+repo = "anthropics/skills"
+ref = "57546260929473d4e0d1c1bb75297be2fdfa1949" # 2026-06-09
+sha256 = "7a3e7ac65a8057d56c3ed78292b69d1a0b48cb3adfe3e77ec5019621c42e940e"
+
+[ai.skills.external.anthropics-skills.skills]
+skill-creator = "claude" # authoring tooling is only useful inside Claude Code
+webapp-testing = "absent"
+
+# Built distribution repo (GoogleChrome/modern-web-guidance-src is the source repo;
+# its skills-src content is bundled into the modern-web-guidance skill's guides here).
+[ai.skills.external.modern-web-guidance]
+repo = "GoogleChrome/modern-web-guidance"
+ref = "5733cdd9f89b0f19119e855532f8b8ac7997ecb6" # 2026-06-08
+sha256 = "3d2793fd566307a2e95387266f3c36fe251f727a62883257bda15e36f2aacead"
+
+[ai.skills.external.modern-web-guidance.skills]
+chrome-extensions = "present"
+modern-web-guidance = "present"

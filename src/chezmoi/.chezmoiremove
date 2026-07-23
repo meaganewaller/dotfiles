@@ -1,0 +1,10 @@
+# Files to remove from target system
+# https://www.chezmoi.io/reference/special-files/chezmoiremove/
+
+# Remove asdf binary and configuration
+.asdf
+.local/bin/asdf
+
+# Do not lock global versions (reduces maintenance friction)
+# We rely on pinned versions in .chezmoidata/bin/mise.toml instead.
+.config/mise/mise.lock

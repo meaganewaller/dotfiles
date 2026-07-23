@@ -1,0 +1,29 @@
+# Default to normalize to LF if core.autocrlf is not set
+* text=auto eol=lf
+
+# Binary files that should not be modified
+*.jar binary
+*.png binary
+*.gif binary
+*.ico binary
+*.gz binary
+*.zip binary
+*.7z binary
+
+# Explicit text files
+*.md text
+*.sh text
+*.yaml text
+*.yml text
+*.json text
+*.txt text
+*.html text
+
+*.rs text eol=lf
+
+# Scripts should use LF
+*.sh text eol=lf
+
+# Windows scripts should use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf

@@ -1,0 +1,42 @@
+# chezmoi ignore file - specifies files/patterns to ignore during apply
+# See: https://www.chezmoi.io/reference/special-files/chezmoiignore/
+
+.editorconfig
+
+# Ignore agent-related markdown files
+**/AGENTS.md
+**/CLAUDE.md
+**/GEMINI.md
+**/RULE.md
+**/*.mdc
+!.claude/CLAUDE.md
+!.gemini/GEMINI.md
+!.codex/AGENTS.md
+!.cursor/rules/*.mdc
+
+# Bazel build files
+**/*.bzl
+**/*.bazel
+**/BUILD
+**/BUILD.bazel
+
+# Git files
+**/.gitignore
+**/.gitkeep
+
+# Test artifacts
+**/expected_*
+**/test_data.toml
+
+{{- if ne (dig "npmrc" "installation_method" "chezmoi" .) "chezmoi" }}
+.npmrc
+{{- end }}
+
+{{- if eq (dig "global_tools" "bun" "installation_method" "" .mise) "none" }}
+.bunfig.toml
+{{- end }}
+.dotfiles/external/eza-completions
+.dotfiles/external/eza-completions/**
+
+# Ignore mise lock files in the destination
+**/.config/mise/mise.lock

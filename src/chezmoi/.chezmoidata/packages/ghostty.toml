@@ -1,0 +1,7 @@
+[packages.ghostty.package.homebrew]
+name = "ghostty"
+type = "cask"
+
+[packages.ghostty.package.snap]
+name        = "ghostty"
+confinement = "classic"

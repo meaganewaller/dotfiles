@@ -1,0 +1,38 @@
+# Deployment config → managed via modify_settings.json → ~/.claude/settings.json
+# These are operator/admin-level settings: permissions, env, tooling behavior.
+# See: https://code.claude.com/docs/en/settings
+[claude_code.settings]
+cleanupPeriodDays = 30
+outputStyle = "concise"
+# Documented top-level settings.json key. Confirmed this is the real,
+# functionally-effective location: the live ~/.claude/settings.json already
+# had editorMode = "vim" before this entry was ever added (from toggling
+# /config previously) -- Claude Code itself reads/writes it here.
+# ~/.claude.json (OAuth session / MCP config / trust state / caches, not
+# settings, per the same docs) is not managed by chezmoi at all -- it
+# previously carried a redundant editorMode injection via a now-deleted
+# claude_code.preferences + modify_dot_claude.json.tmpl, which was the
+# wrong file for this key (same class of bug as the removed tools/files
+# keys below) and has been removed outright rather than left in place.
+editorMode = "vim"
+
+
+[claude_code.settings.sandbox]
+# Disabled globally due to current complexity using existing tools like git
+enabled = false
+failIfUnavailable = false
+
+[claude_code.settings.statusLine]
+type = "command"
+command = "statusline claude render"
+
+# permissions.allow/.deny is computed at render time from
+# ai.command_policy.commands (.chezmoidata/ai/command_policy/*.toml) —
+# see dot_claude/modify_settings.json. (Previously this table set
+# tools/files = "allow" here, but neither key exists in Claude Code's
+# documented permissions schema — removed as inert.)
+
+[claude_code.settings.env]
+DISABLE_AUTOUPDATER = "true"
+DISABLE_TELEMETRY = "true"
+ENABLE_TOOL_SEARCH = "true"

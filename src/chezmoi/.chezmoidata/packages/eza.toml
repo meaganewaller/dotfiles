@@ -1,0 +1,3 @@
+[packages.eza.package.homebrew]
+name = "eza"
+type = "formula"

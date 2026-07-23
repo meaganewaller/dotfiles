@@ -1,0 +1,12 @@
+{{/* Vim configuration managed by chezmoi */}}
+{{/* Auto-sources all .vim files in snippets directory */}}
+
+" Source all vim files from dotfiles directory structure
+{{- $targetDir := dir .chezmoi.targetFile }}
+
+" Source all vim snippet files
+for file in split(glob('{{ $targetDir }}/snippets/*.vim'), '\n')
+    if filereadable(file)
+        execute 'source' file
+    endif
+endfor

@@ -1,36 +1,42 @@
 # Development tools for shell scripting and testing
 
 [tools]
-"aqua:bats-core/bats-core" = "v1.13.0"
-"aqua:gitleaks/gitleaks" = "v8.30.1"
-"aqua:koalaman/shellcheck" = "v0.11.0"
-"aqua:mikefarah/yq" = "v4.53.3"
-"aqua:suzuki-shunsuke/ghalint" = "latest"
-hk = "1.50.0"
-jq = "latest"
-"npm:markdownlint-cli" = "latest"
-pkl = "latest"
-shfmt = "latest"
-stylua = "latest"
+markdownlint-cli2 = "0.23.1"
+pkl = "0.30.2"
+uv = "0.11.17"
 
-[tasks.lint]
-description = "Lint and auto-fix"
-run = "hk fix"
+[settings]
+http_retries = 5
+# "aqua:bats-core/bats-core" = "v1.13.0"
+# "aqua:gitleaks/gitleaks" = "v8.30.1"
+# "aqua:koalaman/shellcheck" = "v0.11.0"
+# "aqua:mikefarah/yq" = "v4.53.3"
+# "aqua:suzuki-shunsuke/ghalint" = "latest"
+# hk = "1.50.0"
+# jq = "latest"
+# "npm:markdownlint-cli" = "latest"
+# pkl = "latest"
+# shfmt = "latest"
+# stylua = "latest"
 
-[tasks.test]
-description = "Run test suite"
-run = "bats test/"
+# [tasks.lint]
+# description = "Lint and auto-fix"
+# run = "hk fix"
 
-[tasks."ci:lint"]
-description = "Run lint as CI does (hk check, not hk fix)"
-run = "hk check"
-env = { CI = "true", GITHUB_ACTIONS = "true" }
+# [tasks.test]
+# description = "Run test suite"
+# run = "bats test/"
 
-[tasks."ci:test"]
-description = "Run tests as CI does (with CI and GITHUB_ACTIONS set)"
-run = "bats test/"
-env = { CI = "true", GITHUB_ACTIONS = "true" }
+# [tasks."ci:lint"]
+# description = "Run lint as CI does (hk check, not hk fix)"
+# run = "hk check"
+# env = { CI = "true", GITHUB_ACTIONS = "true" }
 
-[tasks."ci:all"]
-description = "Run the full CI shape locally (lint + test, no install)"
-depends = ["ci:lint", "ci:test"]
+# [tasks."ci:test"]
+# description = "Run tests as CI does (with CI and GITHUB_ACTIONS set)"
+# run = "bats test/"
+# env = { CI = "true", GITHUB_ACTIONS = "true" }
+
+# [tasks."ci:all"]
+# description = "Run the full CI shape locally (lint + test, no install)"
+# depends = ["ci:lint", "ci:test"]
