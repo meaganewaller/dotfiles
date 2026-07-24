@@ -17,6 +17,7 @@
   enabledManagers: [
     'mise',
     'github-actions',
+    'dockerfile',
     'custom.regex',
     'custom.jsonata',
   ],
@@ -35,6 +36,12 @@
     pinDigests: true,
     managerFilePatterns: [
       '/^\\.github/workflows/.*\\.ya?ml$/',
+    ],
+  },
+  dockerfile: {
+    pinDigests: true,
+    managerFilePatterns: [
+      '/^Dockerfile$/',
     ],
   },
   packageRules: [

@@ -29,6 +29,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | **Global Claude Code config (managed)** | `home/dot_claude/` | Skills, agents, hooks, themes → `~/.claude/` via Chezmoi; details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
 | **Repo-local Claude overrides** | `.claude/` (this repo only) | Hooks, extra skills—not necessarily synced to `~` |
 | **Installer** | `./install` | Chezmoi bootstrap; env vars in [README](README.md) |
+| **Container dev environment** | `Dockerfile`, `.dockerignore`, `.devcontainer/` | Self-contained image running `./install`; VS Code/Cursor Dev Containers support |
 | **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS), `bin/skill-info` (inspect skill git history — see [Claude Code doc](docs/agents/claude-code.md#inspecting-skills)) |
 | **Tests** | `test/*.bats` | Run via `./bin/test` after `./bin/setup` |
 | **CI** | `.github/workflows/` | ShellCheck, install matrix, BATS |
