@@ -44,6 +44,9 @@ jobs:
   # since `types: [labeled]` fires for any label.
   decide:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       run: ${{ steps.gate.outputs.run }}
     steps:
