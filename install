@@ -173,6 +173,14 @@ prefetch_chezmoi_version_start() {
 	(
 		set -e
 		download_cmd_pf=$(get_download_cmd)
+		# Authenticate the api.github.com call when possible: it's subject to
+		# GitHub's anonymous 60/hr rate limit (shared per-IP, so it's easy to
+		# exhaust — especially on CI runners, which share egress IP pools).
+		# The release-asset downloads below aren't rate-limited the same way,
+		# so this is the one call worth authenticating here.
+		if [ -n "${GITHUB_TOKEN:-}" ] && command -v curl >/dev/null 2>&1; then
+			download_cmd_pf="curl -fsSL --oauth2-bearer ${GITHUB_TOKEN}"
+		fi
 		# Capture only the tag_name value via a single sed pattern so this
 		# works for both pretty and minified JSON. The previous
 		# `grep '"tag_name"' | cut -d'"' -f4` picked the wrong field
@@ -759,6 +767,11 @@ try_package_manager() {
 # Function to get latest version from GitHub
 get_latest_version() {
   download_cmd=$(get_download_cmd)
+  # See prefetch_chezmoi_version_start for why this call in particular is
+  # worth authenticating when a token is available.
+  if [ -n "${GITHUB_TOKEN:-}" ] && command -v curl >/dev/null 2>&1; then
+    download_cmd="curl -fsSL --oauth2-bearer ${GITHUB_TOKEN}"
+  fi
   $download_cmd "$GITHUB_API_URL/repos/$CHEZMOI_REPO/releases/latest" |
     grep '"tag_name"' | cut -d'"' -f4 | sed 's/^v//'
 }
@@ -787,6 +800,11 @@ download_chezmoi() {
   # Get version (reuse prefetch from parallel phase when available)
   if [ "$CHEZMOI_VERSION" = "latest" ] && [ -f "${INSTALL_RUN_DIR:-}/chezmoi-version.resolved" ]; then
     version=$(tr -d '\n' <"$INSTALL_RUN_DIR/chezmoi-version.resolved")
+    # The prefetch file exists even when the background job failed (e.g. hit
+    # GitHub's anonymous rate limit) — an empty value there shouldn't be
+    # trusted silently, so retry synchronously instead of downloading
+    # "chezmoi__linux_arm64.tar.gz" (a version-less, guaranteed-404 URL).
+    [ -n "$version" ] || version=$(get_latest_version)
   elif [ "$CHEZMOI_VERSION" = "latest" ]; then
     version=$(get_latest_version)
   else
