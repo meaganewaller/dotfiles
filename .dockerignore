@@ -1,0 +1,9 @@
+.git
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+.venv/
+.DS_Store
+docs/gitingest
+*.local.md

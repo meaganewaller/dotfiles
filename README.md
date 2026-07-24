@@ -61,6 +61,27 @@ Example:
 GIT_USER_NAME="CI User" GIT_USER_EMAIL="ci@example.com" ./install
 ```
 
+### Container / Dev Container
+
+For a self-contained dev shell without touching your host machine:
+
+```bash
+docker build -t dotfiles-dev .
+docker run --rm -it dotfiles-dev
+```
+
+Pass `--build-arg GIT_USER_NAME="Your Name" --build-arg GIT_USER_EMAIL="you@example.com"` to `docker build` to set your git identity inside the image (defaults to a placeholder identity otherwise).
+
+`./install` runs `mise install` for the full tool list during the build, and most of those tools resolve via unauthenticated GitHub API calls (60/hour). Pass a token via a build secret (not `--build-arg` — that would bake it into the image's layer history) to avoid rate-limit flakiness during the build:
+
+```bash
+docker build --secret id=github_token,env=GITHUB_TOKEN -t dotfiles-dev .
+```
+
+`GITHUB_TOKEN` above is read from your shell's environment — e.g. `export GITHUB_TOKEN=$(gh auth token)` first. Pass `-e GITHUB_TOKEN=$(gh auth token)` to `docker run` too if you plan to run `bin/setup` inside the container.
+
+Or open this repo in VS Code / Cursor and choose **Reopen in Container** — `.devcontainer/devcontainer.json` builds the same `Dockerfile` and bind-mounts the live repo so edits apply without a rebuild.
+
 ---
 
 ## Documentation map
