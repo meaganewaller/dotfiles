@@ -33,7 +33,13 @@ local linters = new Mapping<String, Step|Group> {
 
   // Lua
   ["stylua"] = Builtins.stylua
+
+  // Beads
+  ["bd-pre-commit"] {
+    check = "bd hooks run pre-commit"
+  }
 }
+
 
 hooks = new {
   ["pre-commit"] {
@@ -42,7 +48,11 @@ hooks = new {
     steps = linters
   }
   ["pre-push"] {
-    steps = linters
+    steps {
+      ["bd-pre-push"] {
+        check = "bd hooks run pre-push \"$@\""
+      }
+    }
   }
   ["commit-msg"] {
     steps {
@@ -55,5 +65,12 @@ hooks = new {
   ["fix"] {
     fix = true
     steps = linters
+  }
+  ["post-merge"] {
+    steps {
+      ["bd-post-merge"] {
+        check = "bd hooks run post-merge"
+      }
+    }
   }
 }
