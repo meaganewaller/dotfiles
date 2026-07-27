@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+{{ template "functions.sh" . }}
+# base:   {{ include "claude/roles/base.jsonc" | sha256sum }}
+# role:   {{ $roleFile := printf "claude/roles/%s.jsonc" .role -}}
+#         {{ if stat (joinPath .chezmoi.sourceDir $roleFile) }}{{ include $roleFile | sha256sum }}{{ else }}none{{ end }}
+# stacks: {{ range (glob (joinPath .chezmoi.sourceDir "claude/stacks/*.jsonc")) }}{{ . | sha256sum }} {{ end }}
+
+if ! command_available claude; then
+  echo "Error: claude command not found. Install Claude Code first." >&2
+  exit 1
+fi
+if ! command_available jq; then
+  echo "Error: jq required for JSON merging." >&2
+  exit 1
+fi
+
+DIR="{{ .chezmoi.sourceDir }}"
+ROLE="{{ .role }}"
+echo "Generating settings.json for role: $ROLE"
+
+generate_settings() {
+  echo "Generating settings.json..."
+
+  local settings_file="$HOME/.claude/settings.json"
+  local temp_file="$(mktemp)"
+
+  # Local-only keys preserved from existing settings across regens
+  local local_keys=("enabledPlugins" "extraKnownMarketplaces")
+
+  # Extract local-only settings from existing file
+  local local_settings="{}"
+  if [ -f "$settings_file" ]; then
+    for key in "${local_keys[@]}"; do
+      if jq -e ".$key" "$settings_file" > /dev/null 2>&1; then
+        local_settings=$(echo "$local_settings" | jq --argjson val "$(jq ".$key" "$settings_file")" ". + {\"$key\": \$val}")
+      fi
+    done
+  fi
+
+  # --- Load base role ---
+  local base_role="$DIR/claude/roles/base.jsonc"
+  if [ ! -f "$base_role" ]; then
+    echo "Error: $base_role not found"
+    exit 1
+  fi

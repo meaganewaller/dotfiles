@@ -1,0 +1,110 @@
+[packages.darwin]
+brews = [
+  # Security & Auth
+  "cosign",
+  "git-crypt",
+  "gnupg",
+  "ca-certificates",
+  # AI Tools
+  "aichat",
+  "beads",
+  "ccusage",
+  # CLI Utilities
+  "awscli",
+  "coreutils",
+  "curl",
+  "emojify",
+  "mise",
+  "pkl-lsp",
+  "tree",
+  # System Monitoring & Performance
+  "htop",
+  # Terminal Multiplexing & Shells
+  "tmux",
+  "zsh",
+  # Menu Bar
+  "FelixKratz/formulae/sketchybar",
+  "lua", # Interpreter Lua flavor of menu bar
+  # Docker & Containerization
+  "docker-completion",
+  "docker-credential-helper",
+  "docker-credential-helper-ecr",
+  # Media & Compression
+  "ffmpeg",
+  "flac",
+  "lz4",
+  "lzo",
+  "xz",
+  "zstd",
+  # Git & Version Control
+  "gh",
+  "git",
+  "git-lfs",
+  "worktrunk",
+  # Documentation & Visualization
+  "mermaid-cli",
+  "pandoc",
+  "texinfo",
+  # macOS Tooling
+  "antoniorodr/memo/memo",
+  "steipete/tap/remindctl",
+]
+casks = [
+  # Development Tools
+  "ngrok",
+  "visual-studio-code",
+  # Communication
+  "slack",
+  # Notes
+  "obsidian",
+  # Media
+  "vlc",
+  # Security & Authentication
+  "1password-cli",
+  "1password",
+  # Audio
+  "loopback",
+  # Fonts
+  "font-maple-mono-nf-cn",
+  "font-pixelify-sans",
+  "font-departure-mono",
+  "font-sketchybar-app-font",
+  # Terminals
+  "ghostty",
+  # Window Management
+  "nikitabobko/tap/aerospace",
+  "loop", # Manual window snapping for floating windows; coexists with aerospace (see ADR-0007)
+]
+
+[packages.darwin.roles.work]
+brews = [
+  "awscli",
+  # "some-work-only-cli",
+]
+casks = [
+  # "some-work-only-cask"
+]
+
+[packages.darwin.roles.home]
+brews = [
+  # "some-personal-tool",
+]
+
+[packages.linux]
+dnf = [
+  # Core Tools
+  "ca-certificates",
+  "gh",
+  "git",
+  "git-lfs",
+  "htop",
+  "neovim",
+  "tmux",
+  "util-linux-user",
+  "zsh",
+]
+
+[packages.linux.roles.work]
+dnf = [
+  # "some-work-only-rpm",
+]

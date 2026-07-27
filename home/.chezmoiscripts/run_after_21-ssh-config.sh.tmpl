@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -eo pipefail
+{{ template "functions.sh" . }}
+
+echo "🔑 setting up ~/.ssh/config"
+
+mkdir -p ~/.ssh/config.d
+chmod 700 ~/.ssh/config.d
+
+{{ if lookPath "colima" -}}
+echo "  → enabling colima SSH config"
+echo "Include ~/.colima/ssh_config" > ~/.ssh/config.d/colima
+{{ end -}}
+
+{{ if eq .chezmoi.os "darwin" -}}
+op_app_dir="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password"
+if [ -d "$op_app_dir" ]; then
+  {{ $agentSrc := printf "config/1password/agent.toml.%s" .role -}}
+  {{ if stat (joinPath .chezmoi.sourceDir $agentSrc) }}
+  echo "🔑 setting up 1Password SSH agent allowlist (role: {{ .role }})"
+  mkdir -p "$HOME/.config/1Password/ssh"
+  # This file is now chezmoi-managed directly at ~/.config/1Password/ssh/agent.toml
+  # via a template that selects the {{ .role }} variant — no runtime symlink needed.
+  {{ else }}
+  echo "🔑 no 1Password agent.toml for role '{{ .role }}', skipping"
+  {{ end }}
+else
+  echo "🔑 1Password not installed, skipping agent.toml setup"
+fi
+{{ end -}}
+
+include_line="Include ~/.ssh/config.d/*"
+if [ ! -f ~/.ssh/config ]; then
+  echo "$include_line" > ~/.ssh/config
+  chmod 600 ~/.ssh/config
+  echo "  → created ~/.ssh/config with Include"
+elif ! grep -qF "$include_line" ~/.ssh/config; then
+  tmp=$(mktemp)
+  { echo "$include_line"; echo; cat ~/.ssh/config; } > "$tmp"
+  mv "$tmp" ~/.ssh/config
+  chmod 600 ~/.ssh/config
+  echo "  → prepended Include to ~/.ssh/config"
+else
+  echo "  → ~/.ssh/config already has Include"
+fi

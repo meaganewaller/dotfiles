@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+{{ if lookPath "claude" -}}
+echo "Pre-creating sandbox cache directories..."
+mkdir -p "$HOME/Library/Caches/pip"
+mkdir -p "$HOME/.plannotator"
+{{- end }}

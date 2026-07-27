@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+{{ template "functions.sh" . }}
+
+{{ if ne .chezmoi.os "darwin" -}}
+exit 0
+{{ end -}}
+
+echo "🍻 running brew bundle"
+
+load_brew_shellenv
+
+if ! brew_available; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  load_brew_shellenv
+fi
+
+brew bundle --file=- 2>&1 << 'EOF' | sed 's/^/  → /'
+{{ range .packages.darwin.brews -}}
+brew "{{ . }}"
+{{ end -}}
+{{ range .packages.darwin.casks -}}
+cask "{{ . }}"
+{{ end -}}
+EOF
+
+echo

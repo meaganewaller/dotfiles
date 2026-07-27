@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail
+{{ template "functions.sh" . }}
+
+if command_available claude && command_available jq; then
+  echo "🤖 configuring Claude Code"
+  "{{ .chezmoi.sourceDir }}/claudeconfig.sh"
+else
+  missing=()
+  command_available claude || missing+=(claude)
+  command_available jq || missing+=(jq)
+  echo "⏭  skipping claudeconfig (missing: ${missing[*]})"
+  echo "   run later with: chezmoi apply"
+fi

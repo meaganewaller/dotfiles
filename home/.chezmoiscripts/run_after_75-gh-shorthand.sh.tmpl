@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+{{ if ne .chezmoi.os "darwin" -}}
+exit 0
+{{ end -}}
+
+{{ $editor := "code" -}}
+{{ if lookPath "code-insiders" }}{{ $editor = "code-insiders" }}{{ end -}}
+
+echo "🔗 generating ~/.gh-shorthand.yml"
+
+token=$(security find-internet-password -a "{{ .chezmoi.username }}" -s github.com -l 'gh-shorthand token' -w 2> /dev/null || true)
+if [ -z "$token" ]; then
+  echo "  ⚠️  missing token. Run: security add-internet-password -a {{ .chezmoi.username }} -s github.com -l 'gh-shorthand token' -w"
+fi
+
+cat > "$HOME/.gh-shorthand.yml" << EOF
+---
+repos:
+
+project_dirs:
+  - ~/src/*
+
+editor: "$editor -n"
+
+token: ${token}
+EOF

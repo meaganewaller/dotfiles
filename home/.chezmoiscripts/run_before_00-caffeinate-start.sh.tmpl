@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+{{ if eq .chezmoi.os "darwin" -}}
+caffeinate -s -i &
+echo $! > /tmp/chezmoi-caffeinate.pid
+{{- else -}}
+exit 0
+{{- end }}

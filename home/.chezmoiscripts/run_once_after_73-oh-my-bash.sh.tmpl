@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+{{ if .isCodespace -}}
+exit 0
+{{ end -}}
+
+if [[ ! -d "$HOME/.oh-my-bash" ]]; then
+  echo "💥 installing oh-my-bash"
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" --unattended
+fi

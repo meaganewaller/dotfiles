@@ -1,25 +1,41 @@
 # Chezmoi Configuration File Template
 # Processed during `chezmoi init` to create the actual config file.
 # Prompted values are stored in [data] and available to all templates via `.`.
-{{ $gitName := "" -}}
+
+{{- $gitName := "" -}}
 {{- $gitEmail := "" -}}
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
 {{- $workProfile := false -}}
 {{- $useBedrock := false -}}
+{{- $role := env "DOTFILES_ROLE" -}}
+{{- if not $role -}}
+{{-   if eq (env "CLAUDE_CODE_REMOTE") "true" -}}
+{{-     $role = "claude-code-remote" -}}
+{{-   else if or (stat "/.dockerenv") (env "DOCKER_BUILD") -}}
+{{-     $role = "container" -}}
+{{-   else if hasPrefix "meagan-waller-" .chezmoi.hostname -}}
+{{-     $role = "work" -}}
+{{-   else -}}
+{{-     $role = "home" -}}
+{{-   end -}}
+{{- end -}}
+
+
 {{- if stdinIsATTY -}}
-{{- $gitName = promptStringOnce . "git.name" "Git user.name" -}}
-{{- $gitEmail = promptStringOnce . "git.email" "Git user.email" -}}
-{{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" -}}
-{{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" -}}
-{{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
-{{- $useBedrock = promptBoolOnce . "claude.use_bedrock" "Use AWS Bedrock for Claude Code? y/N" -}}
+{{-   $gitName = promptStringOnce . "git.name" "Git user.name" -}}
+{{-   $gitEmail = promptStringOnce . "git.email" "Git user.email" -}}
+{{-   $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" -}}
+{{-   $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" -}}
+{{-   $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
+{{-   $useBedrock = promptBoolOnce . "claude.use_bedrock" "Use AWS Bedrock for Claude Code? y/N" -}}
 {{- else -}}
-{{- /* No TTY (CI, piped install, cron): skip prompts and read overrides from the environment. */ -}}
-{{- $gitName = env "GIT_USER_NAME" -}}
-{{- $gitEmail = env "GIT_USER_EMAIL" -}}
-{{- $workProfile = eq (env "WORK_PROFILE") "true" -}}
+{{-   /* No TTY (CI, piped install, cron): skip prompts and read overrides from the environment. */ -}}
+{{-   $gitName = env "GIT_USER_NAME" -}}
+{{-   $gitEmail = env "GIT_USER_EMAIL" -}}
+{{-   $workProfile = eq (env "WORK_PROFILE") "true" -}}
 {{- end }}
+
 # Custom source directory so the dotfiles repo doesn't need to live under
 # the default `~/.local/share/chezmoi/`.
 sourceDir = "{{ .chezmoi.workingTree }}"
@@ -28,6 +44,8 @@ sourceDir = "{{ .chezmoi.workingTree }}"
 cache = true
 
 [data]
+role = {{ $role | quote }}
+isCodespace = {{ eq (env "CODESPACES") "true" }}
 work_profile = {{ $workProfile }}
 
 [data.git]

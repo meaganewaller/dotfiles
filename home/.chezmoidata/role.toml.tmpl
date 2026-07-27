@@ -1,0 +1,10 @@
+{{- $role := env "DOTFILES_ROLE" -}}
+{{- if not $role -}}
+{{-   if eq (env "CLAUDE_CODE_REMOTE") "true" -}}{{- $role = "claude-code-remote" -}}
+{{-   else if or (stat "/.dockerenv") (env "DOCKER_BUILD") -}}{{- $role = "container" -}}
+{{-   else if hasPrefix "meagan-waller-" .chezmoi.hostname -}}{{- $role = "work" -}}
+{{-   else -}}{{- $role = "home" -}}
+{{-   end -}}
+{{- end -}}
+role = {{ $role | quote }}
+isCodespace = {{ eq (env "CODESPACES") "true" }}

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+{{ template "functions.sh" . }}
+# fish_plugins: {{ include "dot_config/fish/fish_plugins" | sha256sum }}
+
+{{ if .isCodespace -}}
+exit 0
+{{ end -}}
+
+if ! command_available fish; then
+  exit 0
+fi
+
+if ! fish -c "type fisher" > /dev/null 2>&1; then
+  echo "🐟 installing fisher"
+  fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher" < /dev/null
+fi
+
+echo "🐟 syncing fish plugins"
+fish -c "fisher update" < /dev/null

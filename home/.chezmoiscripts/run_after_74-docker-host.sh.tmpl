@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -eo pipefail
+{{ template "functions.sh" . }}
+
+{{ if ne .chezmoi.os "darwin" -}}
+exit 0
+{{ end -}}
+
+if ! command_available colima; then
+  exit 0
+fi
+
+echo "🐳 configuring docker"
+running_instance=$(colima list --json 2> /dev/null | jq -r 'select(.status == "Running") | .name' | head -n1)
+
+if [ -n "$running_instance" ]; then
+  docker_socket=$(colima status "$running_instance" --json 2> /dev/null | jq -r '.docker_socket // empty')
+  if [ -n "$docker_socket" ]; then
+    echo "  → setting DOCKER_HOST to $docker_socket"
+    if command_available fish; then
+      fish -c "set --universal --export DOCKER_HOST $docker_socket"
+    fi
+  fi
+else
+  echo "  → no running Colima instances found"
+fi

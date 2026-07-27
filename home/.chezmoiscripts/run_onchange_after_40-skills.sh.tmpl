@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -eo pipefail
+{{ template "functions.sh" . }}
+# .skill-lock.json: {{ include "dot_agents/dot-skill-lock.json" | sha256sum }}
+
+echo "🧩 configuring agent skills"
+
+if ! command_available npx; then
+  echo "  ⚠ npx not found, skipping skill restoration"
+  exit 0
+fi
+
+LOCK_FILE="$HOME/.agents/.skill-lock.json"
+
+jq -r '.skills | to_entries[] | select(.value.sourceType == "github") | .value.source' "$LOCK_FILE" | while read -r source; do
+  echo "  📦 installing $source (github)"
+  npx -y skills add "$source" -g -y
+done
+
+jq -r '
+  [.skills | to_entries[] | select(.value.sourceType == "git")]
+  | group_by(.value.sourceUrl)[]
+  | { url: .[0].value.sourceUrl, skills: [.[].key] }
+  | @json
+' "$LOCK_FILE" | while read -r group; do
+  url=$(echo "$group" | jq -r '.url')
+  mapfile -t skill_names < <(echo "$group" | jq -r '.skills[]')
+
+  skill_flags=""
+  for name in "${skill_names[@]}"; do
+    skill_flags="$skill_flags -s $name"
+  done
+
+  echo "  📦 installing ${skill_names[*]} from $url"
+  GIT_LFS_SKIP_SMUDGE=1 npx -y skills add "$url" $skill_flags -g -y
+done
