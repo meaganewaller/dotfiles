@@ -12,7 +12,7 @@ customCommands:
       - type: menuFromCommand
         title: AI Commits
         key: Msg
-        command: "~/.config/lazygit/aicommit.sh'"
+        command: "~/.config/lazygit/aicommit.sh"
         filter: '^(?P<raw>.+)$'
         valueFormat: "{{ "{{" }} .raw {{ "}}" }}"
         labelFormat: "{{ "{{" }} .raw | green {{ "}}" }}"
