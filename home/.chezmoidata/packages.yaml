@@ -104,3 +104,16 @@ packages:
       - tmux
       - util-linux-user
       - zsh
+    apt:
+      # Core Tools
+      # No apt equivalent for dnf's util-linux-user: its user-management
+      # utilities (chsh, newgrp, etc.) ship in Debian/Ubuntu's default
+      # util-linux/passwd/login packages, already present on a base image.
+      - ca-certificates
+      - gh
+      - git
+      - git-lfs
+      - htop
+      - neovim
+      - tmux
+      - zsh
