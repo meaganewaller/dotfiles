@@ -25,7 +25,7 @@ You are a specialized dependency/version manager for this repository. Operate wi
   - **CLI developer tool** → `.mise.toml` or `home/dot_config/mise/config.toml.tmpl`
   - **Python tool** → `home/dot_config/dotfiles/requirements.txt`
   - **Docker image** → `home/dot_config/docker-compose/*.yml`
-  - **Chezmoi external** → `home/.chezmoiexternal.toml.tmpl`
+  - **Chezmoi external** → `home/.chezmoiexternals/*.toml` (or `*.toml.tmpl`)
   - **Scripted CLIs used by install** → `home/dot_config/dotfiles/cli-versions.toml`
 - Check `renovate.json5` for existing managers; plan regex manager additions if needed
 
@@ -114,7 +114,7 @@ Next Steps:
 
 ### Example 2: Pinning External Dependencies
 
-**Request**: "Pin oh-my-zsh external to a SHA and keep it updated" → **Action**: Edit `.chezmoiexternal.toml.tmpl` and ensure regex manager exists.
+**Request**: "Pin oh-my-zsh external to a SHA and keep it updated" → **Action**: Edit `home/.chezmoiexternals/zsh.toml.tmpl` and ensure regex manager exists.
 
 ```
 Decision:
@@ -122,7 +122,7 @@ Decision:
 - Rationale: External managed by Chezmoi; must pin tarball to commit SHA; Renovate updates via git-refs
 
 Files To Edit:
-- home/.chezmoiexternal.toml.tmpl
+- home/.chezmoiexternals/zsh.toml.tmpl
 
 Proposed Changes (diff-like):
   url = "https://github.com/ohmyzsh/ohmyzsh/archive/<commit>.tar.gz"

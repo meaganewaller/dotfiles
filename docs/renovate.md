@@ -62,7 +62,7 @@ These files purposely centralize versions so Renovate can update them automatica
 - `home/dot_config/docker-compose/*.yml`
   - Service images pinned with tag+digest (e.g., `image: repo:tag@sha256:...`). Digest updates are auto‑merged.
 
-- `home/.chezmoiexternal.toml.tmpl`
+- `home/.chezmoiexternals/*.toml.tmpl`
   - All externals pinned to commit SHAs for reproducibility.
   - Tarball archives pinned in the URL with commit SHA; git repo pinned via `revision = "<sha>"`.
 
@@ -113,7 +113,7 @@ The three `github-releases` managers set `extractVersionTemplate: '^v?(?<version
 
 8) Chezmoi externals pinned to SHAs (Git Refs)
 
-- File: `home/.chezmoiexternal.toml.tmpl`
+- Files: `home/.chezmoiexternals/*.toml.tmpl`
 - Datasource: `git-refs` with `currentValueTemplate: "master"` (we track the upstream default branch and replace our pinned SHA when the branch moves).
 
 Current rules:

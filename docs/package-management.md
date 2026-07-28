@@ -14,7 +14,7 @@ This guide explains how to add, update, and manage packages in this dotfiles rep
 | **System Utilities** | `home/.chezmoidata/packages.yaml` | `brews: [ripgrep]` | ❌ Manual |
 | **GUI Applications** | `home/.chezmoidata/packages.yaml` | `casks: [ghostty]` | ❌ Manual |
 | **Neovim Plugins** | `home/dot_config/nvim/plugin/*.lua` | `vim.pack.add()` specs, pinned in `nvim-pack-lock.json` | ✅ Yes |
-| **Shell Plugins** | `home/.chezmoiexternal.toml.tmpl` | Pinned to SHA | ✅ Yes |
+| **Shell Plugins** | `home/.chezmoiexternals/*.toml.tmpl` | Pinned to SHA | ✅ Yes |
 
 "If pinned" means Renovate opens PRs for entries carrying an explicit version. Most tools in that file currently sit at `latest` by design — see [ADR 0003](adrs/0003-mise-config-plus-lockfile.md) — and are resolved by the committed `home/dot_config/mise/mise.lock` instead, refreshed with `mise lock`. Details in [docs/renovate.md](renovate.md).
 
@@ -128,7 +128,7 @@ packages:
 
 ### 4. External Dependencies (Shell Plugins)
 
-Add to `home/.chezmoiexternal.toml.tmpl` with SHA pinning:
+Add to `home/.chezmoiexternals/zsh.toml.tmpl` (or the relevant `home/.chezmoiexternals/*.toml.tmpl` file) with SHA pinning:
 
 ```toml
 [".config/zsh/plugins/new-plugin"]
@@ -141,7 +141,7 @@ Then add a Renovate rule in `renovate.json5`:
 ```json5
 {
   customManagers: [{
-    fileMatch: ["home/\\.chezmoiexternal\\.toml\\.tmpl"],
+    managerFilePatterns: ["/^home/\\.chezmoiexternals/zsh\\.toml\\.tmpl$/"],
     matchStrings: [
       "owner/repo/archive/(?<currentDigest>[a-f0-9]{7,40})\\.tar\\.gz"
     ],
