@@ -162,7 +162,7 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '/^home/\\.chezmoiexternals/ghostty\\.toml$/',
+        '/^home/\\.chezmoiexternals/ghostty\\.toml\\.tmpl$/',
       ],
       matchStrings: [
         'catppuccin/ghostty/archive/(?<currentDigest>[a-f0-9]{7,40})\\.tar\\.gz',
