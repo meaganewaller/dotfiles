@@ -53,8 +53,9 @@ assert_valid_shell() {
 assert_script_structure() {
   local script="$1"
 
-  # Should start with shebang
-  [[ "$script" == *"#!/bin/bash"* || "$script" == *"#!/bin/sh"* ]]
+  # Should start with shebang (accepts both direct and env-indirected forms)
+  [[ "$script" == *"#!/bin/bash"* || "$script" == *"#!/bin/sh"* ||
+    "$script" == *"#!/usr/bin/env bash"* || "$script" == *"#!/usr/bin/env sh"* ]]
 
   # Should be syntactically valid
   echo "$script" >"$TEST_TMPDIR/temp.sh"
