@@ -2,16 +2,25 @@
 
 set -o errexit -o nounset -o pipefail
 
-# This script automatically syncs Neovim plugins when any plugin config changes
-# The hash below triggers re-execution when files in lua/plugins/ are modified
-# Hash: {{ (glob "dot_config/nvim/lua/plugins/*.lua") | join "" | sha256sum }}
+# This script syncs Neovim plugins (managed by the built-in vim.pack, see
+# nvim-pack-lock.json) whenever a plugin spec or the pinned lockfile changes.
+# The hash covers dot_config/nvim/plugin/*.lua (where vim.pack.add() calls
+# live) by content -- not just by filename, so editing an existing file's
+# vim.pack.add() call re-fires this same as adding a new file -- plus
+# nvim-pack-lock.json itself, so a Renovate-driven pin bump re-fires it too.
+# Hash: {{ $nvimPluginsHash := "" -}}
+{{- range (glob (joinPath .chezmoi.sourceDir "dot_config/nvim/plugin/*.lua")) -}}
+{{-   $nvimPluginsHash = printf "%s%s" $nvimPluginsHash (include .) -}}
+{{- end -}}
+{{- $nvimPluginsHash = printf "%s%s" $nvimPluginsHash (include "dot_config/nvim/nvim-pack-lock.json") -}}
+{{ $nvimPluginsHash | sha256sum }}
 
 if [[ "${DEBUG:-}" == "1" ]]; then
     echo "🔄 Installing/updating Neovim plugins due to configuration changes..."
 fi
 
-# Skip on CI: Lazy! sync hits the network for every plugin and is the slowest
-# part of chezmoi apply; not worth the runtime in CI.
+# Skip on CI: plugin sync hits the network for every plugin and is the
+# slowest part of chezmoi apply; not worth the runtime in CI.
 if [[ -n "${CI:-}" ]] || [[ -n "${GITHUB_ACTIONS:-}" ]]; then
     echo "Running in CI, skipping Neovim plugin sync"
     exit 0
@@ -23,9 +32,13 @@ if ! command -v nvim >/dev/null 2>&1; then
     exit 0
 fi
 
-# Install/update plugins
+# Sourcing the config installs any plugin not yet on disk (vim.pack.add(),
+# at nvim-pack-lock.json's pinned revision); the explicit update() call then
+# brings already-installed plugins in line with the lockfile too (e.g. after
+# a Renovate bump). force+target=lockfile skips vim.pack's interactive
+# confirmation buffer, which would otherwise hang a non-interactive run.
 echo "🚀 Syncing Neovim plugins..."
-nvim --headless "+Lazy! sync" +qa
+nvim --headless -c "lua vim.pack.update(nil, { force = true, target = 'lockfile' })" +qa
 
 if [[ "${DEBUG:-}" == "1" ]]; then
     echo "✅ Neovim plugins synchronized successfully!"

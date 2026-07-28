@@ -13,7 +13,7 @@ This guide explains how to add, update, and manage packages in this dotfiles rep
 | **Node.js Tools** | `home/dot_config/mise/config.toml.tmpl` | `"npm:@anthropic-ai/claude-code" = "2.1.19"` | ✅ If pinned |
 | **System Utilities** | `home/.chezmoidata/packages.yaml` | `brews: [ripgrep]` | ❌ Manual |
 | **GUI Applications** | `home/.chezmoidata/packages.yaml` | `casks: [ghostty]` | ❌ Manual |
-| **Neovim Plugins** | `home/dot_config/nvim/lua/plugins/*.lua` | LazyVim specs | ⚙️ Via LazyVim |
+| **Neovim Plugins** | `home/dot_config/nvim/plugin/*.lua` | `vim.pack.add()` specs, pinned in `nvim-pack-lock.json` | ✅ Yes |
 | **Shell Plugins** | `home/.chezmoiexternal.toml.tmpl` | Pinned to SHA | ✅ Yes |
 
 "If pinned" means Renovate opens PRs for entries carrying an explicit version. Most tools in that file currently sit at `latest` by design — see [ADR 0003](adrs/0003-mise-config-plus-lockfile.md) — and are resolved by the committed `home/dot_config/mise/mise.lock` instead, refreshed with `mise lock`. Details in [docs/renovate.md](renovate.md).
@@ -190,7 +190,7 @@ Scripts in `home/` execute when their trigger conditions change:
 |--------|------------|----------|
 | `run_onchange_00-install-mise-tools.sh.tmpl` | mise config changes | All mise-managed tools (runtimes + backend tools) |
 | `run_onchange_install-packages-darwin.sh.tmpl` | packages.yaml changes | Homebrew packages |
-| `run_onchange_install-nvim-plugins.sh.tmpl` | Neovim plugin specs | LazyVim plugins |
+| `run_onchange_install-nvim-plugins.sh.tmpl` | `plugin/*.lua` specs or `nvim-pack-lock.json` changes | `vim.pack`-managed plugins |
 
 The `00-` prefix ensures mise tools install first. All Python/Node tools are now installed via mise backends (`pipx:`, `npm:`) in a single script.
 
