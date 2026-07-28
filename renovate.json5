@@ -301,15 +301,22 @@
       packageNameTemplate: 'https://github.com/{{{depName}}}',
     },
     {
-      customType: 'regex',
+      // nvim-pack-lock.json is generated/rewritten by Neovim's vim.pack manager, so we
+      // can't add a per-entry branch field the way tmux-plugins.yaml does. currentValue
+      // 'HEAD' doesn't work either: git-refs' getDigest only takes the type==='' HEAD
+      // fallback when no newValue is passed, but Renovate always passes currentValue as
+      // newValue here, and no ref has type 'heads'/'tags' with value 'HEAD' -- so it can
+      // never resolve. Instead, hardcode each repo's real default branch (verified via
+      // `gh api repos/<owner>/<repo> --jq .default_branch`) in a lookup table.
+      customType: 'jsonata',
+      fileFormat: 'json',
       managerFilePatterns: [
         '/^home/dot_config/nvim/nvim-pack-lock\\.json$/',
       ],
       matchStrings: [
-        '"(?<depName>[^"]+)":\\s*\\{\\s*"rev":\\s*"(?<currentDigest>[a-f0-9]{40})",\\s*"src":\\s*"(?<packageName>[^"]+)"',
+        '$each(plugins, function($v, $k) { { "depName": $k, "packageName": $v.src, "currentDigest": $v.rev, "currentValue": $lookup({ "Saghen/blink.cmp": "main", "rockerBOO/boo-colorscheme-nvim": "main", "catppuccin/nvim": "main", "zootedb0t/citruszest.nvim": "main", "xero/evangelion.nvim": "main", "everviolet/nvim": "main", "ibhagwan/fzf-lua": "main", "lewis6991/gitsigns.nvim": "main", "ellisonleao/gruvbox.nvim": "main", "rebelot/kanagawa.nvim": "master", "nvim-lualine/lualine.nvim": "master", "savq/melange-nvim": "master", "xero/miasma.nvim": "main", "trapd00r/neverland-vim-theme": "master", "EdenEast/nightfox.nvim": "main", "nvim-treesitter/nvim-treesitter": "main", "nvim-tree/nvim-web-devicons": "master", "stevearc/oil.nvim": "master", "navarasu/onedark.nvim": "master", "rose-pine/neovim": "main", "b0o/schemastore.nvim": "main", "folke/tokyonight.nvim": "main", "vague-theme/vague.nvim": "main", "danilo-augusto/vim-afterglow": "master", "folke/which-key.nvim": "main", "bettervim/yugen.nvim": "main" }, $replace($v.src, "https://github.com/", "")) } })',
       ],
       datasourceTemplate: 'git-refs',
-      currentValueTemplate: 'HEAD',
     },
   ],
 }
