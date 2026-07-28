@@ -43,8 +43,4 @@ jobs:
       - name: Run test suite in container
         env:
           GITHUB_TOKEN: ${{ secrets.MISE_GITHUB_TOKEN }}
-        # `;` not `&&`: bin/setup's mise install resolves the full merged
-        # global+local tool list and can exit non-zero over unrelated broken
-        # entries (e.g. a tool unsupported on one arch) even when everything
-        # bin/test actually needs installed fine. See dotfiles-f14.
-        run: docker run --rm -e GITHUB_TOKEN="$GITHUB_TOKEN" dotfiles-dev zsh -lc "bin/setup; bin/test"
+        run: docker run --rm -e GITHUB_TOKEN="$GITHUB_TOKEN" dotfiles-dev zsh -lc "bin/setup && bin/test"
