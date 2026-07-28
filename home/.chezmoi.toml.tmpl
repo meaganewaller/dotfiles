@@ -10,8 +10,12 @@
 {{- if stdinIsATTY -}}
 {{- $gitName = promptStringOnce . "git.name" "Git user.name" -}}
 {{- $gitEmail = promptStringOnce . "git.email" "Git user.email" -}}
-{{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" -}}
-{{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" -}}
+{{- /* trimAll guards against pasting a ref with its surrounding quotes still
+       attached (e.g. copied from a JSON export) -- op read/onepasswordRead
+       treat embedded quote characters as part of the reference and fail
+       with "invalid secret reference" instead of a clear prompt-time error. */ -}}
+{{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" | trimAll "\"" -}}
+{{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" | trimAll "\"" -}}
 {{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
 {{- $useBedrock = promptBoolOnce . "claude.use_bedrock" "Use AWS Bedrock for Claude Code? y/N" -}}
 {{- else -}}
