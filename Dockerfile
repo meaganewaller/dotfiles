@@ -35,14 +35,6 @@ USER ${USERNAME}
 WORKDIR /home/${USERNAME}/src/github.com/meaganewaller/dotfiles
 COPY --chown=${USERNAME}:${USERNAME} . .
 
-# VERIFY_SIGNATURES=false: Debian/Ubuntu doesn't package chezmoi, so ./install
-# falls back to a GitHub-release download here, and that fallback's cosign
-# signature check is currently broken upstream — chezmoi stopped publishing
-# the checksums.txt.sig/.pub pair install.sh expects, in favor of a Sigstore
-# bundle (chezmoi_<version>_checksums.txt.sigstore.json). Tracked as
-# dotfiles-xeo. sha256 checksum verification of the downloaded archive still
-# runs unconditionally either way — this only skips the extra signature-of-
-# the-checksums-file step.
 # --mount=type=secret (not ARG/ENV): ./install's `mise install` for the full
 # user-global tool list makes dozens of unauthenticated GitHub API calls
 # (60/hr limit); a token avoids the flakiness, same as bootstrap-dotfiles
@@ -53,7 +45,6 @@ RUN --mount=type=secret,id=github_token,env=GITHUB_TOKEN,required=false \
     GIT_USER_NAME="${GIT_USER_NAME}" \
     GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
     WORK_PROFILE=false \
-    VERIFY_SIGNATURES=false \
     ./install
 
 SHELL ["/usr/bin/zsh", "-lc"]

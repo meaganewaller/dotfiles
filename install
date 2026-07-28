@@ -829,7 +829,10 @@ download_chezmoi() {
   base_url="$GITHUB_RELEASES_URL/$CHEZMOI_REPO/releases/download/v$version"
   archive="chezmoi_${version}_${system}.${ext}"
   checksums="chezmoi_${version}_checksums.txt"
-  signature="chezmoi_${version}_checksums.txt.sig"
+  # Upstream moved from a detached .sig to a Sigstore bundle (still the same
+  # cosign.key, just wrapped as a bundle) -- verify with `--bundle`, not
+  # `--signature`. See chezmoi's .config/goreleaser.yaml `signs:` block.
+  signature="chezmoi_${version}_checksums.txt.sigstore.json"
   pubkey="chezmoi_cosign.pub"
 
   # Full paths in temporary directory
@@ -878,7 +881,7 @@ download_chezmoi() {
   # Only download and verify signature if verification is enabled
   if [ "$VERIFY_SIGNATURES" = "true" ]; then
     log_info "Verifying signature..."
-    if ! cosign verify-blob "$checksums_path" --signature "$signature_path" --key "$pubkey_path"; then
+    if ! cosign verify-blob --bundle "$signature_path" --key "$pubkey_path" "$checksums_path"; then
       log_error "Signature verification failed"
       exit 1
     fi
