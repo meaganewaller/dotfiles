@@ -82,7 +82,7 @@ current_dir=$(pwd)
 
 3. If in dotfiles:
    - Proceed with `mise use --global`
-   - This will update `home/dot_config/mise/config.toml` (the chezmoi source file)
+   - This will update `home/dot_config/mise/config.toml.tmpl` (the chezmoi source file)
    - Remind user to apply changes: `chezmoi apply ~/.config/mise/config.toml`
 
 Decision tree for project-local installs:

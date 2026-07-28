@@ -11,7 +11,7 @@ All durable edits belong in the **source tree** under `home/` in this repository
 | Destination (example) | Source in this repo |
 | --- | --- |
 | `~/.zshrc` | `home/dot_zshrc.tmpl` or `home/dot_zshrc` |
-| `~/.config/mise/config.toml` | `home/dot_config/mise/config.toml` |
+| `~/.config/mise/config.toml` | `home/dot_config/mise/config.toml.tmpl` |
 | `~/.config/nvim/` | `home/dot_config/nvim/` |
 | `~/.config/ghostty/config` | `home/dot_config/ghostty/config` |
 

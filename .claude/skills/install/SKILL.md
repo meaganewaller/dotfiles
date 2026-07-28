@@ -7,7 +7,7 @@ allowed-tools:
   - Grep
   - Glob
   - AskUserQuestion
-  - Edit(home/dot_config/mise/config.toml)
+  - Edit(home/dot_config/mise/config.toml.tmpl)
   - Edit(home/.chezmoidata/packages.yaml)
   - Bash(mise registry:*)
   - Bash(mise ls-remote:*)
@@ -75,7 +75,7 @@ mise ls-remote <tool> | tail -1
 
 ### 3. Add to Manifest
 
-**Mise tools** → `home/dot_config/mise/config.toml`:
+**Mise tools** → `home/dot_config/mise/config.toml.tmpl`:
 - Add under `[tools]` section
 - Use backend prefix
 - Pin exact version
