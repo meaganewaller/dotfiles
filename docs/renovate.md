@@ -101,17 +101,7 @@ The three `github-releases` managers set `extractVersionTemplate: '^v?(?<version
 
 `depName` for aqua/github/ubi is restricted to exactly `owner/repo`. Multi‑segment aqua paths such as `aqua:Automattic/harper/harper-ls` are skipped on purpose: the extra segment names a sub‑tool, not a GitHub repo, so a lookup would resolve to nothing.
 
-7) Optional Go/Node tool manifests (present if we add these files later)
-
-- Go tools file: `home/dot_config/go-tools/tools.txt`
-  - Pattern: `^(?<depName>[^\s@]+)@(?<currentValue>v?[^\s#]+)`
-  - Datasource: `go`
-
-- Node tools file: `home/dot_config/node-tools/tools.txt`
-  - Pattern: `^(?<depName>[^@\n]+)@(?<currentValue>[^\n#]+)`
-  - Datasource: `npm`
-
-8) Chezmoi externals pinned to SHAs (Git Refs)
+7) Chezmoi externals pinned to SHAs (Git Refs)
 
 - Files: `home/.chezmoiexternals/*.toml.tmpl`
 - Datasource: `git-refs` with `currentValueTemplate: "master"` (we track the upstream default branch and replace our pinned SHA when the branch moves).

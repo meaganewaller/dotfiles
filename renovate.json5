@@ -162,26 +162,6 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '/^home/dot_config/go-tools/tools\\.txt$/',
-      ],
-      matchStrings: [
-        '^(?<depName>[^\\s@]+)@(?<currentValue>v?[^\\s#]+)',
-      ],
-      datasourceTemplate: 'go',
-    },
-    {
-      customType: 'regex',
-      managerFilePatterns: [
-        '/^home/dot_config/node-tools/tools\\.txt$/',
-      ],
-      matchStrings: [
-        '^(?<depName>[^@\\n]+)@(?<currentValue>[^\\n#]+)',
-      ],
-      datasourceTemplate: 'npm',
-    },
-    {
-      customType: 'regex',
-      managerFilePatterns: [
         '/^home/\\.chezmoiexternals/ghostty\\.toml$/',
       ],
       matchStrings: [
