@@ -951,10 +951,15 @@ install_chezmoi() {
   fi
   download_chezmoi
 
-  # Final verification
-  if ! command -v chezmoi >/dev/null 2>&1; then
-    log_error "chezmoi installation failed - binary not found in PATH"
-    log_error "Please ensure $BIN_DIR is in your PATH"
+  # Final verification: check the file directly rather than via `command -v`.
+  # $BIN_DIR isn't added to PATH until add_to_path() runs later in main(),
+  # well after this function returns, so a PATH-based check here always
+  # fails on this fallback path in non-interactive shells (no ~/.profile to
+  # pre-seed PATH). download_chezmoi already exits 1 on any real failure, so
+  # by this point the binary is guaranteed to exist at $BIN_DIR/chezmoi;
+  # main() does its own broader, PATH-independent resolution afterward.
+  if [ ! -x "$BIN_DIR/chezmoi" ]; then
+    log_error "chezmoi installation failed - binary not found at $BIN_DIR/chezmoi"
     exit 1
   fi
 }
