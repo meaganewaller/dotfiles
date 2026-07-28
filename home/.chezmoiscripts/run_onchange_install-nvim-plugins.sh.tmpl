@@ -21,11 +21,7 @@ fi
 
 # Skip on CI: plugin sync hits the network for every plugin and is the
 # slowest part of chezmoi apply; not worth the runtime in CI.
-if [[ -n "${CI:-}" ]] || [[ -n "${GITHUB_ACTIONS:-}" ]]; then
-    echo "Running in CI, skipping Neovim plugin sync"
-    exit 0
-fi
-
+{{ template "ci-skip-guard" "Running in CI, skipping Neovim plugin sync" }}
 # Check if nvim is available
 if ! command -v nvim >/dev/null 2>&1; then
     echo "Warning: Neovim not found, skipping plugin installation"
