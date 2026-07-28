@@ -182,7 +182,7 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '/^home/\\.chezmoiexternal\\.toml\\.tmpl$/',
+        '/^home/\\.chezmoiexternals/ghostty\\.toml$/',
       ],
       matchStrings: [
         'catppuccin/ghostty/archive/(?<currentDigest>[a-f0-9]{7,40})\\.tar\\.gz',
@@ -195,7 +195,7 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '/^home/\\.chezmoiexternal\\.toml\\.tmpl$/',
+        '/^home/\\.chezmoiexternals/zsh\\.toml\\.tmpl$/',
       ],
       matchStrings: [
         'ohmyzsh/ohmyzsh/archive/(?<currentDigest>[a-f0-9]{7,40})\\.tar\\.gz',
@@ -208,7 +208,7 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '/^home/\\.chezmoiexternal\\.toml\\.tmpl$/',
+        '/^home/\\.chezmoiexternals/zsh\\.toml\\.tmpl$/',
       ],
       matchStrings: [
         'zsh-users/zsh-autosuggestions/archive/(?<currentDigest>[a-f0-9]{7,40})\\.tar\\.gz',
@@ -221,7 +221,7 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '/^home/\\.chezmoiexternal\\.toml\\.tmpl$/',
+        '/^home/\\.chezmoiexternals/zsh\\.toml\\.tmpl$/',
       ],
       matchStrings: [
         'zsh-users/zsh-syntax-highlighting/archive/(?<currentDigest>[a-f0-9]{7,40})\\.tar\\.gz',
@@ -230,6 +230,47 @@
       currentValueTemplate: 'master',
       depNameTemplate: 'zsh-users/zsh-syntax-highlighting',
       packageNameTemplate: 'https://github.com/zsh-users/zsh-syntax-highlighting',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/\\.chezmoiexternals/fish\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        'twpayne/chezmoi/(?<currentDigest>[a-f0-9]{7,40})/completions/chezmoi\\.fish',
+      ],
+      datasourceTemplate: 'git-refs',
+      currentValueTemplate: 'master',
+      depNameTemplate: 'twpayne/chezmoi',
+      packageNameTemplate: 'https://github.com/twpayne/chezmoi',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/\\.chezmoiexternals/fish\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        'watchexec/watchexec/(?<currentDigest>[a-f0-9]{7,40})/completions/fish',
+      ],
+      datasourceTemplate: 'git-refs',
+      currentValueTemplate: 'main',
+      depNameTemplate: 'watchexec/watchexec',
+      packageNameTemplate: 'https://github.com/watchexec/watchexec',
+    },
+    {
+      // Matches all 4 tokyonight_*.theme occurrences in this file -- same repo/SHA,
+      // grouped by Renovate into one PR since they share depName/packageName.
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/\\.chezmoiexternals/fish\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        'folke/tokyonight\\.nvim/(?<currentDigest>[a-f0-9]{7,40})/extras/fish_themes/',
+      ],
+      datasourceTemplate: 'git-refs',
+      currentValueTemplate: 'main',
+      depNameTemplate: 'folke/tokyonight.nvim',
+      packageNameTemplate: 'https://github.com/folke/tokyonight.nvim',
     },
     {
       customType: 'regex',
@@ -250,8 +291,11 @@
       managerFilePatterns: [
         '/^home/\\.chezmoidata/tmux-plugins\\.yaml$/',
       ],
+      // Catalog `url`s are full clone URLs with an inconsistent `.git` suffix, so
+      // reduce them to owner/repo for depName. `branch` is per-entry because these
+      // repos disagree on their default branch name.
       matchStrings: [
-        'tmuxPlugins.{ "depName": repo, "currentValue": ref, "currentDigest": commit }',
+        'tmux_plugins.extras.{ "depName": $replace($replace(url, "https://github.com/", ""), ".git", ""), "currentValue": branch, "currentDigest": revision }',
       ],
       datasourceTemplate: 'git-refs',
       packageNameTemplate: 'https://github.com/{{{depName}}}',

@@ -4,21 +4,27 @@
 # Supported shapes:
 #   - type: archive — optional exact (bool), stripComponents (int)
 #   - type: git-repo — optional revision (string) when pinning beyond URL defaults
+#   - branch: upstream ref that `revision` pins. Unused by the template; Renovate
+#     resolves it to bump `revision` (see renovate.json5). These repos disagree on
+#     the default branch name, so it cannot be hardcoded in the Renovate manager.
 #
 tmux_plugins:
   extras:
     - path: ".config/tmux/plugins/tmux-sensible"
       type: git-repo
       url: https://github.com/tmux-plugins/tmux-sensible.git
+      branch: master
       revision: 25cb91f42d020f675bb0a2ce3fbd3a5d96119efa
       refreshPeriod: "168h"
     - path: ".config/tmux/plugins/tmux-powerline"
       type: git-repo
       url: https://github.com/erikw/tmux-powerline.git
+      branch: main
       revision: 6cddf8051823815db77fc00dcbb6bcca9afbdec2
       refreshPeriod: "168h"
     - path: ".config/tmux/plugins/tmux-prefix-highlight"
       type: git-repo
       url: https://github.com/tmux-plugins/tmux-prefix-highlight
+      branch: master
       revision: 06cbb4ecd3a0a918ce355c70dc56d79debd455c7
       refreshPeriod: "168h"
