@@ -8,6 +8,8 @@ informed: []
 
 # Tmux plugins via Chezmoi externals (not TPM / tpack / submodules)
 
+> **Updated 2026-07-28.** The gpakosz/.tmux base described in the context below has since been fully removed and replaced by a standalone, hand-written `home/dot_config/tmux/tmux.conf` (XDG path) built on `tmux-sensible` — see [docs/tmux.md](../tmux.md) for the current architecture. This ADR's actual decision — manage tmux plugin directories exclusively via Chezmoi externals, cataloged in `home/.chezmoidata/tmux-plugins.yaml` — is unaffected and still describes today's setup. Three operational details below are now stale: the externals TOML was later split into `home/.chezmoiexternals/*.toml.tmpl` (was one `home/.chezmoiexternal.toml.tmpl`); there is no more static `[".tmux"]` external block, since gpakosz was removed; and there is no `dot_tmux.conf.local` — plugin `run-shell` lines live directly in `home/dot_config/tmux/tmux.conf`.
+
 ## Context and Problem Statement
 
 Tmux “plugins” are usually plain directories of `.tmux` scripts or small repos that must land on disk before `tmux.conf` runs `source` / `run-shell`. Common ways to get them there are:

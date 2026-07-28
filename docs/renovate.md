@@ -111,7 +111,8 @@ Current rules:
 - oh-my-zsh tarball: `ohmyzsh/ohmyzsh/archive/(?<currentDigest>[a-f0-9]{7,40})\.tar\.gz`
 - zsh‑autosuggestions tarball: `zsh-users/zsh-autosuggestions/archive/(?<currentDigest>[a-f0-9]{7,40})\.tar\.gz`
 - zsh‑syntax‑highlighting tarball: `zsh-users/zsh-syntax-highlighting/archive/(?<currentDigest>[a-f0-9]{7,40})\.tar\.gz`
-- gpakosz/.tmux repo revision: `^\s*revision\s*=\s*"(?<currentDigest>[a-f0-9]{7,40})"`
+
+Tmux plugins are pinned differently: the catalog lives in `home/.chezmoidata/tmux-plugins.yaml` (see [ADR 0002](adrs/0002-tmux-plugins-via-chezmoi-externals.md)), not directly in a `.toml.tmpl` external, so a `jsonata` custom manager reads it directly — `tmux_plugins.extras.{ "depName": ..., "currentValue": branch, "currentDigest": revision }` — instead of a regex over TOML. `branch` is a per-entry field in the YAML (not read from the file by the manager) because tmux-sensible/tmux-prefix-highlight default to `master` while tmux-powerline defaults to `main`; a single hardcoded `currentValueTemplate` would silently miss whichever one disagrees.
 
 `home/.chezmoiexternals/fish.toml.tmpl` pins raw-file URLs (not tarballs) to commit SHAs the same way:
 
