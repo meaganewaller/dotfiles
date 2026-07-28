@@ -101,12 +101,12 @@ Or open this repo in VS Code / Cursor and choose **Reopen in Container** — `.d
 
 ## Tech stack
 
-How the pieces fit together in **this** repository (not an exhaustive list of every CLI pin—see `home/dot_config/mise/config.toml` and `home/.chezmoidata/` for those).
+How the pieces fit together in **this** repository (not an exhaustive list of every CLI pin—see `home/dot_config/mise/config.toml.tmpl` and `home/.chezmoidata/` for those).
 
 | Concern | What this repo uses |
 | --- | --- |
 | **Dotfile delivery** | [Chezmoi](https://chezmoi.io/) — `sourceDir` is the working tree; `home/dot_*` → `~`; `.tmpl` for Go `text/template` |
-| **Pinned CLIs & runtimes** | [mise](https://mise.jdx.dev/) — aqua / GitHub / pipx / npm / cargo backends; user tools in `home/dot_config/mise/config.toml` |
+| **Pinned CLIs & runtimes** | [mise](https://mise.jdx.dev/) — aqua / GitHub / pipx / npm / cargo backends; user tools in `home/dot_config/mise/config.toml.tmpl` |
 | **Dev-only test tools** | Root [`.mise.toml`](.mise.toml) — BATS, ShellCheck, yq, shfmt (`./bin/setup` → `mise install`) |
 | **macOS system packages** | [Homebrew](https://brew.sh/) — `brew bundle` from Chezmoi-rendered data (`run_onchange_install-packages-darwin.sh.tmpl`) |
 | **Bootstrap / trust** | `./install` — prefers OS package managers, otherwise GitHub releases; optional [cosign](https://docs.sigstore.dev/cosign/overview/) verification for downloads |

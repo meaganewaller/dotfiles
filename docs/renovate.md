@@ -22,7 +22,8 @@ File: `renovate.json5`
 
 Enabled managers and file discovery:
 
-- `mise`: `.mise.toml`, `home/dot_config/mise/config.toml` (includes npm and Python tools via custom regex managers)
+- `mise` (native manager): `mise.toml` at the repo root, together with its committed `mise.lock`
+- `home/dot_config/mise/config.toml.tmpl`: custom regex managers only — this file is a Chezmoi template, so its Go directives make it invalid TOML and the native `mise` manager cannot parse it. Its sibling `home/dot_config/mise/mise.lock` cannot substitute, because Renovate reads a `mise.lock` only as a companion to a config file it already parsed.
 - `docker-compose`: `home/dot_config/docker-compose/*.yml`
 - `github-actions`: `.github/workflows/*.yml` (with digest pinning)
 
@@ -30,7 +31,7 @@ Grouping and automerge rules:
 
 - `github-actions`: group by manager, automerge minor/patch/digest
 - `docker-compose`: group by manager, automerge digest updates
-- `mise`: grouped as `mise-tools` (no automerge; includes npm and Python packages)
+- `mise`: not grouped; picks up the top-level `automerge: true` / `automergeStrategy: squash` like everything else. A `matchManagers: ['mise']` packageRule applies `extractVersion: '^v?(?<version>.+)$'` so tags such as `v1.2.3` land as `1.2.3`.
 
 Why: high-signal, low-risk updates (actions/digests) are auto‑merged to keep things current; others require review.
 
@@ -44,15 +45,19 @@ These files purposely centralize versions so Renovate can update them automatica
   - Holds pinned CLI versions used by the installer and scripts.
   - Currently: `cosign` (used for signature verification). Renovate updates via GitHub Releases.
 
-- `.mise.toml` and `home/dot_config/mise/config.toml`
-  - Define tool versions managed by [mise]. Pins explicit versions (no `latest`).
-  - Supports multiple backends:
-    - Native mise tools (e.g., `python = "3.13.7"`, `node = "24.11.1"`)
+- `mise.toml` (repo dev tools) and `home/dot_config/mise/config.toml.tmpl` (user global tools)
+  - Define tool versions managed by [mise], across several backends:
+    - Native mise tools (e.g., `python = "3.14"`, `node = "24"`)
     - Aqua‑sourced tools (`"aqua:owner/repo" = "vX.Y.Z"`)
     - Github‑sourced tools (`"github:owner/repo" = "vX.Y.Z"`)
+    - ubi‑sourced tools (`"ubi:owner/repo" = "X.Y.Z"`)
     - npm packages (`"npm:@scope/package" = "X.Y.Z"`)
     - Python/pipx tools (`"pipx:package" = "X.Y.Z"`)
-  - Renovate updates all these via custom regex managers with appropriate datasources (npm, pypi, github-releases).
+  - Per [ADR 0003](adrs/0003-mise-config-plus-lockfile.md), these configs hold *intent* and may use `latest` or a coarse major; the exact resolved version lives in the committed `mise.lock` beside each config. Renovate therefore only bumps entries that already carry an explicit version — `latest` entries are refreshed by running `mise install` / `mise lock`, not by a Renovate PR.
+
+- `mise.lock` and `home/dot_config/mise/mise.lock`
+  - Machine truth: resolved version, checksum, and download URL per platform.
+  - Renovate reads a lockfile only as a companion to a mise config it could parse, so the root `mise.lock` participates but `home/dot_config/mise/mise.lock` does not (its config is a `.tmpl`). Refresh that one with `mise lock` — see the ADR for the `mise lock --global` caveat on managed workstations.
 
 - `home/dot_config/docker-compose/*.yml`
   - Service images pinned with tag+digest (e.g., `image: repo:tag@sha256:...`). Digest updates are auto‑merged.
@@ -75,31 +80,28 @@ Defined in `renovate.json5`:
 - Pattern: `^cosign\s*=\s*"(?<currentValue>v?[^\"]+)"`
 - Datasource: `github-releases`, `depNameTemplate: sigstore/cosign`
 
-2) Aqua‑prefixed tools in mise TOML (GitHub Releases)
+2–6) Backend‑prefixed tools in the user mise config
 
-- Files: `.mise.toml`, `home/dot_config/mise/config.toml`
-- Pattern: `"aqua:(?<depName>[^/]+/[^\"]+)"\s*=\s*"(?<currentValue>v?[^\"]+)"`
-- Datasource: `github-releases` (e.g., `aqua:mikefarah/yq` → `mikefarah/yq`)
+All five share one file — `home/dot_config/mise/config.toml.tmpl` — and two deliberate constraints:
 
-3) GitHub‑prefixed tools in mise TOML (GitHub Releases)
+- **Regex, not the native `mise` manager**, because that file is a Chezmoi template and so is not valid TOML.
+- **`currentValue` must start with a digit** (optionally after `v`), so `latest` is never matched. `latest` in this config is policy per [ADR 0003](adrs/0003-mise-config-plus-lockfile.md); widening these patterns to match it would open one PR per tool rewriting that policy away. Inline‑table forms (`= { version = "latest", bin = "..." }`) are likewise not matched.
 
-- Files: `.mise.toml`, `home/dot_config/mise/config.toml`
-- Pattern: `"github:(?<depName>[^/]+/[^\"]+)"\s*=\s*"(?<currentValue>v?[^\"]+)"`
-- Datasource: `github-releases` (e.g., `github:sst/opencode` → `sst/opencode`)
+The repo‑root `mise.toml` is intentionally **not** in scope for these five — the native `mise` manager already covers it, and adding it here would double‑report every pinned tool.
 
-4) npm‑prefixed tools in mise TOML (npm registry)
+| # | Prefix | Pattern | Datasource | Example |
+| --- | --- | --- | --- | --- |
+| 2 | `aqua:` | `"aqua:(?<depName>[^/"]+/[^/"]+)"\s*=\s*"(?<currentValue>v?\d[^"]*)"` | `github-releases` | `aqua:mikefarah/yq` → `mikefarah/yq` |
+| 3 | `github:` | `"github:(?<depName>[^/"]+/[^/"]+)"\s*=\s*"(?<currentValue>v?\d[^"]*)"` | `github-releases` | `github:sst/opencode` → `sst/opencode` |
+| 4 | `ubi:` | `"ubi:(?<depName>[^/"]+/[^/"]+)"\s*=\s*"(?<currentValue>v?\d[^"]*)"` | `github-releases` | `ubi:miltonparedes/kitmux` → `miltonparedes/kitmux` |
+| 5 | `npm:` | `"npm:(?<depName>[^"]+)"\s*=\s*"(?<currentValue>\d[^"]*)"` | `npm` | `npm:@anthropic-ai/claude-code` |
+| 6 | `pipx:` | `"pipx:(?<depName>[^"]+)"\s*=\s*"(?<currentValue>\d[^"]*)"` | `pypi` | `pipx:gitingest` → `gitingest` |
 
-- Files: `.mise.toml`, `home/dot_config/mise/config.toml`
-- Pattern: `"npm:(?<depName>[^\"]+)"\s*=\s*"(?<currentValue>[^\"]+)"`
-- Datasource: `npm` (e.g., `npm:@anthropic-ai/claude-code` → `@anthropic-ai/claude-code`)
+The three `github-releases` managers set `extractVersionTemplate: '^v?(?<version>.+)$'`, mirroring the `extractVersion` packageRule that the native `mise` manager gets.
 
-5) pipx‑prefixed tools in mise TOML (PyPI)
+`depName` for aqua/github/ubi is restricted to exactly `owner/repo`. Multi‑segment aqua paths such as `aqua:Automattic/harper/harper-ls` are skipped on purpose: the extra segment names a sub‑tool, not a GitHub repo, so a lookup would resolve to nothing.
 
-- Files: `.mise.toml`, `home/dot_config/mise/config.toml`
-- Pattern: `"pipx:(?<depName>[^\"]+)"\s*=\s*"(?<currentValue>[^\"]+)"`
-- Datasource: `pypi` (e.g., `pipx:gitingest` → `gitingest`)
-
-6) Optional Go/Node tool manifests (present if we add these files later)
+7) Optional Go/Node tool manifests (present if we add these files later)
 
 - Go tools file: `home/dot_config/go-tools/tools.txt`
   - Pattern: `^(?<depName>[^\s@]+)@(?<currentValue>v?[^\s#]+)`
@@ -109,7 +111,7 @@ Defined in `renovate.json5`:
   - Pattern: `^(?<depName>[^@\n]+)@(?<currentValue>[^\n#]+)`
   - Datasource: `npm`
 
-7) Chezmoi externals pinned to SHAs (Git Refs)
+8) Chezmoi externals pinned to SHAs (Git Refs)
 
 - File: `home/.chezmoiexternal.toml.tmpl`
 - Datasource: `git-refs` with `currentValueTemplate: "master"` (we track the upstream default branch and replace our pinned SHA when the branch moves).
@@ -129,11 +131,7 @@ Note: When adding new externals, add a matching regex rule so Renovate can keep 
 
 - Docker: PRs updating only digests or minor/patch releases; digests grouped and auto‑merged.
 - GitHub Actions: digest pinning and minor/patch updates grouped and auto‑merged.
-- Mise tools: PRs update `.mise.toml` and `home/dot_config/mise/config.toml` pins, including:
-  - Native runtimes (Python, Node.js, etc.)
-  - Aqua/GitHub tools (from GitHub releases)
-  - npm packages (via `npm:` prefix)
-  - Python/pipx tools (via `pipx:` prefix)
+- Mise tools: PRs update explicitly versioned pins in `mise.toml` (native manager, plus its `mise.lock`) and in `home/dot_config/mise/config.toml.tmpl` (regex managers), covering native runtimes, aqua/github/ubi tools, npm packages, and pipx tools. Entries left at `latest` are out of scope by design and move only when `mise install` / `mise lock` re-resolves them.
 - CLI versions: PRs update `cli-versions.toml` (e.g., `cosign`).
 - Chezmoi externals: PRs replace commit SHAs in tarball URLs or `revision = "..."`.
 

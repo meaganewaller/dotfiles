@@ -64,6 +64,72 @@
       depNameTemplate: 'sigstore/cosign',
       datasourceTemplate: 'github-releases',
     },
+    // The five managers below cover the user mise config. Two constraints shape
+    // them, and both are easy to "fix" into breakage:
+    //
+    // 1. Regex, not the native `mise` manager: that file is a Chezmoi template
+    //    whose Go directives make it invalid TOML, and Renovate's mise manager
+    //    returns nothing when TOML parsing fails. Its sibling mise.lock cannot
+    //    stand in either -- Renovate only reads a mise.lock as a companion to a
+    //    config it already parsed.
+    // 2. currentValue must start with a digit, so `latest` never matches. Per
+    //    docs/adrs/0003-mise-config-plus-lockfile.md, `latest` in that config is
+    //    deliberate policy (intent lives in config, resolved versions live in the
+    //    committed mise.lock). Widening these to match `latest` would open a PR
+    //    per tool rewriting that policy away.
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/dot_config/mise/config\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        '"aqua:(?<depName>[^/"]+/[^/"]+)"\\s*=\\s*"(?<currentValue>v?\\d[^"]*)"',
+      ],
+      datasourceTemplate: 'github-releases',
+      extractVersionTemplate: '^v?(?<version>.+)$',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/dot_config/mise/config\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        '"github:(?<depName>[^/"]+/[^/"]+)"\\s*=\\s*"(?<currentValue>v?\\d[^"]*)"',
+      ],
+      datasourceTemplate: 'github-releases',
+      extractVersionTemplate: '^v?(?<version>.+)$',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/dot_config/mise/config\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        '"ubi:(?<depName>[^/"]+/[^/"]+)"\\s*=\\s*"(?<currentValue>v?\\d[^"]*)"',
+      ],
+      datasourceTemplate: 'github-releases',
+      extractVersionTemplate: '^v?(?<version>.+)$',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/dot_config/mise/config\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        '"npm:(?<depName>[^"]+)"\\s*=\\s*"(?<currentValue>\\d[^"]*)"',
+      ],
+      datasourceTemplate: 'npm',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^home/dot_config/mise/config\\.toml\\.tmpl$/',
+      ],
+      matchStrings: [
+        '"pipx:(?<depName>[^"]+)"\\s*=\\s*"(?<currentValue>\\d[^"]*)"',
+      ],
+      datasourceTemplate: 'pypi',
+    },
     {
       customType: 'regex',
       managerFilePatterns: [

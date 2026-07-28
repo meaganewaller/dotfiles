@@ -6,20 +6,22 @@ This guide explains how to add, update, and manage packages in this dotfiles rep
 
 | Package Type | Location | Example | Renovate Updates |
 |-------------|----------|---------|------------------|
-| **Development Runtimes** | `home/dot_config/mise/config.toml` | `python = "3.14.2"` | ✅ Yes |
-| **CLI Tools (aqua)** | `home/dot_config/mise/config.toml` | `"aqua:dandavison/delta" = "0.18.2"` | ✅ Yes |
-| **CLI Tools (GitHub)** | `home/dot_config/mise/config.toml` | `"github:sst/opencode" = "1.1.14"` | ✅ Yes |
-| **Python Tools** | `home/dot_config/mise/config.toml` | `"pipx:gitingest" = "0.3.1"` | ✅ Yes |
-| **Node.js Tools** | `home/dot_config/mise/config.toml` | `"npm:@anthropic-ai/claude-code" = "2.1.19"` | ✅ Yes |
+| **Development Runtimes** | `home/dot_config/mise/config.toml.tmpl` | `python = "3.14.2"` | ✅ If pinned |
+| **CLI Tools (aqua)** | `home/dot_config/mise/config.toml.tmpl` | `"aqua:dandavison/delta" = "0.18.2"` | ✅ If pinned |
+| **CLI Tools (GitHub)** | `home/dot_config/mise/config.toml.tmpl` | `"github:sst/opencode" = "1.1.14"` | ✅ If pinned |
+| **Python Tools** | `home/dot_config/mise/config.toml.tmpl` | `"pipx:gitingest" = "0.3.1"` | ✅ If pinned |
+| **Node.js Tools** | `home/dot_config/mise/config.toml.tmpl` | `"npm:@anthropic-ai/claude-code" = "2.1.19"` | ✅ If pinned |
 | **System Utilities** | `home/.chezmoidata/packages.yaml` | `brews: [ripgrep]` | ❌ Manual |
 | **GUI Applications** | `home/.chezmoidata/packages.yaml` | `casks: [ghostty]` | ❌ Manual |
 | **Neovim Plugins** | `home/dot_config/nvim/lua/plugins/*.lua` | LazyVim specs | ⚙️ Via LazyVim |
 | **Shell Plugins** | `home/.chezmoiexternal.toml.tmpl` | Pinned to SHA | ✅ Yes |
 
+"If pinned" means Renovate opens PRs for entries carrying an explicit version. Most tools in that file currently sit at `latest` by design — see [ADR 0003](adrs/0003-mise-config-plus-lockfile.md) — and are resolved by the committed `home/dot_config/mise/mise.lock` instead, refreshed with `mise lock`. Details in [docs/renovate.md](renovate.md).
+
 ## Core Philosophy
 
-1. **Immutable Pins Over Latest**: Every package specifies an exact version/digest/SHA
-2. **Renovate-Driven Updates**: Automated PRs keep versions current without drift
+1. **Reproducible Resolution**: Every package resolves to an exact version/digest/SHA — either pinned directly in the manifest, or pinned in a committed lockfile while the manifest states intent (`latest`, coarse major)
+2. **Renovate-Driven Updates**: Automated PRs keep pinned versions current without drift
 3. **Mise-First for Development**: All versioned dev tools use mise backends—no separate package managers
 4. **System Utilities via Homebrew**: Only non-versioned system tools use Homebrew
 
@@ -58,7 +60,7 @@ Is it a development runtime or CLI tool?
 
 ### 1. Development Runtimes
 
-Add native mise tools to `home/dot_config/mise/config.toml`:
+Add native mise tools to `home/dot_config/mise/config.toml.tmpl`:
 
 ```toml
 [tools]
@@ -75,7 +77,7 @@ mise ls-remote node
 
 ### 2. CLI Tools via Mise Backends
 
-All CLI tools go in `home/dot_config/mise/config.toml` using the appropriate backend prefix:
+All CLI tools go in `home/dot_config/mise/config.toml.tmpl` using the appropriate backend prefix:
 
 ```toml
 [tools]
@@ -158,10 +160,10 @@ Then add a Renovate rule in `renovate.json5`:
    ```bash
    # GitHub releases
    gh api repos/owner/repo/releases/latest --jq .tag_name
-   
+
    # Mise tools
    mise ls-remote python
-   
+
    # NPM packages
    npm view package-name version
    ```
@@ -195,7 +197,8 @@ The `00-` prefix ensures mise tools install first. All Python/Node tools are now
 ## Best Practices
 
 ### DO:
-- ✅ Pin exact versions (never use `latest` or `*`)
+- ✅ Give every tool an exact resolution: pin the version in the manifest, or leave `latest` and let the committed `mise.lock` carry the resolved version ([ADR 0003](adrs/0003-mise-config-plus-lockfile.md))
+- ✅ Prefer an explicit pin when you want Renovate to track the tool — `latest` entries get no PRs
 - ✅ Use mise backends for all dev tools (`aqua:`, `pipx:`, `npm:`, `github:`)
 - ✅ Prefer `aqua:` backend when available (best security/features)
 - ✅ Test changes with `chezmoi diff` before applying
@@ -203,7 +206,7 @@ The `00-` prefix ensures mise tools install first. All Python/Node tools are now
 
 ### DON'T:
 - ❌ Use `brew install`, `pipx install`, or `npm install -g` directly
-- ❌ Add version ranges or wildcards
+- ❌ Use open-ended wildcards (`*`) or leave a tool with neither a pin nor a lockfile entry
 - ❌ Install development tools via Homebrew (use mise instead)
 - ❌ Create separate manifest files for language-specific tools
 - ❌ Mix package managers for the same tool
@@ -229,17 +232,17 @@ renovate-config-validator renovate.json5
 
 ### Adding a Python CLI Tool
 
-Add to `home/dot_config/mise/config.toml`:
+Add to `home/dot_config/mise/config.toml.tmpl`:
 ```toml
 [tools]
 "pipx:ruff" = "0.9.6"
 ```
 
-Renovate will automatically update this version via the mise manager.
+Renovate will automatically update this version via the `pipx:` custom regex manager.
 
 ### Adding a Node.js CLI Tool
 
-Add to `home/dot_config/mise/config.toml`:
+Add to `home/dot_config/mise/config.toml.tmpl`:
 ```toml
 [tools]
 "npm:prettier" = "3.5.3"

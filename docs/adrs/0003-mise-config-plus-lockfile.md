@@ -10,7 +10,7 @@ informed: []
 
 ## Context and Problem Statement
 
-Today, tool versions in this repo are mostly **pinned as exact strings** in `mise.toml` (repo dev tools) and `home/dot_config/mise/config.toml` (user global tools). Renovate’s **mise** manager bumps those TOML pins, and `home/run_onchange_00-install-mise-tools.sh.tmpl` re-runs `mise install` when the **config file content hash** changes.
+Today, tool versions in this repo are mostly **pinned as exact strings** in `mise.toml` (repo dev tools) and `home/dot_config/mise/config.toml.tmpl` (user global tools). Renovate’s **mise** manager bumps those TOML pins, and `home/run_onchange_00-install-mise-tools.sh.tmpl` re-runs `mise install` when the **config file content hash** changes.
 
 That model is clear but has tradeoffs:
 
@@ -81,5 +81,5 @@ This ADR proposes a **split responsibility**:
 ## More information
 
 - mise lockfile overview: [mise.lock (dev-tools)](https://mise.jdx.dev/dev-tools/mise-lock.html), [`mise lock` CLI](https://mise.jdx.dev/cli/lock.html).
-- This repo: `home/dot_config/mise/config.toml`, `mise.toml`, `home/run_onchange_00-install-mise-tools.sh.tmpl`, `renovate.json5` (`mise` manager + custom managers).
+- This repo: `home/dot_config/mise/config.toml.tmpl`, `mise.toml`, `home/run_onchange_00-install-mise-tools.sh.tmpl`, `renovate.json5` (`mise` manager + custom managers).
 - Related: [docs/renovate.md](../renovate.md), Package Manager agent for manifest changes.
