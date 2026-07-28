@@ -25,5 +25,17 @@ EOF
   exit 1
 fi
 
-# Install tools via mise
-exec mise install
+# Install only the tools declared in THIS repo's mise.toml, not `mise
+# install`'s default of every tool in the merged local+global config. An
+# unrelated broken tool in the global user config (e.g. one unsupported on
+# the current arch, or a bad upstream version) would otherwise fail this
+# script even though everything bin/test/hk actually need installed fine.
+# See dotfiles-f14.
+tools=$(mise ls --local | awk '{print $1}')
+if [ -z "$tools" ]; then
+  echo "bin/setup: mise ls --local returned no tools; refusing to fall back to an unscoped 'mise install'" >&2
+  exit 1
+fi
+
+# shellcheck disable=SC2086 # word-splitting is intentional: one tool per line/arg
+exec mise install $tools
