@@ -123,6 +123,12 @@ Current rules:
 - zsh‑syntax‑highlighting tarball: `zsh-users/zsh-syntax-highlighting/archive/(?<currentDigest>[a-f0-9]{7,40})\.tar\.gz`
 - gpakosz/.tmux repo revision: `^\s*revision\s*=\s*"(?<currentDigest>[a-f0-9]{7,40})"`
 
+`home/.chezmoiexternals/fish.toml.tmpl` pins raw-file URLs (not tarballs) to commit SHAs the same way:
+
+- chezmoi fish completion: `twpayne/chezmoi/(?<currentDigest>[a-f0-9]{7,40})/completions/chezmoi\.fish`
+- watchexec fish completion: `watchexec/watchexec/(?<currentDigest>[a-f0-9]{7,40})/completions/fish`
+- tokyonight.nvim fish themes (4 occurrences in this file, grouped into one PR since they share depName): `folke/tokyonight\.nvim/(?<currentDigest>[a-f0-9]{7,40})/extras/fish_themes/`
+
 Note: When adding new externals, add a matching regex rule so Renovate can keep their SHAs fresh automatically.
 
 ---
