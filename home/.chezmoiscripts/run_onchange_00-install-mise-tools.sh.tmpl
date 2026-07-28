@@ -7,10 +7,18 @@
 set -o errexit
 set -o nounset
 
-# Only run mise if available
+# Only run mise if available. Exit 1 (not 0) when missing: this script is
+# run_onchange_ (content-hash gated), and chezmoi only records a script's
+# hash as "successfully applied" on exit 0. On a fresh machine this script
+# can run before mise itself is installed (e.g. by
+# run_onchange_install-packages-darwin.sh.tmpl, which sorts after this one
+# alphabetically) -- failing loudly here makes chezmoi retry this script on
+# every subsequent `chezmoi apply` until mise is actually available, instead
+# of silently skipping forever until the tracked config/lockfile hash changes
+# again.
 if ! command -v mise >/dev/null 2>&1; then
-    echo "mise not found, skipping tool installation"
-    exit 0
+    echo "mise not found -- install it first, then re-run chezmoi apply" >&2
+    exit 1
 fi
 
 echo "Installing global mise tools..."
