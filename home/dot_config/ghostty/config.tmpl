@@ -39,8 +39,6 @@ theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 background-image = {{ .ghostty.background_image | default "~/.config/ghostty/bg/cyber-y2k-anime-desktop-wallpapers.png" }}
 background-image-opacity = {{ .ghostty.background_image_opacity | default 0.15 }}
 background-image-fit = cover
-cursor-style = bar
-cursor-style-blink = false
 
 {{ if eq .chezmoi.os "darwin" }}
 macos-titlebar-style = transparent
@@ -64,9 +62,10 @@ background-opacity-cells = true
 background-blur = {{ .ghostty.background_blur | default 20 }}
 
 {{ if eq .chezmoi.os "darwin" }}
-# Subtle translucency + blur on macOS.
-background-opacity = 0.96
-background-blur = 20
+# Subtle translucency on macOS: opacity defaults slightly more transparent
+# than the cross-platform baseline above (still overridable via
+# ghostty.background_opacity in .chezmoidata).
+background-opacity = {{ .ghostty.background_opacity | default 0.96 }}
 unfocused-split-opacity = 0.85
 {{ end }}
 
@@ -86,8 +85,6 @@ window-width = {{ .ghostty.window_width | default 110 }}
 
 
 # --- Cursor, mouse, selection ------------------------------------------------
-cursor-style = block
-cursor-style-blink = true
 cursor-style = block
 cursor-style-blink = true
 mouse-hide-while-typing = true
