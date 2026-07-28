@@ -49,13 +49,17 @@ EOF
 # so it's safe to mutate) to prove the new hash reacts to both content
 # edits and lockfile bumps.
 copy_nvim_plugins_fixture() {
-  mkdir -p "$TEST_SOURCE_DIR/dot_config/nvim/plugin"
+  mkdir -p "$TEST_SOURCE_DIR/dot_config/nvim/plugin" "$TEST_SOURCE_DIR/.chezmoitemplates"
   cat >"$TEST_SOURCE_DIR/dot_config/nvim/plugin/one.lua" <<'EOF'
 vim.pack.add({ { src = "https://github.com/example/one" } })
 EOF
   cat >"$TEST_SOURCE_DIR/dot_config/nvim/nvim-pack-lock.json" <<'EOF'
 {"plugins":{"one":{"rev":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","src":"https://github.com/example/one"}}}
 EOF
+  # The script's CI-skip guard calls the shared ci-skip-guard partial, which
+  # --source (pointed at this fixture tree, not the real repo) must be able
+  # to find.
+  cp home/.chezmoitemplates/ci-skip-guard "$TEST_SOURCE_DIR/.chezmoitemplates/ci-skip-guard"
 }
 
 render_fixture() {

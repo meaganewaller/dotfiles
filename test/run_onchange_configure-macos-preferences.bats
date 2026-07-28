@@ -4,6 +4,9 @@ load test_helper
 
 SCRIPT_FILE="home/.chezmoiscripts/run_onchange_configure-macos-preferences.sh.tmpl"
 
+# This script's CI-skip guard calls the shared home/.chezmoitemplates/
+# ci-skip-guard partial, which chezmoi always resolves against the real
+# -S/--source flag, not the .chezmoi.sourceDir *data* value set via --config.
 darwin_config() {
   local work_profile="${1:-false}"
   cat >"$TEST_TMPDIR/darwin-config.toml" <<EOF
@@ -21,7 +24,7 @@ EOF
     work_profile = false
 EOF
 
-  run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$SCRIPT_FILE"
+  run chezmoi --source home execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$SCRIPT_FILE"
   [ "$status" -eq 0 ]
   [ "$output" = "" ]
 }
@@ -30,7 +33,7 @@ EOF
   local config
   config=$(darwin_config false)
 
-  run chezmoi execute-template --config "$config" --file "$SCRIPT_FILE"
+  run chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE"
   [ "$status" -eq 0 ]
   assert_script_structure "$output"
   assert_valid_shell "$output"
@@ -40,7 +43,7 @@ EOF
   local config
   config=$(darwin_config false)
 
-  run chezmoi execute-template --config "$config" --file "$SCRIPT_FILE"
+  run chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE"
   [ "$status" -eq 0 ]
 
   # Each managed preference should be present
@@ -58,7 +61,7 @@ EOF
   local config
   config=$(darwin_config false)
 
-  run chezmoi execute-template --config "$config" --file "$SCRIPT_FILE"
+  run chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE"
   [ "$status" -eq 0 ]
   # shellcheck disable=SC2016 # matching literal shell syntax in rendered output
   [[ "$output" == *'${CI:-}'* ]]
@@ -73,8 +76,8 @@ EOF
   work_config=$(darwin_config true)
   personal_config=$(darwin_config false)
 
-  chezmoi execute-template --config "$work_config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/work.sh"
-  chezmoi execute-template --config "$personal_config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/personal.sh"
+  chezmoi --source home execute-template --config "$work_config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/work.sh"
+  chezmoi --source home execute-template --config "$personal_config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/personal.sh"
 
   run diff "$TEST_TMPDIR/work.sh" "$TEST_TMPDIR/personal.sh"
   [ "$status" -eq 0 ]
@@ -84,8 +87,8 @@ EOF
   local config
   config=$(darwin_config false)
 
-  chezmoi execute-template --config "$config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/run1.sh"
-  chezmoi execute-template --config "$config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/run2.sh"
+  chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/run1.sh"
+  chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE" >"$TEST_TMPDIR/run2.sh"
 
   run diff "$TEST_TMPDIR/run1.sh" "$TEST_TMPDIR/run2.sh"
   [ "$status" -eq 0 ]
@@ -96,7 +99,7 @@ EOF
   config=$(darwin_config false)
   rendered="$TEST_TMPDIR/configure-macos-preferences.sh"
 
-  chezmoi execute-template --config "$config" --file "$SCRIPT_FILE" >"$rendered"
+  chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE" >"$rendered"
   chmod +x "$rendered"
 
   # Stub defaults/plutil/osascript/killall: if the CI guard works,

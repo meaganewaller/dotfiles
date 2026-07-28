@@ -17,11 +17,7 @@ set -o pipefail
 
 # Skip on CI: sketchybar is a macOS GUI menu bar, not exercised in the install matrix,
 # and the build pulls in clang/make time for no CI value.
-if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
-  echo "Running in CI, skipping SbarLua build"
-  exit 0
-fi
-
+{{ template "ci-skip-guard" "Running in CI, skipping SbarLua build" }}
 src="$HOME/.local/share/sketchybar_lua/src"
 module="$HOME/.local/share/sketchybar_lua/sketchybar.so"
 

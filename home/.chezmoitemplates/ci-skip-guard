@@ -1,0 +1,11 @@
+{{/* Shared CI/GITHUB_ACTIONS skip guard for chezmoiscripts that should
+     no-op entirely in CI. Call with the skip message as the argument:
+       {{ template "ci-skip-guard" "Running in CI, skipping <thing>" }}
+     Not for scripts that need to conditionally include/exclude specific
+     lines rather than skip entirely -- see
+     run_onchange_install-packages-darwin.sh.tmpl, which needs render-time
+     {{ env "CI" }} checks for that and isn't a fit for this partial. */ -}}
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+  echo "{{ . }}"
+  exit 0
+fi
