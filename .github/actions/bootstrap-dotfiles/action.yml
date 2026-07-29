@@ -91,6 +91,15 @@ runs:
         GITHUB_TOKEN="$GITHUB_TOKEN" \
         ./install
 
+    # Catches source-of-truth drift (bad config, suspicious entries, a
+    # required command that quietly stopped resolving) as a hard failure.
+    # --no-network skips the "is a newer chezmoi out" check, which only ever
+    # produces a warning (doesn't fail the run) but adds a flaky GitHub API
+    # call we don't need here.
+    - name: chezmoi doctor
+      shell: bash
+      run: chezmoi doctor --no-network
+
     - name: Dump install logs on failure
       if: failure()
       shell: bash
