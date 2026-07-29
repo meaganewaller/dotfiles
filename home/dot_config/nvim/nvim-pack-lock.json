@@ -6,7 +6,7 @@
       "version": "1.0.0 - 2.0.0"
     },
     "boo-colorscheme-nvim": {
-      "rev": "36a52f900f49fe78bfeb30d2519a8dd356bf8fc1",
+      "rev": "8eb36d50a124472c8b3c864e45997b4ac7331db7",
       "src": "https://github.com/rockerBOO/boo-colorscheme-nvim"
     },
     "catppuccin": {
