@@ -33,11 +33,6 @@ local linters = new Mapping<String, Step|Group> {
 
   // Lua
   ["stylua"] = Builtins.stylua
-
-  // Beads
-  ["bd-pre-commit"] {
-    check = "bd hooks run pre-commit"
-  }
 }
 
 
@@ -45,7 +40,14 @@ hooks = new {
   ["pre-commit"] {
     fix = true
     stash = "git"
-    steps = linters
+    // bd-pre-commit lives here, not in `linters`: `linters` is shared with
+    // the `check`/`fix` hooks, which CI runs (hk check) on machines that
+    // don't have the `bd` CLI installed (it's not a project mise tool).
+    steps = (linters) {
+      ["bd-pre-commit"] {
+        check = "bd hooks run pre-commit"
+      }
+    }
   }
   ["pre-push"] {
     steps {
