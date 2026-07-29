@@ -2,4 +2,7 @@
 # Each line: <email> [namespaces=git] <pubkey>
 # `git log --show-signature` consults this to mark our own commits as
 # verified (G) instead of "could not be verified" (E).
-{{ .git.email }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPI1vsdxlsRTJN5PZxwH+3mb3F6MoGjbTfoph5V6mRGA
+{{ .git.email }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAgvEB2x8K5zYzl8bRxA0YXr7otRgCSPrBeiJsOJmPx6
+{{ if .work_profile -}}
+{{ .git.work_email }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOq4MAoW/a7DBfP+0C1s5HKBYV0rHVLgc+7mc+QbJb5/
+{{ end -}}

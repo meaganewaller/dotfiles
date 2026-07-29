@@ -3,26 +3,31 @@
 # Prompted values are stored in [data] and available to all templates via `.`.
 {{ $gitName := "" -}}
 {{- $gitEmail := "" -}}
+{{- $gitWorkEmail := "" -}}
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
 {{- $workProfile := false -}}
 {{- $useBedrock := false -}}
 {{- if stdinIsATTY -}}
 {{- $gitName = promptStringOnce . "git.name" "Git user.name" -}}
-{{- $gitEmail = promptStringOnce . "git.email" "Git user.email" -}}
+{{- $gitEmail = promptStringOnce . "git.email" "Personal git user.email" -}}
+{{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
+{{- if $workProfile -}}
+{{- $gitWorkEmail = promptStringOnce . "git.work_email" "Work git user.email" -}}
+{{- end -}}
 {{- /* trimAll guards against pasting a ref with its surrounding quotes still
        attached (e.g. copied from a JSON export) -- op read/onepasswordRead
        treat embedded quote characters as part of the reference and fail
        with "invalid secret reference" instead of a clear prompt-time error. */ -}}
 {{- $credClaudeApi = promptStringOnce . "credentials.claude_api" "1Password ref for Claude API" | trimAll "\"" -}}
 {{- $credBuildkite = promptStringOnce . "credentials.buildkite" "1Password ref for Buildkite" | trimAll "\"" -}}
-{{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
 {{- $useBedrock = promptBoolOnce . "claude.use_bedrock" "Use AWS Bedrock for Claude Code? y/N" -}}
 {{- else -}}
 {{- /* No TTY (CI, piped install, cron): skip prompts and read overrides from the environment. */ -}}
 {{- $gitName = env "GIT_USER_NAME" -}}
 {{- $gitEmail = env "GIT_USER_EMAIL" -}}
 {{- $workProfile = eq (env "WORK_PROFILE") "true" -}}
+{{- $gitWorkEmail = env "GIT_WORK_USER_EMAIL" -}}
 {{- end }}
 # Custom source directory so the dotfiles repo doesn't need to live under
 # the default `~/.local/share/chezmoi/`.
@@ -37,6 +42,7 @@ work_profile = {{ $workProfile }}
 [data.git]
 name = {{ $gitName | quote }}
 email = {{ $gitEmail | quote }}
+work_email = {{ $gitWorkEmail | quote }}
 
 [data.credentials]
 claude_api = {{ $credClaudeApi | quote }}

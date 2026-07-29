@@ -1,7 +1,7 @@
 [user]
 	name = {{ .git.name }}
 	email = {{ .git.email }}
-	signingkey = ~/.ssh/id_ed25519.pub
+	signingkey = ~/.ssh/id_ed25519_personal.pub
 
 [init]
 	defaultBranch = main
@@ -27,6 +27,10 @@
 	excludesfile = ~/.config/git/ignore
 	autocrlf = input
 	pager = delta
+	# Pin the ssh key deterministically instead of relying on 1Password's
+	# agent to pick one out of several loaded identities. The work identity
+	# overrides this below via includeIf for repos under ~/workspace.
+	sshCommand = "ssh -o IdentitiesOnly=yes -o IdentityFile=~/.ssh/id_ed25519_personal.pub"
 
 [interactive]
 	diffFilter = delta --color-only
@@ -125,6 +129,12 @@
 
 [include]
 	path = ~/.config/git/config.local
+{{ if .work_profile -}}
+# Work identity/key for repos checked out under ~/workspace on a work machine.
+# Personal machines never get this block, even if a ~/workspace dir exists.
+[includeIf "gitdir:~/workspace/"]
+	path = ~/.config/git/config-work
+{{ end -}}
 {{ if lookPath "gh" -}}
 [credential "https://github.com"]
 	helper =
