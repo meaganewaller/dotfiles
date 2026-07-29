@@ -1,7 +1,7 @@
 # Development tools for shell scripting and testing
 
 [tools]
-"aqua:bats-core/bats-core" = "v1.13.0"
+"aqua:bats-core/bats-core" = "v1.14.0"
 "aqua:gitleaks/gitleaks" = "v8.30.1"
 "aqua:koalaman/shellcheck" = "v0.11.0"
 "aqua:mikefarah/yq" = "v4.53.3"
