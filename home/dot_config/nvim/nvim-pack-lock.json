@@ -22,7 +22,7 @@
       "src": "https://github.com/xero/evangelion.nvim"
     },
     "evergarden": {
-      "rev": "347c62833eb1f1e80c3ae275b1122c2173c47614",
+      "rev": "6a47a90e5caf1b21e54ff7967017c255bab80fdd",
       "src": "https://github.com/everviolet/nvim"
     },
     "fzf-lua": {
