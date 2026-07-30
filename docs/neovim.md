@@ -9,101 +9,100 @@ ordinary Lua modules.
 
 ## Overview
 
-- **Plugin manager**: `vim.pack` (built in)
+- **Plugin manager**: `vim.pack` (built in), declared per-plugin — see
+  [How plugins are managed](#how-plugins-are-managed)
 - **Completion**: [`blink.cmp`](https://github.com/Saghen/blink.cmp)
 - **Picker**: [`fzf-lua`](https://github.com/ibhagwan/fzf-lua)
-- **File tree**: [`oil.nvim`](https://github.com/stevearc/oil.nvim)
-- **Marks / quick switch**: [`harpoon`](https://github.com/ThePrimeagen/harpoon) (`harpoon2` branch)
-- **Git**: [`gitsigns.nvim`](https://github.com/lewis6991/gitsigns.nvim) + [`vim-fugitive`](https://github.com/tpope/vim-fugitive)
+- **File explorer**: [`oil.nvim`](https://github.com/stevearc/oil.nvim) (`-` to open)
+- **Git**: [`gitsigns.nvim`](https://github.com/lewis6991/gitsigns.nvim) (hunk stage/reset/preview, inline blame)
 - **Statusline**: [`lualine`](https://github.com/nvim-lualine/lualine.nvim) + `nvim-web-devicons`
 - **Keymap hints**: [`which-key.nvim`](https://github.com/folke/which-key.nvim)
-- **Syntax**: [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) (`main` branch)
+- **Syntax**: [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) (default branch, no version pin)
 - **Colorschemes**: a curated set with a runtime fzf-lua picker (default: `catppuccin-mocha`)
+- **Claude Code observability**: `onlooker` — a custom in-repo plugin (`lua/onlooker/`) for watching and steering Claude Code sessions from inside Neovim; see [Onlooker](#onlooker)
 - **Configuration location**: `home/dot_config/nvim/`
 
 LSP servers come from `PATH` — install them with `mise` or your system
 package manager. There is no Mason equivalent in this config.
 
+There is currently **no harpoon, no vim-fugitive, and no window-management
+layer** — splits/resizing use plain Neovim `<C-w>` commands. If you're reading
+this looking for those, they aren't there (yet).
+
 ## Directory structure
 
 ```
 home/dot_config/nvim/
-├── init.lua                       # bootstrap: leader keys, then require() each module
+├── init.lua                       # bootstrap: options, leader keys, runtimepath/package.path shims
 ├── nvim-pack-lock.json            # vim.pack revision pins (committed)
 ├── lua/
-│   ├── options.lua                # editing options (indent, search, undo, wildmenu, …)
-│   ├── ui.lua                     # UI options + custom tabline
-│   ├── window.lua                 # <Space>w window splits / navigation / resize
-│   ├── keymaps.lua                # top-level keymaps (<leader>g git, etc.)
-│   ├── autocmds.lua               # yank highlight, trim trailing whitespace
-│   ├── picker/
-│   │   ├── init.lua               # fzf-lua setup
-│   │   └── keymaps.lua            # <leader>f… find / grep / theme picker
 │   ├── theme/
 │   │   ├── init.lua               # managed colorscheme list + apply helpers
 │   │   └── light.lua              # (placeholder)
-│   └── utils/                     # tiny helpers (functions, icons, remaps)
-└── plugin/                        # auto-sourced by Neovim after init.lua
-    ├── 00-packs.lua               # vim.pack.add(specs) + stale-plugin pruning
-    ├── blink.lua                  # completion config
-    ├── gitsigns.lua
-    ├── harpoon.lua
-    ├── lsp.lua                    # vim.lsp.config + LspAttach keymaps
-    ├── lualine.lua
-    ├── oil.lua                    # <leader>e to open
-    ├── picker.lua                 # → require("picker")
-    ├── theme.lua                  # → require("theme")
-    ├── treesitter.lua             # install + start parsers
-    └── whichkey.lua
+│   └── onlooker/                  # Claude Code observability plugin (dashboard, feed,
+│                                   # digest, dispatch, takeover, queue, cleanup, ...)
+└── plugin/                        # auto-sourced by Neovim after init.lua, alphabetically
+    ├── colorschemes.lua           # vim.pack.add for every installed colorscheme
+    ├── completion.lua             # blink.cmp setup + advertises capabilities to LSP
+    ├── explorer.lua               # oil.nvim, `-` to open
+    ├── finder.lua                 # fzf-lua setup + <leader>f… keymaps
+    ├── git.lua                    # gitsigns setup + <leader>h… keymaps
+    ├── lsp.lua                    # vim.lsp.config servers + LspAttach keymaps
+    ├── onlooker.lua                # require("onlooker").setup()
+    ├── statusline.lua             # lualine + nvim-web-devicons
+    ├── theme.lua                  # require("theme") — applies the saved/default colorscheme
+    ├── treesitter.lua             # parser install list + auto-start on FileType
+    └── whichkey.lua               # which-key setup + leader group labels
 ```
 
 Two conventions worth knowing:
 
-- **Files in `lua/` are loaded explicitly** from `init.lua` via `require()`,
-  so the bootstrap order is deterministic.
-- **Files in `plugin/` are auto-sourced by Neovim** after `init.lua` finishes.
-  The `00-` prefix on `00-packs.lua` guarantees plugins are added before any
-  other plugin-config file runs.
+- **Files in `lua/` are loaded explicitly** via `require()` (from `init.lua`,
+  `plugin/onlooker.lua`, or `plugin/theme.lua`), so load order for those is
+  deterministic.
+- **Files in `plugin/` are auto-sourced by Neovim** after `init.lua` finishes,
+  in alphabetical order. `colorschemes.lua` sorts before `theme.lua` so the
+  colorscheme plugins are on `runtimepath` before `theme.lua`'s `:colorscheme`
+  call runs.
 
 ## How plugins are managed
 
-`plugin/00-packs.lua` declares the plugin set as a list of `vim.pack` specs:
+There is no central plugin-spec list. Each `plugin/<name>.lua` file declares
+its own plugins right where it uses them:
 
 ```lua
-local specs = {
-  { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
-  { src = "https://github.com/Saghen/blink.cmp", version = vim.version.range("1.0") },
-  "https://github.com/ibhagwan/fzf-lua",
-  -- …
-}
+-- plugin/explorer.lua
+vim.pack.add({
+  { src = "https://github.com/stevearc/oil.nvim" },
+})
 
--- Prune anything previously installed that's no longer in `specs`.
-local wanted = {}
-for _, spec in ipairs(specs) do wanted[spec_name(spec)] = true end
-for _, plugin in ipairs(vim.pack.get()) do
-  if not wanted[plugin.spec.name] then table.insert(stale, plugin.spec.name) end
-end
-if #stale > 0 then vim.pack.del(stale) end
+require("oil").setup()
 
-vim.pack.add(specs)
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open Oil" })
 ```
 
-That's the whole plugin manager. `vim.pack` writes pinned revisions to
-`nvim-pack-lock.json` alongside `init.lua` — that file is committed so other
-machines (and `chezmoi apply`) reproduce the same plugin versions. Plugin
-sources themselves live under `stdpath("data")`.
+`vim.pack` writes pinned revisions to `nvim-pack-lock.json` alongside
+`init.lua` — that file is committed so other machines (and `chezmoi apply`)
+reproduce the same plugin versions. Plugin sources themselves live under
+`stdpath("data")`.
+
+`plugin/colorschemes.lua` is the one exception with multiple specs in a single
+file, since every colorscheme shares the same "just make it available on
+runtimepath" setup — there's nothing per-theme to configure.
 
 ### Adding a plugin
 
-1. Append a spec to the `specs` table in `plugin/00-packs.lua`.
-2. If the plugin needs setup, add a sibling `plugin/<name>.lua` that calls
-   `require("...").setup(...)` and any keymaps. It will be auto-sourced on the
-   next launch.
+1. Create (or reuse) a `plugin/<name>.lua` file.
+2. Call `vim.pack.add({ { src = "..." } })`, then `require("...").setup(...)`
+   and any keymaps it needs. It's auto-sourced on the next launch.
 
 ### Removing a plugin
 
-Delete its entry from `specs` (and any sibling `plugin/<name>.lua`). The next
-launch will detect it's stale and call `vim.pack.del()` to remove it.
+Delete its `plugin/<name>.lua` file (and any `require()` of it elsewhere).
+Unlike some `vim.pack` setups, **there is no automatic stale-plugin pruning**
+here — the plugin stays installed on disk until you explicitly run
+`:lua vim.pack.del({"plugin-repo-name"})`, or check `:lua =vim.pack.get()` for
+anything no longer referenced by a `plugin/*.lua` file.
 
 ### Updating
 
@@ -124,28 +123,30 @@ for name, cfg in pairs(servers) do
 end
 ```
 
-Currently wired: `lua_ls`, `rust_analyzer`, `ts_ls`, `gopls`. Add new servers
-by extending the `servers` table and installing the binary (typically via
-`mise use -g <tool>@<version>`).
+Currently wired: `lua_ls`, `ts_ls`, `gopls`, `clangd`, `jsonls`, `yamlls`,
+`bashls`, `fish_lsp`, `tailwindcss`, `marksman`, `tombi`, `terraformls`,
+`texlab`, `dockerls`, `sqls`, `harper_ls`, `biome`, `ruff`, `ty`. Add new
+servers by extending the `servers` table in `plugin/lsp.lua` and installing
+the binary (typically via `mise use -g <tool>@<version>`).
 
-Buffer-local keymaps are attached via `LspAttach`:
+Neovim's own LSP/diagnostic defaults already cover rename, references, code
+action, hover, and signature help (see `:h lsp-defaults` and
+`:h diagnostic-defaults`). This config only adds the gaps on top of those,
+via `LspAttach`:
 
 | Map | Action |
 | --- | --- |
-| `gd` / `gD` | Definition / declaration |
-| `gr` / `gi` | References / implementation |
-| `K` | Hover |
-| `<Space>lr` | Rename |
-| `<Space>la` | Code action |
-| `<Space>lf` | Format (async) |
-| `<Space>ld` | Line diagnostics float |
-| `[d` / `]d` | Prev / next diagnostic |
+| `gd` | Definition |
+| `gD` | Declaration |
+| `<leader>lf` | Format (async) |
+| `<leader>lq` | Diagnostics to location list |
+
+`jsonls` and `yamlls` also pull schemas from
+[`schemastore.nvim`](https://github.com/b0o/schemastore.nvim).
 
 ## Keymaps
 
-`<leader>` is `<Space>`. `<localleader>` is also `<Space>`. (Note: `options.lua`
-also sets `vim.g.mapleader = ","` for historical reasons — the `<Space>` in
-`init.lua` wins because it runs first.)
+`<leader>` and `<localleader>` are both `<Space>`, set once in `init.lua`.
 
 ### Finding things — `<leader>f…` (fzf-lua)
 
@@ -163,78 +164,117 @@ also sets `vim.g.mapleader = ","` for historical reasons — the `<Space>` in
 | `<leader>fu` | Undo tree |
 | `<leader>ft` | Theme picker (live-preview managed colorschemes) |
 
-### Git — `<leader>g…` (vim-fugitive, lazy-loaded)
+### Git hunks — `<leader>h…` (gitsigns)
 
 | Map | Action |
 | --- | --- |
-| `<leader>gs` | `:Git` (status) |
-| `<leader>gb` | `:Git blame` |
-| `<leader>gd` | `:Gvdiffsplit` |
-| `<leader>gw` | `:Gwrite` (stage current file) |
-| `<leader>gl` | `:Git log --oneline --decorate --graph` |
-| `<leader>gc` | `:Git commit` |
-| `<leader>gp` / `<leader>gP` | Push / pull --rebase |
-| `<leader>gr` | `:Gread` (restore file) |
+| `]c` / `[c` | Next / previous hunk (falls back to native `]c`/`[c` in diff mode) |
+| `<leader>hs` / `<leader>hr` | Stage / reset hunk |
+| `<leader>hS` / `<leader>hR` | Stage / reset buffer |
+| `<leader>hp` | Preview hunk |
+| `<leader>hb` | Blame line (full) |
+| `<leader>hd` | Diff this |
+| `<leader>tb` | Toggle current-line blame |
+| `ih` (operator/visual) | Hunk text object |
 
-`gitsigns` shows hunk markers in the sign column and inline blame on the
-current line.
-
-### Files / windows / other
+### Onlooker — `<leader>o…` (Claude Code observability)
 
 | Map | Action |
 | --- | --- |
-| `<leader>e` | Open `oil` |
-| `<leader>a` | Harpoon: add file |
-| `<C-e>` | Harpoon: toggle quick menu |
-| `<Space>ws` / `wv` | Split horizontal / vertical |
-| `<Space>wc` / `wo` | Close / only |
-| `<Space>w=` / `wm` | Equalize / maximize |
-| `<C-Up/Down/Left/Right>` | Resize current window |
-| `<Esc>` (normal) | Clear search highlight |
-| `<C-f>` | `tmux-sessionizer.sh` in a new tmux window |
+| `<leader>oo` | Open the session dashboard |
+| `<leader>of` | Open the live feed for a session |
+| `<leader>od` | Open the Q&A digest for a session |
+| `<leader>on` | Dispatch a new agent in the current directory |
+| `<leader>ot` | Take over a dispatched session's TUI |
+| `<leader>om` | Queue a message into a dispatched session |
+| `<leader>ox` | Clean up idle, detached dispatched sessions |
 
-> ⚠️ `<C-h/j/k/l>` is bound in **two** places: `lua/window.lua` maps it to
-> `<C-w>h/j/k/l` (window navigation), and `plugin/harpoon.lua` maps it to
-> `harpoon:list():select(1..4)`. `plugin/` runs after `init.lua`, so harpoon
-> wins. If you want tmux-aware navigation back, rework one of those bindings.
+See [Onlooker](#onlooker) for what these actually do.
+
+### Files / other
+
+| Map | Action |
+| --- | --- |
+| `-` | Open `oil` |
+
+That's it — no window-split keymaps, no harpoon, and no clear-search-highlight
+mapping exist in this config today.
 
 ## Themes
 
 The colorscheme picker (`<leader>ft`) is restricted to a curated list in
-`lua/theme/init.lua`. The default is `catppuccin-mocha`. The picker forces
-`background=dark` and ignores `ColorScheme` events fired by itself so live
-preview doesn't loop.
+`lua/theme/init.lua`. The default is `catppuccin-mocha`, but on startup
+`lua/theme/init.lua` reads `$XDG_STATE_HOME/theme/nvim` (falling back to
+`~/.local/state/theme/nvim`) and applies whatever the universal `theme`
+switcher last set there (see
+[ADR 0005](adrs/0005-universal-theme-switcher.md)) before falling back to the
+default. The picker forces `background=dark` and ignores `ColorScheme` events
+fired by itself so live preview doesn't loop.
 
-To add or remove themes, edit `managed_themes` in `lua/theme/init.lua` and
-make sure the corresponding plugin is in `plugin/00-packs.lua`.
+To add or remove themes, edit `managed_themes` in `lua/theme/init.lua` **and**
+add/remove the matching `vim.pack.add` entry in `plugin/colorschemes.lua`.
+
+## Onlooker
+
+`lua/onlooker/` is a custom, in-repo plugin (not a fetched dependency) for
+observing and steering Claude Code sessions without leaving Neovim. Per its
+own header comment:
+
+> Observation (dashboard/feed/digest) is lossless and non-invasive — it only
+> tails the `.jsonl` transcripts Claude Code already writes under
+> `~/.claude/projects`, for every session it finds, whether or not onlooker
+> started it. Steering (dispatch/takeover/queue/cleanup) only ever touches
+> sessions onlooker itself dispatched as terminal jobs: it writes to its own
+> child's pty, never reaches into another process.
+
+`plugin/onlooker.lua` calls `require("onlooker").setup()` with the defaults in
+`lua/onlooker/config.lua`:
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `claude_bin` | `"claude"` | Binary used for dispatched sessions |
+| `projects_root` | `~/.claude/projects` | Where transcripts are tailed from |
+| `poll_ms` | `750` | Live feed/digest re-check interval |
+| `scan_ms` | `4000` | Dashboard re-scan interval |
+| `active_window_seconds` | `120` | Transcript-write recency to count a session "active" |
+| `idle_cleanup_minutes` | `45` | Idle threshold before a dispatched session is a cleanup candidate |
+| `max_tail_bytes` | `65536` | How much transcript tail to read for dashboard previews |
+
+It exposes both user commands (`:OnlookerDashboard`, `:OnlookerFeed`,
+`:OnlookerDigest`, `:OnlookerDispatch [prompt]`, `:OnlookerTakeover`,
+`:OnlookerQueue`, `:OnlookerCleanup`) and the `<leader>o…` keymaps above.
+Internals (`dashboard.lua`, `feed.lua`, `digest.lua`, `dispatch.lua`,
+`takeover.lua`, `queue.lua`, `cleanup.lua`, plus supporting
+`discover`/`registry`/`render`/`transcript`/`live_view` modules) live under
+`lua/onlooker/` — read those directly for implementation detail; this doc only
+covers the surface.
 
 ## Common workflows
 
 | Task | Command |
 | --- | --- |
 | Update plugins | `:lua vim.pack.update()` |
-| Inspect installed plugins | `:lua = vim.pack.get()` |
-| Remove stale plugins | Restart Neovim (handled by `00-packs.lua`) |
-| Reinstall treesitter parsers | `:TSUpdate` (triggered automatically on plugin change) |
-| LSP info | `:lua = vim.lsp.get_clients()` |
+| Inspect installed plugins | `:lua =vim.pack.get()` |
+| Remove a plugin's files from disk | `:lua vim.pack.del({"name"})` after deleting its `plugin/*.lua` (no auto-prune — see [Removing a plugin](#removing-a-plugin)) |
+| Reinstall treesitter parsers | `:TSUpdate` |
+| LSP info | `:lua =vim.lsp.get_clients()` |
 | LSP log | `:LspLog` |
 | Health check | `:checkhealth` |
 
-## Tmux integration
-
-`<C-f>` opens a fresh tmux window running `tmux-sessionizer.sh`. There is no
-`vim-tmux-navigator` plugin in this config — see the harpoon caveat above
-about `<C-h/j/k/l>`.
-
 ## Troubleshooting
 
-- **A plugin won't install** — `:lua = vim.pack.get()` shows the current
+- **A plugin won't install** — `:lua =vim.pack.get()` shows the current
   state; `:lua vim.pack.update()` re-runs the fetch.
 - **Treesitter parser is missing** — `tree-sitter` CLI must be on `PATH`
   (install via `mise`). `plugin/treesitter.lua` emits a notification if it
   can't build a parser.
 - **LSP server didn't start** — make sure the binary in `servers[name].cmd[1]`
-  is on `PATH`. The config silently skips servers whose binary is missing.
+  is on `PATH` (see the server list in `plugin/lsp.lua`). The config silently
+  skips servers whose binary is missing.
 - **Theme didn't apply on launch** — check that the plugin for that theme is
-  declared in `plugin/00-packs.lua` and that the spec name matches what
-  `lua/theme/init.lua` is calling.
+  declared in `plugin/colorschemes.lua` and that the spec name matches what
+  `lua/theme/init.lua`'s `managed_themes` list expects; also check
+  `~/.local/state/theme/nvim` for a stale value.
+- **Onlooker command does nothing** — it only sees sessions writing to
+  `~/.claude/projects`; confirm `claude_bin` resolves and that a transcript is
+  actually being written for the session you expect.
