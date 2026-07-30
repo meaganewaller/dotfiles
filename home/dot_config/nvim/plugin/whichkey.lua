@@ -13,6 +13,7 @@ wk.add({
   { "<leader>h", group = "Git hunks" },
   { "<leader>l", group = "LSP" },
   { "<leader>o", group = "Onlooker" },
+  { "<leader>s", group = "Session" },
   { "<leader>t", group = "Toggle" },
   { "<leader>w", group = "Window" },
 })

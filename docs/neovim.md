@@ -20,6 +20,7 @@ ordinary Lua modules.
 - **Syntax**: [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) (default branch, no version pin)
 - **Colorschemes**: a curated set with a runtime fzf-lua picker (default: `catppuccin-mocha`)
 - **Windows**: hand-rolled split/zoom keymaps + [`smart-splits.nvim`](https://github.com/mrjones2014/smart-splits.nvim) for tmux-aware move/resize (see the Keymaps and Tmux integration sections below)
+- **Sessions**: [`persistence.nvim`](https://github.com/folke/persistence.nvim), auto-restored on a bare `nvim` with no file args
 - **Claude Code observability**: `onlooker` — a custom in-repo plugin (`lua/onlooker/`) for watching and steering Claude Code sessions from inside Neovim; see [Onlooker](#onlooker)
 - **Configuration location**: `home/dot_config/nvim/`
 
@@ -49,6 +50,7 @@ home/dot_config/nvim/
     ├── git.lua                    # gitsigns setup + <leader>h… keymaps
     ├── lsp.lua                    # vim.lsp.config servers + LspAttach keymaps
     ├── onlooker.lua                # require("onlooker").setup()
+    ├── session.lua                 # persistence.nvim + auto-restore on bare `nvim`
     ├── statusline.lua             # lualine + nvim-web-devicons
     ├── theme.lua                  # require("theme") — applies the saved/default colorscheme
     ├── treesitter.lua             # parser install list + auto-start on FileType
@@ -207,6 +209,18 @@ See [Onlooker](#onlooker) for what these actually do.
 See the Tmux integration section below for how the tmux-crossing behavior
 actually works.
 
+### Sessions — `<leader>s…` (persistence.nvim)
+
+| Map | Action |
+| --- | --- |
+| `<leader>ss` | Restore the session for the current directory |
+| `<leader>sS` | Select a session to load (across directories/branches) |
+| `<leader>sl` | Restore the last session |
+| `<leader>sd` | Stop persistence — don't save this session on exit |
+
+A session is also restored automatically on launch when `nvim` is started
+with no file arguments — see the Sessions section below for how that works.
+
 ### Files / other
 
 | Map | Action |
@@ -264,6 +278,27 @@ Internals (`dashboard.lua`, `feed.lua`, `digest.lua`, `dispatch.lua`,
 `discover`/`registry`/`render`/`transcript`/`live_view` modules) live under
 `lua/onlooker/` — read those directly for implementation detail; this doc only
 covers the surface.
+
+## Sessions
+
+`plugin/session.lua` wires up `persistence.nvim`, which by its own design
+"will never restore a session automatically" on its own — it only saves one
+(to `stdpath("state") .. "/sessions/"`, keyed by cwd and, unless the branch is
+`main`/`master`, git branch) on `VimLeavePre`, gated on at least one real file
+buffer being open. Restoring is left entirely to whatever autocmd you add.
+
+This config adds a `VimEnter` autocmd (`nested = true`, so the restored
+buffers still fire their own `FileType`/`BufReadPost` autocmds — treesitter,
+LSP attach, etc.) that calls `require("persistence").load()` whenever
+`vim.fn.argc() == 0`, i.e. Neovim was started with no file arguments.
+`nvim somefile.txt` or `nvim .` never triggers it — only a bare `nvim`.
+
+**Testing note:** `nvim --headless -c '...' -c 'qa'` is *not* a valid way to
+exercise this — per `:h starting` (startup step 18), `-c`/`+cmd` commands run
+and can quit the process *before* `VimEnter` fires, not after. Verifying the
+autocmd headlessly requires `--listen`, letting the instance idle through a
+real startup, then driving it with a second `nvim --server ... --remote-send`
+call.
 
 ## Tmux integration
 
