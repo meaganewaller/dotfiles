@@ -14,4 +14,5 @@ wk.add({
   { "<leader>l", group = "LSP" },
   { "<leader>o", group = "Onlooker" },
   { "<leader>t", group = "Toggle" },
+  { "<leader>w", group = "Window" },
 })

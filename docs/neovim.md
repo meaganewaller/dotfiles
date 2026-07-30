@@ -19,15 +19,15 @@ ordinary Lua modules.
 - **Keymap hints**: [`which-key.nvim`](https://github.com/folke/which-key.nvim)
 - **Syntax**: [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) (default branch, no version pin)
 - **Colorschemes**: a curated set with a runtime fzf-lua picker (default: `catppuccin-mocha`)
+- **Windows**: hand-rolled split/zoom keymaps + [`smart-splits.nvim`](https://github.com/mrjones2014/smart-splits.nvim) for tmux-aware move/resize (see the Keymaps and Tmux integration sections below)
 - **Claude Code observability**: `onlooker` — a custom in-repo plugin (`lua/onlooker/`) for watching and steering Claude Code sessions from inside Neovim; see [Onlooker](#onlooker)
 - **Configuration location**: `home/dot_config/nvim/`
 
 LSP servers come from `PATH` — install them with `mise` or your system
 package manager. There is no Mason equivalent in this config.
 
-There is currently **no harpoon, no vim-fugitive, and no window-management
-layer** — splits/resizing use plain Neovim `<C-w>` commands. If you're reading
-this looking for those, they aren't there (yet).
+There is still **no harpoon and no vim-fugitive** in this config. Window
+management is covered below — it isn't a gap anymore.
 
 ## Directory structure
 
@@ -52,7 +52,8 @@ home/dot_config/nvim/
     ├── statusline.lua             # lualine + nvim-web-devicons
     ├── theme.lua                  # require("theme") — applies the saved/default colorscheme
     ├── treesitter.lua             # parser install list + auto-start on FileType
-    └── whichkey.lua               # which-key setup + leader group labels
+    ├── whichkey.lua               # which-key setup + leader group labels
+    └── window.lua                 # split lifecycle, zoom toggle, smart-splits (tmux-aware move/resize)
 ```
 
 Two conventions worth knowing:
@@ -191,14 +192,29 @@ via `LspAttach`:
 
 See [Onlooker](#onlooker) for what these actually do.
 
+### Windows — `<leader>w…` / smart-splits
+
+| Map | Action |
+| --- | --- |
+| `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` | Move to the split left/down/up/right, crossing into the adjacent tmux pane at the edge |
+| `<A-h>` / `<A-j>` / `<A-k>` / `<A-l>` | Resize the current split in that direction, same tmux-crossing behavior |
+| `<leader>ws` / `<leader>wv` | Split horizontal / vertical (mirrors `:h CTRL-W`'s own `s`/`v`) |
+| `<leader>wc` | Close window |
+| `<leader>wo` | Close other windows |
+| `<leader>w=` | Equalize windows |
+| `<leader>wm` | Toggle zoom (grow to fill the tab, press again to restore) |
+
+See the Tmux integration section below for how the tmux-crossing behavior
+actually works.
+
 ### Files / other
 
 | Map | Action |
 | --- | --- |
 | `-` | Open `oil` |
 
-That's it — no window-split keymaps, no harpoon, and no clear-search-highlight
-mapping exist in this config today.
+No clear-search-highlight mapping exists in this config today (there's no
+default one either — you'd need to add your own `<Esc>` → `:nohlsearch`).
 
 ## Themes
 
@@ -248,6 +264,23 @@ Internals (`dashboard.lua`, `feed.lua`, `digest.lua`, `dispatch.lua`,
 `discover`/`registry`/`render`/`transcript`/`live_view` modules) live under
 `lua/onlooker/` — read those directly for implementation detail; this doc only
 covers the surface.
+
+## Tmux integration
+
+`home/dot_config/tmux/tmux.conf` binds unprefixed `C-h`/`C-j`/`C-k`/`C-l` at
+the tmux level using the classic `vim-tmux-navigator` `is_vim` check: if the
+focused pane is running vim/nvim it forwards the raw keys through, otherwise
+it moves tmux panes directly. That only gets the keypress into Neovim —
+tmux has no idea whether Neovim is at the edge of its own split layout.
+
+`plugin/window.lua`'s smart-splits keymaps close that loop: they act like
+`<C-w>hjkl` inside Neovim, and when the cursor doesn't move (already at
+Neovim's outermost split), smart-splits shells out to tmux itself to select
+the adjacent pane. The two halves — tmux's `is_vim` forwarding and
+smart-splits' edge detection — only work together; neither alone crosses the
+tmux/Neovim boundary. The `<A-h/j/k/l>` resize keymaps use the same
+edge-detection to resize the adjacent tmux pane once Neovim has nothing left
+to shrink or grow.
 
 ## Common workflows
 
