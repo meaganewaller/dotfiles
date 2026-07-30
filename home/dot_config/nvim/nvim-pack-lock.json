@@ -10,7 +10,7 @@
       "src": "https://github.com/rockerBOO/boo-colorscheme-nvim"
     },
     "catppuccin": {
-      "rev": "05e8787020dcfdb937bf2ff23855ea2415b4e072",
+      "rev": "79e2049a0fdf7ec840f8463fe1d962c94493196b",
       "src": "https://github.com/catppuccin/nvim"
     },
     "citruszest.nvim": {
