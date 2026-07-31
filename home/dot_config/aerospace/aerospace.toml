@@ -12,6 +12,8 @@
 # AeroSpace hot-reloads this file on save — no reload command needed.
 # Full reference: https://nikitabobko.github.io/AeroSpace/guide
 
+config-version = 2
+
 # Start AeroSpace at login (managed here rather than via macOS Login Items).
 start-at-login = true
 
@@ -100,6 +102,7 @@ outer.top = [{ monitor."Built-in Retina Display" = 8 }, 14]
 # rearranges your windows. In Phase 2 we narrow/remove this so a chosen
 # workspace can tile.
 [[on-window-detected]]
+if = 'true'
 run = ['layout floating']
 
 # ── Keybindings ───────────────────────────────────────────────────────────────
