@@ -71,9 +71,9 @@ EOF
 
 # Normalize a git remote URL to a canonical, lowercased `host/org/repo` form so
 # that HTTPS and scp-style SSH remotes for the same repo compare equal.
-#   https://github.com/Gusto/repo.git -> github.com/gusto/repo.git
-#   git@github.com:Gusto/repo.git     -> github.com/gusto/repo.git
-#   ssh://git@github.com/Gusto/repo   -> github.com/gusto/repo
+#   https://github.com/ORG-NAME/repo.git -> github.com/org-name/repo.git
+#   git@github.com:ORG-NAME/repo.git     -> github.com/org-name/repo.git
+#   ssh://git@github.com/ORG-NAME/repo   -> github.com/org-name/repo
 normalize_remote() {
     local url="$1"
     local sep='/'

@@ -1,7 +1,8 @@
 [user]
 	name = {{ .git.name }}
 	email = {{ .git.email }}
-	signingkey = ~/.ssh/id_ed25519_personal.pub
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFQ99ctOvjZ2A8JQQu0dgRDKt8V3OuVUpSU4zLq62GLQ
+	useConfigOnly = true
 
 [init]
 	defaultBranch = main
@@ -14,10 +15,14 @@
 	format = ssh
 
 [gpg "ssh"]
-	allowedSignersFile = ~/.config/git/allowed_signers
+	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
 
 [commit]
 	gpgsign = true
+	verbose = true
 
 [tag]
 	gpgsign = true
@@ -27,10 +32,6 @@
 	excludesfile = ~/.config/git/ignore
 	autocrlf = input
 	pager = delta
-	# Pin the ssh key deterministically instead of relying on 1Password's
-	# agent to pick one out of several loaded identities. The work identity
-	# overrides this below via includeIf for repos under ~/workspace.
-	sshCommand = "ssh -o IdentitiesOnly=yes -o IdentityFile=~/.ssh/id_ed25519_personal.pub"
 
 [interactive]
 	diffFilter = delta --color-only
@@ -43,20 +44,25 @@
 	conflictstyle = zdiff3
 
 [diff]
+	algorithm = histogram
 	colorMoved = default
 
 [pull]
 	rebase = true
 
 [push]
-	default = simple
+	default = current
 	autoSetupRemote = true
 
 [rebase]
 	autoStash = true
 
 [status]
+	showStash = true
 	showUntrackedFiles = all
+
+[checkout]
+	workers = 0
 
 [log]
 	date = relative
@@ -129,12 +135,6 @@
 
 [include]
 	path = ~/.config/git/config.local
-{{ if .work_profile -}}
-# Work identity/key for repos checked out under ~/workspace on a work machine.
-# Personal machines never get this block, even if a ~/workspace dir exists.
-[includeIf "gitdir:~/workspace/"]
-	path = ~/.config/git/config-work
-{{ end -}}
 {{ if lookPath "gh" -}}
 [credential "https://github.com"]
 	helper =
@@ -143,3 +143,8 @@
 	helper =
 	helper = !{{ lookPath "gh" }} auth git-credential
 {{ end -}}
+
+{{- if .work_profile }}
+[includeIf "gitdir:~/src/github.com/testdouble"]
+	path = ~/.config/git/work.gitconfig
+{{- end }}

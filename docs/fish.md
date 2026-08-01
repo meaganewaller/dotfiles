@@ -40,8 +40,8 @@ After that the template branches on the `work_profile` chezmoi data flag (set du
 
 | Branch | What happens |
 | --- | --- |
-| `work_profile = true` | Sets `PROFILE=work` and sources `~/.gusto/init.fish` if present. Does **not** activate mise here — work-profile machines manage their own tool resolution. |
-| `work_profile = false` | Sets `PROFILE=personal`, prepends `~/.cargo/bin` to `PATH` (when not already managed by mise), and activates mise with `mise activate fish --shims`. |
+| `work_profile = true` | Sets `PROFILE=work` Does **not** activate mise here — work-profile machines manage their own tool resolution. |
+| `work_profile = false` | Sets `PROFILE=personal`, prepends `~/.cargo/bin` to `PATH` (when not already managed by mise), and activates mise with `mise activate fish | source`. |
 
 Both branches then ensure GNU coreutils win on macOS (`$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin`), enable fzf-backed `cheat`, and set `GIT_MERGE_AUTOEDIT=no`.
 

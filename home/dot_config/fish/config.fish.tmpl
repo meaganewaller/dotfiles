@@ -10,9 +10,6 @@ set -gx EDITOR "nvim"
 
 {{ if .work_profile }}
 set -gx PROFILE work
-if test -f ~/.gusto/init.fish
-    source ~/.gusto/init.fish
-end
 {{ else }}
 set -gx PROFILE personal
 {{ end }}
@@ -25,7 +22,7 @@ if command -q mise
     set -gx MISE_NOT_FOUND_AUTO_INSTALL false
     set -gx MISE_RUBY_VERBOSE_INSTALL true
     set -gx MISE_NODE_COREPACK true
-    mise activate fish --shims | source
+    mise activate fish | source
 end
 
 if [ -n "$HOMEBREW_PREFIX" ]

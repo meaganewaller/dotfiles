@@ -1,7 +1,10 @@
 # Chezmoi Configuration File Template
 # Processed during `chezmoi init` to create the actual config file.
 # Prompted values are stored in [data] and available to all templates via `.`.
+
+
 {{ $gitName := "" -}}
+{{ $gitUsername := "" -}}
 {{- $gitEmail := "" -}}
 {{- $gitWorkEmail := "" -}}
 {{- $credClaudeApi := "" -}}
@@ -11,6 +14,7 @@
 {{- if stdinIsATTY -}}
 {{- $gitName = promptStringOnce . "git.name" "Git user.name" -}}
 {{- $gitEmail = promptStringOnce . "git.email" "Personal git user.email" -}}
+{{- $gitUsername = promptStringOnce . "git.username" "Git username" -}}
 {{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
 {{- if $workProfile -}}
 {{- $gitWorkEmail = promptStringOnce . "git.work_email" "Work git user.email" -}}
@@ -34,7 +38,11 @@
 sourceDir = "{{ .chezmoi.workingTree }}"
 
 [onepassword]
+mode = "account"
 cache = true
+
+[hooks.read-source-state.pre]
+command = "{{ .chezmoi.workingTree }}/bin/install-password-manager"
 
 [data]
 work_profile = {{ $workProfile }}
@@ -42,6 +50,7 @@ work_profile = {{ $workProfile }}
 [data.git]
 name = {{ $gitName | quote }}
 email = {{ $gitEmail | quote }}
+username = {{ $gitUsername | quote }}
 work_email = {{ $gitWorkEmail | quote }}
 
 [data.credentials]
