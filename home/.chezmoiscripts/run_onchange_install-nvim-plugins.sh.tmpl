@@ -31,10 +31,9 @@ fi
 # Sourcing the config installs any plugin not yet on disk (vim.pack.add(),
 # at nvim-pack-lock.json's pinned revision); the explicit update() call then
 # brings already-installed plugins in line with the lockfile too (e.g. after
-# a Renovate bump). force+target=lockfile skips vim.pack's interactive
-# confirmation buffer, which would otherwise hang a non-interactive run.
+# a Renovate bump). Pipe "A" to automatically respond "Always" to any prompts.
 echo "🚀 Syncing Neovim plugins..."
-nvim --headless -c "lua vim.pack.update(nil, { force = true, target = 'lockfile' })" +qa
+echo A | nvim --headless -c "lua vim.pack.update(nil, { force = true, target = 'lockfile' })" +qa
 
 if [[ "${DEBUG:-}" == "1" ]]; then
     echo "✅ Neovim plugins synchronized successfully!"
