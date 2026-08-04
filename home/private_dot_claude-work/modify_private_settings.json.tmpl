@@ -1,0 +1,29 @@
+#!/bin/bash
+# Merges desired settings into the current settings.json
+# Keys managed by Claude Code (e.g. "model") are preserved rather than overwritten.
+
+set -euo pipefail
+
+desired=$(cat <<'DESIRED'
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.local/bin/claude-code-statusline",
+    "padding": 0
+  }
+}
+DESIRED
+)
+
+current=$(cat)
+
+if ! command -v jq &>/dev/null; then
+  printf '%s\n' "${current:-$desired}"
+  exit 0
+fi
+
+if [[ -z "$current" ]]; then
+  printf '%s\n' "$desired" | jq --indent 2 '.'
+else
+  printf '%s' "$current" | jq --indent 2 --argjson desired "$desired" '. * $desired'
+fi
