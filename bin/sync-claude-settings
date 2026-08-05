@@ -343,42 +343,15 @@ set_permissions() {
     }' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 }
 
-# Register the repo's global hooks (managed via chezmoi). Three live at
-# ~/.claude/hooks/ (check-secrets, guard-destructive, migration-reminder); the
-# ad-hoc-installer guard lives on PATH at ~/.local/libexec/.
-#
-# Merge, don't overwrite: drop any existing hook group that contains one of OUR
-# commands, then re-append our canonical groups. Hook groups contributed by
-# plugins or the claude CLI (which own none of our commands) are left intact.
-# Idempotent — re-running yields the same set.
-#
-# Note: plugin marketplaces, enabled plugins, and MCP servers are NOT managed
-# here. The claude CLI is their single writer, driven by bin/sync-claude-extras.
-# See docs/agents/claude-code.md and ADR 0008.
+# Hook management: Hooks are deployed via chezmoi (home/private_dot_claude-*/hooks/)
+# and registered by the Claude CLI or copied into settings.json.
+# This function is a no-op for now — deprecated hooks were removed in commit b5c25df.
+# Re-enable this when hooks are added back and need to be wired into settings.json.
 set_hooks() {
   local settings="$1"
-  printf 'setting global hooks in %s\n' "${settings}"
-  jq '
-        {
-          "PreToolUse": [
-            { "matcher": "Write|Edit|MultiEdit", "command": "bash ~/.claude/hooks/check-secrets.sh" },
-            { "matcher": "Bash",                  "command": "bash ~/.claude/hooks/guard-destructive.sh" },
-            { "matcher": "Bash",                  "command": "$HOME/.local/libexec/block-adhoc-installers" }
-          ],
-          "PostToolUse": [
-            { "matcher": "Write|Edit", "command": "bash ~/.claude/hooks/migration-reminder.sh" }
-          ]
-        } as $owned
-        | [ $owned[][].command ] as $ourcmds
-        | .hooks = (.hooks // {})
-        | reduce ($owned | keys[]) as $phase (.;
-            .hooks[$phase] = (
-              [ (.hooks[$phase] // [])[]
-                | select( any(.hooks[]?; .command as $c | $ourcmds | index($c)) | not ) ]
-              + ( $owned[$phase] | map({ matcher: .matcher, hooks: [ { type: "command", command: .command } ] }) )
-            )
-          )
-    ' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
+  # Hooks are now managed by individual account directories via chezmoi deployment.
+  # No global hook wiring needed at this time.
+  printf 'hook registration skipped (no managed hooks currently)\n'
 }
 
 # Remove Bedrock model env vars (use_bedrock=false path)
@@ -492,7 +465,6 @@ sync_account() {
   set_status_line "${settings}"
   set_feature_flags "${settings}"
   set_permissions "${settings}"
-  set_hooks "${settings}"
 
   local use_bedrock
   use_bedrock=$(chezmoi data --format json | jq -r '.claude.use_bedrock')

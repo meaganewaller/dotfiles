@@ -70,22 +70,15 @@ run_sync() {
   [ "$status" -eq 0 ]
   run jq -e '.permissions.allow | length > 0' "$settings"
   [ "$status" -eq 0 ]
-  run jq -e '.hooks.PreToolUse | length > 0' "$settings"
-  [ "$status" -eq 0 ]
-  run jq -e '.hooks.PostToolUse | length > 0' "$settings"
-  [ "$status" -eq 0 ]
   run jq -e '.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS == "1"' "$settings"
   [ "$status" -eq 0 ]
   run jq -e '.model' "$settings"
   [ "$status" -eq 0 ]
 
-  # All four repo hooks are wired: three at ~/.claude/hooks + the libexec guard.
-  local cmds
-  cmds=$(jq -r '[.hooks[][].hooks[].command] | join("\n")' "$settings")
-  echo "$cmds" | grep -qF 'check-secrets.sh'
-  echo "$cmds" | grep -qF 'guard-destructive.sh'
-  echo "$cmds" | grep -qF 'migration-reminder.sh'
-  echo "$cmds" | grep -qF 'block-adhoc-installers'
+  # Hooks are now managed by individual account directories via chezmoi (not by sync script).
+  # Previously deprecated hooks (check-secrets, guard-destructive, migration-reminder) are no longer registered.
+  # Hooks that are deployed via chezmoi (like tmux-bell.sh) are preserved.
+  # This test just verifies the script doesn't crash; actual hook presence is tested elsewhere.
 
   # Plugins / marketplaces are no longer written into settings.json (ADR 0008);
   # bin/sync-claude-extras owns them via the claude CLI.
@@ -164,13 +157,13 @@ EOF
   [ "$first_hash" = "$second_hash" ]
 }
 
-@test "set_hooks preserves foreign hook groups and is idempotent" {
+@test "does not modify hooks (managed via chezmoi, not sync script)" {
   mkdir -p "$TEST_HOME_DIR/.claude-personal"
   cat >"$TEST_HOME_DIR/.claude-personal/settings.json" <<'EOF'
 {
   "hooks": {
-    "PreToolUse": [
-      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "/plugin/foreign-hook.sh" } ] }
+    "Notification": [
+      { "matcher": ".*", "hooks": [ { "type": "command", "command": "~/.claude/hooks/tmux-bell.sh" } ] }
     ]
   }
 }
@@ -180,15 +173,11 @@ EOF
   [ "$status" -eq 0 ]
   local settings="$TEST_HOME_DIR/.claude-personal/settings.json"
 
-  # A hook group we don't own survives the re-sync.
-  run jq -e '[.hooks.PreToolUse[].hooks[].command] | index("/plugin/foreign-hook.sh") != null' "$settings"
+  # Existing hooks are preserved (not modified by the sync script).
+  run jq -e '.hooks.Notification[0].hooks[0].command | contains("tmux-bell.sh")' "$settings"
   [ "$status" -eq 0 ]
 
-  # Our guard (and the other repo hooks) are present alongside it.
-  run jq -e '[.hooks[][].hooks[].command] | index("$HOME/.local/libexec/block-adhoc-installers") != null' "$settings"
-  [ "$status" -eq 0 ]
-
-  # Re-running yields byte-identical hooks (idempotent merge).
+  # Re-running yields identical hooks (idempotent, no modifications).
   local first second
   first=$(jq -S '.hooks' "$settings")
   run run_sync
