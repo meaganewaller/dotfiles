@@ -30,15 +30,10 @@ warn() { printf '%s\n' "$*" >&2; }
 
 # Detect available Claude Code account directories.
 # Returns account names by looking for ~/.claude-personal, ~/.claude-work, etc.
-# Also checks ~/.claude for backward compatibility with single-account setups.
+# Multi-account only: no fallback to ~/.claude (users must have explicit account directories).
 detect_accounts() {
   local dir account
   local -a accounts=()
-
-  # Check for default ~/.claude (account name: "default") — legacy single-account
-  if [[ -d "${HOME}/.claude" ]]; then
-    accounts+=("default")
-  fi
 
   # Check for ~/.claude-* (account names: "personal", "work", etc.)
   for dir in "${HOME}"/.claude-*/; do
@@ -487,9 +482,7 @@ validate_settings() {
 # Sync settings for a single account
 sync_account() {
   local account="$1"
-  local claude_dir="${HOME}/.claude"
-
-  [[ "${account}" != "default" ]] && claude_dir="${HOME}/.claude-${account}"
+  local claude_dir="${HOME}/.claude-${account}"
 
   local settings="${claude_dir}/settings.json"
   log "━━━ account: ${account} (${settings}) ━━━"

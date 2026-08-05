@@ -215,15 +215,11 @@ prune_extra() {
 }
 
 # Detect available Claude Code account directories.
-# Returns account names by looking for ~/.claude, ~/.claude-personal, ~/.claude-work, etc.
+# Returns account names by looking for ~/.claude-personal, ~/.claude-work, etc.
+# Multi-account only: no fallback to ~/.claude (users must have explicit account directories).
 detect_accounts() {
   local dir account
   local -a accounts=()
-
-  # Check for default ~/.claude (account name: "default")
-  if [[ -d "${HOME}/.claude" ]]; then
-    accounts+=("default")
-  fi
 
   # Check for ~/.claude-* (account names: "personal", "work", etc.)
   for dir in "${HOME}"/.claude-*/; do
@@ -240,9 +236,7 @@ detect_accounts() {
 # $CURRENT_ACCOUNT is set globally for use by declared().
 reconcile_account() {
   local account="$1"
-  local claude_dir="${HOME}/.claude"
-
-  [[ "${account}" != "default" ]] && claude_dir="${HOME}/.claude-${account}"
+  local claude_dir="${HOME}/.claude-${account}"
 
   log "━━━ account: ${account} (${claude_dir}) ━━━"
 
