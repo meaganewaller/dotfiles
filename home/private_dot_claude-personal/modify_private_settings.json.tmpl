@@ -33,7 +33,27 @@ desired=$(cat <<'DESIRED'
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/tmux-bell.sh"
+            "command": "bash ~/.claude-personal/hooks/tmux-bell.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      { 
+        "matcher": "Write|Edit|MultiEdit", 
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude-personal/hooks/check-secrets.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.local/libexec/block-adhoc-installers"
           }
         ]
       }
