@@ -2,7 +2,15 @@
 # Each line: <email> [namespaces=git] <pubkey>
 # `git log --show-signature` consults this to mark our own commits as
 # verified (G) instead of "could not be verified" (E).
-{{ .git.email }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAgvEB2x8K5zYzl8bRxA0YXr7otRgCSPrBeiJsOJmPx6
+#
+# The key comes from .chezmoidata/git.yaml -- the same value config.tmpl renders
+# into `signingkey`, so the two cannot drift apart. Do not paste a literal here;
+# that is exactly how this file went stale before (see ADR 0012).
+#
+# Both identities map to the same key: 1Password serves one signing key, so work
+# commits are signed with it too. The separate work key that used to live here
+# belonged to a former client and was retired.
+{{ .git.email }} {{ .git.signing_key }}
 {{ if .work_profile -}}
-{{ .git.work_email }} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOq4MAoW/a7DBfP+0C1s5HKBYV0rHVLgc+7mc+QbJb5/
+{{ .git.work_email }} {{ .git.signing_key }}
 {{ end -}}

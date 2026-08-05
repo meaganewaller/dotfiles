@@ -1,0 +1,28 @@
+# Git signing identity.
+#
+# 1Password is the authoritative source for the SSH key itself: the private half
+# never leaves the vault, and the 1Password SSH agent serves it to git via
+# `op-ssh-sign` (see [gpg "ssh"] program in dot_config/git/config.tmpl, and the
+# agent's own vault config in dot_config/1Password/ssh/agent.toml).
+#
+# What lives here is only the *public* half, recorded once so the two files that
+# need it -- config.tmpl's `signingkey` and allowed_signers.tmpl's trust map --
+# cannot drift apart. They did drift once: commit 0b2feb5 moved keys into
+# 1Password and updated config.tmpl but not allowed_signers.tmpl, leaving local
+# verification broken against a stale key. Deriving both from this one value is
+# what makes that failure mode structurally impossible. See ADR 0012.
+#
+# A public key is not a secret, so committing it costs nothing and, unlike an
+# `onepasswordRead`, needs no 1Password auth at `chezmoi apply` time.
+#
+# To rotate: replace the value below with `ssh-add -L` output (key type + base64
+# only, no trailing comment), re-register it on GitHub as a *Signing Key*, then
+# `chezmoi apply`.
+
+git:
+  # Matches "My Personal SSH Key" in the Development vault.
+  # SHA256:TeXrUZ1GarNJ6A7Wm6HWHcjN2Ibh4XwWOLae/rNgyac
+  signing_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFQ99ctOvjZ2A8JQQu0dgRDKt8V3OuVUpSU4zLq62GLQ"
+
+  # Where the rendered trust map lands. git expands `~` for this setting.
+  allowed_signers_file: "~/.config/git/allowed_signers"
