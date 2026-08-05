@@ -1,0 +1,15 @@
+#!/bin/bash
+# Overlay AWS Bedrock model IDs onto each account's settings.json.
+#
+# Runs `after` the file pass on purpose: the static settings surface is rendered
+# by home/private_dot_claude-{account}/modify_private_settings.json.tmpl during
+# that pass, and this overlay's .model must win over the declared default.
+#
+# use_bedrock: {{ dig "claude" "use_bedrock" false . }}
+# sync-script hash: {{ output "sha256sum" (joinPath .chezmoi.workingTree "bin/sync-claude-settings") | trim }}
+
+[[ -n "${DEBUG:-}" ]] && set -o xtrace
+set -o errexit
+set -o nounset
+
+"{{ .chezmoi.workingTree }}/bin/sync-claude-settings"

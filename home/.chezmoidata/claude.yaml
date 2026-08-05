@@ -1,21 +1,64 @@
-# Claude Code extras (plugin marketplaces, plugins, MCP servers) reconciled into
-# the user-scope install by bin/sync-claude-extras on `chezmoi apply`.
+# Declarative Claude Code configuration, organized by account.
 #
-# Multi-account support: shared resources are available to all accounts (personal,
-# work, etc.); account-specific resources are applied only to that account's
-# directory (~/.claude-{account}/).
+# Two consumers read this file, and they own different halves of it:
+#
+#   settings / env / hooks / permissions
+#     -> home/.chezmoitemplates/claude-settings renders them into each account's
+#        settings.json via home/private_dot_claude-{account}/modify_private_settings.json.tmpl.
+#        Nothing else writes those keys; the template is the single writer.
+#
+#   marketplaces / plugins / mcpServers
+#     -> bin/sync-claude-extras drives the `claude` CLI, which is the real single
+#        writer for extraKnownMarketplaces / enabledPlugins / mcpServers (ADR 0008).
+#        These are NOT rendered into settings.json.
+#
+# Merge model: `shared` applies to every account; `{account}` is layered on top.
+# Scalars and maps override (account wins), lists concatenate. See ADR 0011.
 #
 # ONLY PUBLIC ENTRIES HERE. Private/work/machine-specific entries live in
 # machine-local [data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml,
 # merged on top of this data at reconcile time — never committed here.
 #
-# Reconciliation is additive: items declared here are added if missing; items
-# installed but not declared are reported as drift, and only removed with
+# Extras reconciliation is additive: items declared here are added if missing;
+# items installed but not declared are reported as drift, and only removed with
 # `bin/sync-claude-extras --prune`. Plugins are intentionally not version-pinned.
 
 claudeData:
-  # Shared marketplaces available to all accounts
+  # ── Applied to every account ────────────────────────────────────────────────
   shared:
+    # Flat top-level keys, merged verbatim into settings.json.
+    settings:
+      # Claude Code also writes `model` itself (via /model). Declaring it here
+      # means every `chezmoi apply` resets it to this value — that is the
+      # pre-existing behavior, kept deliberately. Drop this key to let the
+      # in-app choice stick.
+      model: "opus[1m]"
+      effortLevel: "xhigh"
+      alwaysThinkingEnabled: true
+      autoDreamEnabled: true
+      includeCoAuthoredBy: false
+      skipAutoPermissionPrompt: true
+      skipDangerousModePermissionPrompt: true
+      autoUpdatesChannel: "latest"
+      statusLine:
+        type: "command"
+        command: "~/.local/bin/claude-code-statusline"
+        padding: 0
+
+    # Merged into settings.json `.env`. Values MUST be strings — Claude Code
+    # rejects numeric JSON here.
+    env:
+      CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"
+
+    # PreToolUse/PostToolUse/Notification/... entries. See claudeData.personal.hooks
+    # below for the schema.
+    hooks: []
+
+    # permissions.defaultMode + the 246-entry allow list live in the sibling
+    # home/.chezmoidata/claude-permissions.yaml (chezmoi deep-merges both files
+    # into this same key). Account-specific additions go under
+    # claudeData.{account}.permissions.allow and are appended to that list.
+
     marketplaces:
       - name: anthropic-agent-skills
         repo: anthropics/skills
@@ -24,17 +67,44 @@ claudeData:
       - name: superpowers-dev
         repo: obra/superpowers
 
-    # Shared plugins available to all accounts
     plugins:
       - claude-api@anthropic-agent-skills
       - plugin-dev@claude-code-plugins
       - superpowers@superpowers-dev
 
-    # Shared MCP servers available to all accounts
     mcpServers: []
 
-  # Personal account configuration
+  # ── Personal account (~/.claude-personal) ───────────────────────────────────
   personal:
+    settings:
+      tui: "fullscreen"
+      copyOnSelect: false
+      prStatusFooterEnabled: false
+      showClearContextOnPlanAccept: true
+      awaySummaryEnabled: false
+      autoUpdaterChannel: "stable"
+      attribution:
+        commit: ""
+        pr: ""
+
+    env:
+      CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING: "1"
+      MAX_THINKING_TOKENS: "128000"
+
+    # `$CLAUDE_DIR` expands to ~/.claude-{account} and `$HOME` to the real home
+    # directory, both at render time. One entry per matcher; entries sharing an
+    # event are emitted as sibling groups, which is what Claude Code expects.
+    hooks:
+      - event: Notification
+        matcher: ".*"
+        command: "bash $CLAUDE_DIR/hooks/tmux-bell.sh"
+      - event: PreToolUse
+        matcher: "Write|Edit|MultiEdit"
+        command: "bash $CLAUDE_DIR/hooks/check-secrets.sh"
+      - event: PreToolUse
+        matcher: "Bash"
+        command: "$HOME/.local/libexec/block-adhoc-installers"
+
     marketplaces:
       - name: meaganewaller-marketplace
         repo: meaganewaller/marketplace
@@ -71,8 +141,14 @@ claudeData:
 
     mcpServers: []
 
-  # Work account configuration
+  # ── Work account (~/.claude-work) ───────────────────────────────────────────
   work:
+    settings: {}
+    env: {}
+    # No hooks: the hook scripts live in home/private_dot_claude-personal/hooks/
+    # and are not deployed to ~/.claude-work. Adding one here means adding the
+    # script under home/private_dot_claude-work/hooks/ too.
+    hooks: []
     marketplaces: []
     plugins: []
     mcpServers: []
