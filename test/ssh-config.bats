@@ -2,54 +2,50 @@
 
 load test_helper
 
-@test "renders macOS 1Password agent on darwin" {
-    local config_file="home/private_dot_ssh/private_config.tmpl"
+CONFIG_FILE="home/private_dot_ssh/private_config.tmpl"
 
-    cat >"$TEST_TMPDIR/darwin-config.toml" <<EOF
+# The template reads .work_profile, and chezmoi renders with missingkey=error,
+# so every config here must define it or rendering fails outright.
+render() {
+	local os="$1" work_profile="${2:-false}"
+	cat >"$TEST_TMPDIR/$os-$work_profile.toml" <<EOF
 [data]
-    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    work_profile = $work_profile
+    chezmoi = { os = "$os", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
 EOF
+	chezmoi execute-template --config "$TEST_TMPDIR/$os-$work_profile.toml" --file "$CONFIG_FILE"
+}
 
-    run chezmoi execute-template --config "$TEST_TMPDIR/darwin-config.toml" --file "$config_file"
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"* ]]
+@test "renders macOS 1Password agent on darwin" {
+	run render darwin
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" == *"Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"* ]] || fail "output was: $output"
 }
 
 @test "renders Linux 1Password agent on linux" {
-    local config_file="home/private_dot_ssh/private_config.tmpl"
-
-    cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
-[data]
-    chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-EOF
-
-    run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$config_file"
-    [ "$status" -eq 0 ]
-    [[ "$output" == *".1password/agent.sock"* ]]
+	run render linux
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" == *".1password/agent.sock"* ]] || fail "output was: $output"
 }
 
 @test "does not leak macOS paths to linux" {
-    local config_file="home/private_dot_ssh/private_config.tmpl"
-
-    cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
-[data]
-    chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-EOF
-
-    run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$config_file"
-    [ "$status" -eq 0 ]
-    [[ "$output" != *"Library/Group Containers"* ]]
+	run render linux
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" != *"Library/Group Containers"* ]] || fail "output was: $output"
 }
 
 @test "does not leak Linux paths to darwin" {
-    local config_file="home/private_dot_ssh/private_config.tmpl"
+	run render darwin
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" != *".1password/agent.sock"* ]] || fail "output was: $output"
+}
 
-    cat >"$TEST_TMPDIR/darwin-config.toml" <<EOF
-[data]
-    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
-EOF
+@test "includes work.config only on a work profile" {
+	run render darwin true
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" == *"Include ~/.ssh/work.config"* ]] || fail "output was: $output"
 
-    run chezmoi execute-template --config "$TEST_TMPDIR/darwin-config.toml" --file "$config_file"
-    [ "$status" -eq 0 ]
-    [[ "$output" != *".1password/agent.sock"* ]]
+	run render darwin false
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" != *"work.config"* ]] || fail "output was: $output"
 }
