@@ -1,35 +1,56 @@
 # Claude Code in this repository
 
-This document covers the **global Claude Code configuration** that chezmoi syncs from `home/dot_claude/` to `~/.claude/`. For the broader edit / diff / apply workflow, see [chezmoi.md](chezmoi.md). For shell behavior under Claude Code and other agents, see [ADR 0001](../adrs/0001-specialized-agent-shell.md).
+This document covers the **global Claude Code configuration** that chezmoi syncs to Claude Code installations. For the broader edit / diff / apply workflow, see [chezmoi.md](chezmoi.md). For shell behavior under Claude Code and other agents, see [ADR 0001](../adrs/0001-specialized-agent-shell.md).
 
-## Layout
+## Multi-account support
+
+This dotfiles repo supports multiple Claude Code accounts (personal, work, etc.) on one machine. Configuration is split as follows:
+
+| Asset | Location | Deployed to | Notes |
+| --- | --- | --- | --- |
+| **Shared** (hooks, skills, agents, themes) | `home/private_dot_claude-personal/` | `~/.claude-personal/` | Personal account only; work account pulls shared assets via symlinks or separate copy |
+| **Account-specific extras** (marketplaces, plugins, MCP servers) | `home/.chezmoidata/claude.yaml` with `shared` / `personal` / `work` keys | `bin/sync-claude-extras` reconciles to each account | Additive; shared items go to all accounts |
+| **Account-specific settings** | `home/.chezmoidata/claude.yaml` (via `use_bedrock`) | `bin/sync-claude-settings` reconciles to each account | Same settings applied to all accounts; feature flags, permissions, hooks, default model |
+
+Shell aliases distinguish accounts at CLI time:
+
+```bash
+alias claude-personal='claude --config ~/.claude-personal'
+alias claude-work='claude --config ~/.claude-work'
+```
+
+The sync scripts detect which account directories exist and apply config to each.
+
+## Layout (shared account)
 
 ```
-home/dot_claude/                # → ~/.claude/
-├── CLAUDE.md                   # Global Claude Code memory (precedence: project > this > external)
-├── skills/                     # User-invokable slash commands; one subdir per skill
-├── agents/                     # Subagents callable via the Agent tool; one .md per agent
-├── hooks/                      # PreToolUse / PostToolUse shell scripts (executable_* prefix)
-└── powerline/                  # Status-line themes (catppuccin variants + shared)
+home/private_dot_claude-personal/  # → ~/.claude-personal/
+├── CLAUDE.md                      # Global Claude Code memory (precedence: project > this > external)
+├── skills/                        # User-invokable slash commands; one subdir per skill
+├── agents/                        # Subagents callable via the Agent tool; one .md per agent
+├── hooks/                         # PreToolUse / PostToolUse shell scripts (executable_* prefix)
+└── powerline/                     # Status-line themes (catppuccin variants + shared)
 ```
+
+Account-specific settings (extras like plugins/marketplaces/MCP servers) are declared in `home/.chezmoidata/claude.yaml`.
 
 What is **not** in source control:
 
-- `~/.claude/settings.json` — generated and refreshed at runtime by [`bin/sync-claude-settings`](../../bin/sync-claude-settings), invoked from `home/.chezmoiscripts/run_onchange_sync-claude-settings.sh.tmpl`. The script sets `statusLine`, feature flags, the global `permissions` allowlist, hook registrations, and the default model — and validates the result is still parseable JSON. It **no longer** writes `extraKnownMarketplaces` / `enabledPlugins`; those are CLI-owned (see below).
-- `~/.claude/settings.local.json` — machine-local overlay. Not managed; deliberately left to the user / host.
+- `~/.claude*/settings.json` — generated and refreshed at runtime by [`bin/sync-claude-settings`](../../bin/sync-claude-settings), invoked from `home/.chezmoiscripts/run_onchange_sync-claude-settings.sh.tmpl`. The script detects all account directories (`~/.claude`, `~/.claude-personal`, `~/.claude-work`, etc.) and applies the same settings to each. It sets `statusLine`, feature flags, the global `permissions` allowlist, hook registrations, and the default model — and validates the result is still parseable JSON. It **no longer** writes `extraKnownMarketplaces` / `enabledPlugins`; those are CLI-owned (see below).
+- `~/.claude*/settings.local.json` — machine-local overlay. Not managed; deliberately left to the user / host.
 
 ### Two managers, split by who owns the bytes (ADR [0008](../adrs/0008-claude-config-two-managers.md))
 
 Claude Code's runtime config has two surfaces with two different *writers*, so this repo manages them with two scripts:
 
-| Manager | Owns | Mechanism |
-| --- | --- | --- |
-| [`bin/sync-claude-settings`](../../bin/sync-claude-settings) | the flat `settings.json` surface this repo solely owns: `statusLine`, `permissions.allow`, `hooks`, feature flags, `model` | imperative `jq` merge, then `validate_settings` |
-| [`bin/sync-claude-extras`](../../bin/sync-claude-extras) | the CLI-owned surface: `extraKnownMarketplaces`, `enabledPlugins`, `mcpServers` | drives the `claude` CLI from declarative data; never edits `settings.json` directly |
+| Manager | Owns | Mechanism | Scope |
+| --- | --- | --- | --- |
+| [`bin/sync-claude-settings`](../../bin/sync-claude-settings) | the flat `settings.json` surface this repo solely owns: `statusLine`, `permissions.allow`, `hooks`, feature flags, `model` | imperative `jq` merge, then `validate_settings`; applied to all detected account directories | All accounts get identical settings |
+| [`bin/sync-claude-extras`](../../bin/sync-claude-extras) | the CLI-owned surface: `extraKnownMarketplaces`, `enabledPlugins`, `mcpServers` | drives the `claude` CLI from declarative data in `claude.yaml`; never edits `settings.json` directly; reconciles account-specific config (shared + account-specific) | Shared extras applied to all accounts; account-specific extras (personal/work) applied only to that account |
 
 Why two: the `claude` CLI is the single writer of marketplaces/plugins/MCP servers — it re-serializes those keys on every `claude plugin …` / `claude mcp …` call. Hand-writing them with `jq` races the CLI and drifts. So we **declare intent** in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) and let the CLI realize it. See the "Claude extras" section below.
 
-This split is intentional: **`home/dot_claude/` ships content** (skills, agents, hooks, themes), **`bin/sync-claude-settings` ships flat wiring** (which hooks fire, which permissions are granted, which model is default), and **`bin/sync-claude-extras` ships extras intent** (which marketplaces/plugins/MCP servers a machine should have).
+This split is intentional: **`home/private_dot_claude-*/` ships content** (skills, agents, hooks, themes), **`bin/sync-claude-settings` ships flat wiring** (which hooks fire, which permissions are granted, which model is default), and **`bin/sync-claude-extras` ships extras intent** (which marketplaces/plugins/MCP servers a machine should have, with account-specific overrides).
 
 Anything that needs *registration* lives in two places at once:
 
@@ -58,7 +79,7 @@ Rule of thumb: if the human types it, it's a skill. If the main agent farms it o
 
 ## Skills inventory
 
-Each entry is a directory at `home/dot_claude/skills/<name>/` containing a `SKILL.md` with YAML frontmatter:
+Each entry is a directory at `home/private_dot_claude-personal/skills/<name>/` containing a `SKILL.md` with YAML frontmatter:
 
 ```yaml
 ---
@@ -109,7 +130,7 @@ Current skills:
 
 ## Inspecting skills
 
-`bin/skill-info` surfaces git-derived metadata for the skills above without storing anything in frontmatter:
+`bin/skill-info` surfaces git-derived metadata for the skills above without storing anything in frontmatter. Scans `home/private_dot_claude-personal/skills/`:
 
 ```bash
 bin/skill-info                 # all skills, newest-modified first
@@ -123,7 +144,7 @@ Use it before a sweep ("which skills are stale enough to revisit?") or to recall
 
 ## Subagents inventory
 
-Each subagent is a single `.md` file at `home/dot_claude/agents/<name>.md`:
+Each subagent is a single `.md` file at `home/private_dot_claude-personal/agents/<name>.md`:
 
 ```yaml
 ---
@@ -147,48 +168,84 @@ Current subagents:
 
 ## Hooks
 
-Most hooks live at `home/dot_claude/hooks/executable_*.sh`. The `executable_` chezmoi prefix preserves the `+x` bit when chezmoi writes the file out to `~/.claude/hooks/`. Each hook reads tool-call JSON on stdin and exits non-zero (or prints a decision) to block / annotate.
+Most hooks live at `home/private_dot_claude-personal/hooks/executable_*.sh`. The `executable_` chezmoi prefix preserves the `+x` bit when chezmoi writes the file out to `~/.claude-personal/hooks/` (and similarly to `~/.claude-work/hooks/`, etc.). Each hook reads tool-call JSON on stdin and exits non-zero (or prints a decision) to block / annotate.
 
-Registered today (wired into `settings.json` by `set_hooks` in `bin/sync-claude-settings`):
+Registered today (wired into all `settings.json` instances by `set_hooks` in `bin/sync-claude-settings`):
 
 | Hook | Phase | Matches | What it does |
 | --- | --- | --- | --- |
 | `check-secrets.sh` | PreToolUse | `Write` / `Edit` / `MultiEdit` | Blocks file writes that look like they contain AWS keys, OpenAI/Anthropic keys, GitHub PATs, hardcoded passwords, private-key material, or literal `DATABASE_URL` postgres strings. |
 | `guard-destructive.sh` | PreToolUse | `Bash` | Warns / blocks on Rails / DB destructive commands (`db:drop`, `db:reset`, `DROP TABLE`, `redis-cli FLUSHALL`, `rm -rf`, …). |
-| `block-adhoc-installers` | PreToolUse | `Bash` | Denies ad-hoc installers/runners (`npx`, `bunx`, `uvx`, `pipx`, `pip install`, `npm -g`, `gem`/`brew`/`cargo`/`go install`, …) and redirects to the `/install` skill, so tools stay captured in mise. Enforcement teeth for the "use mise exclusively" rule in `~/.claude/CLAUDE.md`. Escape hatch: `CLAUDE_ALLOW_ADHOC_INSTALL=1` (human-only). |
+| `block-adhoc-installers` | PreToolUse | `Bash` | Denies ad-hoc installers/runners (`npx`, `bunx`, `uvx`, `pipx`, `pip install`, `npm -g`, `gem`/`brew`/`cargo`/`go install`, …) and redirects to the `/install` skill, so tools stay captured in mise. Enforcement teeth for the "use mise exclusively" rule in `~/.claude-personal/CLAUDE.md`. Escape hatch: `CLAUDE_ALLOW_ADHOC_INSTALL=1` (human-only). |
 | `migration-reminder.sh` | PostToolUse | `Write` / `Edit` (on `db/migrate/`) | After a migration is edited, prints a pre-deploy checklist (ignored_columns, schema.rb, data migrations, …). |
 
-`block-adhoc-installers` is the one exception to the `home/dot_claude/hooks/` convention: it lives at [`home/dot_local/libexec/executable_block-adhoc-installers`](../../home/dot_local/libexec/executable_block-adhoc-installers) (→ `~/.local/libexec/`, on `PATH`) because it is a self-contained policy executable rather than a Claude-specific script, sharing the `libexec` home with `claude-powerline-theme`. `set_hooks` references it by absolute path. `set_hooks` merges its four groups in idempotently — it drops only groups containing one of *our* commands and re-appends ours, so hook groups added by plugins or the `claude` CLI survive a re-sync.
+`block-adhoc-installers` is the one exception to the `home/private_dot_claude-personal/hooks/` convention: it lives at [`home/dot_local/libexec/executable_block-adhoc-installers`](../../home/dot_local/libexec/executable_block-adhoc-installers) (→ `~/.local/libexec/`, on `PATH`) because it is a self-contained policy executable rather than a Claude-specific script, sharing the `libexec` home with `claude-powerline-theme`. `set_hooks` references it by absolute path. `set_hooks` merges its four groups idempotently — it drops only groups containing one of *our* commands and re-appends ours, so hook groups added by plugins or the `claude` CLI survive a re-sync.
 
 **Hook contract** (when adding one):
 
-1. Place at `home/dot_claude/hooks/executable_<name>.sh` so chezmoi writes it executable.
+1. Place at `home/private_dot_claude-personal/hooks/executable_<name>.sh` so chezmoi writes it executable.
 2. Read tool input as JSON from stdin; parse with `jq`. Check `.tool_name` early and `exit 0` for tools you don't care about — hooks fire for every tool call.
 3. Exit 0 for "allow", non-zero (with a message on stderr) for "block".
-4. **Register** in `bin/sync-claude-settings` (`set_hooks`). Without this step the script is on disk at `~/.claude/hooks/` but `settings.json` never references it, so it never fires. Then `chezmoi apply` — the run_onchange wrapper re-runs the sync script when its hash changes.
+4. **Register** in `bin/sync-claude-settings` (`set_hooks`). Without this step the script is on disk at `~/.claude*/hooks/` but `settings.json` never references it, so it never fires. Then `chezmoi apply` — the run_onchange wrapper re-runs the sync script when its hash changes.
 
 ## Settings split (managed vs. local)
 
 | File | Managed by | Contents |
 | --- | --- | --- |
-| `~/.claude/settings.json` | `bin/sync-claude-settings` (re-runs on chezmoi apply when the sync script's hash changes) | `statusLine`, feature flags, `permissions.allow`, hook registrations, default model. Bedrock model env vars are merged in if `chezmoi data .claude.use_bedrock` is true; otherwise stripped. **Not** `extraKnownMarketplaces` / `enabledPlugins` — those are CLI-owned. |
-| `extraKnownMarketplaces` / `enabledPlugins` / `mcpServers` (inside `settings.json` / `~/.claude.json`) | the `claude` CLI, driven by `bin/sync-claude-extras` from `home/.chezmoidata/claude.yaml` + machine-local `[data.claudeExternalExtra]` | which marketplaces are registered, which plugins are enabled, which MCP servers are added |
-| `~/.claude/settings.local.json` | Not managed | Anything truly per-machine: experimental flags, host-specific permission additions, model overrides for that box only. |
+| `~/.claude*/settings.json` (all accounts) | `bin/sync-claude-settings` (re-runs on chezmoi apply when the sync script's hash changes) | `statusLine`, feature flags, `permissions.allow`, hook registrations, default model. Same settings applied to all account directories (`~/.claude`, `~/.claude-personal`, `~/.claude-work`, …). Bedrock model env vars are merged in if `chezmoi data .claude.use_bedrock` is true; otherwise stripped. **Not** `extraKnownMarketplaces` / `enabledPlugins` — those are CLI-owned. |
+| `extraKnownMarketplaces` / `enabledPlugins` / `mcpServers` (inside `settings.json` / `~/.claude*.json`) | the `claude` CLI, driven by `bin/sync-claude-extras` from `home/.chezmoidata/claude.yaml` + machine-local `[data.claudeExternalExtra]` | which marketplaces are registered, which plugins are enabled (per account), which MCP servers are added. Shared items go to all accounts; account-specific items only to that account. |
+| `~/.claude*/settings.local.json` | Not managed | Anything truly per-machine: experimental flags, host-specific permission additions, model overrides for that box only. |
 
-To change a managed flat setting: edit `bin/sync-claude-settings`, then `chezmoi apply` (the wrapping `run_onchange_sync-claude-settings.sh.tmpl` re-fires on script-hash change). To change extras: edit `home/.chezmoidata/claude.yaml` (or machine-local extras), then `chezmoi apply` (the `run_onchange_sync-claude-extras.sh.tmpl` wrapper re-fires on data/script-hash change). To change a local-only setting: edit `~/.claude/settings.local.json` directly — chezmoi will not overwrite it.
+To change a managed flat setting: edit `bin/sync-claude-settings`, then `chezmoi apply` (the wrapping `run_onchange_sync-claude-settings.sh.tmpl` re-fires on script-hash change). The change applies to all accounts. To change extras: edit `home/.chezmoidata/claude.yaml` (or machine-local extras), then `chezmoi apply` (the `run_onchange_sync-claude-extras.sh.tmpl` wrapper re-fires on data/script-hash change). To change a local-only setting: edit `~/.claude*/settings.local.json` directly — chezmoi will not overwrite it.
 
 ## Claude extras (marketplaces, plugins, MCP servers)
 
 `extraKnownMarketplaces`, `enabledPlugins`, and `mcpServers` are written by the `claude` CLI itself — it re-serializes them on every `claude plugin …` / `claude mcp …` call. So this repo does **not** hand-write them into `settings.json`; instead it **declares intent** and lets the CLI realize it (ADR [0008](../adrs/0008-claude-config-two-managers.md)).
 
-- **Declared state:** [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) under `claudeData` — `marketplaces` (name + repo), `plugins` (`<id>@<marketplace>` strings), `mcpServers`. **Public only.** Private/work/machine-specific entries live in machine-local `[data.claudeExternalExtra]` in `~/.config/chezmoi/chezmoi.toml`; the reconciler merges the two.
-- **Reconciler:** [`bin/sync-claude-extras`](../../bin/sync-claude-extras) reads the merged *declared* data via `chezmoi data`, and reads the *installed* state from Claude Code's own JSON files — `~/.claude/plugins/known_marketplaces.json`, `~/.claude/plugins/installed_plugins.json`, and `~/.claude.json` (MCP). It reads from those files rather than `claude … --json` because the `claude` CLI no longer exposes installed state headlessly (≥ 2.1.x: those subcommands are TTY-interactive and dropped `--json`). For each declared item not already present, it runs the matching `claude` write (`plugin marketplace add` / `plugin install --scope user` / `mcp add --scope user`). It is **idempotent and additive**: present items report `ok`; undeclared-but-installed items report `drift` and are removed only with `--prune`; built-in marketplaces (`claude-plugins-official`) and `managed`/project-scope items are never touched. A failing `claude` write warns and continues so one bad item never aborts `chezmoi apply`.
+### Multi-account extras structure
+
+[`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) uses `claudeData` with three keys:
+
+```yaml
+claudeData:
+  shared:                  # Applied to all accounts
+    marketplaces: [...]
+    plugins: [...]
+    mcpServers: [...]
+  personal:                # Applied only to personal account (~/.claude-personal/)
+    marketplaces: [...]
+    plugins: [...]
+    mcpServers: [...]
+  work:                    # Applied only to work account (~/.claude-work/)
+    marketplaces: [...]
+    plugins: [...]
+    mcpServers: [...]
+```
+
+The reconciler merges `shared` + account-specific for each account. Private/work/machine-specific entries live in machine-local `[data.claudeExternalExtra]` in `~/.config/chezmoi/chezmoi.toml`; the reconciler merges those too.
+
+### Reconciliation process
+
+- **Reconciler:** [`bin/sync-claude-extras`](../../bin/sync-claude-extras) detects all account directories (`~/.claude`, `~/.claude-personal`, `~/.claude-work`, etc.), and for each account:
+  1. Reads *declared* data (shared + account-specific + machine-local) via `chezmoi data`
+  2. Reads *installed* state from that account's Claude Code JSON files — `~/.claude*/plugins/known_marketplaces.json`, `~/.claude*/plugins/installed_plugins.json`, and `~/.claude*.json` (MCP)
+  3. For each declared item not already present, runs the matching `claude` write (`plugin marketplace add` / `plugin install --scope user` / `mcp add --scope user`)
+  4. Reports idempotently: `ok` for present items; `drift` for undeclared-but-installed; removes only with `--prune`
+  
+  Built-in marketplaces (`claude-plugins-official`) and `managed`/project-scope items are never touched. A failing `claude` write warns and continues so one bad item never aborts `chezmoi apply`.
+  
   - **Write caveat:** because `claude` plugin/MCP writes currently need an interactive (TTY) session, *adds* won't succeed under a headless `chezmoi apply`; the reconciler warns with the command to run. In the steady state (everything already installed) it just reports `ok` and makes no writes, so it runs cleanly headless.
   - `bin/sync-claude-extras --check` — dry run; print what would change.
   - `bin/sync-claude-extras --prune` — also remove user-scope extras that are not declared.
+  
 - **Re-fires** via [`home/.chezmoiscripts/run_onchange_sync-claude-extras.sh.tmpl`](../../home/.chezmoiscripts/run_onchange_sync-claude-extras.sh.tmpl), hashed over the reconciler, `claude.yaml`, and the machine-local extras.
 
-To add a plugin: add `<id>@<marketplace>` to `claude.yaml` (and the marketplace under `marketplaces:` if new), then `chezmoi apply`. To add a private MCP server: add it under `[data.claudeExternalExtra]` in your machine-local chezmoi config, never in `claude.yaml`.
+### Adding extras
+
+- To add a **shared** plugin/marketplace (all accounts): add to `claudeData.shared` in `claude.yaml`, then `chezmoi apply`.
+- To add a **personal-only** plugin/marketplace: add to `claudeData.personal` in `claude.yaml`, then `chezmoi apply`.
+- To add a **work-only** plugin/marketplace: add to `claudeData.work` in `claude.yaml`, then `chezmoi apply`.
+- To add a **private MCP server** or **machine-local extra**: add it under `[data.claudeExternalExtra]` in your machine-local chezmoi config, never in `claude.yaml`.
 
 ### AWS Bedrock models
 
@@ -197,21 +254,21 @@ To add a plugin: add `<id>@<marketplace>` to `claude.yaml` (and the marketplace 
 ## Adding a skill
 
 ```bash
-mkdir -p home/dot_claude/skills/<name>
-$EDITOR home/dot_claude/skills/<name>/SKILL.md   # add frontmatter + body
+mkdir -p home/private_dot_claude-personal/skills/<name>
+$EDITOR home/private_dot_claude-personal/skills/<name>/SKILL.md   # add frontmatter + body
 chezmoi diff && chezmoi apply
 ```
 
-Then `/<name>` in any Claude Code session.
+Then `/<name>` in any Claude Code session (will be available in personal account; symlink or copy to work account if needed).
 
 ## Adding a subagent
 
 ```bash
-$EDITOR home/dot_claude/agents/<name>.md         # add frontmatter + body
+$EDITOR home/private_dot_claude-personal/agents/<name>.md         # add frontmatter + body
 chezmoi diff && chezmoi apply
 ```
 
-The Agent tool discovers subagents from `~/.claude/agents/`. If the description is precise, the main agent will route to it automatically.
+The Agent tool discovers subagents from `~/.claude-personal/agents/` (personal account) or `~/.claude-work/agents/` (work account). If the description is precise, the main agent will route to it automatically.
 
 For step-by-step prompts, this repo also ships the `write-skill` and `write-subagent` skills — they walk you through the frontmatter and constraints.
 

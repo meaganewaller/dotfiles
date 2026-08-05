@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
 #
 # sync-claude-extras - Reconcile declared Claude Code extras (plugin marketplaces,
-# plugins, MCP servers) into the user-scope install.
+# plugins, MCP servers) into user-scope installs across all configured accounts.
+#
+# Multi-account support: reconciles shared + account-specific config for each
+# account directory (~/.claude, ~/.claude-personal, ~/.claude-work, etc.).
 #
 # Declared state is read from chezmoi data:
 #  .claudeData          committed, public   (home/.chezmoidata/claude.yaml)
+#    .shared            applied to all accounts
+#    .{account}         applied only to that account
 #  .claudeExternalExtra machine-local       ([data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml)
 #
 # Current (installed) state is read from Claude Code's own JSON state files
-# (~/.claude/plugins/known_marketplaces.json + installed_plugins.json, and
-# ~/.claude.json for MCP) because the `claude` CLI no longer exposes it headlessly.
+# (~/.claude*/plugins/known_marketplaces.json + installed_plugins.json, and
+# ~/.claude*.json for MCP) because the `claude` CLI no longer exposes it headlessly.
 # Changes are still realized through the `claude` CLI — the single writer of
 # extraKnownMarketplaces / enabledPlugins / mcpServers — but note those writes
 # currently require an interactive (TTY) claude session.
@@ -29,14 +34,9 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-# Claude Code records installed state in plain JSON here (the CLI no longer
-# exposes it headlessly). Overridable for tests via CLAUDE_PLUGINS_DIR.
-PLUGINS_DIR="${CLAUDE_PLUGINS_DIR:-${HOME}/.claude/plugins}"
-MARKETPLACES_FILE="${PLUGINS_DIR}/known_marketplaces.json"
-INSTALLED_PLUGINS_FILE="${PLUGINS_DIR}/installed_plugins.json"
-
 CHECK=false
 PRUNE=false
+ACCOUNT_DIRS=()  # Will be populated from detected account directories
 
 for arg in "$@"; do
   case "${arg}" in
@@ -71,11 +71,16 @@ run_claude() {
   fi
 }
 
-# Merge a declared list from base + machine-local extras under the given path
-# (e.g. ".marketplaces"). Emits one compact JSON value per line. The argument is
-# interpolated into the jq program, so call sites must pass a literal path suffix.
+# Merge a declared list from shared + account-specific + machine-local extras
+# under the given path (e.g. ".marketplaces"). Emits one compact JSON value per line.
+# The argument is interpolated into the jq program, so call sites must pass a
+# literal path suffix. $CURRENT_ACCOUNT is interpolated into the jq expression.
 declared() {
-  jq -c "((.claudeData${1} // []) + (.claudeExternalExtra${1} // []))[]" <<<"${DATA}"
+  jq -c "(
+      (.claudeData.shared${1} // [])
+      + (.claudeData[\"${CURRENT_ACCOUNT}\"]${1} // [])
+      + (.claudeExternalExtra${1} // [])
+    )[]" <<<"${DATA}"
 }
 
 # Marketplaces built into Claude Code: present on every install, not addable or
@@ -134,8 +139,7 @@ reconcile_plugins() {
 
 reconcile_mcp() {
   log 'mcp servers:'
-  local claude_json existing name server
-  claude_json="${HOME}/.claude.json"
+  local existing name server
   existing="$(jq -r '.mcpServers // {} | keys[]' "${claude_json}" 2>/dev/null || true)"
 
   local declared_names=''
@@ -210,6 +214,52 @@ prune_extra() {
   done <<<"${existing}"
 }
 
+# Detect available Claude Code account directories.
+# Returns account names by looking for ~/.claude, ~/.claude-personal, ~/.claude-work, etc.
+detect_accounts() {
+  local dir account
+  local -a accounts=()
+
+  # Check for default ~/.claude (account name: "default")
+  if [[ -d "${HOME}/.claude" ]]; then
+    accounts+=("default")
+  fi
+
+  # Check for ~/.claude-* (account names: "personal", "work", etc.)
+  for dir in "${HOME}"/.claude-*/; do
+    [[ -d "${dir}" ]] || continue
+    account="${dir#${HOME}/.claude-}"
+    account="${account%/}"
+    accounts+=("${account}")
+  done
+
+  printf '%s\n' "${accounts[@]}"
+}
+
+# Reconcile config for a single account. Called once per account.
+# $CURRENT_ACCOUNT is set globally for use by declared().
+reconcile_account() {
+  local account="$1"
+  local claude_dir="${HOME}/.claude"
+
+  [[ "${account}" != "default" ]] && claude_dir="${HOME}/.claude-${account}"
+
+  log "━━━ account: ${account} (${claude_dir}) ━━━"
+
+  # Claude Code records installed state in plain JSON in the account directory
+  local plugins_dir="${claude_dir}/plugins"
+  MARKETPLACES_FILE="${plugins_dir}/known_marketplaces.json"
+  INSTALLED_PLUGINS_FILE="${plugins_dir}/installed_plugins.json"
+  local claude_json="${claude_dir}/.claude.json"
+
+  # Create plugins dir if it doesn't exist yet (new account)
+  mkdir -p "${plugins_dir}"
+
+  reconcile_marketplaces
+  reconcile_plugins
+  reconcile_mcp
+}
+
 main() {
   if ! require_command claude; then
     warn 'claude not found in PATH — skipping extras sync'
@@ -231,12 +281,15 @@ main() {
   DATA="$(chezmoi data --format json)"
 
   [[ "${CHECK}" == true ]] && log '(dry run — no changes will be made)'
-  # One reconciler per type — the claude CLI surface differs per type. To add a
-  # type: add a key in claude.yaml, a reconcile_* function, and a
-  # prune_extra case.
-  reconcile_marketplaces
-  reconcile_plugins
-  reconcile_mcp
+
+  # Detect and reconcile each account
+  local account
+  while IFS= read -r account; do
+    [[ -z "${account}" ]] && continue
+    CURRENT_ACCOUNT="${account}"
+    reconcile_account "${account}"
+  done < <(detect_accounts)
+
   log 'done'
 }
 

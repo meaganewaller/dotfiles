@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 #
 # sync-claude-settings -- Sync managed settings into Claude Code settings.json
+# across all configured accounts.
 #
+# Multi-account support: applies the same settings to ~/.claude/settings.json,
+# ~/.claude-personal/settings.json, ~/.claude-work/settings.json, etc.
 
 [[ -n "${DEBUG:-}" ]] && set -o xtrace
 set -o errexit
@@ -9,7 +12,6 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-SETTINGS="${HOME}/.claude/settings.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 require_command() {
@@ -23,30 +25,59 @@ require_command() {
   fi
 }
 
+log() { printf '%s\n' "$*"; }
+warn() { printf '%s\n' "$*" >&2; }
+
+# Detect available Claude Code account directories.
+# Returns account names by looking for ~/.claude, ~/.claude-personal, ~/.claude-work, etc.
+detect_accounts() {
+  local dir account
+  local -a accounts=()
+
+  # Check for default ~/.claude (account name: "default")
+  if [[ -d "${HOME}/.claude" ]]; then
+    accounts+=("default")
+  fi
+
+  # Check for ~/.claude-* (account names: "personal", "work", etc.)
+  for dir in "${HOME}"/.claude-*/; do
+    [[ -d "${dir}" ]] || continue
+    account="${dir#${HOME}/.claude-}"
+    account="${account%/}"
+    accounts+=("${account}")
+  done
+
+  printf '%s\n' "${accounts[@]}"
+}
+
 # Ensure settings file exists with at least an empty object
 ensure_settings() {
-  mkdir -p "$(dirname "${SETTINGS}")"
-  if [[ ! -f "${SETTINGS}" ]]; then
-    printf '{}\n' >"${SETTINGS}"
+  local settings="$1"
+  mkdir -p "$(dirname "${settings}")"
+  if [[ ! -f "${settings}" ]]; then
+    printf '{}\n' >"${settings}"
   fi
 }
 
 # Back up settings before any mutation
 backup_settings() {
-  cp "${SETTINGS}" "${SETTINGS}.bak"
-  printf 'backed up %s → %s.bak\n' "${SETTINGS}" "${SETTINGS}"
+  local settings="$1"
+  cp "${settings}" "${settings}.bak"
+  printf 'backed up %s → %s.bak\n' "${settings}" "${settings}"
 }
 
 # Set the statusLine command (uses mise-installed claude-powerline)
 set_status_line() {
-  printf 'setting statusLine in %s\n' "${SETTINGS}"
+  local settings="$1"
+  printf 'setting statusLine in %s\n' "${settings}"
   jq '.statusLine = {"type": "command", "command": "$HOME/.local/libexec/claude-powerline-theme"}' \
-    "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+    "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 }
 
 # Set feature flags that should always be present
 set_feature_flags() {
-  printf 'setting feature flags in %s\n' "${SETTINGS}"
+  local settings="$1"
+  printf 'setting feature flags in %s\n' "${settings}"
   jq '.env = ((.env // {}) + {
         "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
     })
@@ -56,12 +87,13 @@ set_feature_flags() {
     | .alwaysThinkingEnabled = true
     | .includeCoAuthoredBy = false
     | .effortLevel = "xhigh"
-    | .autoUpdatesChannel = "latest"' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+    | .autoUpdatesChannel = "latest"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 }
 
 # Set global tool permissions so we don't re-approve common tools per-project
 set_permissions() {
-  printf 'setting global permissions in %s\n' "${SETTINGS}"
+  local settings="$1"
+  printf 'setting global permissions in %s\n' "${settings}"
   jq '.permissions = {
         "defaultMode": "auto",
         "allow": [
@@ -312,7 +344,7 @@ set_permissions() {
             "WebFetch(domain:www.google.com)",
             "WebFetch(domain:www.rubydoc.info)"
         ]
-    }' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+    }' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 }
 
 # Register the repo's global hooks (managed via chezmoi). Three live at
@@ -328,7 +360,8 @@ set_permissions() {
 # here. The claude CLI is their single writer, driven by bin/sync-claude-extras.
 # See docs/agents/claude-code.md and ADR 0008.
 set_hooks() {
-  printf 'setting global hooks in %s\n' "${SETTINGS}"
+  local settings="$1"
+  printf 'setting global hooks in %s\n' "${settings}"
   jq '
         {
           "PreToolUse": [
@@ -349,19 +382,20 @@ set_hooks() {
               + ( $owned[$phase] | map({ matcher: .matcher, hooks: [ { type: "command", command: .command } ] }) )
             )
           )
-    ' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+    ' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 }
 
 # Remove Bedrock model env vars (use_bedrock=false path)
 cleanup_model_env_vars() {
-  if jq -e '.env.ANTHROPIC_MODEL // .env.ANTHROPIC_DEFAULT_HAIKU_MODEL // .env.ANTHROPIC_DEFAULT_OPUS_MODEL // .env.ANTHROPIC_DEFAULT_SONNET_MODEL' "${SETTINGS}" >/dev/null 2>&1; then
-    printf 'removing Bedrock model env vars from %s\n' "${SETTINGS}"
+  local settings="$1"
+  if jq -e '.env.ANTHROPIC_MODEL // .env.ANTHROPIC_DEFAULT_HAIKU_MODEL // .env.ANTHROPIC_DEFAULT_OPUS_MODEL // .env.ANTHROPIC_DEFAULT_SONNET_MODEL' "${settings}" >/dev/null 2>&1; then
+    printf 'removing Bedrock model env vars from %s\n' "${settings}"
     jq 'del(
             .env.ANTHROPIC_DEFAULT_HAIKU_MODEL,
             .env.ANTHROPIC_DEFAULT_OPUS_MODEL,
             .env.ANTHROPIC_DEFAULT_SONNET_MODEL,
             .env.ANTHROPIC_MODEL
-        )' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+        )' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
   else
     printf 'no Bedrock model env vars to remove\n'
   fi
@@ -369,12 +403,14 @@ cleanup_model_env_vars() {
 
 # Set default model for the Anthropic Enterprise / direct path (non-Bedrock)
 set_default_model() {
-  printf 'setting default model in %s\n' "${SETTINGS}"
-  jq '.model = "opus[1m]"' "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+  local settings="$1"
+  printf 'setting default model in %s\n' "${settings}"
+  jq '.model = "opus[1m]"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 }
 
 # Merge Bedrock model env vars into settings (use_bedrock=true path)
 merge_model_env_vars() {
+  local settings="$1"
   local models haiku sonnet opus
 
   printf 'resolving Bedrock model IDs...\n'
@@ -412,19 +448,20 @@ merge_model_env_vars() {
           "ANTHROPIC_MODEL": $opus
         })
         | .model = $opus' \
-    "${SETTINGS}" >"${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+    "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 
-  printf 'merged model env vars into %s\n' "${SETTINGS}"
+  printf 'merged model env vars into %s\n' "${settings}"
 }
 
 # Validate the resulting settings.json: valid JSON with expected keys intact
 validate_settings() {
-  printf 'validating %s...\n' "${SETTINGS}"
+  local settings="$1"
+  printf 'validating %s...\n' "${settings}"
 
-  if ! jq empty "${SETTINGS}" 2>/dev/null; then
-    printf 'error: %s is not valid JSON — restoring backup\n' "${SETTINGS}" >&2
-    cp "${SETTINGS}.bak" "${SETTINGS}"
-    printf 'restored %s from backup\n' "${SETTINGS}" >&2
+  if ! jq empty "${settings}" 2>/dev/null; then
+    printf 'error: %s is not valid JSON — restoring backup\n' "${settings}" >&2
+    cp "${settings}.bak" "${settings}"
+    printf 'restored %s from backup\n' "${settings}" >&2
     exit 1
   fi
 
@@ -434,28 +471,34 @@ validate_settings() {
         (if .env              then null else "env" end),
         (if .model            then null else "model" end),
         (if .permissions      then null else "permissions" end)
-    ] | map(select(. != null)) | join(", ")' "${SETTINGS}")
+    ] | map(select(. != null)) | join(", ")' "${settings}")
 
   if [[ -n "${missing}" ]]; then
     printf 'error: missing expected keys after merge: %s — restoring backup\n' "${missing}" >&2
-    cp "${SETTINGS}.bak" "${SETTINGS}"
-    printf 'restored %s from backup\n' "${SETTINGS}" >&2
+    cp "${settings}.bak" "${settings}"
+    printf 'restored %s from backup\n' "${settings}" >&2
     exit 1
   fi
 
   printf 'validation passed\n'
 }
 
-main() {
-  require_command chezmoi
-  require_command jq "install jq: https://jqlang.github.io/jq/"
+# Sync settings for a single account
+sync_account() {
+  local account="$1"
+  local claude_dir="${HOME}/.claude"
 
-  ensure_settings
-  backup_settings
-  set_status_line
-  set_feature_flags
-  set_permissions
-  set_hooks
+  [[ "${account}" != "default" ]] && claude_dir="${HOME}/.claude-${account}"
+
+  local settings="${claude_dir}/settings.json"
+  log "━━━ account: ${account} (${settings}) ━━━"
+
+  ensure_settings "${settings}"
+  backup_settings "${settings}"
+  set_status_line "${settings}"
+  set_feature_flags "${settings}"
+  set_permissions "${settings}"
+  set_hooks "${settings}"
 
   local use_bedrock
   use_bedrock=$(chezmoi data --format json | jq -r '.claude.use_bedrock')
@@ -463,14 +506,26 @@ main() {
   if [[ "${use_bedrock}" == "true" ]]; then
     printf 'use_bedrock=true — resolving and merging Bedrock models\n'
     # On failure, fall through with whatever model is already set; still validate.
-    merge_model_env_vars || printf 'continuing without Bedrock model env vars\n' >&2
+    merge_model_env_vars "${settings}" || printf 'continuing without Bedrock model env vars\n' >&2
   else
     printf 'use_bedrock=%s — cleaning up model env vars and setting default model\n' "${use_bedrock}"
-    cleanup_model_env_vars
-    set_default_model
+    cleanup_model_env_vars "${settings}"
+    set_default_model "${settings}"
   fi
 
-  validate_settings
+  validate_settings "${settings}"
+}
+
+main() {
+  require_command chezmoi
+  require_command jq "install jq: https://jqlang.github.io/jq/"
+
+  # Detect and sync settings for each account
+  local account
+  while IFS= read -r account; do
+    [[ -z "${account}" ]] && continue
+    sync_account "${account}"
+  done < <(detect_accounts)
 }
 
 main "$@"
