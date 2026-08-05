@@ -246,11 +246,18 @@ reconcile_account() {
 
   log "━━━ account: ${account} (${claude_dir}) ━━━"
 
-  # Claude Code records installed state in plain JSON in the account directory
-  local plugins_dir="${claude_dir}/plugins"
+  # Claude Code records installed state in plain JSON in the account directory.
+  # For testing, CLAUDE_PLUGINS_DIR can override the plugins directory.
+  local plugins_dir="${CLAUDE_PLUGINS_DIR:-${claude_dir}/plugins}"
   MARKETPLACES_FILE="${plugins_dir}/known_marketplaces.json"
   INSTALLED_PLUGINS_FILE="${plugins_dir}/installed_plugins.json"
+
+  # For testing, use the same override for .claude.json if plugins dir was overridden
   local claude_json="${claude_dir}/.claude.json"
+  if [[ -n "${CLAUDE_PLUGINS_DIR:-}" ]]; then
+    # If CLAUDE_PLUGINS_DIR is overridden, look for .claude.json in the parent
+    claude_json="${CLAUDE_PLUGINS_DIR%/plugins}/.claude.json"
+  fi
 
   # Create plugins dir if it doesn't exist yet (new account)
   mkdir -p "${plugins_dir}"

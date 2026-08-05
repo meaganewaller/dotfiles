@@ -52,10 +52,13 @@ run_sync() {
 }
 
 @test "creates settings.json with required keys in a fresh HOME" {
+  # Create a default account directory (multi-account setup)
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+
   run run_sync
   [ "$status" -eq 0 ]
 
-  local settings="$TEST_HOME_DIR/.claude/settings.json"
+  local settings="$TEST_HOME_DIR/.claude-personal/settings.json"
   [ -f "$settings" ]
 
   # Valid JSON
@@ -93,15 +96,18 @@ run_sync() {
 }
 
 @test "creates a backup before mutating settings" {
+  # Create a default account directory (multi-account setup)
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+
   run run_sync
   [ "$status" -eq 0 ]
 
-  [ -f "$TEST_HOME_DIR/.claude/settings.json.bak" ]
+  [ -f "$TEST_HOME_DIR/.claude-personal/settings.json.bak" ]
 }
 
 @test "preserves unrelated user keys in existing settings.json" {
-  mkdir -p "$TEST_HOME_DIR/.claude"
-  cat >"$TEST_HOME_DIR/.claude/settings.json" <<'EOF'
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+  cat >"$TEST_HOME_DIR/.claude-personal/settings.json" <<'EOF'
 {
   "theme": "dark",
   "customUserKey": {"a": 1, "b": [2, 3]}
@@ -111,7 +117,7 @@ EOF
   run run_sync
   [ "$status" -eq 0 ]
 
-  local settings="$TEST_HOME_DIR/.claude/settings.json"
+  local settings="$TEST_HOME_DIR/.claude-personal/settings.json"
   run jq -e '.theme == "dark"' "$settings"
   [ "$status" -eq 0 ]
   run jq -e '.customUserKey.a == 1' "$settings"
@@ -121,43 +127,46 @@ EOF
 }
 
 @test "does not touch settings.local.json" {
-  mkdir -p "$TEST_HOME_DIR/.claude"
-  cat >"$TEST_HOME_DIR/.claude/settings.local.json" <<'EOF'
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+  cat >"$TEST_HOME_DIR/.claude-personal/settings.local.json" <<'EOF'
 {"localOverride": "machine-specific", "secret": "do-not-touch"}
 EOF
   local before_hash
-  before_hash=$(shasum "$TEST_HOME_DIR/.claude/settings.local.json" | awk '{print $1}')
+  before_hash=$(shasum "$TEST_HOME_DIR/.claude-personal/settings.local.json" | awk '{print $1}')
 
   run run_sync
   [ "$status" -eq 0 ]
 
   local after_hash
-  after_hash=$(shasum "$TEST_HOME_DIR/.claude/settings.local.json" | awk '{print $1}')
+  after_hash=$(shasum "$TEST_HOME_DIR/.claude-personal/settings.local.json" | awk '{print $1}')
   [ "$before_hash" = "$after_hash" ]
 }
 
 @test "is idempotent across consecutive runs" {
+  # Create a default account directory (multi-account setup)
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+
   run run_sync
   [ "$status" -eq 0 ]
 
   # Capture stable subset (excluding fields the script might re-resolve)
   local first_hash
   first_hash=$(jq -S 'del(.env.ANTHROPIC_MODEL, .env.ANTHROPIC_DEFAULT_HAIKU_MODEL, .env.ANTHROPIC_DEFAULT_SONNET_MODEL, .env.ANTHROPIC_DEFAULT_OPUS_MODEL)' \
-    "$TEST_HOME_DIR/.claude/settings.json" | shasum | awk '{print $1}')
+    "$TEST_HOME_DIR/.claude-personal/settings.json" | shasum | awk '{print $1}')
 
   run run_sync
   [ "$status" -eq 0 ]
 
   local second_hash
   second_hash=$(jq -S 'del(.env.ANTHROPIC_MODEL, .env.ANTHROPIC_DEFAULT_HAIKU_MODEL, .env.ANTHROPIC_DEFAULT_SONNET_MODEL, .env.ANTHROPIC_DEFAULT_OPUS_MODEL)' \
-    "$TEST_HOME_DIR/.claude/settings.json" | shasum | awk '{print $1}')
+    "$TEST_HOME_DIR/.claude-personal/settings.json" | shasum | awk '{print $1}')
 
   [ "$first_hash" = "$second_hash" ]
 }
 
 @test "set_hooks preserves foreign hook groups and is idempotent" {
-  mkdir -p "$TEST_HOME_DIR/.claude"
-  cat >"$TEST_HOME_DIR/.claude/settings.json" <<'EOF'
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+  cat >"$TEST_HOME_DIR/.claude-personal/settings.json" <<'EOF'
 {
   "hooks": {
     "PreToolUse": [
@@ -169,7 +178,7 @@ EOF
 
   run run_sync
   [ "$status" -eq 0 ]
-  local settings="$TEST_HOME_DIR/.claude/settings.json"
+  local settings="$TEST_HOME_DIR/.claude-personal/settings.json"
 
   # A hook group we don't own survives the re-sync.
   run jq -e '[.hooks.PreToolUse[].hooks[].command] | index("/plugin/foreign-hook.sh") != null' "$settings"

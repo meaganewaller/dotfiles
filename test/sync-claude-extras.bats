@@ -31,15 +31,27 @@ if [ "$1" = data ]; then
   cat <<'JSON'
 {
   "claudeData": {
-    "marketplaces": [
-      { "name": "mp-existing", "repo": "owner/existing" },
-      { "name": "mp-new",      "repo": "owner/new" }
-    ],
-    "plugins": [
-      "p-existing@mp-existing",
-      "p-new@mp-existing"
-    ],
-    "mcpServers": []
+    "shared": {
+      "marketplaces": [
+        { "name": "mp-existing", "repo": "owner/existing" },
+        { "name": "mp-new",      "repo": "owner/new" }
+      ],
+      "plugins": [
+        "p-existing@mp-existing",
+        "p-new@mp-existing"
+      ],
+      "mcpServers": []
+    },
+    "personal": {
+      "marketplaces": [],
+      "plugins": [],
+      "mcpServers": []
+    },
+    "work": {
+      "marketplaces": [],
+      "plugins": [],
+      "mcpServers": []
+    }
   }
 }
 JSON
@@ -69,6 +81,9 @@ EOF
 }
 
 run_extras() {
+  # Create account directory if it doesn't exist (script needs at least one to run)
+  mkdir -p "$TEST_HOME_DIR/.claude-personal"
+
   run env PATH="$STUBDIR:$PATH" HOME="$TEST_HOME_DIR" GITHUB_TOKEN=stub-token \
     CLAUDE_LOG="$CLAUDE_LOG" CLAUDE_PLUGINS_DIR="$PLUGINS_DIR" bash "$SCRIPT" "$@"
 }
@@ -80,14 +95,20 @@ run_extras() {
   local json
   json=$(yq -o=json '.' home/.chezmoidata/claude.yaml)
 
-  # marketplaces: non-empty list of {name, repo}
-  echo "$json" | jq -e '.claudeData.marketplaces | length > 0'
-  echo "$json" | jq -e '.claudeData.marketplaces | all(has("name") and has("repo"))'
-  # plugins: non-empty list of strings (<id>@<marketplace>)
-  echo "$json" | jq -e '.claudeData.plugins | length > 0'
-  echo "$json" | jq -e '.claudeData.plugins | all(type == "string")'
-  # mcpServers: present (may be empty)
-  echo "$json" | jq -e '.claudeData | has("mcpServers")'
+  # Multi-account structure: shared + personal + work sections
+  # Each section has marketplaces (non-empty list of {name, repo}), plugins (list of strings),
+  # and mcpServers (may be empty)
+
+  # Check shared section
+  echo "$json" | jq -e '.claudeData.shared.marketplaces | length > 0'
+  echo "$json" | jq -e '.claudeData.shared.marketplaces | all(has("name") and has("repo"))'
+  echo "$json" | jq -e '.claudeData.shared.plugins | length > 0'
+  echo "$json" | jq -e '.claudeData.shared.plugins | all(type == "string")'
+  echo "$json" | jq -e '.claudeData.shared | has("mcpServers")'
+
+  # Check account-specific sections exist (may be empty)
+  echo "$json" | jq -e '.claudeData | has("personal")'
+  echo "$json" | jq -e '.claudeData | has("work")'
 }
 
 @test "--check reports ok / add / drift without mutating anything" {
