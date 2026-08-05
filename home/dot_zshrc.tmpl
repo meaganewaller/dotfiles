@@ -15,7 +15,10 @@ _dotfiles_is_agent_shell() {
   return 1
 }
 
-if (( ! _dotfiles_is_agent_shell )); then
+# Command context, not arithmetic: `(( ! _dotfiles_is_agent_shell ))` treats the
+# name as a *variable*, which is unset, so it evaluated `! 0` -> true and always
+# took the full path -- the agent-minimal branch never ran. See ADR 0001.
+if ! _dotfiles_is_agent_shell; then
   # Path to your Oh My Zsh installation.
   export ZSH="$HOME/.oh-my-zsh"
 
