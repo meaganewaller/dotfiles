@@ -3,16 +3,7 @@ git:
     - colorArg: always
       pager: delta --dark --paging=never --line-numbers --true-color=always --hunk-header-style=omit
 
-customCommands:
-  - key: G
-    description: AI Commit
-    command: 'git commit -m "{{ "{{" }}.Form.Msg{{ "}}" }}"'
-    context: files
-    prompts:
-      - type: menuFromCommand
-        title: AI Commits
-        key: Msg
-        command: "~/.config/lazygit/aicommit.sh"
-        filter: '^(?P<raw>.+)$'
-        valueFormat: "{{ "{{" }} .raw {{ "}}" }}"
-        labelFormat: "{{ "{{" }} .raw | green {{ "}}" }}"
+# The `G` AI Commit custom command was removed along with aichat: its backing
+# script called `aichat -r commit`, and that role requested a model no client
+# was configured for, so the menu had been failing rather than generating.
+# Commits route through the `/commit` skill instead.
