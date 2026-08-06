@@ -9,8 +9,8 @@ ghostty:
   font_size: 12
   background_image:
   background_image_opacity:
-  background: 
-  foreground: 
+  background:
+  foreground:
   cursor_color:
   selection_background:
   selection_foreground:

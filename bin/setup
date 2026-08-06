@@ -9,7 +9,7 @@ set -o nounset
 
 # Check if mise is available
 if ! command -v mise >/dev/null 2>&1; then
-  cat >&2 <<'EOF'
+	cat >&2 <<'EOF'
 Warning: mise was not found in PATH.
 
 This project uses mise to manage its developer tools.
@@ -22,7 +22,7 @@ but you will need to install required dependencies on your own.
 
 Docs: https://mise.jdx.dev
 EOF
-  exit 1
+	exit 1
 fi
 
 # Install only the tools declared in THIS repo's mise.toml, not `mise
@@ -33,8 +33,8 @@ fi
 # See dotfiles-f14.
 tools=$(mise ls --local | awk '{print $1}')
 if [ -z "$tools" ]; then
-  echo "bin/setup: mise ls --local returned no tools; refusing to fall back to an unscoped 'mise install'" >&2
-  exit 1
+	echo "bin/setup: mise ls --local returned no tools; refusing to fall back to an unscoped 'mise install'" >&2
+	exit 1
 fi
 
 # shellcheck disable=SC2086 # word-splitting is intentional: one tool per line/arg

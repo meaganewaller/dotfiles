@@ -12,8 +12,8 @@ set -eu
 
 theme="${1:-}"
 if [ -z "$theme" ]; then
-  echo "theme.d/nvim: missing theme name argument" >&2
-  exit 64
+	echo "theme.d/nvim: missing theme name argument" >&2
+	exit 64
 fi
 
 colorscheme=$("$HOME/.local/libexec/dotfiles/theme-lookup" nvim "$theme")
@@ -23,16 +23,16 @@ mkdir -p "$state_dir"
 overlay="$state_dir/nvim"
 
 tmp="${overlay}.tmp"
-printf '%s\n' "$colorscheme" > "$tmp"
+printf '%s\n' "$colorscheme" >"$tmp"
 mv "$tmp" "$overlay"
 
 if command -v nvim >/dev/null 2>&1; then
-  sockets=$(nvim --serverlist 2>/dev/null || true)
-  if [ -n "$sockets" ]; then
-    printf '%s\n' "$sockets" | while IFS= read -r socket; do
-      [ -n "$socket" ] || continue
-      nvim --server "$socket" --remote-expr \
-        "execute('silent! colorscheme $colorscheme')" >/dev/null 2>&1 || true
-    done
-  fi
+	sockets=$(nvim --serverlist 2>/dev/null || true)
+	if [ -n "$sockets" ]; then
+		printf '%s\n' "$sockets" | while IFS= read -r socket; do
+			[ -n "$socket" ] || continue
+			nvim --server "$socket" --remote-expr \
+				"execute('silent! colorscheme $colorscheme')" >/dev/null 2>&1 || true
+		done
+	fi
 fi

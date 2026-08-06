@@ -14,17 +14,17 @@ lookup="$HOME/.local/libexec/dotfiles/theme-lookup"
 
 theme=""
 if [ -f "$state" ] && [ -x "$lookup" ]; then
-  theme=$("$lookup" claude-powerline 2>/dev/null || true)
+	theme=$("$lookup" claude-powerline 2>/dev/null || true)
 fi
 
 if [ -z "$theme" ]; then
-  case "$("$HOME/.local/libexec/dotfiles/appearance")" in
-    dark) theme="catppuccin-mocha.json" ;;
-    *)    theme="catppuccin-latte.json" ;;
-  esac
+	case "$("$HOME/.local/libexec/dotfiles/appearance")" in
+	dark) theme="catppuccin-mocha.json" ;;
+	*) theme="catppuccin-latte.json" ;;
+	esac
 fi
 
 merged=$(jq -s '.[0] * .[1]' "$dir/shared.json" "$dir/$theme")
 tmp="${TMPDIR:-/tmp}/claude-powerline-config.json"
-printf '%s\n' "$merged" > "$tmp"
+printf '%s\n' "$merged" >"$tmp"
 CLAUDE_POWERLINE_CONFIG="$tmp" exec claude-powerline "$@"

@@ -10,8 +10,8 @@ set -eu
 
 theme="${1:-}"
 if [ -z "$theme" ]; then
-  echo "theme.d/ghostty: missing theme name argument" >&2
-  exit 64
+	echo "theme.d/ghostty: missing theme name argument" >&2
+	exit 64
 fi
 
 ghostty_theme=$("$HOME/.local/libexec/dotfiles/theme-lookup" ghostty "$theme")
@@ -21,5 +21,5 @@ mkdir -p "$state_dir"
 overlay="$state_dir/ghostty.conf"
 
 tmp="${overlay}.tmp"
-printf 'theme = %s\n' "$ghostty_theme" > "$tmp"
+printf 'theme = %s\n' "$ghostty_theme" >"$tmp"
 mv "$tmp" "$overlay"

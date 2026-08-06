@@ -27,68 +27,68 @@ log() { printf '%s\n' "$*"; }
 warn() { printf '%s\n' "$*" >&2; }
 
 require_command() {
-  local cmd="$1"
-  local hint="${2:-}"
+	local cmd="$1"
+	local hint="${2:-}"
 
-  if ! command -v "${cmd}" >/dev/null 2>&1; then
-    printf 'error: required command "%s" not found in PATH\n' "${cmd}" >&2
-    [[ -n "${hint}" ]] && printf '  hint: %s\n' "${hint}" >&2
-    exit 1
-  fi
+	if ! command -v "${cmd}" >/dev/null 2>&1; then
+		printf 'error: required command "%s" not found in PATH\n' "${cmd}" >&2
+		[[ -n "${hint}" ]] && printf '  hint: %s\n' "${hint}" >&2
+		exit 1
+	fi
 }
 
 # Detect available Claude Code account directories.
 # Returns account names by looking for ~/.claude-personal, ~/.claude-work, etc.
 # Multi-account only: no fallback to ~/.claude (users must have explicit account directories).
 detect_accounts() {
-  local dir account
-  local -a accounts=()
+	local dir account
+	local -a accounts=()
 
-  # Check for ~/.claude-* (account names: "personal", "work", etc.)
-  for dir in "${HOME}"/.claude-*/; do
-    [[ -d "${dir}" ]] || continue
-    account="${dir#"${HOME}"/.claude-}"
-    account="${account%/}"
-    accounts+=("${account}")
-  done
+	# Check for ~/.claude-* (account names: "personal", "work", etc.)
+	for dir in "${HOME}"/.claude-*/; do
+		[[ -d "${dir}" ]] || continue
+		account="${dir#"${HOME}"/.claude-}"
+		account="${account%/}"
+		accounts+=("${account}")
+	done
 
-  printf '%s\n' "${accounts[@]}"
+	printf '%s\n' "${accounts[@]}"
 }
 
 # Apply a jq program to settings, keeping the original if the result would not
 # parse. Writing through a temp file means a failed overlay is a no-op rather
 # than a truncated settings.json, so no .bak is needed.
 apply_jq() {
-  local settings="$1"
-  shift
+	local settings="$1"
+	shift
 
-  if ! jq "$@" "${settings}" >"${settings}.tmp" 2>/dev/null; then
-    warn "  jq failed on ${settings} — leaving it unchanged"
-    rm -f "${settings}.tmp"
-    return 1
-  fi
+	if ! jq "$@" "${settings}" >"${settings}.tmp" 2>/dev/null; then
+		warn "  jq failed on ${settings} — leaving it unchanged"
+		rm -f "${settings}.tmp"
+		return 1
+	fi
 
-  if ! jq empty "${settings}.tmp" 2>/dev/null; then
-    warn "  overlay produced invalid JSON for ${settings} — leaving it unchanged"
-    rm -f "${settings}.tmp"
-    return 1
-  fi
+	if ! jq empty "${settings}.tmp" 2>/dev/null; then
+		warn "  overlay produced invalid JSON for ${settings} — leaving it unchanged"
+		rm -f "${settings}.tmp"
+		return 1
+	fi
 
-  mv "${settings}.tmp" "${settings}"
+	mv "${settings}.tmp" "${settings}"
 }
 
 # Remove Bedrock model env vars (use_bedrock=false path). The template owns
 # .model in this case, so it is deliberately left alone.
 cleanup_model_env_vars() {
-  local settings="$1"
+	local settings="$1"
 
-  if ! jq -e '.env.ANTHROPIC_MODEL // .env.ANTHROPIC_DEFAULT_HAIKU_MODEL // .env.ANTHROPIC_DEFAULT_OPUS_MODEL // .env.ANTHROPIC_DEFAULT_SONNET_MODEL' "${settings}" >/dev/null 2>&1; then
-    log '  no Bedrock model env vars to remove'
-    return 0
-  fi
+	if ! jq -e '.env.ANTHROPIC_MODEL // .env.ANTHROPIC_DEFAULT_HAIKU_MODEL // .env.ANTHROPIC_DEFAULT_OPUS_MODEL // .env.ANTHROPIC_DEFAULT_SONNET_MODEL' "${settings}" >/dev/null 2>&1; then
+		log '  no Bedrock model env vars to remove'
+		return 0
+	fi
 
-  log '  removing stale Bedrock model env vars'
-  apply_jq "${settings}" 'del(
+	log '  removing stale Bedrock model env vars'
+	apply_jq "${settings}" 'del(
         .env.ANTHROPIC_DEFAULT_HAIKU_MODEL,
         .env.ANTHROPIC_DEFAULT_OPUS_MODEL,
         .env.ANTHROPIC_DEFAULT_SONNET_MODEL,
@@ -98,39 +98,40 @@ cleanup_model_env_vars() {
 
 # Merge Bedrock model env vars into settings (use_bedrock=true path)
 merge_model_env_vars() {
-  local settings="$1"
-  local models haiku sonnet opus
+	local settings="$1"
+	local models haiku sonnet opus
 
-  log '  resolving Bedrock model IDs...'
-  if ! models=$("${SCRIPT_DIR}/resolve-bedrock-models"); then
-    warn '  resolve-bedrock-models failed — skipping Bedrock model env vars'
-    return 1
-  fi
+	log '  resolving Bedrock model IDs...'
+	if ! models=$("${SCRIPT_DIR}/resolve-bedrock-models"); then
+		warn '  resolve-bedrock-models failed — skipping Bedrock model env vars'
+		return 1
+	fi
 
-  haiku=$(printf '%s' "${models}" | jq -r '.haiku // empty')
-  sonnet=$(printf '%s' "${models}" | jq -r '.sonnet // empty')
-  opus=$(printf '%s' "${models}" | jq -r '.opus // empty')
+	haiku=$(printf '%s' "${models}" | jq -r '.haiku // empty')
+	sonnet=$(printf '%s' "${models}" | jq -r '.sonnet // empty')
+	opus=$(printf '%s' "${models}" | jq -r '.opus // empty')
 
-  if [[ -z "${haiku}" || -z "${sonnet}" || -z "${opus}" ]]; then
-    warn "$(printf '  incomplete model resolution (haiku=%s sonnet=%s opus=%s) — skipping' \
-      "${haiku:-<missing>}" "${sonnet:-<missing>}" "${opus:-<missing>}")"
-    return 1
-  fi
+	if [[ -z "${haiku}" || -z "${sonnet}" || -z "${opus}" ]]; then
+		warn "$(printf '  incomplete model resolution (haiku=%s sonnet=%s opus=%s) — skipping' \
+			"${haiku:-<missing>}" "${sonnet:-<missing>}" "${opus:-<missing>}")"
+		return 1
+	fi
 
-  # Append [1m] suffix to Opus and Sonnet for 1M token context window
-  # (Haiku does not support extended context)
-  opus="${opus}[1m]"
-  sonnet="${sonnet}[1m]"
+	# Append [1m] suffix to Opus and Sonnet for 1M token context window
+	# (Haiku does not support extended context)
+	opus="${opus}[1m]"
+	sonnet="${sonnet}[1m]"
 
-  log "  haiku  = ${haiku}"
-  log "  sonnet = ${sonnet}"
-  log "  opus   = ${opus}"
+	log "  haiku  = ${haiku}"
+	log "  sonnet = ${sonnet}"
+	log "  opus   = ${opus}"
 
-  apply_jq "${settings}" \
-    --arg haiku "${haiku}" \
-    --arg sonnet "${sonnet}" \
-    --arg opus "${opus}" \
-    '.env = ((.env // {}) + {
+	# shellcheck disable=SC2016 # jq $vars from --arg, not shell expansions
+	apply_jq "${settings}" \
+		--arg haiku "${haiku}" \
+		--arg sonnet "${sonnet}" \
+		--arg opus "${opus}" \
+		'.env = ((.env // {}) + {
           "ANTHROPIC_DEFAULT_HAIKU_MODEL": $haiku,
           "ANTHROPIC_DEFAULT_OPUS_MODEL": $opus,
           "ANTHROPIC_DEFAULT_SONNET_MODEL": $sonnet,
@@ -141,37 +142,37 @@ merge_model_env_vars() {
 
 # Overlay Bedrock state onto a single account's settings.json
 sync_account() {
-  local account="$1"
-  local settings="${HOME}/.claude-${account}/settings.json"
+	local account="$1"
+	local settings="${HOME}/.claude-${account}/settings.json"
 
-  log "━━━ account: ${account} (${settings}) ━━━"
+	log "━━━ account: ${account} (${settings}) ━━━"
 
-  # The file is created by the account's modify_ template during the chezmoi
-  # file pass. If it is missing, chezmoi has not applied yet — nothing to overlay.
-  if [[ ! -f "${settings}" ]]; then
-    log '  no settings.json yet (run chezmoi apply first) — skipping'
-    return 0
-  fi
+	# The file is created by the account's modify_ template during the chezmoi
+	# file pass. If it is missing, chezmoi has not applied yet — nothing to overlay.
+	if [[ ! -f "${settings}" ]]; then
+		log '  no settings.json yet (run chezmoi apply first) — skipping'
+		return 0
+	fi
 
-  if [[ "${USE_BEDROCK}" == "true" ]]; then
-    merge_model_env_vars "${settings}" || warn '  continuing without Bedrock model env vars'
-  else
-    cleanup_model_env_vars "${settings}"
-  fi
+	if [[ "${USE_BEDROCK}" == "true" ]]; then
+		merge_model_env_vars "${settings}" || warn '  continuing without Bedrock model env vars'
+	else
+		cleanup_model_env_vars "${settings}"
+	fi
 }
 
 main() {
-  require_command chezmoi
-  require_command jq "install jq: https://jqlang.github.io/jq/"
+	require_command chezmoi
+	require_command jq "install jq: https://jqlang.github.io/jq/"
 
-  USE_BEDROCK=$(chezmoi data --format json | jq -r '.claude.use_bedrock')
-  log "use_bedrock=${USE_BEDROCK}"
+	USE_BEDROCK=$(chezmoi data --format json | jq -r '.claude.use_bedrock')
+	log "use_bedrock=${USE_BEDROCK}"
 
-  local account
-  while IFS= read -r account; do
-    [[ -z "${account}" ]] && continue
-    sync_account "${account}"
-  done < <(detect_accounts)
+	local account
+	while IFS= read -r account; do
+		[[ -z "${account}" ]] && continue
+		sync_account "${account}"
+	done < <(detect_accounts)
 }
 
 main "$@"

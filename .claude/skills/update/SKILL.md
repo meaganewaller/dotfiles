@@ -80,8 +80,8 @@ git rev-parse --abbrev-ref HEAD
 ```
 
 - **Detached `HEAD`:** Stop with a clear error; do not rebase or merge.
-- **Dirty tree:** Note `git status --short`; if you will rebase/merge, **stash** (including untracked if needed):  
-  `git stash push -u -m "update skill: before maintenance"`  
+- **Dirty tree:** Note `git status --short`; if you will rebase/merge, **stash** (including untracked if needed):
+  `git stash push -u -m "update skill: before maintenance"`
   Remember **which branch** you started on for step 6.
 
 ### 1. List Renovate‑style PRs
@@ -128,7 +128,7 @@ git checkout main
 git pull --rebase origin main
 ```
 
-If `main` is not the default remote branch name, discover with  
+If `main` is not the default remote branch name, discover with
 `git symbolic-ref refs/remotes/origin/HEAD` and use that ref instead of `main`.
 
 ### 5. Rebase other local branches (if you started elsewhere)

@@ -22,21 +22,21 @@ export PATH="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims:$PATH"
 # Prevent infinite loops: if the stop hook is already active, allow the stop
 stop_hook_active=$(echo "$input" | jq -r '.stop_hook_active // false')
 if [[ "$stop_hook_active" == "true" ]]; then
-  exit 0
+	exit 0
 fi
 
 # Collect changed files (staged + unstaged tracked files)
 files=()
 while IFS= read -r f; do
-  files+=("$f")
+	files+=("$f")
 done < <({
-  git diff --name-only
-  git diff --cached --name-only
+	git diff --name-only
+	git diff --cached --name-only
 } | sort -u)
 
 # If no tracked files changed, nothing to check
 if [[ ${#files[@]} -eq 0 ]]; then
-  exit 0
+	exit 0
 fi
 
 failures=""
@@ -51,7 +51,7 @@ test_output=$(bats test/ 2>&1) || failures="${failures}Tests failed:
 ${test_output}"
 
 if [[ -n "$failures" ]]; then
-  jq -n --arg reason "$failures" '{"decision": "block", "reason": $reason}'
+	jq -n --arg reason "$failures" '{"decision": "block", "reason": $reason}'
 else
-  exit 0
+	exit 0
 fi

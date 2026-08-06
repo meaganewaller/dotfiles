@@ -114,7 +114,7 @@ oil:/
 .vscode # Visual Studio Code
 
 # Common languages
-*.out 
+*.out
 *.log
 dist
 .eggs

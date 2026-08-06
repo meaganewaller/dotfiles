@@ -17,4 +17,3 @@ Use **American English** in commits, PR / issue descriptions, code comments, ide
 | Task | Invocation |
 |------|------------|
 | Commit | `/commit` |
-
