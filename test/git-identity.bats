@@ -267,3 +267,39 @@ EOF
 		[ "$status" -eq 0 ] || fail "not a valid ssh public key: $key"
 	done < <(printf '%s\n' "$output")
 }
+
+@test "config.tmpl rewrites only push URLs to SSH, never fetch URLs" {
+	# A bare `insteadOf` rewrites fetches too, which breaks every unauthenticated
+	# clone: CI has no SSH key, so chezmoi's git-repo externals fail with
+	# "Permission denied (publickey)" on an https:// URL. Only pushes may be
+	# rewritten.
+	local REPO_ROOT
+	REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)"
+	cat >"$TEST_TMPDIR/chezmoi.toml" <<EOF
+sourceDir = "$REPO_ROOT"
+
+[data]
+work_profile = false
+chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR" }
+
+[data.git]
+name = "Test User"
+email = "personal@example.com"
+work_email = ""
+EOF
+
+	run chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_config/git/config.tmpl"
+	[ "$status" -eq 0 ] || fail "render failed: $output"
+
+	# Strip comments before matching so the explanatory prose above the block
+	# (which names the rejected directive) cannot make this pass or fail.
+	local directives
+	directives="$(printf '%s\n' "$output" | grep -vE '^[[:space:]]*#')"
+
+	printf '%s\n' "$directives" | grep -qE '^[[:space:]]*pushInsteadOf[[:space:]]*=' ||
+		fail "no pushInsteadOf directive; pushes will not use SSH"
+
+	if printf '%s\n' "$directives" | grep -qE '^[[:space:]]*insteadOf[[:space:]]*='; then
+		fail "bare insteadOf rewrites fetch URLs and breaks anonymous clones in CI"
+	fi
+}
