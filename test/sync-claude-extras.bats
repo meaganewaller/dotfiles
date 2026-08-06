@@ -18,10 +18,15 @@ make_stubs() {
 	mkdir -p "$STUBDIR" "$PLUGINS_DIR"
 	: >"$CLAUDE_LOG"
 
-	# claude stub: writes only now — log the invocation.
+	# claude stub: writes only now — log the invocation, plus the config dir it
+	# was handed. The CLI defaults to ~/.claude when CLAUDE_CONFIG_DIR is unset,
+	# so recording it is what lets a test prove the account scoping held.
+	CLAUDE_ENV_LOG="$TEST_TMPDIR/claude-env.log"
+	: >"$CLAUDE_ENV_LOG"
 	cat >"$STUBDIR/claude" <<EOF
 #!/usr/bin/env bash
 echo "\$*" >> "$CLAUDE_LOG"
+echo "CLAUDE_CONFIG_DIR=\${CLAUDE_CONFIG_DIR-<unset>}" >> "$CLAUDE_ENV_LOG"
 EOF
 	chmod +x "$STUBDIR/claude"
 
@@ -183,4 +188,28 @@ run_extras() {
 	make_stubs
 	run_extras --bogus
 	[ "$status" -eq 2 ] || fail "status=$status output=$output"
+}
+
+@test "never writes to ~/.claude — every claude call is account-scoped" {
+	# This setup is multi-account only; ~/.claude is not a directory it uses.
+	# The reconciler is account-scoped everywhere it writes JSON itself, but the
+	# CLI silently falls back to ~/.claude when CLAUDE_CONFIG_DIR is unset, which
+	# recreated the directory on every `chezmoi apply`.
+	make_stubs
+	run_extras
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# The run must actually have invoked the CLI, or the assertions below pass
+	# vacuously on an empty log.
+	[ -s "$CLAUDE_LOG" ] || fail "no claude invocations recorded; guard would be vacuous"
+
+	# Every invocation must name the account directory...
+	local bad
+	bad="$(grep -vcx "CLAUDE_CONFIG_DIR=$TEST_HOME_DIR/.claude-personal" "$CLAUDE_ENV_LOG" || true)"
+	[ "$bad" -eq 0 ] ||
+		fail "some claude calls were not account-scoped: $(cat "$CLAUDE_ENV_LOG")"
+
+	# ...and nothing may create the fallback directory.
+	[ ! -e "$TEST_HOME_DIR/.claude" ] ||
+		fail "~/.claude was created: $(ls -la "$TEST_HOME_DIR/.claude")"
 }

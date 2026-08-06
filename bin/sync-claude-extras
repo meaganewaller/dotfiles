@@ -59,12 +59,18 @@ require_command() {
 
 # Run a mutating claude command unless --check; log failures and keep going so a
 # single bad item (network/auth) never aborts `chezmoi apply`.
+#
+# CLAUDE_CONFIG_DIR is mandatory here. Everything else in this script is already
+# account-scoped (claude_dir, plugins_dir), but the CLI defaults to ~/.claude
+# when the variable is unset -- so a bare `claude` wrote plugin and marketplace
+# state into a directory this setup deliberately does not use, recreating it on
+# every `chezmoi apply`.
 run_claude() {
 	if [[ "${CHECK}" == true ]]; then
 		log "  [check] would run: claude $*"
 		return 0
 	fi
-	if ! claude "$@"; then
+	if ! CLAUDE_CONFIG_DIR="${HOME}/.claude-${CURRENT_ACCOUNT}" claude "$@"; then
 		warn "  could not run 'claude $*' — plugin/MCP writes need an interactive"
 		warn "  claude session (the CLI is not headless); run it manually. Continuing."
 		return 1

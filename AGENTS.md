@@ -26,7 +26,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | **Chezmoi source** | `home/` | `dot_*` → `~`; templates `.tmpl`; `run_onchange_*`; [detail](docs/agents/chezmoi.md) |
 | **Template / package data** | `home/.chezmoidata/` | Brew lists, aliases, etc. consumed by templates |
 | **Chezmoi externals** | `home/.chezmoiexternals/` | Third-party snippets; Renovate-sensitive |
-| **Global Claude Code config (managed)** | `home/dot_claude/` | Skills, agents, hooks, themes → `~/.claude/` via Chezmoi; details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
+| **Per-account Claude Code config (managed)** | `home/private_dot_claude-{personal,work}/` | Skills, agents, hooks, themes → `~/.claude-{account}/` via Chezmoi. Multi-account only: there is no `~/.claude`. Details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
 | **Repo-local Claude overrides** | `.claude/` (this repo only) | Hooks, extra skills—not necessarily synced to `~` |
 | **Installer** | `./install` | Chezmoi bootstrap; env vars in [README](README.md) |
 | **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS), `bin/skill-info` (inspect skill git history — see [Claude Code doc](docs/agents/claude-code.md#inspecting-skills)) |
