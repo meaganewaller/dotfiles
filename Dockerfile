@@ -22,8 +22,13 @@ ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 # on a container without it (bin/sync-claude-extras requires it once `claude`
 # is installed). See dotfiles-au4 — .packages.linux has no apt list at all
 # today (only dnf), so this isn't only a container gap.
+# unzip is the second: bin/install-password-manager runs as chezmoi's
+# read-source-state.pre hook and unzips the 1Password CLI, so without it the
+# hook exits 1 and chezmoi refuses to run at all -- the whole image build fails
+# on "sudo: unzip: command not found". GitHub's runner image ships unzip, so
+# this gap only ever showed in the container.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl git jq locales sudo zsh \
+      ca-certificates curl git jq locales sudo unzip zsh \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
