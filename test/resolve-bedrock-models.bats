@@ -8,8 +8,8 @@ SCRIPT="bin/resolve-bedrock-models"
 # per tier, plus noise that must be filtered out (a context-window variant, a
 # non-ACTIVE model, and a non-Claude model).
 write_sample() {
-  SAMPLE="$TEST_TMPDIR/models.json"
-  cat >"$SAMPLE" <<'JSON'
+	SAMPLE="$TEST_TMPDIR/models.json"
+	cat >"$SAMPLE" <<'JSON'
 {
   "modelSummaries": [
     {"modelId": "anthropic.claude-opus-4-20250514-v1:0",     "modelLifecycle": {"status": "ACTIVE"}},
@@ -25,17 +25,17 @@ JSON
 
 # Stub `aws` on PATH. mode=ok prints the sample; mode=fail exits non-zero.
 make_stub_aws() {
-  STUBDIR="$TEST_TMPDIR/stub"
-  mkdir -p "$STUBDIR"
-  if [ "$1" = ok ]; then
-    cat >"$STUBDIR/aws" <<EOF
+	STUBDIR="$TEST_TMPDIR/stub"
+	mkdir -p "$STUBDIR"
+	if [ "$1" = ok ]; then
+		cat >"$STUBDIR/aws" <<EOF
 #!/usr/bin/env bash
 cat "$SAMPLE"
 EOF
-  else
-    printf '#!/usr/bin/env bash\nexit 1\n' >"$STUBDIR/aws"
-  fi
-  chmod +x "$STUBDIR/aws"
+	else
+		printf '#!/usr/bin/env bash\nexit 1\n' >"$STUBDIR/aws"
+	fi
+	chmod +x "$STUBDIR/aws"
 }
 
 # The pure resolution filter, mirrored from bin/resolve-bedrock-models, so the
@@ -58,74 +58,74 @@ RESOLVE_FILTER='
 '
 
 @test "resolution filter picks one active profile per tier, prefixed us." {
-  write_sample
-  run jq "$RESOLVE_FILTER" "$SAMPLE"
-  [ "$status" -eq 0 ]
-  echo "$output" | jq -e '.opus   == "us.anthropic.claude-opus-4-20250514-v1:0"'
-  echo "$output" | jq -e '.sonnet == "us.anthropic.claude-sonnet-4-20250514-v1:0"'
-  echo "$output" | jq -e '.haiku  == "us.anthropic.claude-3-5-haiku-20241022-v1:0"'
+	write_sample
+	run jq "$RESOLVE_FILTER" "$SAMPLE"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	echo "$output" | jq -e '.opus   == "us.anthropic.claude-opus-4-20250514-v1:0"'
+	echo "$output" | jq -e '.sonnet == "us.anthropic.claude-sonnet-4-20250514-v1:0"'
+	echo "$output" | jq -e '.haiku  == "us.anthropic.claude-3-5-haiku-20241022-v1:0"'
 }
 
 @test "resolution filter excludes context-window variants and non-ACTIVE models" {
-  write_sample
-  run jq "$RESOLVE_FILTER" "$SAMPLE"
-  [ "$status" -eq 0 ]
-  # The :200k variant and the LEGACY model must not leak through.
-  [[ "$output" != *":200k"* ]]
-  [[ "$output" != *"legacy"* ]]
-  [[ "$output" != *"titan"* ]]
+	write_sample
+	run jq "$RESOLVE_FILTER" "$SAMPLE"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	# The :200k variant and the LEGACY model must not leak through.
+	[[ "$output" != *":200k"* ]] || fail "output was: $output"
+	[[ "$output" != *"legacy"* ]] || fail "output was: $output"
+	[[ "$output" != *"titan"* ]] || fail "output was: $output"
 }
 
 @test "writes a cache and emits resolved models on a cold run" {
-  write_sample
-  make_stub_aws ok
-  run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
-  [ "$status" -eq 0 ]
-  echo "$output" | jq -e '.opus == "us.anthropic.claude-opus-4-20250514-v1:0"'
-  [ -f "$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json" ]
+	write_sample
+	make_stub_aws ok
+	run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	echo "$output" | jq -e '.opus == "us.anthropic.claude-opus-4-20250514-v1:0"'
+	[ -f "$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json" ] || fail "assertion did not hold"
 }
 
 @test "serves a fresh cache without calling aws" {
-  write_sample
-  make_stub_aws ok # would emit the sample; a fresh cache must win instead
-  mkdir -p "$TEST_TMPDIR/xdg/dotfiles"
-  echo '{"opus":"us.FRESH-CACHE"}' >"$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json"
+	write_sample
+	make_stub_aws ok # would emit the sample; a fresh cache must win instead
+	mkdir -p "$TEST_TMPDIR/xdg/dotfiles"
+	echo '{"opus":"us.FRESH-CACHE"}' >"$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json"
 
-  run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
-  [ "$status" -eq 0 ]
-  echo "$output" | jq -e '.opus == "us.FRESH-CACHE"'
+	run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	echo "$output" | jq -e '.opus == "us.FRESH-CACHE"'
 }
 
 @test "falls back to a stale cache when refresh fails" {
-  write_sample
-  make_stub_aws fail
-  mkdir -p "$TEST_TMPDIR/xdg/dotfiles"
-  echo '{"opus":"us.STALE-CACHE"}' >"$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json"
-  touch -t 202001010000 "$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json" # force stale
+	write_sample
+	make_stub_aws fail
+	mkdir -p "$TEST_TMPDIR/xdg/dotfiles"
+	echo '{"opus":"us.STALE-CACHE"}' >"$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json"
+	touch -t 202001010000 "$TEST_TMPDIR/xdg/dotfiles/bedrock-models.json" # force stale
 
-  run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
-  [ "$status" -eq 0 ]
-  echo "$output" | jq -e '.opus == "us.STALE-CACHE"'
+	run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	echo "$output" | jq -e '.opus == "us.STALE-CACHE"'
 }
 
 @test "emits {} when refresh fails and there is no cache" {
-  write_sample
-  make_stub_aws fail
-  run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg-empty" bash "$SCRIPT"
-  [ "$status" -eq 0 ]
-  [ "$output" = "{}" ]
+	write_sample
+	make_stub_aws fail
+	run env PATH="$STUBDIR:$PATH" XDG_DATA_HOME="$TEST_TMPDIR/xdg-empty" bash "$SCRIPT"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[ "$output" = "{}" ] || fail "output was: $output"
 }
 
 @test "degrades gracefully when aws is not installed" {
-  # Clean PATH with the interpreter + coreutils + jq the script needs, but no aws.
-  local clean="$TEST_TMPDIR/clean"
-  mkdir -p "$clean"
-  local c
-  for c in bash jq date stat mkdir cat; do
-    ln -s "$(command -v "$c")" "$clean/$c"
-  done
+	# Clean PATH with the interpreter + coreutils + jq the script needs, but no aws.
+	local clean="$TEST_TMPDIR/clean"
+	mkdir -p "$clean"
+	local c
+	for c in bash jq date stat mkdir cat; do
+		ln -s "$(command -v "$c")" "$clean/$c"
+	done
 
-  run env -i PATH="$clean" HOME="$TEST_HOME_DIR" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"{}"* ]]
+	run env -i PATH="$clean" HOME="$TEST_HOME_DIR" XDG_DATA_HOME="$TEST_TMPDIR/xdg" bash "$SCRIPT"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" == *"{}"* ]] || fail "output was: $output"
 }

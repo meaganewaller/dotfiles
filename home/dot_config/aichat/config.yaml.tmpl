@@ -1,4 +1,0 @@
-model: claude-haiku-4-5-20251001
-clients:
-  - type: claude
-    api_key: {{ if lookPath "op" }}{{ onepasswordRead (index (.credentials | default dict) "claude_api") | trim }}{{ else }}placeholder{{ end }}

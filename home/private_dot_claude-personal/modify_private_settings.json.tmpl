@@ -1,65 +1,19 @@
 #!/bin/bash
-# Merges desired settings into the current settings.json
-# Keys managed by Claude Code (e.g. "model") are preserved rather than overwritten.
+# Merge the declared settings for this account into the current settings.json.
+#
+# Everything below the heredoc is generated from home/.chezmoidata/claude.yaml +
+# claude-permissions.yaml by home/.chezmoitemplates/claude-settings. To change a
+# permission, feature flag, env var, or hook, edit the data — not this file.
+#
+# The merge is `current * desired`, so keys Claude Code owns and we do not
+# declare (theme, extraKnownMarketplaces, enabledPlugins, ...) survive untouched.
+# jq's `*` recurses into objects but replaces arrays wholesale, which is what we
+# want: dropping a permission or a hook from the data removes it from the file.
 
 set -euo pipefail
 
 desired=$(cat <<'DESIRED'
-{
-  "tui": "fullscreen",
-  "copyOnSelect": false,
-  "prStatusFooterEnabled": false,
-  "showClearContextOnPlanAccept": true,
-  "awaySummaryEnabled": false,
-  "autoUpdaterChannel": "stable",
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.local/bin/claude-code-statusline",
-    "padding": 0
-  },
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
-    "MAX_THINKING_TOKENS": "128000"
-  },
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude-personal/hooks/tmux-bell.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      { 
-        "matcher": "Write|Edit|MultiEdit", 
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude-personal/hooks/check-secrets.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.local/libexec/block-adhoc-installers"
-          }
-        ]
-      }
-    ]
-  }
-}
+{{ template "claude-settings" dict "account" "personal" "data" . }}
 DESIRED
 )
 
@@ -71,7 +25,15 @@ if ! command -v jq &>/dev/null; then
 fi
 
 if [[ -z "$current" ]]; then
-  printf '%s\n' "$desired" | jq --indent 2 '.'
+  merged=$(printf '%s\n' "$desired" | jq --indent 2 '.') || merged=""
 else
-  printf '%s' "$current" | jq --indent 2 --argjson desired "$desired" '. * $desired'
+  merged=$(printf '%s' "$current" | jq --indent 2 --argjson desired "$desired" '. * $desired') || merged=""
+fi
+
+# Never hand chezmoi a file that would not parse: fall back to leaving the
+# existing settings.json alone.
+if [[ -n "$merged" ]] && printf '%s' "$merged" | jq empty &>/dev/null; then
+  printf '%s\n' "$merged"
+else
+  printf '%s\n' "${current:-$desired}"
 fi

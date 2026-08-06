@@ -8,7 +8,6 @@ packages:
       - ca-certificates
 
       # AI Tools
-      - aichat
       - beads
       - ccusage
 

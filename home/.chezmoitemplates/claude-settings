@@ -1,0 +1,70 @@
+{{/* Render the desired settings.json body for one Claude Code account.
+
+     Emits pretty-printed JSON built from home/.chezmoidata/claude.yaml and
+     claude-permissions.yaml. Callers merge it onto the current file rather than
+     replacing it, so keys Claude Code owns and we do not declare survive.
+
+     Call with the account name and the root template context:
+       {{ template "claude-settings" dict "account" "personal" "data" . }}
+
+     Layering, for every declared surface: claudeData.shared first, then
+     claudeData.<account> on top. Maps and scalars override; the permissions
+     allow list and hooks concatenate.
+
+     Two placeholders are expanded at render time, because .chezmoidata files
+     are plain YAML and cannot themselves be templates:
+       $HOME        -> the real home directory
+       $CLAUDE_DIR  -> ~/.claude-<account>
+
+     JSON is produced by toPrettyJson over a built-up dict, never hand-authored
+     here -- that is what makes this safe to template (ADR 0011). */ -}}
+
+{{- $account := .account -}}
+{{- $root := .data -}}
+{{- $home := $root.chezmoi.homeDir -}}
+{{- $claudeDir := printf "%s/.claude-%s" $home $account -}}
+
+{{- $shared := index $root.claudeData "shared" | default dict -}}
+{{- $acct := index $root.claudeData $account | default dict -}}
+
+{{/* Every lookup below goes through `index`: chezmoi renders with
+     missingkey=error, so `.foo` on a map lacking `foo` is a hard failure, while
+     `index m "foo"` yields nil and composes with `default`. That keeps each
+     surface optional per account. */ -}}
+
+{{/* Flat top-level keys: shared, then account overrides. mergeOverwrite mutates
+     its first argument, so start from a fresh dict rather than $shared. */ -}}
+{{- $out := mergeOverwrite dict (index $shared "settings" | default dict) (index $acct "settings" | default dict) -}}
+
+{{/* Environment variables. */ -}}
+{{- $env := mergeOverwrite dict (index $shared "env" | default dict) (index $acct "env" | default dict) -}}
+{{- if $env -}}
+{{- $_ := set $out "env" $env -}}
+{{- end -}}
+
+{{/* Permissions: concatenate allow lists, expand $HOME, sort and dedupe so the
+     rendered file is stable regardless of declaration order. */ -}}
+{{- $sharedPerms := index $shared "permissions" | default dict -}}
+{{- $acctPerms := index $acct "permissions" | default dict -}}
+{{- $allow := list -}}
+{{- range concat (index $sharedPerms "allow" | default list) (index $acctPerms "allow" | default list) -}}
+{{- $allow = append $allow (replace "$HOME" $home .) -}}
+{{- end -}}
+{{- $mode := index $acctPerms "defaultMode" | default (index $sharedPerms "defaultMode") | default "auto" -}}
+{{- $_ := set $out "permissions" (dict "defaultMode" $mode "allow" ($allow | sortAlpha | uniq)) -}}
+
+{{/* Hooks, grouped by event into Claude Code's shape:
+       "hooks": { "<Event>": [ { "matcher": ..., "hooks": [ {type, command} ] } ] }
+     Each declared entry becomes its own group, so two PreToolUse hooks with
+     different matchers stay separate. */ -}}
+{{- $hooks := dict -}}
+{{- range concat (index $shared "hooks" | default list) (index $acct "hooks" | default list) -}}
+{{- $command := .command | replace "$CLAUDE_DIR" $claudeDir | replace "$HOME" $home -}}
+{{- $group := dict "matcher" .matcher "hooks" (list (dict "type" "command" "command" $command)) -}}
+{{- $_ := set $hooks .event (append (index $hooks .event | default list) $group) -}}
+{{- end -}}
+{{- if $hooks -}}
+{{- $_ := set $out "hooks" $hooks -}}
+{{- end -}}
+
+{{ $out | toPrettyJson }}

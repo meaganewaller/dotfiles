@@ -23,10 +23,13 @@ tp_alert_color_load() {
 	double_cores=$(echo "$cores * 2" | bc -l)
 
 	if echo "$load > $double_cores" | bc -l | grep -q '^1'; then
+		# shellcheck disable=SC2154
 		echo "$red"
 	elif echo "$load > $cores" | bc -l | grep -q '^1'; then
+		# shellcheck disable=SC2154
 		echo "$yellow"
 	else
+		# shellcheck disable=SC2154
 		echo "$surface0"
 	fi
 }

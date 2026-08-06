@@ -20,7 +20,10 @@ CLAUDE_PROJECT_DIR=$(realpath "${CLAUDE_PROJECT_DIR:-.}")
 # Read hook input from stdin
 input=$(cat)
 
-# Extract fields in one jq call
+# Extract fields in one jq call (declare first so shellcheck sees the assigns)
+tool_name=""
+file_path=""
+command=""
 eval "$(echo "$input" | jq -r '
   @sh "tool_name=\(.tool_name // "")",
   @sh "file_path=\(.tool_input.file_path // "")",
@@ -30,14 +33,14 @@ eval "$(echo "$input" | jq -r '
 # Resolve a file path to its canonical form.
 # For existing paths, use realpath. For new files, resolve the parent.
 resolve_path() {
-  local p="$1"
-  if [[ -e "$p" ]]; then
-    realpath "$p"
-  elif [[ -d "$(dirname "$p")" ]]; then
-    echo "$(realpath "$(dirname "$p")")/$(basename "$p")"
-  else
-    echo "$p"
-  fi
+	local p="$1"
+	if [[ -e "$p" ]]; then
+		realpath "$p"
+	elif [[ -d "$(dirname "$p")" ]]; then
+		echo "$(realpath "$(dirname "$p")")/$(basename "$p")"
+	else
+		echo "$p"
+	fi
 }
 
 # Check if a resolved path is a chezmoi-managed destination we should protect.
@@ -46,19 +49,20 @@ resolve_path() {
 # directly so we don't over-trigger on unrelated repos that happen to live
 # under $HOME (e.g. ~/src/...).
 is_chezmoi_managed() {
-  local resolved="$1"
-  [[ "$resolved" == "$HOME"/* ]] || return 1
-  [[ "$resolved" == "$CLAUDE_PROJECT_DIR"/* ]] && return 1
-  [[ "$resolved" == "$HOME/.claude"/* ]] && return 1
-  chezmoi source-path "$resolved" >/dev/null 2>&1
+	local resolved="$1"
+	[[ "$resolved" == "$HOME"/* ]] || return 1
+	[[ "$resolved" == "$CLAUDE_PROJECT_DIR"/* ]] && return 1
+	[[ "$resolved" == "$HOME/.claude"/* ]] && return 1
+	chezmoi source-path "$resolved" >/dev/null 2>&1
 }
 
 case "$tool_name" in
-  Write | Edit | MultiEdit)
-    [[ -z "$file_path" ]] && exit 0
-    resolved=$(resolve_path "$file_path")
-    if is_chezmoi_managed "$resolved"; then
-      jq -n --arg reason "$(cat <<MSG
+Write | Edit | MultiEdit)
+	[[ -z "$file_path" ]] && exit 0
+	resolved=$(resolve_path "$file_path")
+	if is_chezmoi_managed "$resolved"; then
+		jq -n --arg reason "$(
+			cat <<MSG
 BLOCKED: Do not edit files in ~/ directly. This is a chezmoi-managed dotfiles repo.
 
 To find the correct source file, run:
@@ -67,46 +71,51 @@ To find the correct source file, run:
 Then edit that source file (under home/ in the project tree), and deploy with:
   chezmoi apply $resolved
 MSG
-)" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
-    fi
-    ;;
+		)" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
+	fi
+	;;
 
-  Read)
-    [[ -z "$file_path" ]] && exit 0
-    resolved=$(resolve_path "$file_path")
-    if is_chezmoi_managed "$resolved"; then
-      jq -n --arg ctx "$(cat <<MSG
+Read)
+	[[ -z "$file_path" ]] && exit 0
+	resolved=$(resolve_path "$file_path")
+	if is_chezmoi_managed "$resolved"; then
+		jq -n --arg ctx "$(
+			cat <<MSG
 Note: You are reading a chezmoi-managed destination file. This is deployed from
 the source tree — do not edit it directly. To find the source file, run:
   chezmoi source-path $resolved
 MSG
-)" '{additionalContext: $ctx}'
-    fi
-    ;;
+		)" '{additionalContext: $ctx}'
+	fi
+	;;
 
-  Bash)
-    [[ -z "$command" ]] && exit 0
+Bash)
+	[[ -z "$command" ]] && exit 0
 
-    # Exempt chezmoi commands (strip leading whitespace and env-var assignments)
-    stripped=$(echo "$command" | sed 's/^[[:space:]]*//' | sed 's/^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]*//')
-    # Handle multiple env vars (e.g., DEBUG=1 VERBOSE=1 chezmoi ...)
-    while [[ "$stripped" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]] ]]; do
-      stripped=$(echo "$stripped" | sed 's/^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]*//')
-    done
-    if [[ "$stripped" == chezmoi* ]]; then
-      exit 0
-    fi
+	# Exempt chezmoi commands (strip leading whitespace and env-var assignments)
+	[[ "$command" =~ ^[[:space:]]*(.*)$ ]]
+	stripped="${BASH_REMATCH[1]}"
+	# Handle multiple env vars (e.g., DEBUG=1 VERBOSE=1 chezmoi ...)
+	while [[ "$stripped" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+(.*)$ ]]; do
+		stripped="${BASH_REMATCH[1]}"
+	done
+	if [[ "$stripped" == chezmoi* ]]; then
+		exit 0
+	fi
 
-	# Check if command references home directory (check both resolved and original)
-    if echo "$command" | grep -qF "$HOME/" ||
-	echo "$command" | grep -qF "$ORIG_HOME/" ||
-	echo "$command" | grep -qE '^(~/|\$HOME/)'; then
-      jq -n --arg ctx "$(cat <<MSG
+	# Check if command references home directory (check both resolved and original).
+	# \$HOME is intentional: match the literal string $HOME/ in the command.
+	# shellcheck disable=SC2016
+	if echo "$command" | grep -qF "$HOME/" ||
+		echo "$command" | grep -qF "$ORIG_HOME/" ||
+		echo "$command" | grep -qE '^(~/|\$HOME/)'; then
+		jq -n --arg ctx "$(
+			cat <<MSG
 Note: This command references files in ~/. This is a chezmoi-managed repo — do
 not modify files in ~/ directly. To find source files, use:
   chezmoi source-path <target>
 MSG
-)" '{additionalContext: $ctx}'
-    fi
-    ;;
+		)" '{additionalContext: $ctx}'
+	fi
+	;;
 esac

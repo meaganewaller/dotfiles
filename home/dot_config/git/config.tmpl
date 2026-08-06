@@ -1,24 +1,39 @@
 [user]
 	name = {{ .git.name }}
 	email = {{ .git.email }}
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFQ99ctOvjZ2A8JQQu0dgRDKt8V3OuVUpSU4zLq62GLQ
+	signingkey = {{ .git.signing_key }}
 	useConfigOnly = true
 
 [init]
 	defaultBranch = main
 
-# SSH commit signing. The pubkey at signingkey must also be registered on
-# GitHub as an SSH signing key (Settings → SSH and GPG keys → New SSH key →
-# Key type: "Signing Key") so server-side verification passes — auth keys
-# alone are not enough.
+# SSH commit signing, backed by 1Password. The private key never leaves the
+# vault: op-ssh-sign asks the 1Password agent to sign, and the agent's vault is
+# configured in dot_config/1Password/ssh/agent.toml.
+#
+# The pubkey at signingkey must also be registered on GitHub as an SSH signing
+# key (Settings → SSH and GPG keys → New SSH key → Key type: "Signing Key") so
+# server-side verification passes — auth keys alone are not enough.
+#
+# allowedSignersFile is what makes *local* verification work: without it,
+# `git log --show-signature` errors out and %G? reports N for every commit, even
+# though the commits are correctly signed.
 [gpg]
 	format = ssh
 
 [gpg "ssh"]
 	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+	allowedSignersFile = {{ .git.allowed_signers_file }}
 
+# Push over SSH (1Password holds the key) but leave *fetches* on HTTPS.
+#
+# This was a bare `insteadOf`, which rewrote fetch URLs too. That broke every
+# unauthenticated clone -- CI has no SSH key, so chezmoi's git-repo externals
+# died with "Permission denied (publickey)" on an https:// URL. It also made
+# the `gh auth git-credential` helper below unreachable, since no github.com
+# URL ever stayed on HTTPS long enough to consult it.
 [url "ssh://git@github.com/"]
-	insteadOf = https://github.com/
+	pushInsteadOf = https://github.com/
 
 [commit]
 	gpgsign = true

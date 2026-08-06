@@ -3,130 +3,130 @@
 load test_helper
 
 @test "packages.yaml file is valid YAML" {
-  # Test that our actual packages.yaml file is valid YAML
-  local packages_file="home/.chezmoidata/packages.yaml"
+	# Test that our actual packages.yaml file is valid YAML
+	local packages_file="home/.chezmoidata/packages.yaml"
 
-  # Check if the file exists
-  [ -f "$packages_file" ]
+	# Check if the file exists
+	[ -f "$packages_file" ] || fail "assertion did not hold"
 
-  # Test YAML syntax validity
-  assert_valid_yaml "$packages_file"
+	# Test YAML syntax validity
+	assert_valid_yaml "$packages_file"
 }
 
 @test "packages.yaml has the structure our script expects" {
-  # Test that our packages.yaml has the structure our script needs
-  local packages_file="home/.chezmoidata/packages.yaml"
+	# Test that our packages.yaml has the structure our script needs
+	local packages_file="home/.chezmoidata/packages.yaml"
 
-  # Check if the file exists
-  [ -f "$packages_file" ]
+	# Check if the file exists
+	[ -f "$packages_file" ] || fail "assertion did not hold"
 
-  # Test that it has the structure our script expects
-  # Should have packages.darwin structure (our script references .packages.darwin.brews)
-  run yq '.packages.darwin' "$packages_file"
-  [ "$status" -eq 0 ]
+	# Test that it has the structure our script expects
+	# Should have packages.darwin structure (our script references .packages.darwin.brews)
+	run yq '.packages.darwin' "$packages_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-  # Should have brews array (our script references .packages.darwin.brews)
-  run yq '.packages.darwin.brews' "$packages_file"
-  [ "$status" -eq 0 ]
+	# Should have brews array (our script references .packages.darwin.brews)
+	run yq '.packages.darwin.brews' "$packages_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-  # Should have casks array (our script references .packages.darwin.casks)
-  run yq '.packages.darwin.casks' "$packages_file"
-  [ "$status" -eq 0 ]
+	# Should have casks array (our script references .packages.darwin.casks)
+	run yq '.packages.darwin.casks' "$packages_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 }
 
 @test "renders correctly on darwin with packages" {
-  # Test our ACTUAL script with our ACTUAL packages data
-  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+	# Test our ACTUAL script with our ACTUAL packages data
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
-  # Create config with our actual data
-  cat >"$TEST_TMPDIR/real-config.toml" <<EOF
+	# Create config with our actual data
+	cat >"$TEST_TMPDIR/real-config.toml" <<EOF
 [data]
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
     packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
-  # Render our actual script. The template branches on $CI / $GITHUB_ACTIONS
-  # at render time; clear them so this test exercises the dev-machine path
-  # (brews + casks). The CI-only path is covered by a separate test below.
-  run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
-  [ "$status" -eq 0 ]
+	# Render our actual script. The template branches on $CI / $GITHUB_ACTIONS
+	# at render time; clear them so this test exercises the dev-machine path
+	# (brews + casks). The CI-only path is covered by a separate test below.
+	run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-  # Test our script's behavior:
-  # 1. Should be a valid shell script
-  assert_script_structure "$output"
+	# Test our script's behavior:
+	# 1. Should be a valid shell script
+	assert_script_structure "$output"
 
-  # 2. Should check for Homebrew availability
-  [[ "$output" == *"command -v brew"* ]]
+	# 2. Should check for Homebrew availability
+	[[ "$output" == *"command -v brew"* ]] || fail "output was: $output"
 
-  # 3. Should use brew bundle to install packages
-  [[ "$output" == *"brew bundle"* ]]
+	# 3. Should use brew bundle to install packages
+	[[ "$output" == *"brew bundle"* ]] || fail "output was: $output"
 
-  # 4. Should contain our actual package
-  [[ "$output" == *"font-maple-mono-nf-cn"* ]]
+	# 4. Should contain our actual package
+	[[ "$output" == *"font-maple-mono-nf-cn"* ]] || fail "output was: $output"
 
-  # 5. Should handle missing Homebrew gracefully
-  [[ "$output" == *"Homebrew not found"* ]]
-  [[ "$output" == *"exit 0"* ]]
+	# 5. Should handle missing Homebrew gracefully
+	[[ "$output" == *"Homebrew not found"* ]] || fail "output was: $output"
+	[[ "$output" == *"exit 0"* ]] || fail "output was: $output"
 }
 
 @test "skips casks when CI env is set" {
-  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
-  cat >"$TEST_TMPDIR/ci-config.toml" <<EOF
+	cat >"$TEST_TMPDIR/ci-config.toml" <<EOF
 [data]
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
     packages = { darwin = { brews = ["jq"], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
-  CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
-  [ "$status" -eq 0 ]
+	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-  # Brews still installed (catches bundle drift in CI)
-  [[ "$output" == *'brew "jq"'* ]]
+	# Brews still installed (catches bundle drift in CI)
+	[[ "$output" == *'brew "jq"'* ]] || fail "output was: $output"
 
-  # Casks omitted from the rendered bundle
-  [[ "$output" != *"font-maple-mono-nf-cn"* ]]
-  [[ "$output" != *'cask "'* ]]
+	# Casks omitted from the rendered bundle
+	[[ "$output" != *"font-maple-mono-nf-cn"* ]] || fail "output was: $output"
+	[[ "$output" != *'cask "'* ]] || fail "output was: $output"
 }
 
 @test "does not render on non-darwin systems" {
-  # Test our ACTUAL script on non-darwin systems
-  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+	# Test our ACTUAL script on non-darwin systems
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
-  # Create config with linux OS
-  cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
+	# Create config with linux OS
+	cat >"$TEST_TMPDIR/linux-config.toml" <<EOF
 [data]
     chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
     packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
-  # Render our actual script on linux
-  run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$script_file"
-  [ "$status" -eq 0 ]
+	# Render our actual script on linux
+	run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-  # Should be empty on non-darwin
-  [ "$output" = "" ]
+	# Should be empty on non-darwin
+	[ "$output" = "" ] || fail "output was: $output"
 }
 
 @test "produces valid shell syntax" {
-  # Test that our ACTUAL script renders to valid shell syntax
-  local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+	# Test that our ACTUAL script renders to valid shell syntax
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
 
-  # Create config with our actual data
-  cat >"$TEST_TMPDIR/syntax-config.toml" <<EOF
+	# Create config with our actual data
+	cat >"$TEST_TMPDIR/syntax-config.toml" <<EOF
 [data]
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
 EOF
 
-  # Add our actual packages data
-  cat >>"$TEST_TMPDIR/syntax-config.toml" <<EOF
+	# Add our actual packages data
+	cat >>"$TEST_TMPDIR/syntax-config.toml" <<EOF
     packages = { darwin = { brews = [], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
-  # Render our actual script
-  run chezmoi execute-template --config "$TEST_TMPDIR/syntax-config.toml" --file "$script_file"
-  [ "$status" -eq 0 ]
+	# Render our actual script
+	run chezmoi execute-template --config "$TEST_TMPDIR/syntax-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-  # Test that the rendered script has valid shell syntax
-  assert_valid_shell "$output"
+	# Test that the rendered script has valid shell syntax
+	assert_valid_shell "$output"
 }

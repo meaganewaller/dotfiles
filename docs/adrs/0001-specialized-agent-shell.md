@@ -23,19 +23,19 @@ How should `.zshrc` detect agent contexts and conditionally disable human-centri
 
 ## Considered Options
 
-1. **Do nothing; document `command cat` / unalias in agent instructions**  
+1. **Do nothing; document `command cat` / unalias in agent instructions**
    Rely on agents always prefixing builtins or bypassing aliases. Low maintenance but brittle: agents and skills do not consistently do this, and it does not reduce startup cost.
 
-2. **Treat “non-interactive shell” as agent shell**  
+2. **Treat “non-interactive shell” as agent shell**
    Use `[[ ! -o interactive ]]` or equivalent to skip heavy config. Simple and fast, but wrong for many agent integrations that spawn an interactive login shell; high false-negative rate against the correctness driver.
 
-3. **Separate profile via `ZDOTDIR`**  
+3. **Separate profile via `ZDOTDIR`**
    Point agent-only invocations at a minimal directory with a tiny `.zshrc` (PATH + mise only). Very predictable output and fast startup, but only helps when the parent process can set `ZDOTDIR`; not all agent hosts document or honor that, and humans must not accidentally use that directory as their default.
 
-4. **Early branch inside the existing Chezmoi-managed `dot_zshrc.tmpl`**  
+4. **Early branch inside the existing Chezmoi-managed `dot_zshrc.tmpl`**
    At the top of `.zshrc` (after any definitions needed for the predicate itself), evaluate one function or snippet—e.g. `_dotfiles_is_agent_shell`—that returns true only when an explicit knob and/or an allowlisted set of environment fingerprints match. If true, apply a short “minimal agent” path: skip Oh My Zsh, atuin, autosuggestions, syntax highlighting, and human-centric aliases; still activate mise and retain PATH / XDG / editor exports needed for tooling. Single file, single source of truth, works for any process that runs the user’s normal zsh init.
 
-5. **Default to POSIX `/bin/sh` for agent command execution**  
+5. **Default to POSIX `/bin/sh` for agent command execution**
    Configure the agent or IDE to use `sh` instead of zsh. Avoids zsh-specific config entirely but diverges from the user’s real toolchain assumptions (mise hooks, functions, login env) unless duplicated into `PROFILE`/`.profile`, creating two worlds to maintain.
 
 ## Decision Outcome

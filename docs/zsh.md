@@ -92,7 +92,7 @@ A project navigation function for quickly changing to project directories. Unlik
 **Usage:**
 ```bash
 c                    # Use fzf to select from available projects
-c REPO              # Navigate to REPO across configured organizations  
+c REPO              # Navigate to REPO across configured organizations
 c ORG/REPO          # Navigate to specific ORG/REPO
 ```
 
@@ -109,7 +109,7 @@ e ORG/REPO          # Open specific ORG/REPO
 
 **Environment Variables:**
 - `PROJECTS_DIR` - Base directory for projects (default: `$HOME/src/github.com`)
-- `GITHUB_USER` - Primary GitHub username 
+- `GITHUB_USER` - Primary GitHub username
 - `GITHUB_ORGS` - Comma-delimited list of GitHub organizations to search (e.g., `"myorg,company,another-org"`)
 
 **Smart Repository Discovery:**
