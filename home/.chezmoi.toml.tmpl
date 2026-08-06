@@ -30,6 +30,7 @@
 {{- /* No TTY (CI, piped install, cron): skip prompts and read overrides from the environment. */ -}}
 {{- $gitName = env "GIT_USER_NAME" -}}
 {{- $gitEmail = env "GIT_USER_EMAIL" -}}
+{{- $gitUsername = env "GIT_USERNAME" -}}
 {{- $workProfile = eq (env "WORK_PROFILE") "true" -}}
 {{- $gitWorkEmail = env "GIT_WORK_USER_EMAIL" -}}
 {{- end }}

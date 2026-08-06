@@ -15,3 +15,17 @@ Library/**
 {{ if not .work_profile }}
 .config/git/config-work
 {{ end }}
+
+# github_keys renders from `gitHubKeys .git.username`. With an empty username,
+# chezmoi's underlying client falls back to the *authenticated user* endpoint
+# (/user/keys instead of /users/<name>/keys), which needs a user token and 403s
+# under the GITHUB_TOKEN a workflow gets -- failing the whole apply. Skipping
+# the file outright is right anyway: with no username there are no keys to
+# fetch, and rendering an empty ~/.ssh/github_keys serves nobody.
+#
+# `dig` rather than `.git.username` so a config without a [data.git] table at
+# all renders instead of dying on "map has no entry for key" -- this file gates
+# every target, so a hard failure here takes the whole apply down with it.
+{{ if not (dig "git" "username" "" .) }}
+.ssh/github_keys
+{{ end }}
