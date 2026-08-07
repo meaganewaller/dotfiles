@@ -20,3 +20,4 @@ pr:
   gist_remote_blocklist:
     - "*github.com/gusto/*"
     - "*github.com/testdouble/*"
+    - "*github.com/testdoublelabs/*"
