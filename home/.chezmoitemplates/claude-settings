@@ -38,6 +38,20 @@
 
 {{/* Environment variables. */ -}}
 {{- $env := mergeOverwrite dict (index $shared "env" | default dict) (index $acct "env" | default dict) -}}
+
+{{/* The gist blocklist is derived from pr.gist_remote_blocklist rather than
+     restated here, so the one list in home/.chezmoidata/pr.yaml drives both
+     consumers: executable_claude-session-gist.tmpl bakes it into the shim's
+     array, and this exports it for the git-workflow marketplace plugin, whose
+     copy of the shim reads MW_MARKETPLACE_CLAUDE_SESSION_GIST_BLOCKLIST at
+     runtime instead. Two lists would drift, and a blocklist that drifts fails
+     open -- it stops blocking a repo without anyone noticing. Whitespace-
+     separated because the plugin splits on whitespace with `read -ra`. */ -}}
+{{- $blocklist := index (index $root "pr" | default dict) "gist_remote_blocklist" | default list -}}
+{{- if $blocklist -}}
+{{- $_ := set $env "MW_MARKETPLACE_CLAUDE_SESSION_GIST_BLOCKLIST" (join " " $blocklist) -}}
+{{- end -}}
+
 {{- if $env -}}
 {{- $_ := set $out "env" $env -}}
 {{- end -}}

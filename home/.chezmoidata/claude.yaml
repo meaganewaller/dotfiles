@@ -66,11 +66,14 @@ claudeData:
         repo: anthropics/claude-code
       - name: superpowers-dev
         repo: obra/superpowers
+      - name: meaganewaller-marketplace
+        repo: meaganewaller/marketplace
 
     plugins:
       - claude-api@anthropic-agent-skills
       - plugin-dev@claude-code-plugins
       - superpowers@superpowers-dev
+      - git-workflow@meaganewaller-marketplace
 
     mcpServers: []
 
@@ -106,8 +109,6 @@ claudeData:
         command: "$HOME/.local/libexec/block-adhoc-installers"
 
     marketplaces:
-      - name: meaganewaller-marketplace
-        repo: meaganewaller/marketplace
       - name: onlooker-community
         repo: onlooker-community/ecosystem
       - name: cloudflare
