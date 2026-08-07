@@ -114,29 +114,27 @@ claudeData:
         repo: cloudflare/skills
 
     plugins:
-      - cloudflare@cloudflare
       # meaganewaller-marketplace
       - dev-collective@meaganewaller-marketplace
       - dotfiles@meaganewaller-marketplace
-      - git@meaganewaller-marketplace
       - mise@meaganewaller-marketplace
       # onlooker-community
-      - archivist@onlooker-community
-      - assayer@onlooker-community
-      - bursar@onlooker-community
-      - cartographer@onlooker-community
+      # - archivist@onlooker-community
+      # - assayer@onlooker-community
+      # - bursar@onlooker-community
+      # - cartographer@onlooker-community
       # - compass@onlooker-community
-      - counsel@onlooker-community
-      - curator@onlooker-community
-      - echo@onlooker-community
-      - ecosystem@onlooker-community
-      - governor@onlooker-community
-      - historian@onlooker-community
-      - inspector@onlooker-community
-      - librarian@onlooker-community
-      - lineage@onlooker-community
-      - scribe@onlooker-community
-      - tribunal@onlooker-community
+      # - counsel@onlooker-community
+      # - curator@onlooker-community
+      # - echo@onlooker-community
+      # - ecosystem@onlooker-community
+      # - governor@onlooker-community
+      # - historian@onlooker-community
+      # - inspector@onlooker-community
+      # - librarian@onlooker-community
+      # - lineage@onlooker-community
+      # - scribe@onlooker-community
+      # - tribunal@onlooker-community
       # - warden@onlooker-community
 
     mcpServers: []
@@ -149,6 +147,11 @@ claudeData:
     # and are not deployed to ~/.claude-work. Adding one here means adding the
     # script under home/private_dot_claude-work/hooks/ too.
     hooks: []
-    marketplaces: []
-    plugins: []
+    marketplaces:
+      - name: testdouble-skills-internal
+        repo: testdouble/skills-internal
+
+    plugins: 
+      - han@testdouble-skills-internal
+
     mcpServers: []
