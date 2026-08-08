@@ -25,10 +25,12 @@ else
 	worktree_str="no worktree"
 fi
 
-GREEN='\033[32m'
-YELLOW='\033[33m'
-RED='\033[31m'
-RESET='\033[0m'
+# Resolve escapes now: these are passed to printf as %s arguments, not as
+# format strings, so a literal '\033' would never be interpreted.
+GREEN=$(printf '\033[32m')
+YELLOW=$(printf '\033[33m')
+RED=$(printf '\033[31m')
+RESET=$(printf '\033[0m')
 
 git_str=""
 if git rev-parse --git-dir >/dev/null 2>&1; then
