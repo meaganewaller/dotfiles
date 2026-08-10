@@ -1,5 +1,7 @@
 {
-  "enabledPlugins": {},
+  "enabledPlugins": {
+    "fnox@meaganewaller-marketplace": true
+  },
   "hooks": {
     "PreToolUse": [
       {
