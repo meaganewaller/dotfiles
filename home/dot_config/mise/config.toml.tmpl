@@ -4,7 +4,12 @@
 
 [env]
 # supports arbitrary env vars so mise can be used like direnv/dotenv
-NODE_ENV = "development"
+#
+# Don't set NODE_ENV here. A global value leaks into every production build on
+# the machine: `next build` inherited NODE_ENV=development and React resolved a
+# mix of its dev and prod builds, leaving ReactSharedInternals null and failing
+# the prerender with "null is not an object (evaluating 'k.H.useContext')".
+# Tools set NODE_ENV themselves; per-project mise.toml can override when needed.
 _.fnox-env = { tools = true, profile = "{{ if .work_profile }}work{{ else }}personal{{ end }}" }
 
 [settings]
