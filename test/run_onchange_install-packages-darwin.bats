@@ -89,6 +89,68 @@ EOF
 	[[ "$output" != *'cask "'* ]] || fail "output was: $output"
 }
 
+@test "emits a tap line for every tap-qualified brew" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/taps-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq", "FelixKratz/formulae/sketchybar", "steipete/tap/remindctl", "steipete/tap/second"], casks = [] } }
+EOF
+
+	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/taps-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# Without these, a cold `brew bundle` fails with "This command requires the
+	# tap ..." — the machine that already has the tap never sees it.
+	[[ "$output" == *'tap "FelixKratz/formulae"'* ]] || fail "output was: $output"
+	[[ "$output" == *'tap "steipete/tap"'* ]] || fail "output was: $output"
+
+	# A plain formula must not produce a tap line.
+	[[ "$output" != *'tap "jq"'* ]] || fail "output was: $output"
+
+	# One tap line per tap, however many formulae come from it.
+	[ "$(printf '%s\n' "$output" | grep -c '^tap "steipete/tap"$')" -eq 1 ] || fail "output was: $output"
+
+	# Taps must be declared before the formulae that need them.
+	local tap_line brew_line
+	tap_line=$(printf '%s\n' "$output" | grep -n '^tap "FelixKratz/formulae"$' | cut -d: -f1)
+	brew_line=$(printf '%s\n' "$output" | grep -n '^brew "FelixKratz/formulae/sketchybar"$' | cut -d: -f1)
+	[ -n "$tap_line" ] || fail "no tap line rendered; output was: $output"
+	[ "$tap_line" -lt "$brew_line" ] || fail "tap at line $tap_line must precede brew at line $brew_line; output was: $output"
+}
+
+@test "trusts every tap-qualified formula before bundling" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/trust-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq", "FelixKratz/formulae/sketchybar", "steipete/tap/remindctl"], casks = [] } }
+EOF
+
+	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/trust-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# Homebrew 6 refuses to load formulae from untrusted third-party taps:
+	# "Refusing to load formula ... from untrusted tap ...".
+	[[ "$output" == *'brew trust --formula "FelixKratz/formulae/sketchybar"'* ]] || fail "output was: $output"
+	[[ "$output" == *'brew trust --formula "steipete/tap/remindctl"'* ]] || fail "output was: $output"
+
+	# Core formulae are trusted implicitly; never widen scope for them.
+	[[ "$output" != *'brew trust --formula "jq"'* ]] || fail "output was: $output"
+
+	# Trust is per formula, not a blanket tap-wide grant.
+	[[ "$output" != *'brew trust --tap'* ]] || fail "output was: $output"
+
+	# Trust must be established before the bundle tries to load anything.
+	local trust_line bundle_line
+	trust_line=$(printf '%s\n' "$output" | grep -n 'brew trust --formula' | head -1 | cut -d: -f1)
+	bundle_line=$(printf '%s\n' "$output" | grep -n '^brew bundle' | cut -d: -f1)
+	[ -n "$trust_line" ] || fail "no trust line rendered; output was: $output"
+	[ "$trust_line" -lt "$bundle_line" ] || fail "trust at line $trust_line must precede bundle at line $bundle_line; output was: $output"
+}
+
 @test "does not render on non-darwin systems" {
 	# Test our ACTUAL script on non-darwin systems
 	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"

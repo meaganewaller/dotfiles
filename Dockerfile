@@ -27,8 +27,15 @@ ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 # hook exits 1 and chezmoi refuses to run at all -- the whole image build fails
 # on "sudo: unzip: command not found". GitHub's runner image ships unzip, so
 # this gap only ever showed in the container.
+# openssh-client is the third: test/git-identity.bats validates every rendered
+# allowed_signers line with `ssh-keygen -lf`, and a missing ssh-keygen exits
+# 127, which the assertion reports as "not a valid ssh public key" — a real key
+# blamed for a missing binary. Nothing in the dotfiles themselves shells out to
+# ssh-keygen, so this is test-only today; it is installed rather than skipped
+# because a suite that quietly drops assertions inside the container is worth
+# less than the package it saves.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl git jq locales sudo unzip zsh \
+      ca-certificates curl git jq locales openssh-client sudo unzip zsh \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 

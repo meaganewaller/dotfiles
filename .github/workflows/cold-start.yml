@@ -78,9 +78,6 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-    # Nightly runs are notify-only: a flaky upstream shouldn't show up as a
-    # red X on main. Everything else blocks.
-    continue-on-error: ${{ github.event_name == 'schedule' }}
     strategy:
       fail-fast: false
       matrix:
