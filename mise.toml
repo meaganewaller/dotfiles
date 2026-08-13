@@ -9,7 +9,7 @@
 hk = "1.54.1"
 jq = "latest"
 "npm:markdownlint-cli" = "latest"
-pkl = "latest"
+pkl = "0.32.1"
 shfmt = "latest"
 stylua = "latest"
 
