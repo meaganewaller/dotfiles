@@ -120,6 +120,37 @@ EOF
 	[ "$tap_line" -lt "$brew_line" ] || fail "tap at line $tap_line must precede brew at line $brew_line; output was: $output"
 }
 
+@test "trusts every tap-qualified formula before bundling" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/trust-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq", "FelixKratz/formulae/sketchybar", "steipete/tap/remindctl"], casks = [] } }
+EOF
+
+	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/trust-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# Homebrew 6 refuses to load formulae from untrusted third-party taps:
+	# "Refusing to load formula ... from untrusted tap ...".
+	[[ "$output" == *'brew trust --formula "FelixKratz/formulae/sketchybar"'* ]] || fail "output was: $output"
+	[[ "$output" == *'brew trust --formula "steipete/tap/remindctl"'* ]] || fail "output was: $output"
+
+	# Core formulae are trusted implicitly; never widen scope for them.
+	[[ "$output" != *'brew trust --formula "jq"'* ]] || fail "output was: $output"
+
+	# Trust is per formula, not a blanket tap-wide grant.
+	[[ "$output" != *'brew trust --tap'* ]] || fail "output was: $output"
+
+	# Trust must be established before the bundle tries to load anything.
+	local trust_line bundle_line
+	trust_line=$(printf '%s\n' "$output" | grep -n 'brew trust --formula' | head -1 | cut -d: -f1)
+	bundle_line=$(printf '%s\n' "$output" | grep -n '^brew bundle' | cut -d: -f1)
+	[ -n "$trust_line" ] || fail "no trust line rendered; output was: $output"
+	[ "$trust_line" -lt "$bundle_line" ] || fail "trust at line $trust_line must precede bundle at line $bundle_line; output was: $output"
+}
+
 @test "does not render on non-darwin systems" {
 	# Test our ACTUAL script on non-darwin systems
 	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"

@@ -24,11 +24,26 @@ echo "Installing packages via brew bundle..."
      machine that already has the tap tapped never reproduces it, so this only
      ever breaks fresh installs and CI. */ -}}
 {{ $taps := list -}}
+{{ $tapFormulae := list -}}
 {{ range .packages.darwin.brews -}}
 {{ $parts := splitList "/" . -}}
 {{ if ge (len $parts) 3 -}}
 {{ $taps = append $taps (printf "%s/%s" (index $parts 0) (index $parts 1)) -}}
+{{ $tapFormulae = append $tapFormulae . -}}
 {{ end -}}
+{{ end -}}
+{{ if $tapFormulae -}}
+# Homebrew 6 refuses to load formulae from non-official taps until they are
+# trusted ("Refusing to load formula ... from untrusted tap ..."). Trust exactly
+# the formulae this repo declares — per formula rather than per tap, so trusting
+# sketchybar does not silently bless everything else in that tap. Derived from
+# the same list as the bundle, so the two cannot drift apart.
+if brew trust --help >/dev/null 2>&1; then
+{{ range $tapFormulae -}}
+	brew trust --formula {{ . | quote }}
+{{ end -}}
+fi
+
 {{ end -}}
 brew bundle --file=/dev/stdin <<EOF
 {{ range ($taps | uniq) -}}
