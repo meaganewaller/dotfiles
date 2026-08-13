@@ -151,6 +151,54 @@ EOF
 	[ "$trust_line" -lt "$bundle_line" ] || fail "trust at line $trust_line must precede bundle at line $bundle_line; output was: $output"
 }
 
+@test "trusts tap-qualified casks on a dev machine" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/cask-trust-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq"], casks = ["ghostty", "nikitabobko/tap/aerospace"] } }
+EOF
+
+	# Casks only render off-CI, so this path is invisible to the CI job that
+	# skips them — a cask trust gap passes CI and fails on a real machine.
+	run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/cask-trust-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# "Refusing to load cask nikitabobko/tap/aerospace from untrusted tap ..."
+	[[ "$output" == *'brew trust --cask "nikitabobko/tap/aerospace"'* ]] || fail "output was: $output"
+
+	# The cask's tap must be declared alongside the brew taps.
+	[[ "$output" == *'tap "nikitabobko/tap"'* ]] || fail "output was: $output"
+
+	# Homebrew-core casks need neither.
+	[[ "$output" != *'brew trust --cask "ghostty"'* ]] || fail "output was: $output"
+
+	# Trust must precede the bundle that loads it.
+	local trust_line bundle_line
+	trust_line=$(printf '%s\n' "$output" | grep -n 'brew trust --cask' | head -1 | cut -d: -f1)
+	bundle_line=$(printf '%s\n' "$output" | grep -n '^brew bundle' | cut -d: -f1)
+	[ -n "$trust_line" ] || fail "no cask trust line rendered; output was: $output"
+	[ "$trust_line" -lt "$bundle_line" ] || fail "trust at $trust_line must precede bundle at $bundle_line; output was: $output"
+}
+
+@test "does not trust or tap casks on CI, where casks are skipped" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/cask-ci-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq"], casks = ["nikitabobko/tap/aerospace"] } }
+EOF
+
+	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/cask-ci-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# The cask is not installed on CI, so neither its tap nor its trust grant
+	# belongs in the rendered script.
+	[[ "$output" != *'nikitabobko'* ]] || fail "output was: $output"
+}
+
 @test "does not render on non-darwin systems" {
 	# Test our ACTUAL script on non-darwin systems
 	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"

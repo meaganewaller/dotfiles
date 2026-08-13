@@ -25,6 +25,7 @@ echo "Installing packages via brew bundle..."
      ever breaks fresh installs and CI. */ -}}
 {{ $taps := list -}}
 {{ $tapFormulae := list -}}
+{{ $tapCasks := list -}}
 {{ range .packages.darwin.brews -}}
 {{ $parts := splitList "/" . -}}
 {{ if ge (len $parts) 3 -}}
@@ -32,7 +33,20 @@ echo "Installing packages via brew bundle..."
 {{ $tapFormulae = append $tapFormulae . -}}
 {{ end -}}
 {{ end -}}
-{{ if $tapFormulae -}}
+{{/* Casks are only bundled off-CI (see below), so their taps and trust grants
+     are collected under the same condition — otherwise CI would tap and trust
+     things it never installs. This split is also why a cask-only gap sails
+     through CI and fails on a real machine. */ -}}
+{{ if not (or (env "CI") (env "GITHUB_ACTIONS")) -}}
+{{ range .packages.darwin.casks -}}
+{{ $parts := splitList "/" . -}}
+{{ if ge (len $parts) 3 -}}
+{{ $taps = append $taps (printf "%s/%s" (index $parts 0) (index $parts 1)) -}}
+{{ $tapCasks = append $tapCasks . -}}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{ if or $tapFormulae $tapCasks -}}
 # Homebrew 6 refuses to load formulae from non-official taps until they are
 # trusted ("Refusing to load formula ... from untrusted tap ..."). Trust exactly
 # the formulae this repo declares — per formula rather than per tap, so trusting
@@ -41,6 +55,9 @@ echo "Installing packages via brew bundle..."
 if brew trust --help >/dev/null 2>&1; then
 {{ range $tapFormulae -}}
 	brew trust --formula {{ . | quote }}
+{{ end -}}
+{{ range $tapCasks -}}
+	brew trust --cask {{ . | quote }}
 {{ end -}}
 fi
 
