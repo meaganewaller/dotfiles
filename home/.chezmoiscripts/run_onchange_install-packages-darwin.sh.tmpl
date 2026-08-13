@@ -17,7 +17,23 @@ echo "Installing packages via brew bundle (CI: brews only, casks skipped)..."
 echo "Installing packages via brew bundle..."
 {{- end }}
 
+{{/* Collect the tap of every tap-qualified formula ("owner/tap/formula").
+     Derived from the formula list rather than declared separately, so a new
+     third-party brew can never be added without its tap. Without these lines a
+     cold `brew bundle` fails with "This command requires the tap ..." — a
+     machine that already has the tap tapped never reproduces it, so this only
+     ever breaks fresh installs and CI. */ -}}
+{{ $taps := list -}}
+{{ range .packages.darwin.brews -}}
+{{ $parts := splitList "/" . -}}
+{{ if ge (len $parts) 3 -}}
+{{ $taps = append $taps (printf "%s/%s" (index $parts 0) (index $parts 1)) -}}
+{{ end -}}
+{{ end -}}
 brew bundle --file=/dev/stdin <<EOF
+{{ range ($taps | uniq) -}}
+tap {{ . | quote }}
+{{ end -}}
 {{ range .packages.darwin.brews -}}
 brew {{ . | quote }}
 {{ end -}}

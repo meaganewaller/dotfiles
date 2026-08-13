@@ -89,6 +89,37 @@ EOF
 	[[ "$output" != *'cask "'* ]] || fail "output was: $output"
 }
 
+@test "emits a tap line for every tap-qualified brew" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/taps-config.toml" <<EOF
+[data]
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq", "FelixKratz/formulae/sketchybar", "steipete/tap/remindctl", "steipete/tap/second"], casks = [] } }
+EOF
+
+	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/taps-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# Without these, a cold `brew bundle` fails with "This command requires the
+	# tap ..." — the machine that already has the tap never sees it.
+	[[ "$output" == *'tap "FelixKratz/formulae"'* ]] || fail "output was: $output"
+	[[ "$output" == *'tap "steipete/tap"'* ]] || fail "output was: $output"
+
+	# A plain formula must not produce a tap line.
+	[[ "$output" != *'tap "jq"'* ]] || fail "output was: $output"
+
+	# One tap line per tap, however many formulae come from it.
+	[ "$(printf '%s\n' "$output" | grep -c '^tap "steipete/tap"$')" -eq 1 ] || fail "output was: $output"
+
+	# Taps must be declared before the formulae that need them.
+	local tap_line brew_line
+	tap_line=$(printf '%s\n' "$output" | grep -n '^tap "FelixKratz/formulae"$' | cut -d: -f1)
+	brew_line=$(printf '%s\n' "$output" | grep -n '^brew "FelixKratz/formulae/sketchybar"$' | cut -d: -f1)
+	[ -n "$tap_line" ] || fail "no tap line rendered; output was: $output"
+	[ "$tap_line" -lt "$brew_line" ] || fail "tap at line $tap_line must precede brew at line $brew_line; output was: $output"
+}
+
 @test "does not render on non-darwin systems" {
 	# Test our ACTUAL script on non-darwin systems
 	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
