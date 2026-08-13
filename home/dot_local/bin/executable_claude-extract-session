@@ -6,6 +6,14 @@
 #
 # Takes a session ID (UUID or agent-prefixed ID) and outputs the detailed
 # markdown conversation to stdout.
+#
+# claude-extract hardcodes ~/.claude/projects as its transcript source and
+# reads no environment variables, so it cannot find sessions when Claude runs
+# with CLAUDE_CONFIG_DIR pointed elsewhere (~/.claude-personal, ~/.claude-work).
+# run_extract works around that by running it under a throwaway HOME whose
+# .claude links to the active config dir — resolved per invocation, so each
+# Claude reaches only its own transcripts. Drop it if upstream ever honors
+# CLAUDE_CONFIG_DIR: https://github.com/ZeroSumQuant/claude-conversation-extractor
 
 [[ -n "${DEBUG:-}" ]] && set -o xtrace
 set -o errexit
@@ -66,6 +74,30 @@ validate_session_id() {
 	fi
 }
 
+# Run claude-extract against the active Claude config dir
+run_extract() {
+	local config_dir shim rc=0
+
+	config_dir="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}"
+
+	if [[ ! -d "${config_dir}/projects" ]]; then
+		die "no transcripts at ${config_dir}/projects (CLAUDE_CONFIG_DIR=${CLAUDE_CONFIG_DIR:-unset})"
+	fi
+
+	shim=$(mktemp -d) || die "failed to create temporary directory"
+
+	if ! ln -s "${config_dir}" "${shim}/.claude"; then
+		rm -rf -- "${shim}"
+		die "failed to link ${config_dir} into the shim home"
+	fi
+
+	# --output is passed absolute by callers, so only the input path shifts.
+	HOME="${shim}" claude-extract "$@" || rc=$?
+
+	rm -rf -- "${shim}"
+	return "${rc}"
+}
+
 # Find session number from claude-extract --list output
 find_session_number() {
 	local target_id="$1"
@@ -81,7 +113,7 @@ find_session_number() {
 	#   N. <folder>
 	#      Session: <truncated-id>...
 	local list_output
-	if ! list_output=$(claude-extract --list 2>&1); then
+	if ! list_output=$(run_extract --list 2>&1); then
 		log "claude-extract --list failed; output was:"
 		printf '%s\n' "${list_output}" >&2
 		die "failed to list sessions"
@@ -130,7 +162,7 @@ extract_session() {
 	log "extracting session #${session_number}..."
 
 	# Run claude-extract with detailed output
-	if ! claude-extract \
+	if ! run_extract \
 		--detailed \
 		--extract "${session_number}" \
 		--output "${tmpdir}" \
