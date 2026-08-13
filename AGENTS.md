@@ -29,7 +29,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | **Per-account Claude Code config (managed)** | `home/private_dot_claude-{personal,work}/` | Skills, agents, hooks, themes → `~/.claude-{account}/` via Chezmoi. Multi-account only: there is no `~/.claude`. Details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
 | **Repo-local Claude overrides** | `.claude/` (this repo only) | Hooks, extra skills—not necessarily synced to `~` |
 | **Installer** | `./install` | Chezmoi bootstrap; env vars in [README](README.md) |
-| **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS), `bin/skill-info` (inspect skill git history — see [Claude Code doc](docs/agents/claude-code.md#inspecting-skills)) |
+| **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS) |
 | **ADRs** | `docs/adrs/` | Architecture decisions index: [README](docs/adrs/README.md) |
 
 ---
