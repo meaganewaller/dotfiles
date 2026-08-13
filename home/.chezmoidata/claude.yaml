@@ -74,6 +74,7 @@ claudeData:
       - plugin-dev@claude-code-plugins
       - superpowers@superpowers-dev
       - git-workflow@meaganewaller-marketplace
+      - dotfiles@meaganewaller-marketplace
 
     mcpServers: []
 
@@ -116,8 +117,6 @@ claudeData:
 
     plugins:
       # meaganewaller-marketplace
-      - dev-collective@meaganewaller-marketplace
-      - dotfiles@meaganewaller-marketplace
       - mise@meaganewaller-marketplace
       # onlooker-community
       # - archivist@onlooker-community
