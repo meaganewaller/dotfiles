@@ -78,6 +78,9 @@ claudeData:
       - git-workflow@meaganewaller-marketplace
       - dotfiles@meaganewaller-marketplace
       - avoid-ai-writing@conorbronsdon-skills
+      # claude-plugins-official is a built-in marketplace, so it needs no
+      # marketplaces entry — only the plugin is ours to declare.
+      - typescript-lsp@claude-plugins-official
 
     mcpServers: []
 
