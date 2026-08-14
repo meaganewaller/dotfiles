@@ -68,6 +68,8 @@ claudeData:
         repo: obra/superpowers
       - name: meaganewaller-marketplace
         repo: meaganewaller/marketplace
+      - name: conorbronsdon-skills
+        repo: conorbronsdon/avoid-ai-writing
 
     plugins:
       - claude-api@anthropic-agent-skills
@@ -75,6 +77,7 @@ claudeData:
       - superpowers@superpowers-dev
       - git-workflow@meaganewaller-marketplace
       - dotfiles@meaganewaller-marketplace
+      - avoid-ai-writing@conorbronsdon-skills
 
     mcpServers: []
 
@@ -151,7 +154,7 @@ claudeData:
       - name: testdouble-skills-internal
         repo: testdouble/skills-internal
 
-    plugins: 
+    plugins:
       - han@testdouble-skills-internal
 
     mcpServers: []
