@@ -107,7 +107,7 @@ How the pieces fit together in **this** repository (not an exhaustive list of ev
 | --- | --- |
 | **Dotfile delivery** | [Chezmoi](https://chezmoi.io/) — `sourceDir` is the working tree; `home/dot_*` → `~`; `.tmpl` for Go `text/template` |
 | **Pinned CLIs & runtimes** | [mise](https://mise.jdx.dev/) — aqua / GitHub / pipx / npm / cargo backends; user tools in `home/dot_config/mise/config.toml.tmpl` |
-| **Dev-only test tools** | Root [`.mise.toml`](.mise.toml) — BATS, ShellCheck, yq, shfmt (`./bin/setup` → `mise install`) |
+| **Dev-only test tools** | Root [`mise.toml`](mise.toml) — BATS, ShellCheck, yq, shfmt (`./bin/setup` → `mise install`) |
 | **macOS system packages** | [Homebrew](https://brew.sh/) — `brew bundle` from Chezmoi-rendered data (`run_onchange_install-packages-darwin.sh.tmpl`) |
 | **Bootstrap / trust** | `./install` — prefers OS package managers, otherwise GitHub releases; optional [cosign](https://docs.sigstore.dev/cosign/overview/) verification for downloads |
 | **CI** | [GitHub Actions](https://github.com/features/actions) — ShellCheck on scripts, matrix install + [BATS](https://github.com/bats-core/bats-core) via `./bin/test`, [jdx/mise-action](https://github.com/jdx/mise-action) |
