@@ -1,0 +1,63 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+
+[ -n "${DEBUG:-}" ] && set -o xtrace
+set -o errexit
+set -o nounset
+
+# Skip on CI: Loop is a GUI app that is not installed on runners, and the
+# restart below needs a login session.
+{{ template "ci-skip-guard" "Running in CI, skipping Loop configuration" }}
+# Nothing to configure if Loop was never installed (the cask is macOS-only and
+# skipped on CI, so this is the normal state in containers too).
+if [ ! -d "/Applications/Loop.app" ]; then
+    echo "Loop not installed, skipping"
+    exit 0
+fi
+
+loop_changed=false
+
+# Trigger key(s). Loop stores these as an array of macOS virtual keycodes; the
+# read is normalized by stripping the parens, commas and whitespace `defaults`
+# prints so the comparison is a plain string.
+desired_trigger="{{ range .loop.trigger }}{{ . }}{{ end }}"
+current_trigger="$(defaults read com.MrKai77.Loop trigger 2>/dev/null | tr -d '[:space:](),' || true)"
+
+if [ "${current_trigger}" = "${desired_trigger}" ]; then
+    echo "Loop trigger already set to ${desired_trigger}, skipping"
+else
+    echo "Setting Loop trigger to ${desired_trigger}..."
+    defaults write com.MrKai77.Loop trigger -array{{ range .loop.trigger }} -int {{ . }}{{ end }}
+    loop_changed=true
+fi
+
+# Side-dependent trigger: without it, the mirrored modifier fires Loop too.
+desired_side={{ if .loop.side_dependent_trigger_key }}1{{ else }}0{{ end }}
+if [ "$(defaults read com.MrKai77.Loop sideDependentTriggerKey 2>/dev/null || echo unset)" = "${desired_side}" ]; then
+    echo "Loop sideDependentTriggerKey already ${desired_side}, skipping"
+else
+    echo "Setting Loop sideDependentTriggerKey to ${desired_side}..."
+    defaults write com.MrKai77.Loop sideDependentTriggerKey -bool {{ .loop.side_dependent_trigger_key }}
+    loop_changed=true
+fi
+
+# Double-tap vs hold to open the radial menu.
+desired_double={{ if .loop.double_click_to_trigger }}1{{ else }}0{{ end }}
+if [ "$(defaults read com.MrKai77.Loop doubleClickToTrigger 2>/dev/null || echo unset)" = "${desired_double}" ]; then
+    echo "Loop doubleClickToTrigger already ${desired_double}, skipping"
+else
+    echo "Setting Loop doubleClickToTrigger to ${desired_double}..."
+    defaults write com.MrKai77.Loop doubleClickToTrigger -bool {{ .loop.double_click_to_trigger }}
+    loop_changed=true
+fi
+
+# Loop reads its preferences at launch, so a write alone leaves the old trigger
+# live until the next login. Only restart when something actually changed, and
+# only if it is already running — starting Loop on a machine where it is
+# deliberately quit would be a surprise.
+if [ "${loop_changed}" = true ] && pgrep -xq Loop; then
+    echo "Restarting Loop so the new trigger takes effect..."
+    killall Loop || true
+    open -a Loop
+fi
+{{ end -}}

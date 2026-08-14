@@ -1,0 +1,28 @@
+# Loop — manual window snapping for floating windows (see ADR 0007).
+#
+# Only the trigger surface is pinned here. Loop owns the rest of its
+# preferences (accent colors, padding, radial menu, per-direction keybinds,
+# icon); declaring those would mean fighting the app on every in-app tweak,
+# and the color values are opaque binary plists anyway.
+#
+# `trigger` is a list of macOS virtual keycodes. Loop reads them as an array,
+# so a multi-key trigger is just more entries. Reference:
+#
+#   54  right Command      56  left Shift      59  left Control
+#   55  left Command       60  right Shift     62  right Control
+#   57  Caps Lock          58  left Option     61  right Option
+#
+# Right Option is chosen because every other candidate is spoken for:
+# left Shift (the old trigger) is Minecraft's sneak, so gameplay kept firing
+# the radial menu; Caps Lock and right Command are consumed by Karabiner
+# (→ left Control and → F18 respectively, see home/dot_config/karabiner/);
+# left Control is Minecraft's sprint. AeroSpace binds alt+<key> chords rather
+# than bare Option, so a held right Option does not collide with it.
+loop:
+  trigger: [61]
+  # Left and right of the same modifier are distinct triggers; without this,
+  # left Option would fire Loop too and re-introduce a gameplay collision.
+  side_dependent_trigger_key: true
+  # Double-tap rather than hold. Kept as-is from the previous setup so only
+  # the key changes, not the gesture.
+  double_click_to_trigger: true
