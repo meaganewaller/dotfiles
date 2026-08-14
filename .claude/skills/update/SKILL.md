@@ -131,6 +131,26 @@ git pull --rebase origin main
 If `main` is not the default remote branch name, discover with
 `git symbolic-ref refs/remotes/origin/HEAD` and use that ref instead of `main`.
 
+#### 4.1 Install the versions you just pulled
+
+A merged Renovate bump moves a pin in `mise.toml`; it does not install anything.
+Until you install, the pinned version is **missing** locally and commands quietly
+run whatever older build is still on `PATH`:
+
+```bash
+mise install
+mise ls | grep -i missing   # must be empty
+```
+
+This is not hypothetical. `pkl` drifted to a version that was never installed and
+`hk` panicked with `install pkl cli to use pkl config files` — but only from the
+Stop hook, because an interactive shell had a stale `pkl` on `PATH` and passed.
+`hk` itself then repeated the pattern after its own bump. In both cases lint was
+"green" against a binary the repo no longer asked for.
+
+Report any tool that fails to install rather than continuing silently; a missing
+pin makes every later verification in this run untrustworthy.
+
 ### 5. Rebase other local branches (if you started elsewhere)
 
 If the saved **original branch** was not `main`:
@@ -190,6 +210,7 @@ If `mise` hooks install tools and a download fails, report and continue cleanup/
 | --- | --- |
 | PRs merged | e.g. `#121`, `#122` + short titles |
 | Skipped / held | PRs with failing CI or needing Package Manager |
+| Tools | `mise install` result; any pin still reported missing |
 | Git | `main` sync, rebases, stash pop outcome |
 | Chezmoi | Applied? Drift remaining per `chezmoi status`? |
 | Push | Done / skipped (`--push` / not) |

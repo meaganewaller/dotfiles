@@ -5,13 +5,13 @@
 "aqua:gitleaks/gitleaks" = "v8.30.1"
 "aqua:koalaman/shellcheck" = "v0.11.0"
 "aqua:mikefarah/yq" = "v4.53.3"
-"aqua:suzuki-shunsuke/ghalint" = "latest"
+"aqua:suzuki-shunsuke/ghalint" = "1.5.6"
 hk = "1.55.0"
-jq = "latest"
-"npm:markdownlint-cli" = "latest"
+jq = "1.8.2"
+"npm:markdownlint-cli" = "0.49.1"
 pkl = "0.32.1"
-shfmt = "latest"
-stylua = "latest"
+shfmt = "3.13.1"
+stylua = "2.5.2"
 
 [tasks.lint]
 description = "Lint and auto-fix"
