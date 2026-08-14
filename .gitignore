@@ -9,3 +9,6 @@ home/dot_claude/skills/skill-optimization-workspace/
 *.db
 .beads-credential-key
 .beads/proxieddb/
+# Transient lock bd leaves in the worktree root; shows up as an untracked file
+# after any bd command and is never worth committing.
+.beads.gate.lock
