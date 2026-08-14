@@ -26,7 +26,6 @@ The sync scripts detect which account directories exist and apply config to each
 ```
 home/private_dot_claude-personal/  # → ~/.claude-personal/
 ├── CLAUDE.md                      # Global Claude Code memory (precedence: project > this > external)
-├── skills/                        # User-invokable slash commands; one subdir per skill
 ├── agents/                        # Subagents callable via the Agent tool; one .md per agent
 ├── hooks/                         # PreToolUse / PostToolUse shell scripts (executable_* prefix)
 └── powerline/                     # Status-line themes (catppuccin variants + shared)
@@ -59,7 +58,7 @@ Registration is now a single data row in every case:
 
 | Change | Content edit | Wiring edit also required? |
 | --- | --- | --- |
-| New skill (`home/private_dot_claude-{account}/skills/<name>/SKILL.md`) | yes | no — Claude Code auto-discovers from `~/.claude-{account}/skills/` |
+| New skill | not here — add it to a plugin in the marketplace repo | **yes** — declare that plugin in `claude.yaml` (see [Skills](#skills)) |
 | New subagent (`home/private_dot_claude-{account}/agents/<name>.md`) | yes | no — auto-discovered from `~/.claude-{account}/agents/` |
 | New hook (`home/private_dot_claude-{account}/hooks/executable_<name>.sh`) | yes | **yes** — one row under `claudeData.{scope}.hooks` in `claude.yaml`, or the hook is on disk but never fires |
 | New permission pattern (allowing a new tool/command) | n/a | **yes** — one row in `home/.chezmoidata/claude-permissions.yaml` |
@@ -105,56 +104,22 @@ bash /tmp/modify.sh </dev/null | jq .
 
 Rule of thumb: if the human types it, it's a skill. If the main agent farms it out, it's a subagent.
 
-## Skills inventory
+## Skills
 
-Each entry is a directory at `home/private_dot_claude-personal/skills/<name>/` containing a `SKILL.md` with YAML frontmatter:
+**This repository ships no skills.** They arrive as plugins from marketplaces, declared in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) and reconciled into Claude Code's own plugin store by [`bin/sync-claude-extras`](../../bin/sync-claude-extras). `~/.claude-{account}/skills/` is empty on purpose; nothing under `home/private_dot_claude-{account}/` carries a `skills/` directory.
 
-```yaml
----
-name: <invocation>            # how the user types it (without the leading `/`)
-description: <one-liner>      # used for skill matching
-argument-hint: "[args]"       # shown in help; optional
-allowed-tools:                # tool allowlist for the skill's runtime
-  - Bash(git status:*)
-model: opus                   # optional model override
----
-```
+That is a deliberate move away from hand-managed skill directories. A skill in a plugin is versioned, shared across accounts by declaring one plugin, and updated by bumping the plugin — none of which a loose `SKILL.md` in `~` offers.
 
-Current skills:
+Where the skills at a `/name` prompt come from:
 
-| Skill | One-liner |
-| --- | --- |
-| `1password` | 1Password CLI sign-in, desktop integration, and secret injection |
-| `adr` | Thought partner for writing Architecture Decision Records |
-| `agent-browser` | Browser automation CLI for agents (prefer over built-in browser tools) |
-| `agents-md` | Bootstrap or update `AGENTS.md` for coding agents |
-| `apple-notes` | Apple Notes via memo CLI (create, view, edit, delete, search, export) |
-| `apple-reminders` | Apple Reminders via remindctl (list, add, edit, complete, delete) |
-| `babysit-pr` | Monitor open PRs toward merge (CI, reviews, conflicts); pairs with `/loop` |
-| `behavior-audit` | Compliance audit for skills, `AGENTS.md`, and hooks via scenario testing |
-| `bk` | Buildkite CI helpers |
-| `commit` | Conventional commits with intentional file selection |
-| `copy` | Clipboard helper |
-| `diff-explain` | Explain a diff in plain English (staged, commits, branches, PRs) |
-| `doc` | Diátaxis-aware documentation writing |
-| `export-log` / `share-log` | Export / share the current session log |
-| `gfm` | GitHub-flavored Markdown helpers |
-| `gitingest` | Pull a git repo's structure into context |
-| `hk` | hk (Pkl-based lint manager) helpers |
-| `install-tool` | Tool installation via mise (matches the `/install` policy) |
-| `jira-integration` | Jira tickets via MCP or REST (fetch, update, comment, transition) |
-| `mob` | Mob programming helpers |
-| `pr` | Open a pull request (opens browser for final review) |
-| `pr-review` | Inline PR review comments and thread replies via `gh` and GraphQL |
-| `search-first` | Research-before-coding; search tools, libraries, and patterns before custom code |
-| `share-plan` | Post an implementation plan to a GitHub issue |
-| `split-pr` | Suggest how to split current changes into smaller, reviewable PRs |
-| `tailwind-design-system` | Production Tailwind design systems (tokens, components, accessibility) |
-| `think` | Trade-off analysis aligned against vision / core principles |
-| `write-skill` | Author or tune a new skill |
-| `write-subagent` | Author or tune a new subagent |
+| Source | Declared in | Example |
+| --- | --- | --- |
+| Marketplace plugin | `claude.yaml` under `marketplaces` + `plugins` | `commit`, `pr`, `split-pr` from `git-workflow@meaganewaller-marketplace` |
+| Repo-local | `.claude/skills/` in this working tree | `agents-local-md`, `install`, `nvim`, `update` |
 
-**First-party vs. external:** every skill above lives in source under `home/dot_claude/skills/`, so all are first-party to this repo. There is no external skill marketplace synced into this tree today; plugin marketplaces and plugins are declared in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) and reconciled into Claude Code's own plugin store by `bin/sync-claude-extras` (see "Claude extras" below), not into `home/dot_claude/skills/`.
+Repo-local skills stay repo-local by design: they assume this working tree, so they are never synced to `~`.
+
+To add a skill, add it to a plugin in the marketplace repository and declare that plugin in `claude.yaml` — not to `home/private_dot_claude-{account}/`. To make one available only inside this repo, put it in `.claude/skills/`.
 
 ## Subagents inventory
 
@@ -271,13 +236,22 @@ This is the one part of `settings.json` that cannot be data: the IDs are only kn
 
 ## Adding a skill
 
-```bash
-mkdir -p home/private_dot_claude-personal/skills/<name>
-$EDITOR home/private_dot_claude-personal/skills/<name>/SKILL.md   # add frontmatter + body
-chezmoi diff && chezmoi apply
+Skills are not added to this repository. Add the skill to a plugin in the marketplace repo, then declare that plugin here:
+
+```yaml
+# home/.chezmoidata/claude.yaml — under the scope that should get it
+plugins:
+  - <plugin>@meaganewaller-marketplace
 ```
 
-Then `/<name>` in any Claude Code session (will be available in personal account; symlink or copy to work account if needed).
+```bash
+chezmoi diff && chezmoi apply   # renders the data
+bin/sync-claude-extras --check  # shows what the claude CLI would install
+```
+
+Declaring the plugin under `shared` reaches every account at once, which is the main reason this beats a per-account `SKILL.md`: one row, both accounts, versioned upstream.
+
+For a skill that only makes sense inside this working tree, put it in `.claude/skills/<name>/SKILL.md` instead — those are never synced to `~`.
 
 ## Adding a subagent
 
