@@ -18,13 +18,20 @@ home/dot_config/fish/
 │   ├── fisher.fish               # Vendored fisher plugin manager (function file)
 │   └── fish_greeting.fish        # Greeting hook
 └── conf.d/
-    ├── __homebrew.fish           # Homebrew env (loads first; double-underscore prefix)
+    ├── 00-homebrew.fish          # Homebrew env (numeric prefix so it loads first)
+    ├── 10-claude.fish.tmpl       # Claude Code account dispatch (chezmoi-templated)
     ├── editor.fish               # $EDITOR resolution per terminal context
     ├── fnox.fish                 # fnox secret-manager activation
     └── starship-init.fish        # Prompt
 ```
 
-`config.fish.tmpl` is a [chezmoi template](agents/chezmoi.md) — the `.tmpl` extension causes chezmoi to render Go `text/template` directives at apply time. Everything under `conf.d/` and `functions/` is plain fish that chezmoi copies through unchanged.
+Files ending in `.tmpl` are [chezmoi templates](agents/chezmoi.md) — the extension causes chezmoi to render Go `text/template` directives at apply time and drop the suffix from the target name. Everything else under `conf.d/` and `functions/` is plain fish that chezmoi copies through unchanged.
+
+## Claude Code account dispatch (`conf.d/10-claude.fish.tmpl`)
+
+There is no bare `claude` command in any shell here — it is redefined to print the account list and exit non-zero, and you call `claude-personal` or `claude-work` instead. The fish file is a twin of the POSIX one zsh and bash share (`~/.config/shell/claude.sh`); both render their wrapper list from the same `claudeData` keys in `home/.chezmoidata/claude.yaml`, so the three shells cannot drift on *which* accounts exist. Rationale and the full behavior contract: [docs/agents/claude-code.md](agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell).
+
+Fish cannot source POSIX shell, which is why this logic is duplicated rather than shared. Change both files together; [`test/claude-shell-dispatch.bats`](../test/claude-shell-dispatch.bats) runs the same behavioral assertions against zsh, bash, and fish and will fail if only one side moves.
 
 ## Top-level config (`config.fish.tmpl`)
 

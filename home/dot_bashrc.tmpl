@@ -1,0 +1,36 @@
+{{- /*
+     Minimal bash profile. Bash is not the daily driver here (zsh is, with fish
+     as the alternative) -- this file exists so that the Claude Code account
+     guard holds in a bash shell too, instead of a bare `claude` working there
+     and nowhere else. Keep it small; put real shell config in dot_zshrc.tmpl.
+*/ -}}
+# ~/.bashrc -- interactive bash. Managed by chezmoi (home/dot_bashrc.tmpl).
+
+# XDG base directories, mirroring ~/.zshenv. Bash has no zshenv equivalent, so
+# they are set here rather than assumed.
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+case ":$PATH:" in
+*":$HOME/.local/bin:"*) ;;
+*) [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+
+# Mise shims, matching ~/.zshenv. https://mise.jdx.dev/cli/activate.html#shims
+case ":$PATH:" in
+*":$HOME/.local/share/mise/shims:"*) ;;
+*) [ -d "$HOME/.local/share/mise/shims" ] && export PATH="$HOME/.local/share/mise/shims:$PATH" ;;
+esac
+
+# Claude Code: `claude-personal` / `claude-work`, and no bare `claude`. Same
+# file ~/.zshrc sources, rendered from home/dot_config/shell/claude.sh.tmpl.
+if [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh" ]; then
+	. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh"
+fi
+
+# Source machine-local overrides last, as ~/.zshenv does for zsh.
+if [ -r "$HOME/.bashrc.local" ]; then
+	. "$HOME/.bashrc.local"
+fi

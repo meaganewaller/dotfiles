@@ -12,12 +12,30 @@ This dotfiles repo supports multiple Claude Code accounts (personal, work, etc.)
 | **Account-specific extras** (marketplaces, plugins, MCP servers) | `home/.chezmoidata/claude.yaml` with `shared` / `personal` / `work` keys | `bin/sync-claude-extras` reconciles to each account | Additive; shared items go to all accounts |
 | **Account-specific settings** (permissions, hooks, env, feature flags) | `home/.chezmoidata/claude.yaml` + `claude-permissions.yaml`, same `shared` / `personal` / `work` keys | rendered into each account's `settings.json` by its `modify_private_settings.json.tmpl` | `shared` applies everywhere; `{account}` layers on top |
 
-Shell aliases distinguish accounts at CLI time:
+### No bare `claude` — pick an account at the shell
 
-```bash
-alias claude-personal='claude --config ~/.claude-personal'
-alias claude-work='claude --config ~/.claude-work'
+Multi-account means there is no `~/.claude`, but the CLI happily creates one when `CLAUDE_CONFIG_DIR` is unset. A bare `claude` would therefore start a session with neither account's settings, plugins, or MCP servers, in a directory nothing here manages. So every interactive shell defines `claude-<account>` wrappers and redefines `claude` itself to print the account list and exit non-zero:
+
+```console
+$ claude
+claude: pick an account -- claude-personal, claude-work
+$ echo $?
+1
 ```
+
+| Shell | File | Source |
+| --- | --- | --- |
+| zsh, bash | `~/.config/shell/claude.sh`, sourced by both rc files | [`home/dot_config/shell/claude.sh.tmpl`](../../home/dot_config/shell/claude.sh.tmpl) |
+| fish | `~/.config/fish/conf.d/10-claude.fish` | [`home/dot_config/fish/conf.d/10-claude.fish.tmpl`](../../home/dot_config/fish/conf.d/10-claude.fish.tmpl) |
+
+Fish cannot source POSIX shell, so the logic exists twice — but both files render the wrapper list from the same `claudeData` keys in `home/.chezmoidata/claude.yaml` (every key except `shared`), so adding a third account there gets wrappers in all three shells with no further edits. Behavior is identical across the three, and [`test/claude-shell-dispatch.bats`](../../test/claude-shell-dispatch.bats) asserts that against all of them.
+
+Each wrapper sets `CLAUDE_CONFIG_DIR` and folds in two things that used to live inline in `dot_zshrc.tmpl`:
+
+- **`--add-dir ~/src` on session launches only.** The flag is variadic, so injecting it unconditionally makes `claude mcp add name cmd` become `claude --add-dir ~/src mcp add name cmd`, where `--add-dir` eats `mcp add name cmd` as more directories and the subcommand never runs. Management subcommands are passed through untouched.
+- **`claude-chill`, when installed**, wraps the real binary — resolved at call time rather than at chezmoi render time, so installing it later does not need a re-apply.
+
+Two deliberate holes, both unaffected by the guard because they run outside an interactive shell: non-interactive scripts (`bin/sync-claude-extras` sets `CLAUDE_CONFIG_DIR` itself for every call), and `command claude`, which bypasses the function by design.
 
 The sync scripts detect which account directories exist and apply config to each.
 

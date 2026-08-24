@@ -1,0 +1,9 @@
+# ~/.bash_profile -- login bash. Managed by chezmoi (home/dot_bash_profile).
+#
+# Bash reads this for login shells and ~/.bashrc for interactive non-login ones,
+# and on macOS every Terminal tab is a login shell. Chaining the two keeps one
+# source of truth in ~/.bashrc -- notably the Claude Code account guard, which
+# would otherwise be missing from exactly the shells you actually type in.
+if [ -r "$HOME/.bashrc" ]; then
+	. "$HOME/.bashrc"
+fi

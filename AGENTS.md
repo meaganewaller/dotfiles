@@ -28,6 +28,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | **Chezmoi externals** | `home/.chezmoiexternals/` | Third-party snippets; Renovate-sensitive |
 | **Per-account Claude Code config (managed)** | `home/private_dot_claude-{personal,work}/` | Skills, agents, hooks, themes → `~/.claude-{account}/` via Chezmoi. Multi-account only: there is no `~/.claude`. Details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
 | **Repo-local Claude overrides** | `.claude/` (this repo only) | Hooks, extra skills—not necessarily synced to `~` |
+| **Shells** | `home/dot_zshrc.tmpl`, `home/dot_bashrc.tmpl`, `home/dot_config/fish/` | zsh primary, fish alternative, bash minimal. Claude Code account dispatch (`claude-personal` / `claude-work`, no bare `claude`) is shared by zsh+bash via `home/dot_config/shell/claude.sh.tmpl`, twinned for fish in `conf.d/10-claude.fish.tmpl` |
 | **Installer** | `./install` | Chezmoi bootstrap; env vars in [README](README.md) |
 | **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS) |
 | **ADRs** | `docs/adrs/` | Architecture decisions index: [README](docs/adrs/README.md) |
@@ -41,6 +42,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | Edit / apply dotfiles | [docs/agents/chezmoi.md](docs/agents/chezmoi.md) |
 | Pins, Renovate, digests | [docs/renovate.md](docs/renovate.md), [docs/package-management.md](docs/package-management.md) |
 | Shell, agent-minimal zsh | [docs/zsh.md](docs/zsh.md) |
+| Why `claude` is not a command | [docs/agents/claude-code.md](docs/agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell) |
 | Fish shell (alternative) | [docs/fish.md](docs/fish.md) |
 | Install / env vars | [README.md](README.md) |
 | Add a CLI with correct pins | `/install` skill; then Chezmoi workflow above |
