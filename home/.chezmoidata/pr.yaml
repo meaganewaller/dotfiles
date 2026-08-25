@@ -18,6 +18,7 @@
 # shim at `chezmoi apply` time. Edit here, never the generated script.
 pr:
   gist_remote_blocklist:
+    - "*github.com/gifthealth/*"
     - "*github.com/gusto/*"
     - "*github.com/testdouble/*"
     - "*github.com/testdoublelabs/*"
