@@ -45,6 +45,16 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+      # test/claude-shell-dispatch.bats runs the no-bare-`claude` account guard
+      # through all three shells it ships for. The ubuntu-24.04 image stopped
+      # shipping zsh and never shipped fish, so without this the guard is only
+      # ever exercised under bash on the fast path. The tests degrade to the
+      # shells present rather than failing, which is exactly why a missing shell
+      # would otherwise go unnoticed here.
+      - name: Install dispatch shells
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends zsh fish
       - name: Bootstrap (cached)
         uses: ./.github/actions/bootstrap-dotfiles
         with:

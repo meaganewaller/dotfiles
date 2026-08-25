@@ -37,12 +37,31 @@ EOF
 	chmod +x "$TEST_TMPDIR/bin/claude"
 }
 
+# Sets DISPATCH_SHELLS to the installed subset of zsh/bash/fish.
+#
+# run_in used to `skip` when a shell was missing, which aborts the *whole* test
+# on the first one -- so a runner image without zsh silently stopped testing
+# bash and fish too, while still reporting "ok ... # skip". Filtering up front
+# means a missing shell costs coverage for that shell only.
+set_dispatch_shells() {
+	DISPATCH_SHELLS=()
+	local candidate
+	for candidate in zsh bash fish; do
+		command -v "$candidate" >/dev/null 2>&1 && DISPATCH_SHELLS+=("$candidate")
+	done
+	# bash is the floor. Without it every loop below would iterate zero times
+	# and the tests would pass vacuously, which is worse than failing.
+	[[ " ${DISPATCH_SHELLS[*]} " == *" bash "* ]] ||
+		fail "no dispatch shell installed (need at least bash)"
+}
+
 # run_in <zsh|bash|fish> <snippet> -- snippet runs with the dispatch file
 # sourced, $HOME pointed at the test home, and only the fake claude on PATH.
 run_in() {
 	local shell="$1" snippet="$2"
 	local shell_bin
-	shell_bin="$(command -v "$shell")" || skip "$shell not installed"
+	shell_bin="$(command -v "$shell")" ||
+		fail "$shell vanished between detection and use"
 
 	case "$shell" in
 	zsh) run env HOME="$TEST_HOME_DIR" PATH="$TEST_TMPDIR/bin:/usr/bin:/bin" \
@@ -57,11 +76,17 @@ run_in() {
 @test "rendered POSIX dispatch is valid in both zsh and bash" {
 	render_dispatch
 
-	run zsh -n "$TEST_TMPDIR/claude.sh"
-	[ "$status" -eq 0 ] || fail "zsh rejected claude.sh: $output"
-
+	# bash first, and unguarded: it is the one shell every runner has, so it is
+	# asserted before any skip can short-circuit the rest of the test.
 	run bash -n "$TEST_TMPDIR/claude.sh"
 	[ "$status" -eq 0 ] || fail "bash rejected claude.sh: $output"
+
+	# zsh is not universal any more -- the ubuntu-24.04 runner image dropped it,
+	# which turned this into a hard CI failure. Treat its absence as reduced
+	# coverage: the Docker job and the macOS cold-start leg both still have zsh.
+	command -v zsh >/dev/null 2>&1 || skip "zsh not installed"
+	run zsh -n "$TEST_TMPDIR/claude.sh"
+	[ "$status" -eq 0 ] || fail "zsh rejected claude.sh: $output"
 }
 
 @test "every account in claudeData gets a wrapper, and shared does not" {
@@ -87,7 +112,8 @@ run_in() {
 	render_dispatch
 
 	local shell
-	for shell in zsh bash fish; do
+	set_dispatch_shells
+	for shell in "${DISPATCH_SHELLS[@]}"; do
 		run_in "$shell" "claude-personal"
 		[ "$status" -eq 0 ] || fail "$shell: status=$status output=$output"
 		[[ "$output" == *"DIR=$TEST_HOME_DIR/.claude-personal"* ]] ||
@@ -107,7 +133,8 @@ run_in() {
 	# --add-dir is variadic: injected here it would swallow `add x y` as more
 	# directories and `mcp add` would never run.
 	local shell
-	for shell in zsh bash fish; do
+	set_dispatch_shells
+	for shell in "${DISPATCH_SHELLS[@]}"; do
 		run_in "$shell" "claude-personal mcp add name cmd"
 		[ "$status" -eq 0 ] || fail "$shell: status=$status output=$output"
 		[[ "$output" == *"ARGS=mcp add name cmd"* ]] ||
@@ -120,7 +147,8 @@ run_in() {
 	render_dispatch
 
 	local shell
-	for shell in zsh bash fish; do
+	set_dispatch_shells
+	for shell in "${DISPATCH_SHELLS[@]}"; do
 		run_in "$shell" "claude"
 		[ "$status" -ne 0 ] || fail "$shell let a bare claude succeed: $output"
 		[[ "$output" == *"claude-personal"* ]] ||
