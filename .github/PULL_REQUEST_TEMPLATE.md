@@ -20,7 +20,7 @@ Thanks for opening a PR. Quick orientation:
 - [ ] Docs (`docs/`, `README.md`, `AGENTS.md`)
 - [ ] CI / GitHub Actions (`.github/workflows/`)
 - [ ] Pinned manifests / Renovate (mise, chezmoi externals, brew bundle, GHA digests)
-- [ ] Claude Code config (`home/private_dot_claude-{personal,work}/`, `home/.chezmoidata/claude.yaml` — skills, agents, hooks)
+- [ ] Claude Code config (`home/private_dot_claude-{account}/`, `home/.chezmoidata/claude.yaml` — skills, agents, hooks)
 - [ ] Repo tooling (`bin/`, `test/`, `hk.pkl`, `mise.toml`)
 - [ ] Other: <!-- describe -->
 
