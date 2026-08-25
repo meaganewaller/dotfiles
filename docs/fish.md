@@ -29,7 +29,7 @@ Files ending in `.tmpl` are [chezmoi templates](agents/chezmoi.md) — the exten
 
 ## Claude Code account dispatch (`conf.d/10-claude.fish.tmpl`)
 
-There is no bare `claude` command in any shell here — it is redefined to print the account list and exit non-zero, and you call `claude-personal` or `claude-work` instead. The fish file is a twin of the POSIX one zsh and bash share (`~/.config/shell/claude.sh`); both render their wrapper list from the same `claudeData` keys in `home/.chezmoidata/claude.yaml`, so the three shells cannot drift on *which* accounts exist. Rationale and the full behavior contract: [docs/agents/claude-code.md](agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell).
+There is no bare `claude` command in any shell here — it is redefined to print the account list and exit non-zero, and you call `claude-personal`, `claude-work`, or a client wrapper such as `claude-gifthealth` instead. The fish file is a twin of the POSIX one zsh and bash share (`~/.config/shell/claude.sh`); both render their wrapper list from the same `claudeData` keys in `home/.chezmoidata/claude.yaml`, so the three shells cannot drift on *which* accounts exist. Rationale and the full behavior contract: [docs/agents/claude-code.md](agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell).
 
 Fish cannot source POSIX shell, which is why this logic is duplicated rather than shared. Change both files together; [`test/claude-shell-dispatch.bats`](../test/claude-shell-dispatch.bats) runs the same behavioral assertions against zsh, bash, and fish and will fail if only one side moves.
 

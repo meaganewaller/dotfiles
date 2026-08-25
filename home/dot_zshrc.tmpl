@@ -243,7 +243,7 @@ alias {{ if hasKey . "alias" }}{{ .alias }}{{ else }}{{ .tool }}{{ end }}='{{ .e
 alias mise='GITHUB_TOKEN="$(gh auth token)" command mise'
 {{- end }}
 
-# Claude Code: `claude-personal` / `claude-work`, and no bare `claude`. The
+# Claude Code: one `claude-<account>` per account, and no bare `claude`. The
 # wrappers (and the --add-dir ~/src handling that used to live inline here) are
 # in a POSIX file shared with ~/.bashrc, rendered from
 # home/dot_config/shell/claude.sh.tmpl. Sourced outside the agent-shell branch

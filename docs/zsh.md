@@ -28,7 +28,7 @@ The zsh configuration is split across two files:
 
 One piece is sourced rather than inlined:
 
-- `home/dot_config/shell/claude.sh.tmpl` → `~/.config/shell/claude.sh` - Claude Code account dispatch, shared verbatim with `~/.bashrc`. It defines `claude-personal` / `claude-work` and redefines `claude` to refuse to run, since this setup is multi-account only and a bare `claude` would create an unmanaged `~/.claude`. `dot_zshrc.tmpl` sources it *outside* the agent-shell branch below — an agent shell needs the account guard as much as a human one. See [docs/agents/claude-code.md](agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell).
+- `home/dot_config/shell/claude.sh.tmpl` → `~/.config/shell/claude.sh` - Claude Code account dispatch, shared verbatim with `~/.bashrc`. It defines one `claude-<account>` wrapper per account declared in `home/.chezmoidata/claude.yaml` (`claude-personal`, `claude-work`, and one per consulting client) and redefines `claude` to refuse to run, since this setup is multi-account only and a bare `claude` would create an unmanaged `~/.claude`. `dot_zshrc.tmpl` sources it *outside* the agent-shell branch below — an agent shell needs the account guard as much as a human one. See [docs/agents/claude-code.md](agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell).
 
 ## Environment Setup (dot_zshenv)
 

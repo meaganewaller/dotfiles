@@ -9,7 +9,7 @@
 #
 # claude-extract hardcodes ~/.claude/projects as its transcript source and
 # reads no environment variables, so it cannot find sessions when Claude runs
-# with CLAUDE_CONFIG_DIR pointed elsewhere (~/.claude-personal, ~/.claude-work).
+# with CLAUDE_CONFIG_DIR pointed elsewhere (~/.claude-personal, ~/.claude-work, …).
 # run_extract works around that by running it under a throwaway HOME whose
 # .claude links to the active config dir — resolved per invocation, so each
 # Claude reaches only its own transcripts. Drop it if upstream ever honors

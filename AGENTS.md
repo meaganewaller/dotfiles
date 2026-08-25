@@ -26,11 +26,11 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | **Chezmoi source** | `home/` | `dot_*` → `~`; templates `.tmpl`; `run_onchange_*`; [detail](docs/agents/chezmoi.md) |
 | **Template / package data** | `home/.chezmoidata/` | Brew lists, aliases, etc. consumed by templates |
 | **Chezmoi externals** | `home/.chezmoiexternals/` | Third-party snippets; Renovate-sensitive |
-| **Per-account Claude Code config (managed)** | `home/private_dot_claude-{personal,work}/` | Skills, agents, hooks, themes → `~/.claude-{account}/` via Chezmoi. Multi-account only: there is no `~/.claude`. Details in [docs/agents/claude-code.md](docs/agents/claude-code.md) |
+| **Per-account Claude Code config (managed)** | `home/private_dot_claude-{account}/` | One dir per account (`personal`, `work`, one per consulting client) → `~/.claude-{account}/` via Chezmoi. Multi-account only: there is no `~/.claude`. Add / remove an account with the [lifecycle recipes](docs/agents/claude-code.md#account-lifecycle) — never by hand, or the sync scripts keep reconciling the leftovers |
 | **Repo-local Claude overrides** | `.claude/` (this repo only) | Hooks, extra skills—not necessarily synced to `~` |
-| **Shells** | `home/dot_zshrc.tmpl`, `home/dot_bashrc.tmpl`, `home/dot_config/fish/` | zsh primary, fish alternative, bash minimal. Claude Code account dispatch (`claude-personal` / `claude-work`, no bare `claude`) is shared by zsh+bash via `home/dot_config/shell/claude.sh.tmpl`, twinned for fish in `conf.d/10-claude.fish.tmpl` |
+| **Shells** | `home/dot_zshrc.tmpl`, `home/dot_bashrc.tmpl`, `home/dot_config/fish/` | zsh primary, fish alternative, bash minimal. Claude Code account dispatch (one `claude-<account>` per account, no bare `claude`) is shared by zsh+bash via `home/dot_config/shell/claude.sh.tmpl`, twinned for fish in `conf.d/10-claude.fish.tmpl` |
 | **Installer** | `./install` | Chezmoi bootstrap; env vars in [README](README.md) |
-| **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS) |
+| **Dev scripts** | `bin/` | `bin/setup` (mise dev tools), `bin/test` (BATS), `bin/remove-claude-account` (tear down one Claude account) |
 | **ADRs** | `docs/adrs/` | Architecture decisions index: [README](docs/adrs/README.md) |
 
 ---
