@@ -24,7 +24,7 @@ case ":$PATH:" in
 *) [ -d "$HOME/.local/share/mise/shims" ] && export PATH="$HOME/.local/share/mise/shims:$PATH" ;;
 esac
 
-# Claude Code: `claude-personal` / `claude-work`, and no bare `claude`. Same
+# Claude Code: one `claude-<account>` per account, and no bare `claude`. Same
 # file ~/.zshrc sources, rendered from home/dot_config/shell/claude.sh.tmpl.
 if [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh" ]; then
 	. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh"

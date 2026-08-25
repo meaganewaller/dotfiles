@@ -4,13 +4,13 @@ This document covers the **global Claude Code configuration** that chezmoi syncs
 
 ## Multi-account support
 
-This dotfiles repo supports multiple Claude Code accounts (personal, work, etc.) on one machine. Configuration is split as follows:
+This dotfiles repo supports multiple Claude Code accounts on one machine. Today that is `personal`, `work` (TestDouble), and one account per consulting client (`gifthealth`) — but nothing is hardcoded to that list: every account is a key under `claudeData` in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml), and shells, sync scripts, and tests all derive themselves from it. See [Account lifecycle](#account-lifecycle) to add or remove one. Configuration is split as follows:
 
 | Asset | Location | Deployed to | Notes |
 | --- | --- | --- | --- |
 | **Shared** (hooks, skills, agents, themes) | `home/private_dot_claude-personal/` | `~/.claude-personal/` | Personal account only; work account pulls shared assets via symlinks or separate copy |
-| **Account-specific extras** (marketplaces, plugins, MCP servers) | `home/.chezmoidata/claude.yaml` with `shared` / `personal` / `work` keys | `bin/sync-claude-extras` reconciles to each account | Additive; shared items go to all accounts |
-| **Account-specific settings** (permissions, hooks, env, feature flags) | `home/.chezmoidata/claude.yaml` + `claude-permissions.yaml`, same `shared` / `personal` / `work` keys | rendered into each account's `settings.json` by its `modify_private_settings.json.tmpl` | `shared` applies everywhere; `{account}` layers on top |
+| **Account-specific extras** (marketplaces, plugins, MCP servers) | `home/.chezmoidata/claude.yaml`, under `shared` or an account key | `bin/sync-claude-extras` reconciles to each account | Additive; shared items go to all accounts |
+| **Account-specific settings** (permissions, hooks, env, feature flags) | `home/.chezmoidata/claude.yaml` + `claude-permissions.yaml`, same keys | rendered into each account's `settings.json` by its `modify_private_settings.json.tmpl` | `shared` applies everywhere; `{account}` layers on top |
 
 ### No bare `claude` — pick an account at the shell
 
@@ -18,7 +18,7 @@ Multi-account means there is no `~/.claude`, but the CLI happily creates one whe
 
 ```console
 $ claude
-claude: pick an account -- claude-personal, claude-work
+claude: pick an account -- claude-gifthealth, claude-personal, claude-work
 $ echo $?
 1
 ```
@@ -28,7 +28,7 @@ $ echo $?
 | zsh, bash | `~/.config/shell/claude.sh`, sourced by both rc files | [`home/dot_config/shell/claude.sh.tmpl`](../../home/dot_config/shell/claude.sh.tmpl) |
 | fish | `~/.config/fish/conf.d/10-claude.fish` | [`home/dot_config/fish/conf.d/10-claude.fish.tmpl`](../../home/dot_config/fish/conf.d/10-claude.fish.tmpl) |
 
-Fish cannot source POSIX shell, so the logic exists twice — but both files render the wrapper list from the same `claudeData` keys in `home/.chezmoidata/claude.yaml` (every key except `shared`), so adding a third account there gets wrappers in all three shells with no further edits. Behavior is identical across the three, and [`test/claude-shell-dispatch.bats`](../../test/claude-shell-dispatch.bats) asserts that against all of them.
+Fish cannot source POSIX shell, so the logic exists twice — but both files render the wrapper list from the same `claudeData` keys in `home/.chezmoidata/claude.yaml` (every key except `shared`), so adding an account there gets wrappers in all three shells with no further edits. Behavior is identical across the three, and [`test/claude-shell-dispatch.bats`](../../test/claude-shell-dispatch.bats) asserts that against all of them.
 
 Each wrapper sets `CLAUDE_CONFIG_DIR` and folds in two things that used to live inline in `dot_zshrc.tmpl`:
 
@@ -38,6 +38,75 @@ Each wrapper sets `CLAUDE_CONFIG_DIR` and folds in two things that used to live 
 Two deliberate holes, both unaffected by the guard because they run outside an interactive shell: non-interactive scripts (`bin/sync-claude-extras` sets `CLAUDE_CONFIG_DIR` itself for every call), and `command claude`, which bypasses the function by design.
 
 The sync scripts detect which account directories exist and apply config to each.
+
+## Account lifecycle
+
+An account is three things. Creating or deleting only some of them leaves the setup lying to itself, so both directions are written down here.
+
+| Part | Where |
+| --- | --- |
+| Declared config | `claudeData.<account>` in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) |
+| Chezmoi source dir | `home/private_dot_claude-<account>/` |
+| The live account | `~/.claude-<account>/` — created by `chezmoi apply`, then filled with session history and credentials by Claude Code itself |
+
+Everything else derives from those: the `claude-<account>` shell wrappers, [`bin/sync-claude-extras`](../../bin/sync-claude-extras), [`bin/sync-claude-settings`](../../bin/sync-claude-settings), and the test suites all read the data file or glob `~/.claude-*/` rather than carrying a list.
+
+### Adding an account
+
+Consulting engagements get their own account named after the client, so the shell command says which engagement you are in and credentials, history, and MCP servers never mix with `work`. Three steps:
+
+```bash
+# 1. Declare it. Empty maps/lists mean "inherit `shared` and nothing else".
+$EDITOR home/.chezmoidata/claude.yaml
+```
+
+```yaml
+  # ── Client account: Acme (~/.claude-acme) ───────────────────────────────────
+  acme:
+    settings: {}
+    env: {}
+    hooks: []          # hook scripts live under private_dot_claude-personal/;
+    marketplaces: []   # declaring one here means shipping it under this
+    plugins: []        # account's source dir too
+    mcpServers: []
+```
+
+```bash
+# 2. Give it a source dir. Both files are the work account's, with the account
+#    name swapped in the `claude-settings` template call.
+mkdir -p home/private_dot_claude-acme
+sed 's/"account" "work"/"account" "acme"/' \
+  home/private_dot_claude-work/modify_private_settings.json.tmpl \
+  >home/private_dot_claude-acme/modify_private_settings.json.tmpl
+cp home/private_dot_claude-work/private_CLAUDE.md.tmpl home/private_dot_claude-acme/
+
+# 3. Apply, then authenticate the new account once.
+chezmoi diff && chezmoi apply
+./bin/test                      # the suites pick the account up from the data
+exec $SHELL                     # claude-acme exists in the new shell
+claude-acme                     # log in as the client account
+```
+
+Nothing else needs editing. `claude-acme` appears in zsh, bash, and fish; both sync scripts find `~/.claude-acme`; and [`test/claude-shell-dispatch.bats`](../../test/claude-shell-dispatch.bats) and [`test/claude-settings-template.bats`](../../test/claude-settings-template.bats) both enumerate accounts from `claude.yaml`, so a declared account with no source dir fails the suite instead of silently never rendering.
+
+### Removing an account
+
+When an engagement ends, use [`bin/remove-claude-account`](../../bin/remove-claude-account) rather than deleting things by hand — a leftover `~/.claude-<account>` is invisible in `git status` but keeps getting reconciled by both sync scripts forever, re-installing every `shared` marketplace on each `chezmoi apply`.
+
+```bash
+./bin/remove-claude-account --check acme   # what it would remove, changes nothing
+./bin/remove-claude-account acme           # asks before doing it
+```
+
+It removes all three parts in one pass:
+
+- **`claudeData.acme`** is cut out of `claude.yaml` with `awk`, not `yq -i 'del(...)'` — yq round-trips the document and strips every blank line, turning a one-block removal into a whole-file diff. The awk edit takes the block plus its banner comment and leaves the other ~180 lines byte-for-byte identical, which is what makes the result reviewable. `test/remove-claude-account.bats` asserts the diff is exactly one hunk of pure deletions.
+- **`home/private_dot_claude-acme/`** is deleted; it is tracked, so git is the undo.
+- **`~/.claude-acme/`** is *moved* to `${XDG_STATE_HOME:-~/.local/state}/claude-archive/acme-<UTC timestamp>/`, not deleted. It holds session transcripts, `projects/`, and `.credentials.json`. The archive deliberately lands outside `~/.claude-*`, because that glob is how both sync scripts enumerate accounts — an archive at `~/.claude-archive/` would be picked up as an account named `archive` and have every `shared` marketplace installed into it, recreating the exact orphan being removed. Pass `--purge` to delete instead, when the contract says the history may not outlive the engagement. Either way, revoke the client account's credentials on Anthropic's side too — archiving keeps `.credentials.json` on disk.
+
+Guards, all covered by the test suite: it refuses `shared` (the merge base, not an account), refuses the last remaining account (there is no `~/.claude` to fall back on), refuses to run non-interactively without `--yes`, and validates the rewritten YAML before writing anything — so a failure leaves the repo and `$HOME` untouched rather than half-torn-down.
+
+Finish with the usual review: `git diff`, commit, `chezmoi apply`.
 
 ## Layout (shared account)
 
@@ -219,6 +288,10 @@ claudeData:
     marketplaces: [...]
     plugins: [...]
     mcpServers: [...]
+  gifthealth:              # One client engagement (~/.claude-gifthealth/)
+    marketplaces: []       # inherits `shared` and nothing else
+    plugins: []
+    mcpServers: []
 ```
 
 The reconciler merges `shared` + account-specific for each account. Private/work/machine-specific entries live in machine-local `[data.claudeExternalExtra]` in `~/.config/chezmoi/chezmoi.toml`; the reconciler merges those too.
@@ -244,6 +317,7 @@ The reconciler merges `shared` + account-specific for each account. Private/work
 - To add a **shared** plugin/marketplace (all accounts): add to `claudeData.shared` in `claude.yaml`, then `chezmoi apply`.
 - To add a **personal-only** plugin/marketplace: add to `claudeData.personal` in `claude.yaml`, then `chezmoi apply`.
 - To add a **work-only** plugin/marketplace: add to `claudeData.work` in `claude.yaml`, then `chezmoi apply`.
+- To add a **client-only** plugin/marketplace: add to that client's key (e.g. `claudeData.gifthealth`), then `chezmoi apply`.
 - To add a **private MCP server** or **machine-local extra**: add it under `[data.claudeExternalExtra]` in your machine-local chezmoi config, never in `claude.yaml`.
 
 ### AWS Bedrock models
@@ -291,5 +365,6 @@ For step-by-step prompts, this repo also ships the `write-skill` and `write-suba
 - [ADR 0011 — Claude settings as data](../adrs/0011-claude-settings-as-data.md) — why the flat surface is `.chezmoidata` rendered by a `modify_` template
 - [Claude Code docs](https://docs.anthropic.com/claude-code) — upstream feature reference
 - [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) + [`claude-permissions.yaml`](../../home/.chezmoidata/claude-permissions.yaml) — source of truth for the flat `settings.json` surface, rendered by [`home/.chezmoitemplates/claude-settings`](../../home/.chezmoitemplates/claude-settings)
+- [`bin/remove-claude-account`](../../bin/remove-claude-account) — tear down one account: data block, source dir, and `~/.claude-<account>`
 - [`bin/sync-claude-settings`](../../bin/sync-claude-settings) — apply-time AWS Bedrock model overlay
 - [`bin/sync-claude-extras`](../../bin/sync-claude-extras) + [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml) — declarative marketplaces / plugins / MCP servers, reconciled via the `claude` CLI

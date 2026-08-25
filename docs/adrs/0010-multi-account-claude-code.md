@@ -130,6 +130,7 @@ This repo deployed Claude Code to a single `~/.claude/` directory via chezmoi, w
 - **Positive**: Scripts scale to N accounts without modification.
 - **Positive**: Chezmoi remains the source of truth; no manual directory management.
 - **Negative / accepted tradeoff**: Account directories must exist before sync runs; a new account requires manual `mkdir ~/.claude-{name}` or a chezmoi template that creates it. Mitigated: documented in `docs/agents/claude-code.md`, and adding a new account is a rare operation.
+- **Negative**: Glob-based detection has no way to tell a retired account from a live one, so removing an account is a three-part operation that is easy to half-do. Addressed by the amendment below.
 - **Negative**: Hook management moved from sync script to chezmoi deployment; hooks are no longer wired by the script. Mitigated: hooks are simpler (no removal logic needed), and stateless (present or absent, not mutated by sync).
 - **Negative**: Slightly more complex sync script logic (account loop, dynamic directory paths). Mitigated by clear function separation and tests.
 
@@ -154,8 +155,19 @@ The two-manager philosophy remains: settings are imperative (`jq` in place), ext
   - `test/sync-claude-extras.bats`: 6/6 ✅
 - Adding a new account (e.g., `~/.claude-stage/`) and re-running sync automatically configures it.
 
+## Amendment (2026-08-25): account teardown
+
+Detecting accounts by globbing `~/.claude-*/` scales to N accounts, as intended — but it also means the sync scripts cannot distinguish a retired account from a live one. Deleting an account's data block and source dir leaves `~/.claude-{name}/` behind, invisible in `git status`, still detected, and still having every `shared` marketplace re-installed into it on each `chezmoi apply`. That cost was not obvious when accounts were assumed to be two and permanent; it became obvious once consulting clients started getting one account each, with a natural end date.
+
+[`bin/remove-claude-account`](../../bin/remove-claude-account) closes the loop, removing all three parts in one validated pass. Two choices inside it are worth recording:
+
+- **Archive, not delete — and outside the account namespace.** `~/.claude-{name}/` moves to `$XDG_STATE_HOME/claude-archive/{name}-{UTC}/` rather than being removed. It holds session transcripts, `projects/`, and `.credentials.json` — none of it reconstructible, and a `mv` is instant and reversible. The destination is deliberately *not* `~/.claude-archive/`: account detection is a `~/.claude-*/` glob, so an archive there would be reconciled as an account named `archive`, which is the very orphan being cleaned up. `--purge` deletes instead, for engagements whose contract says the history may not outlive them.
+- **`awk`, not `yq -i`.** mikefarah yq round-trips the document and strips every blank line, so `del(.claudeData.{name})` on the heavily-commented `claude.yaml` produces a diff touching every section. A targeted awk block-delete leaves the rest byte-for-byte identical, which is what keeps the teardown reviewable in a PR. `test/remove-claude-account.bats` pins that: the edit must be exactly one hunk of pure deletions.
+
+The structural assumptions the awk relies on (accounts are 2-space keys under `claudeData:`, their banner comments are 2-space-indented, in-block comments are deeper) are now load-bearing for `claude.yaml` and asserted by that suite.
+
 ## Future Considerations
 
-- **Account templates.** A chezmoi template could auto-create `~/.claude-{name}/` directories on first run (e.g., prompt for additional accounts during `chezmoi init`).
+- **Account templates.** A chezmoi template could auto-create `~/.claude-{name}/` directories on first run (e.g., prompt for additional accounts during `chezmoi init`). The inverse — `bin/remove-claude-account` — now exists.
 - **Account-specific hooks.** If future hooks need to differ per account, they can be stored in `home/private_dot_claude-{account}/hooks/` and deployed independently.
 - **Shared skills/agents.** If personal skills/agents are needed in work account, a symlink or chezmoi external can share them without duplication.

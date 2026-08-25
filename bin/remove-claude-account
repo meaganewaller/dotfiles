@@ -1,0 +1,264 @@
+#!/usr/bin/env bash
+#
+# remove-claude-account - Tear down one Claude Code account, source and runtime.
+#
+# The inverse of adding an account (docs/agents/claude-code.md). An account is
+# three things, and deleting only some of them leaves the setup lying to itself:
+#
+#   home/.chezmoidata/claude.yaml     claudeData.<account>   declared config
+#   home/private_dot_claude-<account>/                       chezmoi source dir
+#   ~/.claude-<account>/                                     the live account
+#
+# Deleting only the source leaves ~/.claude-<account> on disk, and both
+# bin/sync-claude-extras and bin/sync-claude-settings find accounts by globbing
+# ~/.claude-*/ -- so an orphaned directory keeps getting reconciled (and keeps
+# re-installing shared marketplaces) forever. Deleting only the live directory
+# leaves the source to recreate it on the next `chezmoi apply`. Hence one script
+# that does all three, in an order where a failure leaves nothing half-done.
+#
+# ~/.claude-<account> is *archived*, not deleted: it holds session transcripts,
+# ~/.claude-<account>/projects, and .credentials.json. It moves to
+# $XDG_STATE_HOME/claude-archive/<account>-<UTC timestamp>/, which is instant and
+# trivially reversible. --purge deletes it instead, for when the client contract
+# says the history may not outlive the engagement.
+#
+# The archive deliberately lands *outside* ~/.claude-*: that glob is how both
+# sync scripts enumerate accounts, so an archive at ~/.claude-archive/ would be
+# detected as an account named "archive" and have every shared marketplace
+# installed into it -- recreating the exact orphan this script exists to remove.
+#
+# Usage: remove-claude-account [--check] [--yes] [--purge] <account>
+# 	--check   dry run: report what would happen, change nothing
+# 	--purge   delete ~/.claude-<account> instead of archiving it
+# 	--yes     skip the confirmation prompt (for scripts and CI)
+
+[[ -n "${DEBUG:-}" ]] && set -o xtrace
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
+
+CHECK=false
+PURGE=false
+ASSUME_YES=false
+ACCOUNT=''
+
+log() { printf '%s\n' "$*"; }
+warn() { printf '%s\n' "$*" >&2; }
+die() {
+	printf 'error: %s\n' "$*" >&2
+	exit 1
+}
+
+usage() {
+	printf 'usage: remove-claude-account [--check] [--yes] [--purge] <account>\n' >&2
+}
+
+for arg in "$@"; do
+	case "${arg}" in
+	--check) CHECK=true ;;
+	--purge) PURGE=true ;;
+	--yes | -y) ASSUME_YES=true ;;
+	-h | --help)
+		usage
+		exit 0
+		;;
+	-*)
+		printf 'error: unknown argument: %s\n' "${arg}" >&2
+		usage
+		exit 2
+		;;
+	*)
+		[[ -n "${ACCOUNT}" ]] && {
+			printf 'error: only one account at a time (got "%s" and "%s")\n' "${ACCOUNT}" "${arg}" >&2
+			exit 2
+		}
+		ACCOUNT="${arg}"
+		;;
+	esac
+done
+
+[[ -n "${ACCOUNT}" ]] || {
+	usage
+	exit 2
+}
+
+# `shared` is the merge base every account layers on top of, not an account.
+# Removing it would silently strip permissions and the status line from every
+# remaining account, so it is refused rather than handled.
+[[ "${ACCOUNT}" == "shared" ]] &&
+	die "'shared' is the merge base for every account, not an account"
+
+# Account names become a shell function name (claude-<account>), a directory
+# name, and an awk pattern. Constrain them so none of those can be injected.
+[[ "${ACCOUNT}" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
+	die "invalid account name '${ACCOUNT}' (expected lowercase letters, digits, hyphens)"
+
+# Overridable so the bats suite can point the script at a fixture repo.
+DOTFILES_ROOT="${DOTFILES_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+DATA_FILE="${DOTFILES_ROOT}/home/.chezmoidata/claude.yaml"
+SOURCE_DIR="${DOTFILES_ROOT}/home/private_dot_claude-${ACCOUNT}"
+LIVE_DIR="${HOME}/.claude-${ACCOUNT}"
+ARCHIVE_ROOT="${XDG_STATE_HOME:-${HOME}/.local/state}/claude-archive"
+
+[[ -f "${DATA_FILE}" ]] || die "no claude.yaml at ${DATA_FILE} (is DOTFILES_ROOT right?)"
+
+# Required, not optional. Without it the "did the rewrite stay valid YAML" and
+# "is this the last account" checks would silently no-op, which is the worst
+# outcome for a script whose whole job is not leaving things half-removed.
+# It is pinned in mise.toml, so `./bin/setup` provides it.
+command -v yq >/dev/null 2>&1 ||
+	die 'yq not found in PATH — run ./bin/setup (it is pinned in mise.toml)'
+
+# Delete the `  <account>:` block from claudeData, plus the banner comment
+# directly above it.
+#
+# Deliberately awk and not `yq -i 'del(...)'`: yq round-trips the document and
+# strips every blank line in the file, turning a one-block removal into a diff
+# that touches every section. awk edits the block and leaves the other ~180
+# lines byte-for-byte identical, which is what makes the result reviewable.
+#
+# Structure it relies on -- asserted by test/remove-claude-account.bats:
+#   accounts are 2-space-indented keys under a top-level `claudeData:`
+#   their banner comments are also 2-space-indented (`  # ── Work account ──`)
+#   comments *inside* a block are indented deeper (4+ spaces)
+strip_account_block() {
+	awk -v acct="${ACCOUNT}" '
+		function flush_pending(   i) {
+			for (i = 1; i <= np; i++) out[++no] = pend[i]
+			np = 0
+		}
+		# Track whether we are inside the claudeData mapping, so a same-named key
+		# under some other top-level document key is left alone.
+		/^[^[:space:]#]/ { in_data = ($0 ~ /^claudeData:/) }
+		{
+			if (skip) {
+				# Any 2-space-indented line -- the next account, or its banner --
+				# ends the block, as does dedenting out of claudeData entirely.
+				# Deeper indentation and blank lines belong to the block.
+				if ($0 ~ /^  [^[:space:]]/ || $0 ~ /^[^[:space:]]/) { skip = 0 } else { next }
+			}
+			# Hold 2-space comments: they are a banner for whatever key follows,
+			# so they are only emitted once we know it is not the account.
+			if (in_data && $0 ~ /^  #/) { pend[++np] = $0; next }
+			if (in_data && $0 == "  " acct ":") { np = 0; skip = 1; found = 1; next }
+			flush_pending()
+			out[++no] = $0
+		}
+		END {
+			flush_pending()
+			# The removed block took its trailing blank line with it; if it was the
+			# last block, that leaves the file ending in a blank line.
+			while (no > 0 && out[no] ~ /^[[:space:]]*$/) no--
+			for (i = 1; i <= no; i++) print out[i]
+			exit(found ? 0 : 1)
+		}
+	' "$1"
+}
+
+# ── Plan ────────────────────────────────────────────────────────────────────
+# Everything below is computed before anything is written, so a validation
+# failure leaves the repo and $HOME completely untouched.
+
+declared=false
+yq -e ".claudeData.\"${ACCOUNT}\"" "${DATA_FILE}" >/dev/null 2>&1 && declared=true
+
+[[ "${declared}" == true || -d "${SOURCE_DIR}" || -d "${LIVE_DIR}" ]] ||
+	die "nothing to remove: '${ACCOUNT}' is not declared, has no source dir, and has no ~/.claude-${ACCOUNT}"
+
+# Refuse to remove the last account. This setup is multi-account only (ADR
+# 0010): there is no ~/.claude, and with zero accounts left the shell guard
+# would tell you to "pick an account" from an empty list.
+if [[ "${declared}" == true ]]; then
+	remaining="$(yq -r '.claudeData | keys | .[] | select(. != "shared")' "${DATA_FILE}" |
+		grep -vxF "${ACCOUNT}" | grep -c . || true)"
+	[[ "${remaining}" -gt 0 ]] ||
+		die "'${ACCOUNT}' is the only account left; this setup has no bare ~/.claude to fall back on"
+fi
+
+# Build the rewritten data file up front and prove it is still valid YAML with
+# the key actually gone, rather than discovering a broken claude.yaml after the
+# source directory has already been deleted.
+NEW_DATA=''
+if [[ "${declared}" == true ]]; then
+	NEW_DATA="$(strip_account_block "${DATA_FILE}")" ||
+		die "could not find a '  ${ACCOUNT}:' block in ${DATA_FILE} to remove"
+
+	printf '%s\n' "${NEW_DATA}" | yq -e '.claudeData' >/dev/null 2>&1 ||
+		die "removing '${ACCOUNT}' would leave ${DATA_FILE} unparseable — aborting, nothing changed"
+	printf '%s\n' "${NEW_DATA}" | yq -e ".claudeData | has(\"${ACCOUNT}\")" >/dev/null 2>&1 &&
+		die "'${ACCOUNT}' survived the block removal — aborting, nothing changed"
+fi
+
+timestamp="$(date -u '+%Y%m%dT%H%M%SZ')"
+ARCHIVE_DIR="${ARCHIVE_ROOT}/${ACCOUNT}-${timestamp}"
+
+log "account: ${ACCOUNT}"
+[[ "${declared}" == true ]] &&
+	log "  - claudeData.${ACCOUNT} in home/.chezmoidata/claude.yaml"
+[[ -d "${SOURCE_DIR}" ]] &&
+	log "  - source dir  home/private_dot_claude-${ACCOUNT}/"
+if [[ -d "${LIVE_DIR}" ]]; then
+	size="$(du -sh "${LIVE_DIR}" 2>/dev/null | cut -f1)"
+	if [[ "${PURGE}" == true ]]; then
+		log "  - DELETE      ${LIVE_DIR} (${size:-unknown size}) — not recoverable"
+	else
+		log "  - archive     ${LIVE_DIR} (${size:-unknown size}) → ${ARCHIVE_DIR}"
+	fi
+fi
+
+if [[ "${CHECK}" == true ]]; then
+	log '(dry run — nothing was changed)'
+	exit 0
+fi
+
+# ── Confirm ─────────────────────────────────────────────────────────────────
+
+if [[ "${ASSUME_YES}" != true ]]; then
+	if [[ ! -t 0 ]]; then
+		die 'refusing to remove an account non-interactively without --yes'
+	fi
+	prompt='Remove this account? [y/N] '
+	[[ "${PURGE}" == true ]] && prompt='Permanently delete this account and its history? [y/N] '
+	read -r -p "${prompt}" reply
+	[[ "${reply}" =~ ^[Yy]$ ]] || {
+		log 'aborted — nothing was changed'
+		exit 1
+	}
+fi
+
+# ── Apply ───────────────────────────────────────────────────────────────────
+# Repo edits first: they are tracked by git, so they are the recoverable half.
+# The live directory moves last, once nothing can still fail on the source side.
+
+if [[ "${declared}" == true ]]; then
+	printf '%s\n' "${NEW_DATA}" >"${DATA_FILE}.tmp"
+	mv "${DATA_FILE}.tmp" "${DATA_FILE}"
+	log "removed claudeData.${ACCOUNT} from home/.chezmoidata/claude.yaml"
+fi
+
+if [[ -d "${SOURCE_DIR}" ]]; then
+	rm -rf "${SOURCE_DIR}"
+	log "removed home/private_dot_claude-${ACCOUNT}/"
+fi
+
+if [[ -d "${LIVE_DIR}" ]]; then
+	if [[ "${PURGE}" == true ]]; then
+		rm -rf "${LIVE_DIR}"
+		log "deleted ${LIVE_DIR}"
+	else
+		mkdir -p "${ARCHIVE_ROOT}"
+		mv "${LIVE_DIR}" "${ARCHIVE_DIR}"
+		log "archived ${LIVE_DIR} → ${ARCHIVE_DIR}"
+		# The archive carries whatever the account was authenticated as. Say so:
+		# it is the one thing here that is a secret rather than just a file.
+		[[ -f "${ARCHIVE_DIR}/.credentials.json" ]] &&
+			warn "note: ${ARCHIVE_DIR}/.credentials.json still holds this account's credentials"
+	fi
+fi
+
+log ''
+log 'next:'
+log "  git -C ${DOTFILES_ROOT} diff        # review the source changes"
+log '  chezmoi apply                       # reconcile the remaining accounts'
+log "  claude-${ACCOUNT} is gone once you open a new shell"

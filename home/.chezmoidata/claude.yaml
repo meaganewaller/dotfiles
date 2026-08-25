@@ -161,3 +161,24 @@ claudeData:
       - han@testdouble-skills-internal
 
     mcpServers: []
+
+  # ── Client account: Gift Health (~/.claude-gifthealth) ──────────────────────
+  # Consulting engagements get their own account, named after the client, so the
+  # shell command says which engagement you are in and credentials/history never
+  # mix with `work`. Deliberately inherits only `shared`: testdouble-internal
+  # extras stay on `work`.
+  #
+  # When the engagement ends, tear the account down with
+  # `bin/remove-claude-account gifthealth` rather than deleting it by hand --
+  # an orphaned ~/.claude-gifthealth keeps getting reconciled by
+  # bin/sync-claude-extras and bin/sync-claude-settings forever.
+  gifthealth:
+    settings: {}
+    env: {}
+    # No hooks: the hook scripts live in home/private_dot_claude-personal/hooks/
+    # and are not deployed to ~/.claude-gifthealth. Adding one here means adding
+    # the script under home/private_dot_claude-gifthealth/hooks/ too.
+    hooks: []
+    marketplaces: []
+    plugins: []
+    mcpServers: []

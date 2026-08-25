@@ -25,8 +25,17 @@ render_modify() {
 	config=$(template_config)
 	chezmoi execute-template --config "$config" \
 		--file "home/private_dot_claude-$account/modify_private_settings.json.tmpl" \
-		>"$TEST_TMPDIR/modify-$account.sh"
+		</dev/null >"$TEST_TMPDIR/modify-$account.sh"
 	printf '%s\n' "$TEST_TMPDIR/modify-$account.sh"
+}
+
+# Every account in the data, one per line. Read from claude.yaml rather than
+# hardcoded so adding an account (a new consulting client, say) is covered here
+# without a test edit -- and so an account declared without a matching
+# home/private_dot_claude-<account>/ source dir fails loudly instead of silently
+# never being rendered.
+all_accounts() {
+	yq -r '.claudeData | keys | .[] | select(. != "shared")' home/.chezmoidata/claude.yaml
 }
 
 # Run an account's modify_ script over the JSON on stdin (default: empty input,
@@ -39,27 +48,27 @@ run_modify() {
 
 @test "modify template renders to valid shell for every account" {
 	local account script
-	for account in personal work; do
+	while read -r account; do
 		script=$(render_modify "$account")
 		run bash -n "$script"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
 		run assert_script_structure "$(cat "$script")"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
-	done
+	done < <(all_accounts)
 }
 
 @test "renders valid JSON on empty input" {
 	local account
-	for account in personal work; do
+	while read -r account; do
 		run_modify "$account" >"$TEST_TMPDIR/out.json"
 		run jq empty "$TEST_TMPDIR/out.json"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
-	done
+	done < <(all_accounts)
 }
 
 @test "shared settings reach every account" {
 	local account
-	for account in personal work; do
+	while read -r account; do
 		run_modify "$account" >"$TEST_TMPDIR/out.json"
 
 		run jq -e '.effortLevel == "xhigh"' "$TEST_TMPDIR/out.json"
@@ -74,7 +83,7 @@ run_modify() {
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
 		run jq -e '.permissions.allow | length > 200' "$TEST_TMPDIR/out.json"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
-	done
+	done < <(all_accounts)
 }
 
 @test "account-specific settings stay on their own account" {
@@ -135,7 +144,7 @@ run_modify() {
 @test "plugins and marketplaces never leak into settings.json" {
 	# ADR 0008: the claude CLI is the single writer for these keys.
 	local account
-	for account in personal work; do
+	while read -r account; do
 		run_modify "$account" >"$TEST_TMPDIR/out.json"
 		run jq -e 'has("extraKnownMarketplaces")' "$TEST_TMPDIR/out.json"
 		[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
@@ -143,7 +152,7 @@ run_modify() {
 		[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
 		run jq -e 'has("marketplaces")' "$TEST_TMPDIR/out.json"
 		[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
-	done
+	done < <(all_accounts)
 }
 
 @test "merging preserves keys Claude Code owns and we do not declare" {
