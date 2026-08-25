@@ -294,11 +294,6 @@ function reload! {
     exec "$zsh_path" "$@"
 }
 
-if [ -f "$HOME/.gusto/init.sh" ]; then
-	export GUSTO_SSH_SELF_MANAGED=1
-  source "$HOME/.gusto/init.sh"
-fi
-
 # Git-safe PATH modification - MUST RUN LAST
 # Prepends .git/safe/../../bin to PATH for per-repository trusted binaries
 # This allows each git repository to provide its own trusted executables

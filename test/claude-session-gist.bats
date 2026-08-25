@@ -105,7 +105,7 @@ setup_shim() {
 	setup_shim
 
 	local org
-	for org in gusto testdouble testdoublelabs; do
+	for org in gifthealth testdouble testdoublelabs; do
 		status=$(run_shim "$SYSTEM_BASH" "git@github.com:$org/example.git")
 		[ "$status" -eq "$EXIT_BLOCKED" ] ||
 			fail "org '$org' is in $DATA but was not blocked: exit $status (stderr: $SHIM_ERR)"
