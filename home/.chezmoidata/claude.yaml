@@ -48,7 +48,10 @@ claudeData:
     # Merged into settings.json `.env`. Values MUST be strings — Claude Code
     # rejects numeric JSON here.
     env:
+      CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: "1"
       CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"
+      CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: "10"
+      CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION: "60"
 
     # PreToolUse/PostToolUse/Notification/... entries. See claudeData.personal.hooks
     # below for the schema.
@@ -173,7 +176,10 @@ claudeData:
   # an orphaned ~/.claude-gifthealth keeps getting reconciled by
   # bin/sync-claude-extras and bin/sync-claude-settings forever.
   gifthealth:
-    settings: {}
+    settings: 
+      model: "sonnet"
+      effortLevel: "medium"
+      alwaysThinkingEnabled: true
     env: {}
     # No hooks: the hook scripts live in home/private_dot_claude-personal/hooks/
     # and are not deployed to ~/.claude-gifthealth. Adding one here means adding
