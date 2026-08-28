@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+# Build a 3-pane tmux layout for Claude prompting:
+# - left: captured context in less
+# - right top: nvim prompt buffer
+# - right bottom: Claude account session
+#
+# On :wq from nvim, the prompt is pasted into Claude and the context pane closes.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+
+log() {
+	printf '%s: %s\n' "${SCRIPT_NAME}" "$*" >&2
+}
+
+die() {
+	local message="$*"
+	log "error: $message"
+	# run-shell stderr is easy to miss; surface failures in tmux status line too.
+	if [[ -n "${TMUX:-}" ]] && command -v tmux >/dev/null 2>&1; then
+		tmux display-message "${SCRIPT_NAME}: ${message}" >/dev/null 2>&1 || true
+	fi
+	exit 1
+}
+
+usage() {
+	cat <<'EOF'
+Usage: tmux-claude-compose [--account ACCOUNT] [--context FILE] [--lines N]
+
+Creates a tmux layout for drafting prompts with side-by-side context.
+
+Options:
+  --account ACCOUNT   Claude account suffix (personal, work, gifthealth, ...)
+  --context FILE      Read context from FILE instead of capturing current pane
+  --lines N           Number of scrollback lines to capture (default: 2000)
+  -h, --help          Show this help text
+
+Account resolution order when --account is omitted:
+  1) tmux option @claude_account (if set)
+  2) CLAUDE_ACCOUNT env var (if set)
+  3) the only discovered ~/.claude-* account (if exactly one exists)
+
+If multiple accounts exist and no default is configured, the script exits with
+an instruction to set @claude_account.
+EOF
+}
+
+require_cmd() {
+	command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"
+}
+
+discover_accounts() {
+	local dir base
+	for dir in "$HOME"/.claude-*; do
+		[[ -d "$dir" ]] || continue
+		base="${dir##*/.claude-}"
+		[[ -n "$base" ]] || continue
+		printf '%s\n' "$base"
+	done
+}
+
+contains_account() {
+	local needle="$1"
+	local item
+	shift
+	for item in "$@"; do
+		[[ "$item" == "$needle" ]] && return 0
+	done
+	return 1
+}
+
+main() {
+	require_cmd tmux
+	require_cmd nvim
+	require_cmd less
+
+	[[ -n "${TMUX:-}" ]] || die "must be run inside tmux"
+
+	local account=""
+	local context_file=""
+	local capture_lines="2000"
+
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+		--account)
+			[[ $# -ge 2 ]] || die "--account requires a value"
+			account="$2"
+			shift 2
+			;;
+		--context)
+			[[ $# -ge 2 ]] || die "--context requires a value"
+			context_file="$2"
+			shift 2
+			;;
+		--lines)
+			[[ $# -ge 2 ]] || die "--lines requires a value"
+			capture_lines="$2"
+			shift 2
+			;;
+		-h | --help)
+			usage
+			exit 0
+			;;
+		*)
+			die "unknown argument: $1"
+			;;
+		esac
+	done
+
+	[[ "$capture_lines" =~ ^[0-9]+$ ]] || die "--lines must be a positive integer"
+
+	local -a accounts=()
+	while IFS= read -r found; do
+		accounts+=("$found")
+	done < <(discover_accounts)
+
+	((${#accounts[@]} > 0)) || die "no ~/.claude-* accounts found"
+
+	if [[ -z "$account" ]]; then
+		account="$(tmux show-option -gqv @claude_account || true)"
+	fi
+	if [[ -z "$account" ]]; then
+		account="${CLAUDE_ACCOUNT:-}"
+	fi
+	if [[ -z "$account" && ${#accounts[@]} -eq 1 ]]; then
+		account="${accounts[0]}"
+	fi
+
+	if [[ -z "$account" ]]; then
+		die "multiple accounts detected (${accounts[*]}). Set one with: tmux set -g @claude_account <account>"
+	fi
+
+	contains_account "$account" "${accounts[@]}" ||
+		die "unknown account '$account'. Available: ${accounts[*]}"
+
+	local claude_cmd="claude-${account}"
+	local current_pane current_path
+	current_pane="$(tmux display-message -p '#{pane_id}')"
+	current_path="$(tmux display-message -p -t "$current_pane" '#{pane_current_path}')"
+
+	local tmpdir
+	tmpdir="$(mktemp -d)"
+	local prompt_file="$tmpdir/prompt.md"
+	local captured_context_file="$tmpdir/context.txt"
+	local done_token="claude-compose-done-${RANDOM}-$$"
+	local buffer_name="claude-compose-${RANDOM}-$$"
+
+	cleanup() {
+		tmux delete-buffer -b "$buffer_name" >/dev/null 2>&1 || true
+		rm -rf -- "$tmpdir"
+	}
+	trap cleanup EXIT
+
+	if [[ -n "$context_file" ]]; then
+		[[ -f "$context_file" ]] || die "context file not found: $context_file"
+		cp "$context_file" "$captured_context_file"
+	else
+		tmux capture-pane -p -S "-$capture_lines" -t "$current_pane" >"$captured_context_file"
+	fi
+
+	cat >"$prompt_file" <<EOF
+# Prompt Draft
+
+EOF
+
+	local context_pane editor_pane claude_pane
+	context_pane="$(tmux split-window -h -b -p 50 -d -t "$current_pane" -c "$current_path" -P -F '#{pane_id}' "less +G '$captured_context_file'")"
+
+	editor_pane="$current_pane"
+	claude_pane="$(tmux split-window -v -p 20 -d -t "$editor_pane" -c "$current_path" -P -F '#{pane_id}')"
+
+	tmux send-keys -t "$claude_pane" "$claude_cmd" C-m
+	tmux send-keys -t "$editor_pane" "nvim '$prompt_file'; tmux wait-for -S '$done_token'" C-m
+	tmux select-pane -t "$editor_pane"
+
+	tmux wait-for "$done_token"
+
+	if [[ -s "$prompt_file" ]]; then
+		tmux load-buffer -b "$buffer_name" "$prompt_file"
+		tmux paste-buffer -t "$claude_pane" -b "$buffer_name"
+		tmux send-keys -t "$claude_pane" C-m
+	fi
+
+	tmux kill-pane -t "$context_pane" >/dev/null 2>&1 || true
+	tmux select-pane -t "$claude_pane"
+}
+
+main "$@"
