@@ -1,0 +1,232 @@
+#!/usr/bin/env bash
+# claude-fork — Fork the Claude Code session running in the given tmux pane.
+#
+# Usage:
+#   claude-fork <pane-id>
+#
+# Called by tmux binding:
+#   bind v run-shell "~/.local/bin/claude-fork '#{pane_id}'"
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+
+log() {
+	printf '%s: %s\n' "${SCRIPT_NAME}" "$*" >&2
+}
+
+die() {
+	local message="$*"
+	log "error: $message"
+	if [[ -n "${TMUX:-}" ]] && command -v tmux >/dev/null 2>&1; then
+		tmux display-message "${SCRIPT_NAME}: ${message}" >/dev/null 2>&1 || true
+	fi
+	exit 1
+}
+
+usage() {
+	cat >&2 <<EOF
+Usage: ${SCRIPT_NAME} <pane-id>
+
+Fork the Claude Code session currently running in the given tmux pane.
+
+Example:
+    ${SCRIPT_NAME} %3
+EOF
+}
+
+require_cmd() {
+	command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"
+}
+
+# Single-quote for embedding in shell commands.
+sq() {
+	printf "'%s'" "${1//\'/\'\"\'\"\'}"
+}
+
+# Print pane root pid + descendants (one PID per line).
+collect_pids() {
+	local root_pid="$1"
+	local -a queue=()
+	local -a out=()
+	local idx=0 current child
+
+	queue+=("$root_pid")
+	out+=("$root_pid")
+
+	while ((idx < ${#queue[@]})); do
+		current="${queue[$idx]}"
+		idx=$((idx + 1))
+		while IFS= read -r child; do
+			[[ -n "$child" ]] || continue
+			queue+=("$child")
+			out+=("$child")
+		done < <(pgrep -P "$current" 2>/dev/null || true)
+	done
+
+	printf '%s\n' "${out[@]}" | awk '!seen[$0]++'
+}
+
+main() {
+	require_cmd tmux
+	require_cmd jq
+	require_cmd python3
+	require_cmd pgrep
+	require_cmd command
+
+	[[ -n "${TMUX:-}" ]] || die "must be run inside tmux"
+
+	if [[ $# -ne 1 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+		usage
+		[[ $# -eq 1 ]] && exit 0
+		exit 1
+	fi
+
+	local pane_id="$1"
+	local pane_pid pane_path
+	pane_pid="$(tmux display-message -p -t "$pane_id" '#{pane_pid}')"
+	pane_path="$(tmux display-message -p -t "$pane_id" '#{pane_current_path}')"
+	[[ "$pane_pid" =~ ^[0-9]+$ ]] || die "could not resolve pane pid for $pane_id"
+
+	local -a pids=()
+	while IFS= read -r pid; do
+		[[ -n "$pid" ]] && pids+=("$pid")
+	done < <(collect_pids "$pane_pid")
+
+	((${#pids[@]} > 0)) || die "no processes found for pane $pane_id"
+
+	local -a account_dirs=()
+	local d
+	for d in "$HOME"/.claude-*; do
+		[[ -d "$d/sessions" ]] || continue
+		account_dirs+=("$d")
+	done
+	((${#account_dirs[@]} > 0)) || die "no ~/.claude-*/sessions directories found"
+
+	# Locate the session metadata file owned by a process in this pane.
+	local best_session_file=""
+	local best_updated=0
+	local pid account_dir candidate updated
+	for pid in "${pids[@]}"; do
+		for account_dir in "${account_dirs[@]}"; do
+			candidate="$account_dir/sessions/$pid.json"
+			[[ -f "$candidate" ]] || continue
+			updated="$(jq -r '.updatedAt // 0' "$candidate" 2>/dev/null || printf '0')"
+			[[ "$updated" =~ ^[0-9]+$ ]] || updated=0
+			if ((updated >= best_updated)); then
+				best_updated="$updated"
+				best_session_file="$candidate"
+			fi
+		done
+	done
+
+	[[ -n "$best_session_file" ]] || die "no Claude session metadata found for pane $pane_id"
+
+	local claude_pid session_cwd original_session_id started_at
+	claude_pid="$(jq -r '.pid // empty' "$best_session_file")"
+	session_cwd="$(jq -r '.cwd // empty' "$best_session_file")"
+	original_session_id="$(jq -r '.sessionId // empty' "$best_session_file")"
+	started_at="$(jq -r '.startedAt // 0' "$best_session_file")"
+
+	[[ "$claude_pid" =~ ^[0-9]+$ ]] || die "invalid pid in $best_session_file"
+	[[ -n "$session_cwd" ]] || die "missing cwd in $best_session_file"
+	[[ -n "$original_session_id" ]] || die "missing sessionId in $best_session_file"
+	[[ "$started_at" =~ ^[0-9]+$ ]] || started_at=0
+
+	account_dir="${best_session_file%/sessions/*}"
+	local account_name="${account_dir##*/.claude-}"
+	[[ -n "$account_name" ]] || die "could not infer account name from $account_dir"
+
+	local resolved_session_id
+	resolved_session_id="$(python3 - "$account_dir" "$claude_pid" "$session_cwd" "$original_session_id" "$started_at" <<'PY'
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+account_dir = Path(sys.argv[1])
+target_pid = int(sys.argv[2])
+session_cwd = sys.argv[3]
+original_session_id = sys.argv[4]
+original_started_at = int(sys.argv[5])
+
+uuid_re = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+def project_slug(path: str) -> str:
+    return path.replace("/", "-")
+
+def safe_int(value, default=0):
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+project_dir = account_dir / "projects" / project_slug(session_cwd)
+if not project_dir.exists():
+    project_dir = account_dir / "projects"
+
+# Build session-id -> owning pid map from session metadata.
+owners = {}
+sessions_dir = account_dir / "sessions"
+if sessions_dir.exists():
+    for entry in sessions_dir.glob("*.json"):
+        try:
+            data = json.loads(entry.read_text())
+        except Exception:
+            continue
+        sid = data.get("sessionId")
+        pid = safe_int(data.get("pid"), -1)
+        if sid and pid >= 0:
+            owners[sid] = pid
+
+candidates = []
+for jsonl in project_dir.rglob("*.jsonl"):
+    sid = jsonl.stem
+    if not uuid_re.match(sid):
+        continue
+
+    owner = owners.get(sid)
+    if owner is not None and owner != target_pid:
+        continue
+
+    mtime_ms = int(jsonl.stat().st_mtime * 1000)
+    candidates.append((sid, mtime_ms))
+
+# Prefer sessions that are newer than the original session start.
+newer = [item for item in candidates if item[1] >= original_started_at]
+
+def pick_latest(items):
+    if not items:
+        return None
+    return sorted(items, key=lambda pair: pair[1], reverse=True)[0][0]
+
+chosen = pick_latest(newer)
+if chosen is None:
+    chosen = pick_latest(candidates)
+if chosen is None:
+    chosen = original_session_id
+
+print(chosen)
+PY
+)"
+
+	[[ -n "$resolved_session_id" ]] || die "failed to resolve a target session ID"
+
+	local launch_cwd="$session_cwd"
+	[[ -d "$launch_cwd" ]] || launch_cwd="$pane_path"
+
+	local inner
+	if command -v claude-chill >/dev/null 2>&1; then
+		inner="CLAUDE_CONFIG_DIR=$(sq "$account_dir") claude-chill -- command claude --resume $(sq "$resolved_session_id") --fork-session"
+	else
+		inner="CLAUDE_CONFIG_DIR=$(sq "$account_dir") command claude --resume $(sq "$resolved_session_id") --fork-session"
+	fi
+
+	tmux split-window -v -p 35 -t "$pane_id" -c "$launch_cwd" "bash -lc $(sq "$inner")"
+	tmux display-message "Forked ${account_name} session ${resolved_session_id}"
+}
+
+main "$@"
