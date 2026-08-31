@@ -55,7 +55,13 @@ claudeData:
 
     # PreToolUse/PostToolUse/Notification/... entries. See claudeData.personal.hooks
     # below for the schema.
-    hooks: []
+    hooks:
+      - event: PreToolUse
+        matcher: "Write|Edit|MultiEdit"
+        command: "$HOME/.local/libexec/block-sensitive-or-generated-writes"
+      - event: PreToolUse
+        matcher: "Write|Edit|MultiEdit"
+        command: "$HOME/.local/libexec/check-secrets-before-write"
 
     # permissions.defaultMode + the 246-entry allow list live in the sibling
     # home/.chezmoidata/claude-permissions.yaml (chezmoi deep-merges both files
@@ -81,9 +87,6 @@ claudeData:
       - git-workflow@meaganewaller-marketplace
       - dotfiles@meaganewaller-marketplace
       - avoid-ai-writing@conorbronsdon-skills
-      # claude-plugins-official is a built-in marketplace, so it needs no
-      # marketplaces entry — only the plugin is ours to declare.
-      - typescript-lsp@claude-plugins-official
 
     mcpServers: []
 
@@ -111,9 +114,6 @@ claudeData:
       - event: Notification
         matcher: ".*"
         command: "bash $CLAUDE_DIR/hooks/tmux-bell.sh"
-      - event: PreToolUse
-        matcher: "Write|Edit|MultiEdit"
-        command: "bash $CLAUDE_DIR/hooks/check-secrets.sh"
       - event: PreToolUse
         matcher: "Bash"
         command: "$HOME/.local/libexec/block-adhoc-installers"

@@ -71,9 +71,7 @@ run_modify() {
 	while read -r account; do
 		run_modify "$account" >"$TEST_TMPDIR/out.json"
 
-		run jq -e '.effortLevel == "xhigh"' "$TEST_TMPDIR/out.json"
-		[ "$status" -eq 0 ] || fail "status=$status output=$output"
-		run jq -e '.model == "opus[1m]"' "$TEST_TMPDIR/out.json"
+		run jq -e '.alwaysThinkingEnabled == true and .autoDreamEnabled == true' "$TEST_TMPDIR/out.json"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
 		run jq -e '.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS == "1"' "$TEST_TMPDIR/out.json"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
@@ -125,20 +123,32 @@ run_modify() {
 		'.hooks.Notification[0].hooks[0].command == "bash \($dir)/hooks/tmux-bell.sh"' "$TEST_TMPDIR/out.json"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-	# Two PreToolUse matchers stay separate groups rather than collapsing.
-	run jq -e '[.hooks.PreToolUse[].matcher] | sort == ["Bash", "Write|Edit|MultiEdit"]' "$TEST_TMPDIR/out.json"
+	# Shared + personal PreToolUse hooks are all present.
+	run jq -e '[.hooks.PreToolUse[].matcher] | sort == ["Bash", "Write|Edit|MultiEdit", "Write|Edit|MultiEdit"]' "$TEST_TMPDIR/out.json"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	run jq -e '[.hooks.PreToolUse[].hooks[0].command]
+		| any(. == "'"$FAKE_HOME"'/.local/libexec/block-sensitive-or-generated-writes")
+		and any(. == "'"$FAKE_HOME"'/.local/libexec/check-secrets-before-write")
+		and any(. == "'"$FAKE_HOME"'/.local/libexec/block-adhoc-installers")' "$TEST_TMPDIR/out.json"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
-	# No placeholder survives into the rendered file.
+	# No placeholders survive into the rendered file.
 	run grep -q 'CLAUDE_DIR' "$TEST_TMPDIR/out.json"
+	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
+	run grep -q '\$HOME' "$TEST_TMPDIR/out.json"
 	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
 }
 
-@test "an account with no declared hooks emits no hooks key" {
+@test "accounts with no account-specific hooks still inherit shared hooks" {
 	run_modify work >"$TEST_TMPDIR/out.json"
 
 	run jq -e 'has("hooks")' "$TEST_TMPDIR/out.json"
-	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	run jq -e '[.hooks.PreToolUse[].hooks[0].command] | sort == [
+		"'"$FAKE_HOME"'/.local/libexec/block-sensitive-or-generated-writes",
+		"'"$FAKE_HOME"'/.local/libexec/check-secrets-before-write"
+	]' "$TEST_TMPDIR/out.json"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 }
 
 @test "plugins and marketplaces never leak into settings.json" {

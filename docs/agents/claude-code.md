@@ -236,21 +236,23 @@ Current subagents:
 
 Most hooks live at `home/private_dot_claude-personal/hooks/executable_*.sh`. The `executable_` chezmoi prefix preserves the `+x` bit when chezmoi writes the file out to `~/.claude-personal/hooks/` (and similarly to `~/.claude-work/hooks/`, etc.). Each hook reads tool-call JSON on stdin and exits non-zero (or prints a decision) to block / annotate.
 
-Declared today under `claudeData.personal.hooks` in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml):
+Declared today in [`home/.chezmoidata/claude.yaml`](../../home/.chezmoidata/claude.yaml):
 
 | Hook | Event | Matches | What it does |
 | --- | --- | --- | --- |
-| `check-secrets.sh` | PreToolUse | `Write` / `Edit` / `MultiEdit` | Blocks file writes that look like they contain AWS keys, OpenAI/Anthropic keys, GitHub PATs, hardcoded passwords, private-key material, or literal `DATABASE_URL` postgres strings. |
+| `block-sensitive-or-generated-writes` | PreToolUse | `Write` / `Edit` / `MultiEdit` | Blocks writes to sensitive targets (`.ssh`, `.aws`, key/cert files, `.env`, credentials/secrets files, repo `private_*` stores) and generated/build artifacts (`node_modules`, `dist`, `.next`, `*.generated.*`, `*.pb.*`, ...). |
+| `check-secrets-before-write` | PreToolUse | `Write` / `Edit` / `MultiEdit` | Scans pending write content (`content`, `new_string`, and `MultiEdit` replacements) for likely secrets (AWS keys, GitHub tokens, `sk-...`, private key blocks, hardcoded password/token assignments, literal DB URLs) and denies on match. |
 | `block-adhoc-installers` | PreToolUse | `Bash` | Denies ad-hoc installers/runners (`npx`, `bunx`, `uvx`, `pipx`, `pip install`, `npm -g`, `gem`/`brew`/`cargo`/`go install`, …) and redirects to the `/install` skill, so tools stay captured in mise. Enforcement teeth for the "use mise exclusively" rule in `~/.claude-personal/CLAUDE.md`. Escape hatch: `CLAUDE_ALLOW_ADHOC_INSTALL=1` (human-only). |
 | `tmux-bell.sh` | Notification | `.*` | Rings the tmux bell so a backgrounded session surfaces when Claude Code wants attention. |
 
-These are declared under `personal` rather than `shared` because the scripts are deployed to `~/.claude-personal/hooks/` only. Adding one for work means shipping the script under `home/private_dot_claude-work/hooks/` too.
+The two write guards are declared under `shared` and implemented as policy executables in `~/.local/libexec`, so they apply to every account uniformly. `tmux-bell.sh` remains `personal`-only because it is account-local and UX-specific.
 
 `block-adhoc-installers` is the one exception to the `home/private_dot_claude-personal/hooks/` convention: it lives at [`home/dot_local/libexec/executable_block-adhoc-installers`](../../home/dot_local/libexec/executable_block-adhoc-installers) (→ `~/.local/libexec/`, on `PATH`) because it is a self-contained policy executable rather than a Claude-specific script. Its data row uses `$HOME` rather than `$CLAUDE_DIR` for that reason.
 
 **Hook contract** (when adding one):
 
 1. Place at `home/private_dot_claude-personal/hooks/executable_<name>.sh` so chezmoi writes it executable.
+  For cross-account policy hooks, prefer `home/dot_local/libexec/executable_<name>` and reference it via `$HOME/.local/libexec/<name>` from `claudeData.shared.hooks`.
 2. Read tool input as JSON from stdin; parse with `jq`. Check `.tool_name` early and `exit 0` for tools you don't care about — hooks fire for every tool call.
 3. Exit 0 for "allow", non-zero (with a message on stderr) for "block".
 4. **Declare** it under `claudeData.{scope}.hooks` in `home/.chezmoidata/claude.yaml` — `{event, matcher, command}`, using `$CLAUDE_DIR` for the path. Without this the script is on disk at `~/.claude-{account}/hooks/` but `settings.json` never references it, so it never fires. Then `chezmoi apply`.

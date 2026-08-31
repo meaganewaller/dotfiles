@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# block-sensitive-or-generated-writes -- Claude Code PreToolUse guard.
+#
+# Denies Edit/Write/MultiEdit calls when the target path looks like either:
+# - a sensitive file (keys, credentials, local env files, private account stores)
+# - a generated/build artifact that should be edited at its source
+#
+# Human escape hatch: set CLAUDE_ALLOW_SENSITIVE_WRITES=1.
+
+set -o nounset
+set -o pipefail
+
+[[ -n "${CLAUDE_ALLOW_SENSITIVE_WRITES:-}" ]] && exit 0
+
+INPUT="$(cat)"
+
+tool_name="$(printf '%s' "${INPUT}" | jq -r '.tool_name // empty' 2>/dev/null || true)"
+case "${tool_name}" in
+Write|Edit|MultiEdit) ;;
+*) exit 0 ;;
+esac
+
+file_path="$(printf '%s' "${INPUT}" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)"
+[[ -z "${file_path}" ]] && exit 0
+
+deny() {
+	local reason="$1"
+	jq -cn --arg r "${reason}" \
+		'{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'
+	exit 0
+}
+
+# Keep patterns explicit and auditable. Add entries only when confidence is high.
+sensitive_path_regex='(^|/)(\.env(\..*)?|\.npmrc|\.pypirc|\.netrc|\.git-credentials)$|(^|/)(id_rsa|id_ed25519|known_hosts|authorized_keys)$|\.(pem|key|p12|pfx)$|(^|/)private_(dot_ssh|Library)/|(^|/)\.aws/|(^|/)\.ssh/|(^|/)(credentials|secrets?)\.(json|ya?ml|toml|env)$'
+generated_path_regex='(^|/)(node_modules|dist|build|coverage|\.next|\.cache|target|out|tmp|vendor)/|\.(generated|gen)\.[^/]+$|\.pb\.[^/]+$|\.min\.(js|css)$'
+
+if [[ "${file_path}" =~ $sensitive_path_regex ]]; then
+	reason="Blocked write to sensitive path: ${file_path}. Edit the source-of-truth location or temporarily set CLAUDE_ALLOW_SENSITIVE_WRITES=1 if this change is intentional."
+	deny "${reason}"
+fi
+
+if [[ "${file_path}" =~ $generated_path_regex ]]; then
+	reason="Blocked write to generated/build artifact: ${file_path}. Edit the source file and regenerate instead."
+	deny "${reason}"
+fi
+
+exit 0
