@@ -1,0 +1,21 @@
+{{- /*
+Minimal Copilot plugin subset mirrored from shared Claude marketplace data.
+Output path: ~/.copilot/plugins.json
+*/ -}}
+{{- $wantedMarketplaces := dict
+  "meaganewaller-marketplace" true
+  "conorbronsdon-skills" true
+-}}
+{{- $marketplaces := list -}}
+{{- range .claudeData.shared.marketplaces -}}
+{{- if hasKey $wantedMarketplaces .name -}}
+{{- $marketplaces = append $marketplaces (dict "name" .name "repo" .repo) -}}
+{{- end -}}
+{{- end -}}
+{{- dict
+  "marketplaces" $marketplaces
+  "plugins" (list
+    "git-workflow@meaganewaller-marketplace"
+    "avoid-ai-writing@conorbronsdon-skills"
+  )
+| toPrettyJson }}
