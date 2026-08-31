@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# claude-notify -- Claude Code Notification hook.
+#
+# Sends a native macOS notification when Claude raises a Notification event
+# (typically when user attention/input is needed).
+
+set -o nounset
+set -o pipefail
+
+[[ -n "${CLAUDE_DISABLE_NATIVE_NOTIFY:-}" ]] && exit 0
+command -v osascript >/dev/null 2>&1 || exit 0
+
+INPUT="$(cat)"
+
+# Best-effort extraction: hook payload shape can vary by Claude version.
+body="$({
+	printf '%s' "${INPUT}" | jq -r '
+    [
+      .message?,
+      .notification?.message?,
+      .additionalContext?,
+      .tool_result?.message?,
+      .tool_result?
+    ]
+    | map(select(type == "string" and length > 0))
+    | .[0] // "Claude needs your input."
+  ' 2>/dev/null || true
+} | tr '\n\r' ' ' | sed 's/[[:space:]]\+/ /g')"
+
+[[ -z "${body}" ]] && body="Claude needs your input."
+body="${body:0:180}"
+
+CLAUDE_NOTIFY_TITLE="Claude Code" \
+	CLAUDE_NOTIFY_BODY="${body}" \
+	osascript -e 'display notification (system attribute "CLAUDE_NOTIFY_BODY") with title (system attribute "CLAUDE_NOTIFY_TITLE")' >/dev/null 2>&1 || true
+
+exit 0

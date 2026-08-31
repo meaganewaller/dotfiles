@@ -62,6 +62,9 @@ claudeData:
       - event: PreToolUse
         matcher: "Write|Edit|MultiEdit"
         command: "$HOME/.local/libexec/check-secrets-before-write"
+      - event: Notification
+        matcher: ".*"
+        command: "$HOME/.local/libexec/claude-notify"
 
     # permissions.defaultMode + the 246-entry allow list live in the sibling
     # home/.chezmoidata/claude-permissions.yaml (chezmoi deep-merges both files

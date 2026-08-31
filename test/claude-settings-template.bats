@@ -119,8 +119,10 @@ run_modify() {
 @test "hooks expand \$CLAUDE_DIR to the owning account directory" {
 	run_modify personal >"$TEST_TMPDIR/out.json"
 
-	run jq -e --arg dir "$FAKE_HOME/.claude-personal" \
-		'.hooks.Notification[0].hooks[0].command == "bash \($dir)/hooks/tmux-bell.sh"' "$TEST_TMPDIR/out.json"
+	run jq -e '[.hooks.Notification[].hooks[0].command] | sort == [
+		"'"$FAKE_HOME"'/.local/libexec/claude-notify",
+		"bash '"$FAKE_HOME"'/.claude-personal/hooks/tmux-bell.sh"
+	]' "$TEST_TMPDIR/out.json"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Shared + personal PreToolUse hooks are all present.
