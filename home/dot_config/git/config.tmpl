@@ -160,6 +160,18 @@
 {{ end -}}
 
 {{- if .work_profile }}
-[includeIf "gitdir:~/src/github.com/testdouble"]
+# Client identity overlay. Two non-obvious requirements, both verified against
+# git 2.50 -- get either wrong and this block silently does nothing at all:
+#
+#   1. The pattern MUST end in "/". Git appends "**" only to patterns with a
+#      trailing slash, so "gitdir:~/src/github.com/gifthealth" matches a gitdir
+#      at exactly that path -- i.e. never a repo *inside* it. The pattern that
+#      used to live here had no slash, so this overlay had never applied to a
+#      single repo, for any client, since it was written.
+#   2. "gitdir/i:" (case-insensitive) because the checkout on disk is
+#      ~/src/github.com/Gifthealth while this pattern is lowercase. Plain
+#      "gitdir:" compares case-sensitively even on a case-insensitive APFS
+#      volume, so it would miss.
+[includeIf "gitdir/i:~/src/github.com/gifthealth/"]
 	path = ~/.config/git/work.gitconfig
 {{- end }}

@@ -88,7 +88,13 @@ EOF
 
 	run chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_config/git/config.tmpl"
 	[ "$status" -eq 0 ] || fail "render failed: $output"
-	[[ "$output" == *'includeIf "gitdir:~/src/github.com/testdouble"'* ]] || fail "missing work includeIf"
+	# Pin both gotchas that made the previous pattern inert. The trailing "/" --
+	# git only appends "**" to a slash-terminated pattern, so without it no repo
+	# *inside* the directory ever matches. And "gitdir/i:" -- the checkout on disk
+	# is Gifthealth while the pattern is lowercase, and plain "gitdir:" compares
+	# case-sensitively even on a case-insensitive APFS volume.
+	[[ "$output" == *'includeIf "gitdir/i:~/src/github.com/gifthealth/"'* ]] ||
+		fail "work includeIf missing, or lost its /i or trailing slash: $output"
 	[[ "$output" == *"path = ~/.config/git/work.gitconfig"* ]] || fail "includeIf points at the wrong file"
 }
 
