@@ -159,7 +159,36 @@
 	helper = !{{ lookPath "gh" }} auth git-credential
 {{ end -}}
 
-{{- if .work_profile }}
-[includeIf "gitdir:~/src/github.com/testdouble"]
-	path = ~/.config/git/work.gitconfig
+{{- /* Per-identity overlays. Every identity in .chezmoidata/git.yaml's
+       `git.identities` whose email is filled in on this machine gets one
+       includeIf per org directory, pointing at its own overlay file. An
+       identity with a blank email renders nothing here, and its overlay file
+       renders empty and is skipped -- so the two can never disagree. */ -}}
+{{- $localAll := dict -}}
+{{- if hasKey .git "identity_local" }}{{ $localAll = .git.identity_local }}{{ end -}}
+
+# Two non-obvious requirements below, both verified against git 2.50 -- get
+# either wrong and these blocks silently do nothing at all:
+#
+#   1. The pattern MUST end in "/". Git appends "**" only to a pattern that
+#      ends in a slash, so "gitdir:~/src/github.com/gifthealth" matches a
+#      gitdir at exactly that path -- i.e. never a repo *inside* it. The slash
+#      is appended by the template rather than stored per-entry in git.yaml so
+#      that it cannot be forgotten for one client. The single pattern that used
+#      to live here had no slash, so this overlay had never applied to a single
+#      repo, for any client, since the day it was written.
+#   2. "gitdir/i:" (case-insensitive). The checkout on disk is
+#      ~/src/github.com/Gifthealth, the GitHub org is giftHEALTH, and the
+#      pattern here is lowercase -- three different spellings of one name.
+#      Plain "gitdir:" compares case-sensitively even on a case-insensitive
+#      APFS volume, so it would miss.
+{{ range .git.identities -}}
+{{- $key := .key -}}
+{{- $local := merge (dict) (index $localAll $key | default dict) (dict "email" "" "signing_key" "") -}}
+{{- if $local.email -}}
+{{- range .dirs }}
+[includeIf "gitdir/i:{{ . }}/"]
+	path = ~/.config/git/identity_{{ $key }}.gitconfig
 {{- end }}
+{{ end -}}
+{{- end -}}

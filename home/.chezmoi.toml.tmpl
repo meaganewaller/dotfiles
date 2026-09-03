@@ -6,18 +6,39 @@
 {{ $gitName := "" -}}
 {{ $gitUsername := "" -}}
 {{- $gitEmail := "" -}}
-{{- $gitWorkEmail := "" -}}
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
 {{- $workProfile := false -}}
 {{- $useBedrock := false -}}
+{{- /* Machine-local half of each identity under `git.identities` in
+       .chezmoidata/git.yaml. A blank email means "this identity is not used on
+       this machine": its includeIf, its overlay file, and its trust-map line
+       all disappear together, which is what lets one source tree serve a
+       personal laptop and a client machine with no per-machine branching.
+
+       These keys are spelled out literally instead of looped over the data
+       file because .chezmoidata is NOT in scope while this template renders --
+       chezmoi executes .chezmoi.toml.tmpl to *produce* the config that
+       determines sourceDir, before any source state is read. (Verified: a
+       `hasKey . "<datakey>"` probe is false here.) So adding a client means
+       adding its prompts below as well as its entry in git.yaml, and
+       test/git-identity.bats asserts the two never drift apart. */ -}}
+{{- $tdEmail := "" -}}
+{{- $tdKey := "" -}}
+{{- $ghEmail := "" -}}
+{{- $ghKey := "" -}}
 {{- if stdinIsATTY -}}
 {{- $gitName = promptStringOnce . "git.name" "Git user.name" -}}
 {{- $gitEmail = promptStringOnce . "git.email" "Personal git user.email" -}}
 {{- $gitUsername = promptStringOnce . "git.username" "Git username" -}}
 {{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
-{{- if $workProfile -}}
-{{- $gitWorkEmail = promptStringOnce . "git.work_email" "Work git user.email" -}}
+{{- $tdEmail = promptStringOnce . "git.identity_local.testdouble.email" "TestDouble git user.email (blank if unused on this machine)" "" -}}
+{{- if $tdEmail -}}
+{{- $tdKey = promptStringOnce . "git.identity_local.testdouble.signing_key" "TestDouble signing key, `ssh-add -L` output (blank = personal key)" "" -}}
+{{- end -}}
+{{- $ghEmail = promptStringOnce . "git.identity_local.gifthealth.email" "Gift Health git user.email (blank if unused on this machine)" "" -}}
+{{- if $ghEmail -}}
+{{- $ghKey = promptStringOnce . "git.identity_local.gifthealth.signing_key" "Gift Health signing key, `ssh-add -L` output (blank = personal key)" "" -}}
 {{- end -}}
 {{- /* trimAll guards against pasting a ref with its surrounding quotes still
        attached (e.g. copied from a JSON export) -- op read/onepasswordRead
@@ -32,7 +53,10 @@
 {{- $gitEmail = env "GIT_USER_EMAIL" -}}
 {{- $gitUsername = env "GIT_USERNAME" -}}
 {{- $workProfile = eq (env "WORK_PROFILE") "true" -}}
-{{- $gitWorkEmail = env "GIT_WORK_USER_EMAIL" -}}
+{{- $tdEmail = env "GIT_TESTDOUBLE_EMAIL" -}}
+{{- $tdKey = env "GIT_TESTDOUBLE_SIGNING_KEY" -}}
+{{- $ghEmail = env "GIT_GIFTHEALTH_EMAIL" -}}
+{{- $ghKey = env "GIT_GIFTHEALTH_SIGNING_KEY" -}}
 {{- end }}
 # Custom source directory so the dotfiles repo doesn't need to live under
 # the default `~/.local/share/chezmoi/`.
@@ -52,7 +76,18 @@ work_profile = {{ $workProfile }}
 name = {{ $gitName | quote }}
 email = {{ $gitEmail | quote }}
 username = {{ $gitUsername | quote }}
-work_email = {{ $gitWorkEmail | quote }}
+
+# Machine-local half of the identities declared in .chezmoidata/git.yaml.
+# These live here rather than in the source tree because meaganewaller/dotfiles
+# is public, and client email addresses and engagement-scoped signing keys do
+# not belong in its history. Blank signing_key falls back to git.signing_key.
+[data.git.identity_local.testdouble]
+email = {{ $tdEmail | quote }}
+signing_key = {{ $tdKey | quote }}
+
+[data.git.identity_local.gifthealth]
+email = {{ $ghEmail | quote }}
+signing_key = {{ $ghKey | quote }}
 
 [data.credentials]
 claude_api = {{ $credClaudeApi | quote }}

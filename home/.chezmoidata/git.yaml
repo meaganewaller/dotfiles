@@ -1,16 +1,17 @@
 # Git signing identity.
 #
-# 1Password is the authoritative source for the SSH key itself: the private half
+# 1Password is the authoritative source for every private key: the private half
 # never leaves the vault, and the 1Password SSH agent serves it to git via
 # `op-ssh-sign` (see [gpg "ssh"] program in dot_config/git/config.tmpl, and the
 # agent's own vault config in dot_config/1Password/ssh/agent.toml).
 #
-# What lives here is only the *public* half, recorded once so the two files that
-# need it -- config.tmpl's `signingkey` and allowed_signers.tmpl's trust map --
-# cannot drift apart. They did drift once: commit 0b2feb5 moved keys into
-# 1Password and updated config.tmpl but not allowed_signers.tmpl, leaving local
-# verification broken against a stale key. Deriving both from this one value is
-# what makes that failure mode structurally impossible. See ADR 0012.
+# What lives here is only the *public* half of the personal key, recorded once
+# so the two files that need it -- config.tmpl's `signingkey` and
+# allowed_signers.tmpl's trust map -- cannot drift apart. They did drift once:
+# commit 0b2feb5 moved keys into 1Password and updated config.tmpl but not
+# allowed_signers.tmpl, leaving local verification broken against a stale key.
+# Deriving both from this one value is what makes that failure mode
+# structurally impossible. See ADR 0012.
 #
 # A public key is not a secret, so committing it costs nothing and, unlike an
 # `onepasswordRead`, needs no 1Password auth at `chezmoi apply` time.
@@ -22,7 +23,49 @@
 git:
   # Matches "My Personal SSH Key" in the Development vault.
   # SHA256:TeXrUZ1GarNJ6A7Wm6HWHcjN2Ibh4XwWOLae/rNgyac
+  #
+  # This is also the fallback signing key for any identity below that does not
+  # name one of its own.
   signing_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFQ99ctOvjZ2A8JQQu0dgRDKt8V3OuVUpSU4zLq62GLQ"
 
   # Where the rendered trust map lands. git expands `~` for this setting.
   allowed_signers_file: "~/.config/git/allowed_signers"
+
+  # ── Identity routing ────────────────────────────────────────────────────────
+  #
+  # Which org directory gets which git identity. Commits under `dirs` are
+  # authored with that identity's email and signed with its key; everything
+  # else falls through to the personal identity above.
+  #
+  # This half of an identity -- the org directory names -- is public
+  # information (the same orgs already appear in .chezmoidata/pr.yaml) and is
+  # committed. The other half -- the email address and, for a client, the
+  # signing key -- is machine-local and PII-adjacent, so it is *prompted* at
+  # `chezmoi init` and lives only in ~/.config/chezmoi/chezmoi.toml under
+  # `git.identity_local.<key>`. This repo is public; client email addresses
+  # and engagement-scoped key material do not belong in its history.
+  #
+  # An identity is active on a machine if and only if its prompted email is
+  # non-empty. That is what lets one source tree serve a personal laptop
+  # (personal + testdouble) and a client machine (personal + gifthealth)
+  # with no per-machine branching: leave the prompt blank and the identity
+  # renders nothing at all.
+  #
+  # `dirs` entries carry NO trailing slash -- config.tmpl appends it. Git only
+  # appends "**" to a gitdir pattern that ends in "/", so a pattern without one
+  # matches a gitdir at exactly that path and therefore never a repo inside it.
+  # Appending in the template means the slash cannot be forgotten per-entry,
+  # which is exactly how the previous single hardcoded includeIf sat inert.
+  #
+  # To add a client: add an entry here, add its two prompts to
+  # .chezmoi.toml.tmpl, and add home/dot_config/git/identity_<key>.gitconfig.tmpl.
+  # test/git-identity.bats asserts those three stay in agreement.
+  identities:
+    - key: testdouble
+      dirs:
+        - "~/src/github.com/testdouble"
+        - "~/src/github.com/testdoublelabs"
+
+    - key: gifthealth
+      dirs:
+        - "~/src/github.com/gifthealth"

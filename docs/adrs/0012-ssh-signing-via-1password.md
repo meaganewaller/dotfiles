@@ -9,6 +9,14 @@ supersedes: []
 
 # SSH commit signing: 1Password owns the key, the repo records the public half once
 
+> **Amended by [ADR 0013](0013-identity-routing-by-org-directory.md) (2026-09-03).** The
+> premise below that "1Password serves one signing key, so work commits are signed with
+> it too" no longer holds: the Development vault also holds a client key, and identities
+> now route per org directory, each trusted against the key it actually signs with.
+> Everything else here — 1Password owning the private half, the public half recorded once
+> in `.chezmoidata/git.yaml`, `allowedSignersFile`, and the re-anchored drift guard —
+> still stands.
+
 ## Context and Problem Statement
 
 Commit signing in this repo is SSH-based (`gpg.format = ssh`) and backed by 1Password: `op-ssh-sign` asks the 1Password SSH agent to sign, and the agent's vault is configured in `home/dot_config/private_1Password/private_ssh/private_agent.toml`. The private key never touches disk. That part worked.
