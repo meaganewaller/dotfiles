@@ -1,0 +1,5 @@
+# Replaced by dot_config/git/identity_<key>.gitconfig.tmpl, which renders one
+# overlay per identity in .chezmoidata/git.yaml rather than a single "work" one.
+# Listed here so machines that applied the old layout drop the orphan, which
+# nothing includes any more.
+.config/git/work.gitconfig

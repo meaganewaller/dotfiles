@@ -1,0 +1,24 @@
+{{- /* One git identity overlay: the [user] block that config.tmpl's includeIf
+       points at for a given set of org directories.
+
+       Call with: dict "key" "<identity key>" "data" .
+
+       Renders nothing at all when the identity has no email on this machine.
+       chezmoi skips a file whose template output is empty, so an unused
+       identity leaves no stale overlay behind -- the same blank-email
+       condition that keeps its includeIf out of config.tmpl and its line out
+       of allowed_signers. The three cannot disagree because they read the
+       same value.
+
+       signing_key is optional: an identity that does not name its own key is
+       signed with, and trusted against, the personal key from
+       .chezmoidata/git.yaml. */ -}}
+{{- $data := .data -}}
+{{- $localAll := dict -}}
+{{- if hasKey $data.git "identity_local" }}{{ $localAll = $data.git.identity_local }}{{ end -}}
+{{- $local := merge (dict) (index $localAll .key | default dict) (dict "email" "" "signing_key" "") -}}
+{{- if $local.email -}}
+[user]
+	email = {{ $local.email }}
+	signingkey = {{ $local.signing_key | default $data.git.signing_key }}
+{{ end -}}

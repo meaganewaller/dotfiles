@@ -3,14 +3,28 @@
 # `git log --show-signature` consults this to mark our own commits as
 # verified (G) instead of "could not be verified" (E).
 #
-# The key comes from .chezmoidata/git.yaml -- the same value config.tmpl renders
-# into `signingkey`, so the two cannot drift apart. Do not paste a literal here;
-# that is exactly how this file went stale before (see ADR 0012).
+# The personal key comes from .chezmoidata/git.yaml -- the same value
+# config.tmpl renders into `signingkey`, so the two cannot drift apart. Do not
+# paste a literal here; that is exactly how this file went stale before (see
+# ADR 0012).
 #
-# Both identities map to the same key: 1Password serves one signing key, so work
-# commits are signed with it too. The separate work key that used to live here
-# belonged to a former client and was retired.
+# Client identities are rendered from the same `git.identities` list that
+# config.tmpl loops for its includeIf blocks, paired with the email and key
+# prompted into ~/.config/chezmoi/chezmoi.toml. An identity whose email is
+# blank on this machine contributes no line here, exactly as it contributes no
+# includeIf and no overlay file.
+#
+# ADR 0012 recorded that 1Password served exactly one signing key, so work
+# commits were signed with the personal one and both emails mapped to it. That
+# premise no longer holds -- the Development vault also holds a client key --
+# so each identity is trusted against whichever key it actually signs with,
+# falling back to the personal key when it names none.
 {{ .git.email }} {{ .git.signing_key }}
-{{ if .work_profile -}}
-{{ .git.work_email }} {{ .git.signing_key }}
-{{ end -}}
+{{- $localAll := dict -}}
+{{- if hasKey .git "identity_local" }}{{ $localAll = .git.identity_local }}{{ end -}}
+{{- range .git.identities }}
+{{- $local := merge (dict) (index $localAll .key | default dict) (dict "email" "" "signing_key" "") }}
+{{- if $local.email }}
+{{ $local.email }} {{ $local.signing_key | default $.git.signing_key }}
+{{- end }}
+{{- end }}

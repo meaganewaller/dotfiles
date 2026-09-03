@@ -55,6 +55,18 @@ For CI/CD or environments without a TTY, set:
 - `GIT_USER_NAME="Your Name"` — Git user name for commits
 - `GIT_USER_EMAIL="your.email@example.com"` — Git user email for commits
 
+Per-identity overrides are optional. Each identity declared under `git.identities`
+in `home/.chezmoidata/git.yaml` routes commits in its org directories to a
+separate email and signing key (see [ADR 0013](docs/adrs/0013-identity-routing-by-org-directory.md)).
+Leave a variable unset and that identity is simply inactive on the machine —
+no `includeIf`, no overlay file, no trust-map entry:
+
+- `GIT_TESTDOUBLE_EMAIL`, `GIT_TESTDOUBLE_SIGNING_KEY`
+- `GIT_GIFTHEALTH_EMAIL`, `GIT_GIFTHEALTH_SIGNING_KEY`
+
+A blank signing key falls back to the personal key. Signing keys are the public
+half only (`ssh-add -L` output); private keys stay in 1Password.
+
 Example:
 
 ```bash
