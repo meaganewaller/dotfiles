@@ -251,4 +251,9 @@
     "RSTART"
   ],
   "editor.minimap.enabled": false,
+  "chat.tools.terminal.autoApprove": {
+    "git checkout": true,
+    "git rev-parse": true,
+    "bin/rails": true
+  },
 }
