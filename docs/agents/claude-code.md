@@ -210,7 +210,9 @@ To add a skill, add it to a plugin in the marketplace repository and declare tha
 
 ## Subagents inventory
 
-Each subagent is a single `.md` file at `home/private_dot_claude-personal/agents/<name>.md`:
+Each subagent is a thin `home/private_dot_claude-personal/agents/<name>.md.tmpl` that
+includes a shared body from `home/.chezmoitemplates/agents/<name>.md`. The body carries
+the usual frontmatter:
 
 ```yaml
 ---
@@ -225,12 +227,9 @@ Current subagents:
 
 | Agent | Purpose |
 | --- | --- |
-| `pr-feedback-reviewer` | Fetch PR comments, assess validity, prioritize recommendations |
-| `reviewer` | Read-only code / document review; restricted to writing reports under `scratch/` |
-| `shell-wizard` | Write clean, safe, readable shell scripts |
 | `tdd-guardian` | Enforce strict TDD (RED → GREEN → MUTATE → KILL → REFACTOR) before code is written |
 
-`reviewer` and `tdd-guardian` enforce hard role boundaries in their system prompts (e.g. "this agent must not modify any files outside of scratch/"). When extending or adding a subagent, treat the system-prompt role boundaries as load-bearing — they're what makes the agent safe to spawn unsupervised.
+`tdd-guardian` enforces a hard role boundary in its system prompt ("You are not a code generator. You are a discipline. Hold the line."). When extending or adding a subagent, treat the system-prompt role boundaries as load-bearing — they're what makes the agent safe to spawn unsupervised. A body under `.chezmoitemplates/agents/` with no matching `.md.tmpl` include renders to no account, so add both halves or neither.
 
 ## Hooks
 
