@@ -254,6 +254,9 @@
   "chat.tools.terminal.autoApprove": {
     "git checkout": true,
     "git rev-parse": true,
-    "bin/rails": true
+    "bin/rails": true,
+    "git add": true,
+    "git commit": true,
+    "git push": true
   },
 }
