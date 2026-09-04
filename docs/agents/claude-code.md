@@ -227,7 +227,6 @@ Current subagents:
 | --- | --- |
 | `pr-feedback-reviewer` | Fetch PR comments, assess validity, prioritize recommendations |
 | `reviewer` | Read-only code / document review; restricted to writing reports under `scratch/` |
-| `shell-wizard` | Write clean, safe, readable shell scripts |
 | `tdd-guardian` | Enforce strict TDD (RED → GREEN → MUTATE → KILL → REFACTOR) before code is written |
 
 `reviewer` and `tdd-guardian` enforce hard role boundaries in their system prompts (e.g. "this agent must not modify any files outside of scratch/"). When extending or adding a subagent, treat the system-prompt role boundaries as load-bearing — they're what makes the agent safe to spawn unsupervised.
