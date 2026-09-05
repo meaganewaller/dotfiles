@@ -10,7 +10,7 @@ hk = "1.57.0"
 jq = "1.8.2"
 "npm:markdownlint-cli" = "0.49.1"
 pkl = "0.32.1"
-shfmt = "3.13.1"
+shfmt = "3.14.0"
 stylua = "2.5.2"
 
 [tasks.lint]
