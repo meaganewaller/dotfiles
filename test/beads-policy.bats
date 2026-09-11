@@ -131,8 +131,8 @@ EOF
 	local hook out
 	for hook in $BEADS_HOOKS; do
 		out="$(render_hook "$hook")"
-		[[ "$out" == *"BEGIN BEADS INTEGRATION v1.1.0"* ]] || fail "$hook: missing begin marker"
-		[[ "$out" == *"END BEADS INTEGRATION v1.1.0"* ]] || fail "$hook: missing end marker"
+		[[ "$out" == *"BEGIN BEADS INTEGRATION v1.2.2"* ]] || fail "$hook: missing begin marker"
+		[[ "$out" == *"END BEADS INTEGRATION v1.2.2"* ]] || fail "$hook: missing end marker"
 	done
 }
 

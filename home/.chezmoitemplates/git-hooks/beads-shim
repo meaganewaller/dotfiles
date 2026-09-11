@@ -11,7 +11,7 @@ if [ "${HK:-1}" != "0" ] && [ -f hk.pkl ] && command -v mise >/dev/null 2>&1; th
 	mise x -- hk run {{ .hook }} --from-hook "$@" || exit $?
 fi
 
-# --- BEGIN BEADS INTEGRATION v1.1.0 ---
+# --- BEGIN BEADS INTEGRATION v1.2.2 ---
 # Mirrors `bd hooks install` output. Resync when bd bumps this version; see
 # docs/beads.md. Do not remove these markers.
 if command -v bd >/dev/null 2>&1; then
@@ -43,4 +43,4 @@ if command -v bd >/dev/null 2>&1; then
 	fi
 	if [ "$_bd_exit" -ne 0 ]; then exit "$_bd_exit"; fi
 fi
-# --- END BEADS INTEGRATION v1.1.0 ---
+# --- END BEADS INTEGRATION v1.2.2 ---
