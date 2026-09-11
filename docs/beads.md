@@ -80,11 +80,11 @@ Not exercised in the throwaway checks: `bd dolt push` and the `ls-remote` check,
 For any repository that is not mine:
 
 ```bash
-git init .                                # seed the hooks; a no-op if they are already there
+git init .                                      # seed the hooks; a no-op if they are already there
 bd init --stealth
-bd config set no-git-ops true             # keep --stealth's setting, scoped to this repository
-chezmoi apply ~/.config/bd/config.yaml    # and remove the machine-wide copy --stealth wrote
-git status --porcelain                    # expect no output
+bd config set no-git-ops true                   # keep --stealth's setting, scoped to this repository
+chezmoi apply --force ~/.config/bd/config.yaml  # and remove the machine-wide copy --stealth wrote
+git status --porcelain                          # expect no output
 if [ -z "$(bd config get --json sync.remote | jq -r .value)" ] &&
   [ "$(bd dolt remote list --json | jq length)" -eq 0 ]; then
   echo "correct: no push target"
@@ -95,7 +95,7 @@ fi
 
 - **`--stealth` keeps the tree clean.** It writes `.beads/`, `.claude/settings.local.json`, and bd's Dolt patterns to `.git/info/exclude`, which is per clone and never committed. It edits no tracked file, writes no agent files, makes no commit, leaves existing hooks alone, and never sets `core.hooksPath`. In the throwaway check the tree stayed clean through `bd create`, a commit through the seeded hooks, and a branch checkout; the commit held only the tracked change, and bd added no trailers to its message.
 - **No push target.** `--stealth` sets neither `sync.remote` nor a Dolt remote, and leaves `export.auto` off.
-- **Its global side effect.** `--stealth` also appends `no-git-ops: true` to `~/.config/bd/config.yaml`. That file is chezmoi-managed (`home/dot_config/bd/private_config.yaml`), and the setting reaches every repository: bd describes it as "no git commands in session close protocol", and `bd prime` everywhere, durable repositories included, switches to "Git workflow: stealth mode (no git ops)". Setting it inside the repository writes it to `.beads/config.yaml` instead, which is already excluded, and the targeted `chezmoi apply` puts the global file back. (The throwaway check restored that file by copying the chezmoi source over it rather than by running `chezmoi apply`.)
+- **Its global side effect.** `--stealth` also appends `no-git-ops: true` to `~/.config/bd/config.yaml`. That file is chezmoi-managed (`home/dot_config/bd/private_config.yaml`), and the setting reaches every repository: bd describes it as "no git commands in session close protocol", and `bd prime` everywhere, durable repositories included, switches to "Git workflow: stealth mode (no git ops)". Setting it inside the repository writes it to `.beads/config.yaml` instead, which is already excluded, and `chezmoi apply --force ~/.config/bd/config.yaml` puts the global file back. The `--force` matters: bd changed a chezmoi-managed file, so without it chezmoi stops to ask before overwriting, and with no TTY it fails with `could not open a new TTY`. It is safe because it restores only that one target's committed source; keep the target on the command line, since without one `--force` applies every pending change on the machine, scripts included. (The throwaway check restored the file by copying the chezmoi source over it; the `--force` revert itself was verified against the real file, which it restored byte-identical, mode 0600.)
 - **Why the check tests two things.** `bd config get sync.remote` exits 0 whether or not the key is set; unset, it prints `sync.remote (not set in config.yaml)`. And `bd dolt push` pushes to the Dolt remote, not to `sync.remote`, so `bd config unset sync.remote` alone leaves a Dolt `origin` behind. The check reads both through `--json`.
 - **The mistake this prevents.** Plain `bd init` in someone else's repository sets `sync.remote` and a Dolt `origin` from that repository's own origin, writes agent files, and commits all of it. If that happens, the FIX commands remove the push target; bd's commit still has to be dropped before anything is pushed.
 
