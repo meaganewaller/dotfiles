@@ -1,0 +1,22 @@
+# Beads (bd) scope.
+#
+# Which org directories are mine. Beads runs in *durable* mode under these --
+# the lean .beads/ set is committed and dolt data is pushed -- and in
+# *local-only* mode everywhere else, where .beads/ goes into .git/info/exclude
+# and sync.remote is left unset so nothing is ever written to a remote that
+# is not mine.
+#
+# This is deliberately NOT derived from git.identities. That list enumerates
+# only *non-personal* orgs (personal is its unnamed fallback), so inverting it
+# would misclassify a cloned open-source repo as mine. The two lists are kept
+# apart and asserted disjoint by test/beads-policy.bats.
+#
+# Entries carry NO trailing slash; consumers append one where a gitdir pattern
+# needs it. Matching is case-insensitive -- the checkout on disk may differ in
+# case from the org name here.
+#
+# Full policy: docs/beads.md
+beads:
+  personal_dirs:
+    - "~/src/github.com/meaganewaller"
+    - "~/src/github.com/onlooker-community"
