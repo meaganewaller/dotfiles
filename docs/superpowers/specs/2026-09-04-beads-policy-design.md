@@ -240,10 +240,13 @@ automatically.
 The no-clobber property above cuts both ways: because `git init` skips hooks
 that already exist, it will **not** propagate an updated shim to a repository
 that already has the old one. Resyncing after a bd upgrade therefore requires
-removing the stale shims first:
+removing the stale shims first, and only those: a hook this policy neither
+owns nor chains must survive, or the safety property above breaks.
 
 ```sh
-rm -f .git/hooks/{pre-commit,post-merge,pre-push,post-checkout,prepare-commit-msg}
+for h in pre-commit post-merge pre-push post-checkout prepare-commit-msg; do
+  grep -qE 'BEADS INTEGRATION|hk run' ".git/hooks/$h" 2>/dev/null && rm -f ".git/hooks/$h"
+done
 git init .
 ```
 

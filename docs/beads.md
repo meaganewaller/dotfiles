@@ -85,8 +85,8 @@ bd init --stealth
 bd config set no-git-ops true                   # keep --stealth's setting, scoped to this repository
 chezmoi apply --force ~/.config/bd/config.yaml  # and remove the machine-wide copy --stealth wrote
 git status --porcelain                          # expect no output
-if [ -z "$(bd config get --json sync.remote | jq -r .value)" ] &&
-  [ "$(bd dolt remote list --json | jq length)" -eq 0 ]; then
+if bd config get --json sync.remote | jq -e '.value == ""' >/dev/null &&
+  [ "$(bd dolt remote list --json | jq length)" = 0 ]; then
   echo "correct: no push target"
 else
   echo "FIX: bd config unset sync.remote; bd dolt remote remove origin"
@@ -95,8 +95,8 @@ fi
 
 - **`--stealth` keeps the tree clean.** It writes `.beads/`, `.claude/settings.local.json`, and bd's Dolt patterns to `.git/info/exclude`, which is per clone and never committed. It edits no tracked file, writes no agent files, makes no commit, leaves existing hooks alone, and never sets `core.hooksPath`. In the throwaway check the tree stayed clean through `bd create`, a commit through the seeded hooks, and a branch checkout; the commit held only the tracked change, and bd added no trailers to its message.
 - **No push target.** `--stealth` sets neither `sync.remote` nor a Dolt remote, and leaves `export.auto` off.
-- **Its global side effect.** `--stealth` also appends `no-git-ops: true` to `~/.config/bd/config.yaml`. That file is chezmoi-managed (`home/dot_config/bd/private_config.yaml`), and the setting reaches every repository: bd describes it as "no git commands in session close protocol", and `bd prime` everywhere, durable repositories included, switches to "Git workflow: stealth mode (no git ops)". Setting it inside the repository writes it to `.beads/config.yaml` instead, which is already excluded, and `chezmoi apply --force ~/.config/bd/config.yaml` puts the global file back. The `--force` matters: bd changed a chezmoi-managed file, so without it chezmoi stops to ask before overwriting, and with no TTY it fails with `could not open a new TTY`. It is safe because it restores only that one target's committed source; keep the target on the command line, since without one `--force` applies every pending change on the machine, scripts included. (The throwaway check restored the file by copying the chezmoi source over it; the `--force` revert itself was verified against the real global file with no TTY: it removed `no-git-ops`, `chezmoi diff` came back empty, and the file was byte-identical to its original, mode 0600.)
-- **Why the check tests two things.** `bd config get sync.remote` exits 0 whether or not the key is set; unset, it prints `sync.remote (not set in config.yaml)`. And `bd dolt push` pushes to the Dolt remote, not to `sync.remote`, so `bd config unset sync.remote` alone leaves a Dolt `origin` behind. The check reads both through `--json`.
+- **Its global side effect.** `--stealth` also appends `no-git-ops: true` to `~/.config/bd/config.yaml`. That file is chezmoi-managed (`home/dot_config/bd/private_config.yaml`), and the setting reaches every repository: bd describes it as "no git commands in session close protocol", and `bd prime` everywhere, durable repositories included, switches to "Git workflow: stealth mode (no git ops)". Despite `bd init --help`'s mention of global gitattributes and gitignore, it leaves `~/.config/git/attributes`, `~/.config/git/ignore`, and the global git config untouched. Setting `no-git-ops` inside the repository writes it to `.beads/config.yaml`, which is already excluded, even while the global copy is still in place; `chezmoi apply --force ~/.config/bd/config.yaml` then puts the global file back. The `--force` matters: bd changed a chezmoi-managed file, so without it chezmoi stops to ask before overwriting, and with no TTY it fails with `could not open a new TTY`. It is safe because it restores only that one target's committed source; keep the target on the command line, since without one `--force` applies every pending change on the machine, scripts included. (The throwaway check restored the file by copying the chezmoi source over it; the `--force` revert itself was verified against the real global file with no TTY: it removed `no-git-ops`, `chezmoi diff` came back empty, and the file was byte-identical to its original, mode 0600.)
+- **Why the check tests two things.** `bd config get sync.remote` exits 0 whether or not the key is set; unset, it prints `sync.remote (not set in config.yaml)`. And `bd dolt push` pushes to the Dolt remote, not to `sync.remote`, so `bd config unset sync.remote` alone leaves a Dolt `origin` behind. The check reads both through `--json` and fails closed: if either bd call errors or prints nothing, it reports FIX, in zsh as well as bash.
 - **The mistake this prevents.** Plain `bd init` in someone else's repository sets `sync.remote` and a Dolt `origin` from that repository's own origin, writes agent files, and commits all of it. If that happens, the FIX commands remove the push target; bd's commit still has to be dropped before anything is pushed.
 
 ---
@@ -138,14 +138,18 @@ bd hooks list                    # expect five "installed (shim 1.2.2)"
 
 `bd hooks list` works in a repository without beads, too.
 
-The no-clobber rule cuts both ways: `git init .` will not replace a stale shim either. After a [shim resync](#shim-resync), or in a clone that already has older hooks, delete the five first. That also removes any hook `hk install` wrote, which is fine, because the shim runs hk itself when `hk.pkl` is present.
+The no-clobber rule cuts both ways: `git init .` will not replace a stale shim either. After a [shim resync](#shim-resync), or in a clone that already has older hooks, delete the hooks this policy owns, then reseed:
 
 ```bash
-rm -f .git/hooks/{pre-commit,post-merge,pre-push,post-checkout,prepare-commit-msg}
+for h in pre-commit post-merge pre-push post-checkout prepare-commit-msg; do
+  grep -qE 'BEADS INTEGRATION|hk run' ".git/hooks/$h" 2>/dev/null && rm -f ".git/hooks/$h"
+done
 git init .
 ```
 
-The brace expansion needs zsh or bash. If `git rev-parse --git-path hooks` prints anything other than `.git/hooks`, `core.hooksPath` is set and git ignores `.git/hooks/` entirely. When it points at `.beads/hooks`, which plain `bd init` does in a hookless clone, remove it:
+The loop deletes a hook only if it carries a beads block or runs hk: an older shim, bd's own hook, or one `hk install` wrote, which is fine to replace because the shim runs hk itself when `hk.pkl` is present. A hook from any other tool in those slots, such as the pre-commit framework, lefthook, or husky v4, stays as it is, and beads does not run for that slot. The loop runs in zsh and bash.
+
+If `git rev-parse --git-path hooks` prints anything other than `.git/hooks`, `core.hooksPath` is set and git ignores `.git/hooks/` entirely. When it points at `.beads/hooks`, which plain `bd init` does in a hookless clone, remove it:
 
 ```bash
 git config --unset core.hooksPath
@@ -162,31 +166,34 @@ bd stamps its own CLI version into those markers, so the label moves with every 
 After a bd upgrade, compare the logic, not the label. From the dotfiles repository root:
 
 ```bash
-tmp=$(mktemp -d)
-git -C "$tmp" init -q
-rm -f "$tmp"/.git/hooks/*
-(cd "$tmp" && bd hooks install >/dev/null)
-grep -m1 -o 'BEADS INTEGRATION v[0-9.]*' "$tmp/.git/hooks/pre-commit"
-grep -m1 -o 'BEADS INTEGRATION v[0-9.]*' home/.chezmoitemplates/git-hooks/beads-shim
 norm() {
   sed -n '/BEGIN BEADS INTEGRATION/,/END BEADS INTEGRATION/p' |
     sed -E -e 's/v[0-9]+(\.[0-9]+)+/vX/' -e 's/^[[:space:]]+//' \
-      -e 's/pre-commit|\{\{ \.hook \}\}/HOOK/g'
+      -e 's/pre-commit|\{\{ \.hook \}\}/HOOK/g' \
+      -e 's/"(\$_bd_[a-z_]+)"/\1/g' -e '/^# /d' -e '/database not initialized/d'
 }
-diff <(norm <"$tmp/.git/hooks/pre-commit") <(norm <home/.chezmoitemplates/git-hooks/beads-shim)
-rm -rf "$tmp"
+if tmp=$(mktemp -d) && [ -d "$tmp" ]; then
+  git -C "$tmp" init -q
+  rm -f "$tmp"/.git/hooks/*
+  (cd "$tmp" && bd hooks install >/dev/null)
+  grep -m1 -o 'BEADS INTEGRATION v[0-9.]*' "$tmp/.git/hooks/pre-commit"
+  grep -m1 -o 'BEADS INTEGRATION v[0-9.]*' home/.chezmoitemplates/git-hooks/beads-shim
+  diff <(norm <"$tmp/.git/hooks/pre-commit") <(norm <home/.chezmoitemplates/git-hooks/beads-shim) &&
+    echo "no logic change"
+  rm -rf "$tmp"
+fi
 ```
 
-The `rm -f` drops the shims `init.templateDir` seeded, so bd writes fresh files. The two `grep` lines print bd's current label and the pinned one; when they differ, it is time to resync. The `diff` normalizes the hook name, the version, and leading whitespace. On bd 1.2.2 it prints exactly the three deliberate divergences listed below, and nothing else.
+The `if` guard stops the block when `mktemp` fails, so `bd hooks install` can never land in the current repository's hooks. The `rm -f` drops the shims `init.templateDir` seeded, so bd writes fresh files. The two `grep` lines print bd's current label and the pinned one; when they differ, it is time to resync. `norm` reduces each block to its logic: it normalizes the hook name, the version, and leading whitespace, and drops the shim's three deliberate divergences listed below (comments, the added quoting, and bd's exit-3 message).
 
-- **Only those three hunks:** the change is label-only. Bump both markers in `beads-shim` and the expected version in the "shims carry the pinned beads integration markers" test in `test/beads-policy.bats`.
-- **Anything more:** bd changed the logic. Re-mirror its block into `beads-shim`, keep the three divergences, and bump the markers and the test the same way.
+- **`no logic change`:** the change is label-only. Bump the pin: both markers in `beads-shim`, the expected version in the "shims carry the pinned beads integration markers" test in `test/beads-policy.bats`, and this page's pin mentions, which are the two `bd hooks list` expectations (in the durable checklist and the retrofit), the pinned version at the top of this section, and the `(shim …)` example after it.
+- **Any `diff` output:** bd changed the logic. Re-mirror its block into `beads-shim`, keep the three divergences, then bump the pin the same way.
 
-Then run `./bin/test` and `chezmoi apply ~/.config/git/template`, and delete and reseed the hooks in each existing clone ([retrofit](#retrofit)), since `git init .` never replaces a hook that exists.
+Then run `./bin/test` and `chezmoi apply ~/.config/git/template`, and reseed each existing clone with the [retrofit](#retrofit) loop, since `git init .` never replaces a hook that exists.
 
 ### How the shim differs from bd's own hooks
 
-Every difference between an installed bd hook and this shim is one of the following. Inside the markers, the diff above shows three:
+Every difference between an installed bd hook and this shim is one of the following. Inside the markers there are three, and `norm` drops all of them:
 
 1. **Header comment.** bd writes "This section is managed by beads"; the shim points here instead, because bd does not manage this copy.
 2. **Quoting.** `$_bd_exit` and `$_bd_used_perl` are quoted, because `test/beads-policy.bats` runs shellcheck over every rendered hook. Behavior is unchanged.
