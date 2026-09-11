@@ -15,7 +15,9 @@ drift was not cosmetic — it cost real data.
 | --- | --- | --- |
 | Live database | 52 issues (2 open, 50 closed) | none — `bd stats`: "no beads database found" |
 | `refs/dolt/data` on remote | present | absent |
-| `.beads/issues.jsonl` tracked | yes, current as of 2026-09-03 | never tracked |
+| `sync.remote` configured | yes | **yes** — correctly, at its own remote |
+| `export.auto` | `true` | **absent** |
+| `.beads/issues.jsonl` tracked | yes, current as of 2026-09-03 | never written, never tracked |
 | `.beads/interactions.jsonl` tracked | yes | yes — 3,453 lines, orphaned |
 | `.beads/hooks/` tracked | yes, 6 hooks | yes, 18 hooks (mirrors the repo's husky hooks) |
 
@@ -27,6 +29,28 @@ issues that no longer exist.
 
 `dotfiles` survived because it happened to do the redundant thing — dolt data
 on the remote *and* a committed JSONL export.
+
+Note what was **not** the problem: `sync.remote` is configured correctly in both
+repositories, each pointing at its own GitHub remote. The configuration was
+right; nothing ever acted on it.
+
+The differentiator was `export.auto`. `dotfiles` sets it to `true`, so every
+write command refreshed `.beads/issues.jsonl`, which then got committed by hand.
+`marketplace` never set it, so no export was ever written, and when the database
+went away there was nothing left but the interactions log.
+
+One correction to a tempting reading of that: the JSONL export is **not a
+backup**. `bd config --help` is explicit — it is "useful for viewers (bv),
+interchange, and issue-level migration; not a backup. It is not cross-machine
+sync; use `bd dolt push/pull` with a Dolt remote." So the export is a readable
+artifact that makes reconstruction possible, not the durability mechanism.
+Durability is `bd dolt push`, and the reason `dotfiles` has `refs/dolt/data` on
+its remote while `marketplace` does not is that somebody ran that push by hand
+in one repository and not the other.
+
+The policy therefore requires both, for different reasons: the dolt push for
+durability, and the committed export for a diffable, human-readable record that
+survives in git even if the Dolt remote is unreachable.
 
 ### Root cause
 
@@ -84,7 +108,15 @@ beads:
 Two modes follow:
 
 **Durable mode** — the repository is under a `personal_dirs` entry. The full
-policy applies: the lean set is committed, dolt data is pushed.
+policy applies: the lean set is committed, dolt data is pushed. Two settings in
+`.beads/config.yaml` are required, and their absence is exactly what killed
+`marketplace`:
+
+```yaml
+sync.remote: "git+ssh://git@github.com/<org>/<repo>.git"   # durability
+export:
+    auto: true                                             # readable record
+```
 
 **Local-only mode** — anywhere else, including client organizations and
 open-source repositories cloned to contribute to. Beads may still be used as a
@@ -92,8 +124,9 @@ working aid, but:
 
 - `.beads/` is added to `.git/info/exclude`, which is per-clone and never
   committed, so nothing appears in a repository whose owner did not ask for it.
-- Dolt data is never pushed. Writing `refs/dolt/data` to a remote that is not
-  mine is not mine to do.
+- `sync.remote` is left **unset**, so `bd dolt push` has no target. Writing
+  `refs/dolt/data` to a remote that is not mine is not mine to do.
+- `export.auto` is left off; there is nothing to commit the export to.
 - Consequence, accepted deliberately: issues in local-only repositories are not
   durable. They are a scratchpad and will not survive a reclone.
 
@@ -127,8 +160,8 @@ Committed:
 
 | Path | Why |
 | --- | --- |
-| `.beads/issues.jsonl` | The recoverable export. This is the file that would have saved `marketplace`. |
-| `.beads/config.yaml` | Shared project configuration. |
+| `.beads/issues.jsonl` | Readable, diffable record of issue state. Not a backup (bd says so explicitly), but the artifact that makes reconstruction possible when the database is gone. |
+| `.beads/config.yaml` | Shared project configuration — carries `sync.remote` and `export.auto`. |
 | `.beads/metadata.json` | Issue prefix and project identity. |
 | `.beads/.gitignore` | bd-managed; required for correct ignore behavior. |
 | `.beads/README.md` | Static, generated once. |
@@ -230,8 +263,10 @@ are unrecoverable; nothing in this plan retrieves them.
 1. `chmod 700 .beads`.
 2. `git rm --cached .beads/interactions.jsonl` and `git rm -r --cached .beads/hooks/` — the orphaned log and the 18 husky-mirrored hooks.
 3. `bd init` to create a working database.
-4. Wire hooks; confirm `bd hooks list`.
-5. Confirm `refs/dolt/data` reaches the remote on first push.
+4. `bd config set export.auto true` — the setting whose absence meant no export
+   was ever written here. `sync.remote` is already correct and needs no change.
+5. Wire hooks; confirm `bd hooks list`.
+6. Confirm `refs/dolt/data` reaches the remote on first push.
 
 ## Artifacts
 
@@ -257,14 +292,13 @@ Following ADR 0013's requirement that a guard fail when the bug returns:
 
 ## Open implementation questions
 
-- **Suppressing dolt push in local-only mode.** Excluding `.beads/` via
-  `.git/info/exclude` is self-protecting for the *export* side: bd's pre-commit
-  export produces an ignored file, which cannot be staged. The *push* side needs
-  a bd configuration key to disable remote sync. Such a key has not been
-  confirmed to exist and must be verified against `bd` before implementation. If
-  none exists, the fallback is to omit the pre-push shim's beads block in
-  local-only repositories, which the shim can decide at runtime from the
-  repository path.
+- ~~Suppressing dolt push in local-only mode.~~ **Resolved.** `bd config` has
+  `sync.remote`, stored in `.beads/config.yaml` — in both existing repositories
+  it is set to that repository's own GitHub remote. Local-only mode therefore
+  means leaving `sync.remote` **unset**: `bd dolt push` has no target and cannot
+  write refs to a remote that is not mine. Combined with `.beads/` in
+  `.git/info/exclude`, both the export and push sides are covered without a
+  runtime path check in the shim.
 - **`onlooker-community` is not on this machine.** It is included in
   `personal_dirs` on the strength of ADR 0013's description of the personal
   laptop. Worth confirming it is still a personal organization before landing.
