@@ -143,3 +143,51 @@ EOF
 	out="$(render_hook pre-commit)"
 	[[ "$out" == *"-eq 3"* ]] || fail "pre-commit: does not handle bd exit 3"
 }
+
+# init.templateDir wiring.
+#
+# Seeds .git/hooks/ on every future clone/init from the template rendered
+# above, so the beads + hk shims are present with no per-repo install step.
+# Assert against what git itself parses out of the rendered config rather
+# than matching on rendered text: the mandated [init] comment explains the
+# core.hooksPath pitfall by name, so a plain string search for "hooksPath"
+# would fail against the file's own explanatory prose.
+
+render_git_config() {
+	local repo
+	repo="$(repo_root)"
+	cat >"$TEST_TMPDIR/chezmoi.toml" <<EOF
+sourceDir = "$repo"
+
+[data]
+work_profile = false
+chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR" }
+
+[data.git]
+name = "Test User"
+email = "personal@example.com"
+EOF
+	chezmoi execute-template \
+		--config "$TEST_TMPDIR/chezmoi.toml" \
+		--file "$repo/home/dot_config/git/config.tmpl" \
+		>"$TEST_TMPDIR/config"
+}
+
+@test "git config sets init.templateDir" {
+	render_git_config
+	local out
+	out="$(git config --file "$TEST_TMPDIR/config" --get init.templateDir)" ||
+		fail "init.templateDir is not set; new clones get no hooks"
+	[[ "$out" == "~/.config/git/template" ]] ||
+		fail "init.templateDir is '$out', expected '~/.config/git/template'"
+}
+
+@test "git config never sets core.hooksPath" {
+	# core.hooksPath and init.templateDir are mutually exclusive: if hooksPath
+	# is set, git ignores .git/hooks entirely and the template dir is inert.
+	# That exact misconfiguration is why the existing beads hooks never ran.
+	render_git_config
+	if git config --file "$TEST_TMPDIR/config" --get core.hooksPath >/dev/null; then
+		fail "core.hooksPath is set; it makes init.templateDir inert"
+	fi
+}
