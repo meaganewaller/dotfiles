@@ -1,0 +1,209 @@
+# Beads: Which Repos, What to Commit
+
+How Beads (`bd`) is used across repositories: which ones get a durable issue tracker, what of `.beads/` is committed, how to adopt beads in a repository, and how the git hooks stay wired. The reasoning lives in the [design spec](superpowers/specs/2026-09-04-beads-policy-design.md); this page is the operating manual.
+
+The code blocks on this page were extracted and run against `bd` 1.2.2 (Homebrew) in throwaway repositories with a sandboxed `HOME` on 2026-09-11; any block, or part of one, that was not says so. Those runs were non-interactive, which bd detects when stdin is not a terminal; in a terminal, `bd init` may prompt first (for a role, for example).
+
+## TL;DR
+
+- Repositories under a `beads.personal_dirs` entry are **durable**: commit the lean `.beads/` set and push dolt data.
+- Everywhere else is **local-only**: `bd init --stealth`, nothing committed, no push target.
+- Hooks come from `init.templateDir`. `core.hooksPath` stays unset.
+- Durability is `bd dolt push`. The JSONL export is a readable record, not a backup.
+
+---
+
+## The two modes
+
+`home/.chezmoidata/beads.yaml` → `beads.personal_dirs` lists the org directories whose repositories are mine. Read the list there, not from a copy: it is the source of truth, and `test/beads-policy.bats` fails if any entry equals, contains, or sits inside a client directory from `git.identities`. Compare paths case-insensitively, since a checkout on disk can differ in case from the org name.
+
+| | Durable | Local-only |
+| --- | --- | --- |
+| Applies to | Repositories under a `personal_dirs` entry | Everything else: client organizations, open-source clones |
+| Initialize with | `bd init --skip-hooks` | `bd init --stealth` |
+| Committed | The lean `.beads/` set ([below](#what-is-committed)) | Nothing; `.beads/` sits in `.git/info/exclude` |
+| `sync.remote` and Dolt remote | Derived from `origin` | Neither, so `bd dolt push` has no target |
+| `export.auto` | `true` | Off (the default) |
+| Survives a reclone | Yes | No; treat it as a scratchpad |
+
+---
+
+## Durable mode: adopting beads
+
+From the repository root:
+
+```bash
+# Keep the derived paths out of the commit bd init makes on its own.
+printf '%s\n' \
+  '# Derived from the database and conflict-prone; see docs/beads.md.' \
+  '.beads/interactions.jsonl' \
+  '# Generated per-project; hooks come from init.templateDir instead.' \
+  '.beads/hooks/' >>.gitignore
+git init .                      # seed the five hooks from init.templateDir first
+bd init --skip-hooks            # creates .beads/ and commits it; see below
+bd config get sync.remote       # expect git+ssh://git@github.com/<org>/<repo>.git
+bd dolt remote list             # expect origin at the same URL
+bd config set export.auto true
+chmod 700 .beads                # bd 1.2.2 already creates it 0700; older inits made it 0755
+git rev-parse --git-path hooks  # expect .git/hooks
+bd hooks list                   # expect five "installed (shim 1.2.2)"
+```
+
+Commit `.beads/config.yaml`, which now carries `export.auto`, and `.beads/issues.jsonl` once the first issue exists. Then push the Dolt data, which is the step that makes the tracker durable:
+
+```bash
+bd dolt push
+git ls-remote origin 'refs/dolt/*'   # expect refs/dolt/data
+```
+
+What the checklist works around:
+
+- **`bd init` commits.** It makes its own commit, `bd init: initialize beads issue tracking`, holding `.beads/`'s lean files, the root `.gitignore`, and its agent integration: an `AGENTS.md` section, `CLAUDE.md`, `.claude/settings.json`, `.agents/skills/beads/`, and `.codex/`. `--skip-agents` leaves the agent files out. The ignore lines have to be in place before `bd init`, or that commit includes `.beads/interactions.jsonl`.
+- **Hooks first, then `--skip-hooks`.** In a clone that has no hooks yet, plain `bd init` writes its own shims to `.beads/hooks/` and sets `core.hooksPath` to point there. Git then ignores `.git/hooks/`, and `bd hooks list` still reports all five installed. `git rev-parse --git-path hooks` is the check that shows which directory git actually runs.
+- **`sync.remote` comes from `origin`.** `bd init` sets `sync.remote`, and a Dolt remote named `origin`, from the repository's git `origin`. An scp-style origin (`git@github.com:<org>/<repo>.git`) becomes `git+ssh://…`; an https origin becomes `git+https://…`.
+- **The export is throttled.** With `export.auto` on, bd rewrites `.beads/issues.jsonl` after write commands at most once per 60 seconds, and the pre-commit hook refreshes it as well. A burst of writes can leave the file briefly behind the database.
+
+For the ssh form when `origin` is https, set both. `bd config set sync.remote` does not touch the Dolt remote:
+
+```bash
+bd config set sync.remote "git+ssh://git@github.com/<org>/<repo>.git"
+bd dolt remote remove origin
+bd dolt remote add origin "git+ssh://git@github.com/<org>/<repo>.git"
+```
+
+Not exercised in the throwaway checks: `bd dolt push` and the `ls-remote` check, since those checks never push; and `bd init`'s own commit in a repository that has `hk.pkl` or commit signing turned on.
+
+---
+
+## Local-only mode
+
+For any repository that is not mine:
+
+```bash
+git init .                                # seed the hooks; a no-op if they are already there
+bd init --stealth
+bd config set no-git-ops true             # keep --stealth's setting, scoped to this repository
+chezmoi apply ~/.config/bd/config.yaml    # and remove the machine-wide copy --stealth wrote
+git status --porcelain                    # expect no output
+if [ -z "$(bd config get --json sync.remote | jq -r .value)" ] &&
+  [ "$(bd dolt remote list --json | jq length)" -eq 0 ]; then
+  echo "correct: no push target"
+else
+  echo "FIX: bd config unset sync.remote; bd dolt remote remove origin"
+fi
+```
+
+- **`--stealth` keeps the tree clean.** It writes `.beads/`, `.claude/settings.local.json`, and bd's Dolt patterns to `.git/info/exclude`, which is per clone and never committed. It edits no tracked file, writes no agent files, makes no commit, leaves existing hooks alone, and never sets `core.hooksPath`. In the throwaway check the tree stayed clean through `bd create`, a commit through the seeded hooks, and a branch checkout; the commit held only the tracked change, and bd added no trailers to its message.
+- **No push target.** `--stealth` sets neither `sync.remote` nor a Dolt remote, and leaves `export.auto` off.
+- **Its global side effect.** `--stealth` also appends `no-git-ops: true` to `~/.config/bd/config.yaml`. That file is chezmoi-managed (`home/dot_config/bd/private_config.yaml`), and the setting reaches every repository: bd describes it as "no git commands in session close protocol", and `bd prime` everywhere, durable repositories included, switches to "Git workflow: stealth mode (no git ops)". Setting it inside the repository writes it to `.beads/config.yaml` instead, which is already excluded, and the targeted `chezmoi apply` puts the global file back. (The throwaway check restored that file by copying the chezmoi source over it rather than by running `chezmoi apply`.)
+- **Why the check tests two things.** `bd config get sync.remote` exits 0 whether or not the key is set; unset, it prints `sync.remote (not set in config.yaml)`. And `bd dolt push` pushes to the Dolt remote, not to `sync.remote`, so `bd config unset sync.remote` alone leaves a Dolt `origin` behind. The check reads both through `--json`.
+- **The mistake this prevents.** Plain `bd init` in someone else's repository sets `sync.remote` and a Dolt `origin` from that repository's own origin, writes agent files, and commits all of it. If that happens, the FIX commands remove the push target; bd's commit still has to be dropped before anything is pushed.
+
+---
+
+## What is committed
+
+In a durable repository, commit:
+
+| Path | Why |
+| --- | --- |
+| `.beads/issues.jsonl` | Readable, diffable record of issue state. Not a backup (bd says so explicitly), but the artifact that makes reconstruction possible when the database is gone. |
+| `.beads/config.yaml` | Shared project configuration — carries `sync.remote` and `export.auto`. |
+| `.beads/metadata.json` | Issue prefix and project identity. |
+| `.beads/.gitignore` | bd-managed; required for correct ignore behavior. |
+| `.beads/README.md` | Static, generated once. |
+
+And ignore:
+
+| Path | Why |
+| --- | --- |
+| `.beads/interactions.jsonl` | Append-only audit log, derived from the database, conflicts on every concurrent branch. In `marketplace` it is 3,453 lines describing issues that no longer exist — the less valuable half of the record. |
+| `.beads/hooks/` | Generated per project and per toolchain. `marketplace` has 18 because beads mirrored that repository's husky hooks; `dotfiles` has 6. |
+
+The two ignore lines go in the repository-root `.gitignore`, not in `.beads/.gitignore`, which bd manages and warns against editing. bd's own `.beads/.gitignore` already covers the rest of `.beads/`: the Dolt database, locks, and export state. An ignore rule does not untrack a file git already tracks; that takes `git rm --cached`.
+
+The durable checklist above ends with exactly these five paths tracked.
+
+---
+
+## Retrofit
+
+`init.templateDir` only seeds repositories created after it was set. For an older clone, re-running `git init` in place is the retrofit: git copies the template hooks that are missing and never overwrites a hook that exists.
+
+```bash
+git init .
+git rev-parse --git-path hooks   # expect .git/hooks
+bd hooks list                    # expect five "installed (shim 1.2.2)"
+```
+
+`bd hooks list` works in a repository without beads, too.
+
+The no-clobber rule cuts both ways: `git init .` will not replace a stale shim either. After a [shim resync](#shim-resync), or in a clone that already has older hooks, delete the five first. That also removes any hook `hk install` wrote, which is fine, because the shim runs hk itself when `hk.pkl` is present.
+
+```bash
+rm -f .git/hooks/{pre-commit,post-merge,pre-push,post-checkout,prepare-commit-msg}
+git init .
+```
+
+The brace expansion needs zsh or bash. If `git rev-parse --git-path hooks` prints anything other than `.git/hooks`, `core.hooksPath` is set and git ignores `.git/hooks/` entirely. When it points at `.beads/hooks`, which plain `bd init` does in a hookless clone, remove it:
+
+```bash
+git config --unset core.hooksPath
+```
+
+---
+
+## Shim resync
+
+The five hooks render from one template, `home/.chezmoitemplates/git-hooks/beads-shim`. Its beads block mirrors what `bd hooks install` writes, between markers pinned at **`v1.2.2`**.
+
+bd stamps its own CLI version into those markers, so the label moves with every bd release even when the block's logic does not; from 1.1.0 to 1.2.2 only the indentation changed. bd is installed with Homebrew here, not mise, so upgrades, and the label churn that comes with them, arrive unpinned. `bd hooks list` prints each hook's label, as `(shim 1.2.2)`, but does not flag one that lags bd.
+
+After a bd upgrade, compare the logic, not the label. From the dotfiles repository root:
+
+```bash
+tmp=$(mktemp -d)
+git -C "$tmp" init -q
+rm -f "$tmp"/.git/hooks/*
+(cd "$tmp" && bd hooks install >/dev/null)
+grep -m1 -o 'BEADS INTEGRATION v[0-9.]*' "$tmp/.git/hooks/pre-commit"
+grep -m1 -o 'BEADS INTEGRATION v[0-9.]*' home/.chezmoitemplates/git-hooks/beads-shim
+norm() {
+  sed -n '/BEGIN BEADS INTEGRATION/,/END BEADS INTEGRATION/p' |
+    sed -E -e 's/v[0-9]+(\.[0-9]+)+/vX/' -e 's/^[[:space:]]+//' \
+      -e 's/pre-commit|\{\{ \.hook \}\}/HOOK/g'
+}
+diff <(norm <"$tmp/.git/hooks/pre-commit") <(norm <home/.chezmoitemplates/git-hooks/beads-shim)
+rm -rf "$tmp"
+```
+
+The `rm -f` drops the shims `init.templateDir` seeded, so bd writes fresh files. The two `grep` lines print bd's current label and the pinned one; when they differ, it is time to resync. The `diff` normalizes the hook name, the version, and leading whitespace. On bd 1.2.2 it prints exactly the three deliberate divergences listed below, and nothing else.
+
+- **Only those three hunks:** the change is label-only. Bump both markers in `beads-shim` and the expected version in the "shims carry the pinned beads integration markers" test in `test/beads-policy.bats`.
+- **Anything more:** bd changed the logic. Re-mirror its block into `beads-shim`, keep the three divergences, and bump the markers and the test the same way.
+
+Then run `./bin/test` and `chezmoi apply ~/.config/git/template`, and delete and reseed the hooks in each existing clone ([retrofit](#retrofit)), since `git init .` never replaces a hook that exists.
+
+### How the shim differs from bd's own hooks
+
+Every difference between an installed bd hook and this shim is one of the following. Inside the markers, the diff above shows three:
+
+1. **Header comment.** bd writes "This section is managed by beads"; the shim points here instead, because bd does not manage this copy.
+2. **Quoting.** `$_bd_exit` and `$_bd_used_perl` are quoted, because `test/beads-policy.bats` runs shellcheck over every rendered hook. Behavior is unchanged.
+3. **Silent exit 3.** When a repository has no beads database, bd's block prints `beads: database not initialized — skipping hook '<hook>'` to stderr. The shim stays silent: installed machine-wide, it would otherwise print that on every commit in every repository without beads.
+
+Outside the markers, the shim **chains** hk instead of exec'ing it: `mise x -- hk run <hook> --from-hook "$@" || exit $?`, guarded on `hk.pkl` being present and `HK` not being `0`. When `bd hooks install` finds hk's hook already in place, it keeps hk's line, `test "${HK:-1}" = "0" || exec mise x -- hk run <hook> --from-hook "$@"`, above its own block. `exec` replaces the shell, so the beads block below it never runs. The `pre-commit` and `pre-push` hooks bd installed in this repository have exactly that shape.
+
+---
+
+## Why
+
+`marketplace` lost 9 issues. Its committed interactions log records changes to 9 distinct issue IDs, the earliest from 2026-08-08, but it has no database on disk, no `refs/dolt/data` on its remote, and no JSONL export. Those issues are unrecoverable. Three things failed at once:
+
+- **The hooks never ran.** bd wrote its shims into `.beads/hooks/`, as `bd hooks install --beads` does, and git reads that directory only when `core.hooksPath` points at it. It never did in either repository, and `bd hooks list` reported all five hooks "not installed". The same shims chained hk, so hk was not running on commit or push either.
+- **`export.auto` was never set,** so no `.beads/issues.jsonl` was ever written. `dotfiles` had it set, committed the export by hand, and survived.
+- **Nobody pushed dolt data by hand.** `sync.remote` was configured correctly in both repositories; nothing acted on it. `dotfiles` has `refs/dolt/data` on its remote because someone ran `bd dolt push` there.
+
+The JSONL export is **not a backup**, and bd says so. `bd config --help` calls it "Useful for viewers (bv), interchange, and issue-level migration; not a backup. It is not cross-machine sync; use bd dolt push/pull with a Dolt remote." Durability is `bd dolt push`. The policy keeps both for different reasons: the push for durability, and the committed export for a diffable, human-readable record that survives in git even when the Dolt remote is unreachable.
+
+That is also why hooks come from a git template directory instead of a per-repository install step: the step was forgotten once already, and a template makes every new clone correct by default. The full reasoning, including why `personal_dirs` is a separate list from `git.identities`, is in the [design spec](superpowers/specs/2026-09-04-beads-policy-design.md).
