@@ -18,7 +18,7 @@
 - **`core.hooksPath` must remain unset.** If set, git ignores `.git/hooks/` and `init.templateDir` becomes inert. The two mechanisms are mutually exclusive.
 - **`dirs` entries carry no trailing slash.** Consumers append it. This matches the convention `home/.chezmoidata/git.yaml` documents.
 - **Directory matching is case-insensitive.** The checkout is `~/src/github.com/Gifthealth`; config says `gifthealth`. Use `gitdir/i:` where a git pattern is rendered.
-- **Beads integration version is pinned at `v1.1.0`.** The shims mirror `bd hooks install` output; resync when bd bumps it.
+- **Beads integration version is pinned at `v1.2.2`.** The shims mirror `bd hooks install` output; resync when bd bumps it.
 - Every commit routes through the `/git-workflow:commit` skill.
 - Run `./bin/test` before each commit; the suite is currently 220 passing.
 
@@ -235,8 +235,8 @@ EOF
 	local hook out
 	for hook in $BEADS_HOOKS; do
 		out="$(render_hook "$hook")"
-		[[ "$out" == *"BEGIN BEADS INTEGRATION v1.1.0"* ]] || fail "$hook: missing begin marker"
-		[[ "$out" == *"END BEADS INTEGRATION v1.1.0"* ]] || fail "$hook: missing end marker"
+		[[ "$out" == *"BEGIN BEADS INTEGRATION v1.2.2"* ]] || fail "$hook: missing begin marker"
+		[[ "$out" == *"END BEADS INTEGRATION v1.2.2"* ]] || fail "$hook: missing end marker"
 	done
 }
 
@@ -273,7 +273,7 @@ if [ "${HK:-1}" != "0" ] && [ -f hk.pkl ] && command -v mise >/dev/null 2>&1; th
 	mise x -- hk run {{ .hook }} --from-hook "$@" || exit $?
 fi
 
-# --- BEGIN BEADS INTEGRATION v1.1.0 ---
+# --- BEGIN BEADS INTEGRATION v1.2.2 ---
 # Mirrors `bd hooks install` output. Resync when bd bumps this version; see
 # docs/beads.md. Do not remove these markers.
 if command -v bd >/dev/null 2>&1; then
@@ -305,7 +305,7 @@ if command -v bd >/dev/null 2>&1; then
 	fi
 	if [ $_bd_exit -ne 0 ]; then exit $_bd_exit; fi
 fi
-# --- END BEADS INTEGRATION v1.1.0 ---
+# --- END BEADS INTEGRATION v1.2.2 ---
 ```
 
 - [ ] **Step 4: Create the five thin wrappers**
@@ -511,7 +511,7 @@ rm -f .git/hooks/{pre-commit,post-merge,pre-push,post-checkout,prepare-commit-ms
 git init .
 ```
 
-6. **Shim resync**, pinned at beads integration `v1.1.0`. The signal to resync
+6. **Shim resync**, pinned at beads integration `v1.2.2`. The signal to resync
    is that version changing in `bd hooks install` output; the procedure is to
    re-render `home/.chezmoitemplates/git-hooks/beads-shim` from bd's new block.
 7. **Why**, carrying the rationale from the spec: `marketplace` lost 9 issues

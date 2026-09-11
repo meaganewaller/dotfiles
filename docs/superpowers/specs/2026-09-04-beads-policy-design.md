@@ -124,8 +124,11 @@ working aid, but:
 
 - `.beads/` is added to `.git/info/exclude`, which is per-clone and never
   committed, so nothing appears in a repository whose owner did not ask for it.
-- `sync.remote` is left **unset**, so `bd dolt push` has no target. Writing
-  `refs/dolt/data` to a remote that is not mine is not mine to do.
+- `sync.remote` is left **unset** and no Dolt remote is configured, so
+  `bd dolt push` has no target. Both matter: `bd dolt push` pushes to the Dolt
+  remote, not to `sync.remote`. Plain `bd init` derives both from `origin`;
+  `bd init --stealth` sets neither. Writing `refs/dolt/data` to a remote that is
+  not mine is not mine to do.
 - `export.auto` is left off; there is nothing to commit the export to.
 - Consequence, accepted deliberately: issues in local-only repositories are not
   durable. They are a scratchpad and will not survive a reclone.
@@ -227,10 +230,12 @@ repository with its own husky or hk hook keeps it untouched.
 
 ### Version drift
 
-The shims carry bd's `BEADS INTEGRATION v1.1.0` section markers, which exist so
-bd can update its own block while preserving surrounding content. Copying the
-shims into a chezmoi-managed template means they no longer receive those
-updates automatically.
+The shims carry bd's `BEADS INTEGRATION v1.2.2` section markers, which exist so
+bd can update its own block while preserving surrounding content. (The pin was
+corrected from `v1.1.0`, the label copied from the `.beads/hooks/` shims an
+older bd wrote; the installed bd 1.2.2 emits `v1.2.2`.) Copying the shims into
+a chezmoi-managed template means they no longer receive those updates
+automatically.
 
 The no-clobber property above cuts both ways: because `git init` skips hooks
 that already exist, it will **not** propagate an updated shim to a repository
@@ -295,10 +300,12 @@ Following ADR 0013's requirement that a guard fail when the bug returns:
 - ~~Suppressing dolt push in local-only mode.~~ **Resolved.** `bd config` has
   `sync.remote`, stored in `.beads/config.yaml` — in both existing repositories
   it is set to that repository's own GitHub remote. Local-only mode therefore
-  means leaving `sync.remote` **unset**: `bd dolt push` has no target and cannot
-  write refs to a remote that is not mine. Combined with `.beads/` in
-  `.git/info/exclude`, both the export and push sides are covered without a
-  runtime path check in the shim.
+  means no push target: `sync.remote` **unset** and no Dolt remote, which is
+  what `bd init --stealth` produces, so `bd dolt push` cannot write refs to a
+  remote that is not mine. (Unsetting `sync.remote` alone is not enough; it
+  leaves the Dolt remote that plain `bd init` wires from `origin`.) Combined
+  with `.beads/` in `.git/info/exclude`, both the export and push sides are
+  covered without a runtime path check in the shim.
 - **`onlooker-community` is not on this machine.** It is included in
   `personal_dirs` on the strength of ADR 0013's description of the personal
   laptop. Worth confirming it is still a personal organization before landing.
