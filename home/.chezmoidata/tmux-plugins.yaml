@@ -20,7 +20,7 @@ tmux_plugins:
       type: git-repo
       url: https://github.com/erikw/tmux-powerline.git
       branch: main
-      revision: 6cddf8051823815db77fc00dcbb6bcca9afbdec2
+      revision: c9e142fda99307f82145ef322b8d9611af431ca8
       refreshPeriod: "168h"
     - path: ".config/tmux/plugins/tmux-prefix-highlight"
       type: git-repo
