@@ -22,21 +22,3 @@ Use **American English** in commits, PR / issue descriptions, code comments, ide
 | Split an oversized diff into reviewable PRs | `/git-workflow:split-pr` |
 
 These ship with the `git-workflow` plugin (`meaganewaller-marketplace`). If the invocation is not in your skill list, the plugin is not enabled for this account — say so rather than falling back to ad hoc `git` commands.
-
-## Beads
-
-Beads is durable only in **my own repositories** — those under:
-{{ range .beads.personal_dirs }}- `{{ . }}`
-{{ end }}
-(`home/.chezmoidata/beads.yaml` is the source of truth). There, commit
-`.beads/`'s `issues.jsonl`, `config.yaml`, `metadata.json`, `.gitignore`, and
-`README.md`; never `interactions.jsonl` or `hooks/`. Durability comes from
-`bd dolt push`, not the JSONL export — bd is explicit that the export is not a
-backup.
-
-In any repository that is **not mine** — client work, or anything cloned to
-contribute to — run `bd init --stealth`. Nothing beads-related gets committed;
-there is no `sync.remote` and no Dolt remote; and `refs/dolt/data` is never
-pushed to a remote that isn't mine.
-
-Full policy, including the adoption order for each mode: `{{ .chezmoi.workingTree }}/docs/beads.md`.

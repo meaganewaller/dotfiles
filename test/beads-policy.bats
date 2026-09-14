@@ -391,3 +391,30 @@ EOF
 	[ "$(head -n 1 "$file")" = "# git ls-files --others --exclude-from=.git/info/exclude" ] ||
 		fail "not git's stock header: $(head -n 1 "$file")"
 }
+
+# Agent instructions.
+#
+# The Beads rule is the only guard in client sessions, where local-only mode
+# applies: nothing checks paths at runtime. So it has to render into every
+# account's CLAUDE.md, and exactly once, since the personal account includes
+# it alongside its other instructions.
+
+# Every account in claude.yaml, one per line, as claude-settings-template.bats
+# reads them, so a new account is covered with no test edit.
+all_accounts() {
+	yq -r '.claudeData | keys | .[] | select(. != "shared")' "$(repo_root)/home/.chezmoidata/claude.yaml"
+}
+
+@test "every account's CLAUDE.md carries the Beads rule exactly once" {
+	local account out n seen=0
+	while read -r account; do
+		seen=$((seen + 1))
+		out="$(render_template "home/private_dot_claude-$account/private_CLAUDE.md.tmpl")" ||
+			fail "$account: render failed"
+		n="$(grep -cx '## Beads' <<<"$out" || true)"
+		[ "$n" -eq 1 ] || fail "$account: '## Beads' renders $n times, want 1"
+		n="$(grep -o 'bd init --stealth' <<<"$out" | wc -l | tr -d '[:space:]')"
+		[ "$n" -eq 1 ] || fail "$account: 'bd init --stealth' renders $n times, want 1"
+	done < <(all_accounts)
+	[ "$seen" -gt 0 ] || fail "no accounts read from claude.yaml"
+}
