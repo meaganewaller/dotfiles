@@ -46,7 +46,7 @@ bd dolt remote list             # expect origin at the same URL
 bd config set export.auto true
 chmod 700 .beads                # bd 1.2.2 already creates it 0700; older inits made it 0755
 git rev-parse --git-path hooks  # expect .git/hooks, or .husky/_ in a husky repo
-bd hooks list                   # expect five "installed (shim 1.2.2)"
+bd hooks list                   # expect five "installed (shim 1.2.2)", or "installed (version )" in a husky repo
 ```
 
 Commit `.beads/config.yaml`, which now carries `export.auto`, and `.beads/issues.jsonl` once the first issue exists. Then push the Dolt data, which is the step that makes the tracker durable:
@@ -61,8 +61,8 @@ What the checklist works around:
 - **`bd init` commits.** It makes its own commit, `bd init: initialize beads issue tracking`, holding `.beads/`'s lean files, the root `.gitignore`, and its agent integration: an `AGENTS.md` section, `CLAUDE.md`, `.claude/settings.json`, `.agents/skills/beads/`, and `.codex/`. `--skip-agents` leaves the agent files out. The ignore lines have to be in place before `bd init`, or that commit includes `.beads/interactions.jsonl`.
 - **bd's agent block and markdownlint.** bd re-renders its block in `AGENTS.md` and `CLAUDE.md`, from `<!-- BEGIN BEADS INTEGRATION … -->` to `<!-- END BEADS INTEGRATION -->`, by the hash in the BEGIN marker. Its rendering drops the blank lines around fences and lists, which markdownlint reports as MD031 and MD032. In a repository that runs markdownlint, fix nothing inside the markers, since bd undoes it. Wrap the block from outside instead: `<!-- markdownlint-disable <rules> -->` on its own line immediately before BEGIN, and `<!-- markdownlint-enable <rules> -->` immediately after END, naming only the rules markdownlint actually reports. That bd keeps the wrappers across a re-render is an assumption, not confirmed; if it drops the disable line, lint fails loudly rather than passing silently. `marketplace`'s `CLAUDE.md` is the worked example.
 - **Hooks first, then `--skip-hooks`.** In a clone that has no hooks yet, plain `bd init` writes its own shims to `.beads/hooks/` and sets `core.hooksPath` to point there. Git then ignores `.git/hooks/`, and `bd hooks list` still reports all five installed. `git rev-parse --git-path hooks` is the check that shows which directory git actually runs.
-- **Husky repositories need one more step.** Installing a husky v9 repository's dependencies sets `core.hooksPath` to `.husky/_`, so `git rev-parse --git-path hooks` prints that instead, and git never runs the seeded hooks. Leave it set, and chain beads from husky as [Husky repos](#husky-repos) describes.
-- **`sync.remote` comes from `origin`.** `bd init` sets `sync.remote`, and a Dolt remote named `origin`, from the repository's git `origin`. An scp-style origin (`git@github.com:<org>/<repo>.git`) becomes `git+ssh://…`; an https origin becomes `git+https://…`.
+- **Husky repositories need one more step.** Installing a husky v9 repository's dependencies sets `core.hooksPath` to `.husky/_`, so `git rev-parse --git-path hooks` prints that instead, and git never runs the seeded hooks. Leave it set, and chain beads from husky as [Husky repos](#husky-repos) describes. `bd hooks list` then reads husky's stubs in `.husky/_` and reports all five `installed (version )` either way, so check the `.husky/` delegation instead, and do not run `bd hooks install` there.
+- **`sync.remote` comes from `origin`.** On a fresh adoption, `bd init` sets `sync.remote`, and a Dolt remote named `origin`, from the repository's git `origin`; in a clone of a durable repository it takes both from the committed `.beads/config.yaml` instead (see the [throwaway warning](#husky-repos)). An scp-style origin (`git@github.com:<org>/<repo>.git`) becomes `git+ssh://…`; an https origin becomes `git+https://…`.
 - **The export is throttled.** With `export.auto` on, bd rewrites `.beads/issues.jsonl` after write commands at most once per 60 seconds, and the pre-commit hook refreshes it as well. A burst of writes can leave the file briefly behind the database.
 
 For the ssh form when `origin` is https, set both. `bd config set sync.remote` does not touch the Dolt remote:
@@ -135,12 +135,12 @@ The durable checklist above ends with exactly these five paths tracked.
 ```bash
 git init .
 git rev-parse --git-path hooks   # expect .git/hooks, or .husky/_ in a husky repo
-bd hooks list                    # expect five "installed (shim 1.2.2)"
+bd hooks list                    # expect five "installed (shim 1.2.2)", or "installed (version )" in a husky repo
 ```
 
 `bd hooks list` works in a repository without beads, too.
 
-The template also seeds repositories that tools create for their own use. Dolt's git-remote-cache is one: a bare repository under `.beads/embeddeddolt/<db>/.dolt/git-remote-cache/…/repo.git/`, which Dolt creates with git itself on the first `bd dolt push` to a git remote. Git copies template hooks only when it creates or re-initializes a repository, so only a cache created after `init.templateDir` was set carries the shims. A repository with no cache yet gets a seeded one on its first push after the template goes live, as `marketplace` did: its cache holds all five shims in `hooks/`. These paths are ignored and untracked. Whether the seeded hooks fire during `bd dolt push`, and what they do there, is unverified; two real pushes in `marketplace` completed normally with them present.
+The template also seeds repositories that tools create for their own use. Dolt's git-remote-cache is one: a bare repository under `.beads/embeddeddolt/<db>/.dolt/git-remote-cache/…/repo.git/`, which Dolt creates with git itself on the first `bd dolt push` to a git remote. Git copies template hooks only when it creates or re-initializes a repository, so only a cache created after `init.templateDir` was set carries the shims. A repository with no cache yet gets a seeded one on its first `bd dolt push` after the template goes live, as `marketplace` did: its cache holds all five shims in `hooks/`. These paths are ignored and untracked. Whether the seeded hooks fire during `bd dolt push`, and what they do there, is unverified; two real pushes in `marketplace` completed normally with them present.
 
 The no-clobber rule cuts both ways: `git init .` will not replace a stale shim either. After a [shim resync](#shim-resync), or in a clone that already has older hooks, delete the hooks this policy owns, then reseed:
 
@@ -159,7 +159,7 @@ If `git rev-parse --git-path hooks` prints anything other than `.git/hooks`, `co
 git config --unset core.hooksPath
 ```
 
-Unset it only for `.beads/hooks`. When it is `.husky/_`, husky set it: leave it, and chain beads from husky as [Husky repos](#husky-repos) describes.
+Unset it only for `.beads/hooks`. When it is `.husky/_`, husky set it: leave it, and chain beads from husky as [Husky repos](#husky-repos) describes. There, `bd hooks list` describes husky's stubs, not the shims: check the `.husky/` delegation instead, and do not run `bd hooks install`.
 
 ---
 
@@ -178,8 +178,17 @@ if [ -x "$shim" ]; then "$shim" "$@"; fi
 - **Appending to an existing script.** Make sure it ends with a newline first, or the first appended line joins its last line; `marketplace`'s `pre-commit` did not end with one.
 - **Only the bd slots.** Leave husky's other hooks alone, such as a `commit-msg` that runs commitlint.
 - **The shim stays the one copy.** `.husky/` holds no beads logic of its own, so a [shim resync](#shim-resync) reaches the repository with no edit there.
+- **`bd hooks list` and `bd hooks install` look only at `.husky/_`.** `bd hooks list` reports all five hooks `installed (version )`, which describes husky's generated stubs; it says the same with a `.husky/<hook>` script emptied or missing. `bd hooks install` appends its block to those stubs, below the line that hands off to husky's runner, which exits first, so the block never runs. Everything else runs as before, but `bd hooks list` then reports `installed (shim 1.2.2)` for hooks that do nothing, and re-running husky, which every dependency install does, erases the block. Do not run `bd hooks install` in a husky repository.
 
-This block was not part of the 2026-09-11 runs; it was verified on 2026-09-14 in a throwaway clone of `marketplace`. To check a husky repository the same way:
+To confirm the chain, check the scripts instead. This prints nothing when all five delegate, and names any that do not:
+
+```bash
+for h in pre-commit pre-push post-merge post-checkout prepare-commit-msg; do
+  grep -q "git/template/hooks/$h\"" ".husky/$h" 2>/dev/null || echo "not chained: $h"
+done
+```
+
+Neither block was part of the 2026-09-11 runs. Both were verified on 2026-09-14 in throwaway clones of `marketplace`, the loop in zsh and bash. To check a husky repository's behavior the same way:
 
 1. Clone it into a scratch bare repository, then clone that, so the throwaway's `origin` has no path back to the real remote.
 2. Install dependencies in the throwaway, never in the real repository just to test, and confirm `git rev-parse --git-path hooks` prints `.husky/_`.
