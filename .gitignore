@@ -12,3 +12,7 @@ home/dot_claude/skills/skill-optimization-workspace/
 # Transient lock bd leaves in the worktree root; shows up as an untracked file
 # after any bd command and is never worth committing.
 .beads.gate.lock
+# Derived from the database and conflict-prone; see docs/beads.md.
+.beads/interactions.jsonl
+# Generated per-project; hooks come from init.templateDir instead.
+.beads/hooks/
