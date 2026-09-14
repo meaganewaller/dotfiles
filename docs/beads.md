@@ -8,8 +8,8 @@ The code blocks on this page were extracted and run against `bd` 1.2.2 (Homebrew
 
 - Repositories under a `beads.personal_dirs` entry are **durable**: commit the lean `.beads/` set and push dolt data.
 - Everywhere else is **local-only**: `bd init --stealth`, nothing committed, no push target.
-- Hooks come from `init.templateDir`. `core.hooksPath` stays unset, except in [husky repos](#husky-repos).
-- Durability is `bd dolt push`. The JSONL export is a readable record, not a backup.
+- Hooks come from `init.templateDir`, and chain hk only in durable repositories. `core.hooksPath` stays unset, except in [husky repos](#husky-repos).
+- Durability is `bd dolt push`. bd's Dolt auto-push, which would run it after each write, is off unless configured, and no repository here configures it. The JSONL export is a readable record, not a backup.
 
 ---
 
@@ -25,6 +25,11 @@ The code blocks on this page were extracted and run against `bd` 1.2.2 (Homebrew
 | `sync.remote` and Dolt remote | Derived from `origin` | Neither, so `bd dolt push` has no target |
 | `export.auto` | `true` | Off (the default) |
 | Survives a reclone | Yes | No; treat it as a scratchpad |
+| hk from the seeded hooks | Chained when `hk.pkl` exists | Never; run `hk install` yourself |
+
+The seeded hooks chain hk only in durable repositories. hk evaluates the repository's own `hk.pkl`, and `post-checkout` runs on every clone, so chaining it everywhere would run a stranger's configuration the moment their repository is cloned, which git itself never does. The shim compares `git rev-parse --show-toplevel` with each `personal_dirs` entry case-insensitively, with `~` expanded to `$HOME`, and on a `/` boundary, so `…/meaganewaller-evil` does not match; a linked worktree outside those directories does not chain hk either. The beads block is not scoped, since bd exits 3 wherever there is no database.
+
+In a repository that is not mine and wants hk, run `hk install` there yourself. hk 1.58 on Git 2.54 or newer registers it in that repository's git config (`hook.hk-<hook>.command`) and leaves `.git/hooks/` alone, so `git hook list <hook>` shows both hk and the shim (`hook from hookdir`). With `--legacy`, or on an older Git, it writes its own scripts into those slots instead, replacing the shim in each hook `hk.pkl` names, and beads no longer runs there. (Both checked on 2026-09-14 with hk 1.58.1 and Git 2.54.0 in throwaway repositories.)
 
 ---
 
@@ -56,9 +61,11 @@ bd dolt push
 git ls-remote origin 'refs/dolt/*'   # expect refs/dolt/data
 ```
 
+Nothing runs that push after each write by default. bd 1.2.2 has a Dolt auto-push, but it is off unless `dolt.auto-push` is `true` in `.beads/config.yaml` or `BD_DOLT_AUTO_PUSH=true` is set: bd made it opt-in because it is unsafe with more than one writer. Neither durable repository here sets it.
+
 What the checklist works around:
 
-- **`bd init` commits.** It makes its own commit, `bd init: initialize beads issue tracking`, holding `.beads/`'s lean files, the root `.gitignore`, and its agent integration: an `AGENTS.md` section, `CLAUDE.md`, `.claude/settings.json`, `.agents/skills/beads/`, and `.codex/`. `--skip-agents` leaves the agent files out. The ignore lines have to be in place before `bd init`, or that commit includes `.beads/interactions.jsonl`.
+- **`bd init` commits.** It makes its own commit, `bd init: initialize beads issue tracking`, holding `.beads/`'s lean files, the root `.gitignore`, and its agent integration: an `AGENTS.md` section, `CLAUDE.md`, `.claude/settings.json`, `.agents/skills/beads/`, and `.codex/`. `--skip-agents` leaves the agent files out. The ignore lines have to be in place before `bd init`, or that commit includes `.beads/interactions.jsonl`. Its message is not a conventional commit; if it lands, undo it with `git reset --soft HEAD~1`, which keeps its files staged, and commit the policy's files through the usual conventional-commit flow.
 - **bd's agent block and markdownlint.** bd re-renders its block in `AGENTS.md` and `CLAUDE.md`, from `<!-- BEGIN BEADS INTEGRATION … -->` to `<!-- END BEADS INTEGRATION -->`, by the hash in the BEGIN marker. Its rendering drops the blank lines around fences and lists, which markdownlint reports as MD031 and MD032. In a repository that runs markdownlint, fix nothing inside the markers, since bd undoes it. Wrap the block from outside instead: `<!-- markdownlint-disable <rules> -->` on its own line immediately before BEGIN, and `<!-- markdownlint-enable <rules> -->` immediately after END, naming only the rules markdownlint actually reports. That bd keeps the wrappers across a re-render is an assumption, not confirmed; if it drops the disable line, lint fails loudly rather than passing silently, but a dropped enable line would silently leave MD031 and MD032 off for everything after END. `marketplace`'s `CLAUDE.md` is the worked example.
 - **Hooks first, then `--skip-hooks`.** In a clone that has no hooks yet, plain `bd init` writes its own shims to `.beads/hooks/` and sets `core.hooksPath` to point there. Git then ignores `.git/hooks/`, and `bd hooks list` still reports all five installed. `git rev-parse --git-path hooks` is the check that shows which directory git actually runs.
 - **Husky repositories need one more step.** Installing a husky v9 repository's dependencies sets `core.hooksPath` to `.husky/_`, so `git rev-parse --git-path hooks` prints that instead, and git never runs the seeded hooks. Leave it set, and chain beads from husky as [Husky repos](#husky-repos) describes. `bd hooks list` then reads husky's stubs in `.husky/_` and reports all five `installed (version )` either way, so check the `.husky/` delegation instead, and do not run `bd hooks install` there.
@@ -128,6 +135,24 @@ The durable checklist above ends with exactly these five paths tracked.
 
 ---
 
+## Fresh clone
+
+A new clone of a durable repository, on a new machine or after the database is lost, has the committed `.beads/` files and no database. From the clone's root:
+
+```bash
+chmod 700 .beads               # git creates it 0755, and bd warns on every call
+bd bootstrap --dry-run         # expect "Bootstrap plan: clone from remote" and the sync.remote URL
+bd bootstrap --yes
+bd count                       # expect the same number as the next line
+wc -l < .beads/issues.jsonl
+```
+
+With `sync.remote` in the committed `.beads/config.yaml`, `bd bootstrap` clones the Dolt data from that remote, then wires the remote for future push and pull. It never deletes existing issues. That makes it the step for a real new clone or machine, and the proof that the pushed data restores, not only that `refs/dolt/data` exists. `bd count` counts every issue and the export holds one per line, so the two agree when the export is current; a burst of writes can leave the export briefly behind. Bootstrap also rewrites `.beads/config.yaml` without its final newline, so `git status` shows that file modified, its content otherwise unchanged.
+
+In a throwaway clone, bootstrap leaves a database wired to the real remote, the same hazard as `bd init` there; see the [throwaway warning](#husky-repos). This block was run once that way on 2026-09-14, against a scratch clone of `marketplace`'s `chore/beads-durability` branch made with an empty git template, so no hook ran bd, and with `--sandbox` on every bd call to keep auto-push off. Bootstrap pulled the database from the real remote, `bd count` and the export both came to 1 with the same issue ID, and the throwaway was deleted with no bd write made and the remote's `refs/dolt/data` unchanged.
+
+---
+
 ## Retrofit
 
 `init.templateDir` only seeds repositories created after it was set. For an older clone, re-running `git init` in place is the retrofit: git copies the template hooks that are missing and never overwrites a hook that exists.
@@ -140,8 +165,6 @@ bd hooks list                    # expect five "installed (shim 1.2.2)"; in a hu
 
 `bd hooks list` works in a repository without beads, too.
 
-The template also seeds repositories that tools create for their own use. Dolt's git-remote-cache is one: a bare repository under `.beads/embeddeddolt/<db>/.dolt/git-remote-cache/…/repo.git/`, which Dolt creates with git itself on the first `bd dolt push` to a git remote. Git copies template hooks only when it creates or re-initializes a repository, so only a cache created after `init.templateDir` was set carries the shims. A repository with no cache yet gets a seeded one on its first `bd dolt push` after the template goes live, as `marketplace` did: its cache holds all five shims in `hooks/`. These paths are ignored and untracked. Whether the seeded hooks fire during `bd dolt push`, and what they do there, is unverified; two real pushes in `marketplace` completed normally with them present.
-
 The no-clobber rule cuts both ways: `git init .` will not replace a stale shim either. After a [shim resync](#shim-resync), or in a clone that already has older hooks, delete the hooks this policy owns, then reseed:
 
 ```bash
@@ -151,7 +174,9 @@ done
 git init .
 ```
 
-The loop deletes a hook only if it carries a beads block or runs hk: an older shim, bd's own hook, or one `hk install` wrote, which is fine to replace because the shim runs hk itself when `hk.pkl` is present. A hook from any other tool in those slots, such as the pre-commit framework, lefthook, or husky v4, stays as it is, and beads does not run for that slot. The loop runs in zsh and bash.
+The loop deletes a hook only if it carries a beads block or runs hk: an older shim, bd's own hook, or a script `hk install` wrote. In a durable repository that is fine to replace, since the shim runs hk itself when `hk.pkl` is present. Anywhere else the shim does not run hk, so run `hk install` again afterward if the repository wants it. A hook from any other tool in those slots, such as the pre-commit framework, lefthook, or husky v4, stays as it is, and beads does not run for that slot. The loop runs in zsh and bash.
+
+The template also seeds repositories that tools create for their own use. Dolt's git-remote-cache is one: a bare repository under `.beads/embeddeddolt/<db>/.dolt/git-remote-cache/…/repo.git/`, which Dolt creates with git itself on the first `bd dolt push` to a git remote, so a cache created after `init.templateDir` was set carries the shims in its `hooks/`. These paths are ignored and untracked. Whether git runs those hooks during `bd dolt push` is unverified, and no longer matters: the shim exits 0 in any bare repository before it runs hk or bd. A cache seeded before that exit existed keeps its older shims, since the loop above reaches only `.git/hooks/` and git never replaces a hook; delete the five hooks in that cache's `hooks/` directory and leave it empty. `marketplace`'s cache, seeded on 2026-09-14, had its hooks deleted the same day.
 
 If `git rev-parse --git-path hooks` prints anything other than `.git/hooks`, `core.hooksPath` is set and git ignores `.git/hooks/` entirely. When it points at `.beads/hooks`, which plain `bd init` does in a hookless clone, remove it:
 
@@ -197,7 +222,7 @@ Neither block was part of the 2026-09-11 runs. Both were verified on 2026-09-14:
 4. Commit, switch branches, merge, and push to the scratch remote. The log should show all five hooks calling `bd hooks run <hook>` with their arguments.
 5. Point `HOME` and `XDG_CONFIG_HOME` at an empty directory and repeat, with the project's tools on `PATH` directly and a git identity in the environment, since mise's shims need the real `HOME` and git reads its identity from there. Every hook should exit 0, and the log should stay empty.
 
-**Never run `bd init` in a throwaway of a durable repository.** There, `bd init` takes `sync.remote` and the Dolt remote from the committed `.beads/config.yaml`, not from the clone's `origin`, so `bd dolt push` from that throwaway targets the real remote. Test the hooks as above instead: no beads database, which bd answers with exit 3, and a stub `bd`.
+**Never run `bd init` in a throwaway of a durable repository.** There, `bd init` takes `sync.remote` and the Dolt remote from the committed `.beads/config.yaml`, not from the clone's `origin`, so `bd dolt push` from that throwaway targets the real remote. [`bd bootstrap`](#fresh-clone) wires the same remote. With auto-push off, as bd 1.2.2 defaults, writes there stay local until something pushes; if `dolt.auto-push` or `BD_DOLT_AUTO_PUSH` ever turns it on, any bd write in such a throwaway reaches the real remote on its own, with no `bd dolt push` at all. `--sandbox` turns auto-push off for a single command. Test the hooks as above instead: no beads database, which bd answers with exit 3, and a stub `bd`.
 
 ---
 
@@ -243,7 +268,7 @@ Every difference between an installed bd hook and this shim is one of the follow
 2. **Quoting.** `$_bd_exit` and `$_bd_used_perl` are quoted, because `test/beads-policy.bats` runs shellcheck over every rendered hook. Behavior is unchanged.
 3. **Silent exit 3.** When a repository has no beads database, bd's block prints `beads: database not initialized — skipping hook '<hook>'` to stderr. The shim stays silent: installed machine-wide, it would otherwise print that on every commit in every repository without beads.
 
-Outside the markers, the shim **chains** hk instead of exec'ing it: `mise x -- hk run <hook> --from-hook "$@" || exit $?`, guarded on `hk.pkl` being present and `HK` not being `0`. When `bd hooks install` finds hk's hook already in place, it keeps hk's line, `test "${HK:-1}" = "0" || exec mise x -- hk run <hook> --from-hook "$@"`, above its own block. `exec` replaces the shell, so the beads block below it never runs. The `pre-commit` and `pre-push` hooks bd installed in this repository have exactly that shape.
+Outside the markers, the shim first exits 0 in a bare repository, such as Dolt's git-remote-cache (see [Retrofit](#retrofit)). It then **chains** hk instead of exec'ing it: `mise x -- hk run <hook> --from-hook "$@" || exit $?`, guarded on `hk.pkl` being present, `HK` not being `0`, and the repository being under a `personal_dirs` entry (see [The two modes](#the-two-modes)). When `bd hooks install` finds hk's hook already in place, it keeps hk's line, `test "${HK:-1}" = "0" || exec mise x -- hk run <hook> --from-hook "$@"`, above its own block. `exec` replaces the shell, so the beads block below it never runs. The `pre-commit` and `pre-push` hooks bd installed in this repository have exactly that shape.
 
 ---
 
