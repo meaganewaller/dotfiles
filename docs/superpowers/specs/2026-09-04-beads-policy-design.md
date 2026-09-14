@@ -18,8 +18,8 @@ drift was not cosmetic — it cost real data.
 | `sync.remote` configured | yes | **yes** — correctly, at its own remote |
 | `export.auto` | `true` | **absent** |
 | `.beads/issues.jsonl` tracked | yes, current as of 2026-09-03 | never written, never tracked |
-| `.beads/interactions.jsonl` tracked | yes | yes — 3,453 lines, orphaned |
-| `.beads/hooks/` tracked | yes, 6 hooks | yes, 18 hooks (mirrors the repo's husky hooks) |
+| `.beads/interactions.jsonl` tracked | yes | yes — 9 lines, orphaned |
+| `.beads/hooks/` tracked | yes, 6 hooks | yes, 14 hooks (mirrors the repo's husky hooks) |
 
 `marketplace` was genuinely used: its committed interactions log records field
 changes against **9 distinct issue IDs**, the earliest from 2026-08-08. Those
@@ -173,8 +173,8 @@ Ignored:
 
 | Path | Why |
 | --- | --- |
-| `.beads/interactions.jsonl` | Append-only audit log, derived from the database, conflicts on every concurrent branch. In `marketplace` it is 3,453 lines describing issues that no longer exist — the less valuable half of the record. |
-| `.beads/hooks/` | Generated per project and per toolchain. `marketplace` has 18 because beads mirrored that repository's husky hooks; `dotfiles` has 6. |
+| `.beads/interactions.jsonl` | Append-only audit log, derived from the database, conflicts on every concurrent branch. In `marketplace` it is 9 lines describing issues that no longer exist — the less valuable half of the record. |
+| `.beads/hooks/` | Generated per project and per toolchain. `marketplace` has 14 because beads mirrored that repository's husky hooks; `dotfiles` has 6. |
 
 Both ignored paths are currently **tracked** in both repositories, so ignore
 rules alone will not take effect. Implementation requires `git rm --cached`.
@@ -202,7 +202,10 @@ what a template directory seeds.
 
 `core.hooksPath` must stay **unset**. If it is set, git ignores `.git/hooks/`
 entirely and the template directory does nothing. The two mechanisms are
-mutually exclusive; this design picks the template directory.
+mutually exclusive; this design picks the template directory. Husky v9
+repositories are the exception: husky sets `core.hooksPath` to `.husky/_` on
+every dependency install, so they chain beads from husky instead
+(`docs/beads.md`, "Husky repos").
 
 The shims are safe in every repository, including those with no beads at all:
 the managed block guards on `command -v bd`, and bd exits 3 — "database not
@@ -269,7 +272,7 @@ The repository is under `meaganewaller`, so durable mode applies. Its 9 issues
 are unrecoverable; nothing in this plan retrieves them.
 
 1. `chmod 700 .beads`.
-2. `git rm --cached .beads/interactions.jsonl` and `git rm -r --cached .beads/hooks/` — the orphaned log and the 18 husky-mirrored hooks.
+2. `git rm --cached .beads/interactions.jsonl` and `git rm -r --cached .beads/hooks/` — the orphaned log and the 14 husky-mirrored hooks.
 3. `bd init` to create a working database.
 4. `bd config set export.auto true` — the setting whose absence meant no export
    was ever written here. `sync.remote` is already correct and needs no change.
