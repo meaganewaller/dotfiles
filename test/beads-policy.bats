@@ -381,3 +381,13 @@ EOF
 		fail "core.hooksPath is set; it makes init.templateDir inert"
 	fi
 }
+
+@test "git template carries git's stock info/exclude" {
+	# init.templateDir replaces git's own template, so without this file every
+	# new repository lacks .git/info/exclude, and appending to it fails.
+	local file
+	file="$(repo_root)/home/dot_config/git/template/info/exclude"
+	[ -f "$file" ] || fail "missing $file; new repositories get no .git/info/exclude"
+	[ "$(head -n 1 "$file")" = "# git ls-files --others --exclude-from=.git/info/exclude" ] ||
+		fail "not git's stock header: $(head -n 1 "$file")"
+}
