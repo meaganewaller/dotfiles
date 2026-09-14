@@ -1,7 +1,7 @@
 # Beads durability policy
 
 **Date:** 2026-09-04
-**Status:** design, pending implementation
+**Status:** implemented (2026-09-14); `docs/beads.md` is the operational reference
 
 How Beads (`bd`) is used across projects: which repositories may have it, what
 of `.beads/` is committed, and what keeps the answer from drifting again.
@@ -209,8 +209,10 @@ every dependency install, so they chain beads from husky instead
 
 The shims are safe in every repository, including those with no beads at all:
 the managed block guards on `command -v bd`, and bd exits 3 — "database not
-initialized" — which the shim treats as success. hk chaining stays guarded on
-`hk.pkl` being present.
+initialized" — which the shim treats as success. The shim exits 0 in a bare
+repository, such as Dolt's git-remote-cache, and chains hk only when `hk.pkl`
+is present and the repository sits under a `personal_dirs` entry: hk evaluates
+the repository's own config, and git never runs a clone's code on its own.
 
 ### Retrofit
 
@@ -271,13 +273,14 @@ run it — bd's integration version changing in `bd hooks install` output.
 The repository is under `meaganewaller`, so durable mode applies. Its 9 issues
 are unrecoverable; nothing in this plan retrieves them.
 
-1. `chmod 700 .beads`.
-2. `git rm --cached .beads/interactions.jsonl` and `git rm -r --cached .beads/hooks/` — the orphaned log and the 14 husky-mirrored hooks.
-3. `bd init` to create a working database.
+1. `git rm --cached .beads/interactions.jsonl` and `git rm -r --cached .beads/hooks/` — the orphaned log and the 14 husky-mirrored hooks — and add the two ignore lines to the root `.gitignore`.
+2. `git init .` to seed the hooks from `init.templateDir` first.
+3. `bd init --skip-hooks` to create a working database.
 4. `bd config set export.auto true` — the setting whose absence meant no export
    was ever written here. `sync.remote` is already correct and needs no change.
-5. Wire hooks; confirm `bd hooks list`.
-6. Confirm `refs/dolt/data` reaches the remote on first push.
+5. Chain the five bd hooks from husky (`docs/beads.md`, "Husky repos"); verify
+   with that section's `.husky/` check, not `bd hooks list`.
+6. `bd dolt push`; confirm `refs/dolt/data` reaches the remote.
 
 ## Artifacts
 
@@ -285,7 +288,7 @@ are unrecoverable; nothing in this plan retrieves them.
 | --- | --- |
 | `home/.chezmoidata/beads.yaml` | `personal_dirs` scope list. |
 | `docs/beads.md` | Full policy, retrofit command, shim resync procedure, and the rationale including the `marketplace` loss. |
-| `home/.chezmoitemplates/agent-instructions-personal.md` | Short binding rule linking to `docs/beads.md`. Renders into every account's `CLAUDE.md`, so it loads in every repository. |
+| `home/.chezmoitemplates/agent-instructions-beads.md` | Short binding rule linking to `docs/beads.md`. Every account's `CLAUDE.md` includes it, so it loads in every repository. |
 | `home/dot_config/git/` template dir + `config.tmpl` change | The five shims and `init.templateDir`. |
 | `test/beads-policy.bats` | Guards, below. |
 

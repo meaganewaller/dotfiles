@@ -1,5 +1,7 @@
 # Beads Durability Policy Implementation Plan
 
+> **Status (2026-09-14):** executed 2026-09-11 to 2026-09-14 via subagent-driven development, and superseded by [`docs/beads.md`](../../beads.md), which holds the authoritative procedures. Several snippets below were corrected during execution (see the SDD ledger's rulings) and are **not safe to re-run as written**.
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make beads usage consistent across projects — durable under my own org directories, local-only and never committed everywhere else — and enforce it with git hooks that actually run.
