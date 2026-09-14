@@ -1,1 +1,1 @@
-{{ template "git-hooks/beads-shim" (dict "hook" "prepare-commit-msg") }}
+{{ template "git-hooks/beads-shim" (dict "hook" "prepare-commit-msg" "personal_dirs" .beads.personal_dirs) }}

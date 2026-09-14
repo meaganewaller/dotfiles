@@ -1,1 +1,1 @@
-{{ template "git-hooks/beads-shim" (dict "hook" "post-merge") }}
+{{ template "git-hooks/beads-shim" (dict "hook" "post-merge" "personal_dirs" .beads.personal_dirs) }}

@@ -2,12 +2,28 @@
 # Managed by chezmoi: home/.chezmoitemplates/git-hooks/beads-shim
 # Seeded into new clones by init.templateDir (see dot_config/git/config.tmpl).
 # Retrofit an existing clone with: git init .
-#
+
+# Dolt's git-remote-cache is a bare repo: these hooks have no business there.
+if [ "$(git rev-parse --is-bare-repository 2>/dev/null)" = true ]; then exit 0; fi
+
 # hk is chained, NOT exec'd. bd's own installed shims use
 # `exec mise x -- hk run ...`, which replaces the shell process and makes the
 # beads block below unreachable -- so on pre-commit and pre-push, the two hooks
 # that matter most, beads silently never ran.
-if [ "${HK:-1}" != "0" ] && [ -f hk.pkl ] && command -v mise >/dev/null 2>&1; then
+#
+# And only in my own repositories, under a beads.personal_dirs entry: hk
+# evaluates the repository's own hk.pkl, and git never runs a clone's code on
+# its own. The match folds case and stops at a "/" boundary, so an entry claims
+# itself and everything under it, never a sibling that shares its prefix.
+_hk_mine=
+if [ "${HK:-1}" != "0" ] && [ -f hk.pkl ]; then
+	_hk_top=$(git rev-parse --show-toplevel 2>/dev/null | tr '[:upper:]' '[:lower:]')
+	for _hk_dir in{{ range .personal_dirs }} "{{ regexReplaceAllLiteral "^~/" . "$HOME/" }}"{{ end }}; do
+		_hk_dir=$(printf '%s' "$_hk_dir" | tr '[:upper:]' '[:lower:]')
+		case "$_hk_top/" in "$_hk_dir/"*) _hk_mine=1 ;; esac
+	done
+fi
+if [ -n "$_hk_mine" ] && command -v mise >/dev/null 2>&1; then
 	mise x -- hk run {{ .hook }} --from-hook "$@" || exit $?
 fi
 
