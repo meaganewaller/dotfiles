@@ -46,6 +46,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | Fish shell (alternative) | [docs/fish.md](docs/fish.md) |
 | Install / env vars | [README.md](README.md) |
 | Add a CLI with correct pins | `/install` skill; then Chezmoi workflow above |
+| Beads: what to commit, which repos | [docs/beads.md](docs/beads.md) |
 
 ---
 

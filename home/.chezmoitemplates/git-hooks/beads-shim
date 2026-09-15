@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+# Managed by chezmoi: home/.chezmoitemplates/git-hooks/beads-shim
+# Seeded into new clones by init.templateDir (see dot_config/git/config.tmpl).
+# Retrofit an existing clone with: git init .
+
+# Dolt's git-remote-cache is a bare repo: these hooks have no business there.
+if [ "$(git rev-parse --is-bare-repository 2>/dev/null)" = true ]; then exit 0; fi
+
+# hk is chained, NOT exec'd. bd's own installed shims use
+# `exec mise x -- hk run ...`, which replaces the shell process and makes the
+# beads block below unreachable -- so on pre-commit and pre-push, the two hooks
+# that matter most, beads silently never ran.
+#
+# And only in my own repositories, under a beads.personal_dirs entry: hk
+# evaluates the repository's own hk.pkl, and git never runs a clone's code on
+# its own. The match folds case and stops at a "/" boundary, so an entry claims
+# itself and everything under it, never a sibling that shares its prefix.
+_hk_mine=
+if [ "${HK:-1}" != "0" ] && [ -f hk.pkl ]; then
+	_hk_top=$(git rev-parse --show-toplevel 2>/dev/null | tr '[:upper:]' '[:lower:]')
+	for _hk_dir in{{ range .personal_dirs }} "{{ regexReplaceAllLiteral "^~/" . "$HOME/" }}"{{ end }}; do
+		_hk_dir=$(printf '%s' "$_hk_dir" | tr '[:upper:]' '[:lower:]')
+		case "$_hk_top/" in "$_hk_dir/"*) _hk_mine=1 ;; esac
+	done
+fi
+if [ -n "$_hk_mine" ] && command -v mise >/dev/null 2>&1; then
+	mise x -- hk run {{ .hook }} --from-hook "$@" || exit $?
+fi
+
+# --- BEGIN BEADS INTEGRATION v1.2.2 ---
+# Mirrors `bd hooks install` output. Resync when bd bumps this version; see
+# docs/beads.md. Do not remove these markers.
+if command -v bd >/dev/null 2>&1; then
+	export BD_GIT_HOOK=1
+	_bd_timeout=${BEADS_HOOK_TIMEOUT:-300}
+	_bd_used_perl=0
+	if command -v timeout >/dev/null 2>&1; then
+		timeout "$_bd_timeout" bd hooks run {{ .hook }} "$@"
+		_bd_exit=$?
+	elif command -v gtimeout >/dev/null 2>&1; then
+		gtimeout "$_bd_timeout" bd hooks run {{ .hook }} "$@"
+		_bd_exit=$?
+	elif command -v perl >/dev/null 2>&1; then
+		_bd_used_perl=1
+		perl -e 'alarm shift; exec @ARGV' "$_bd_timeout" bd hooks run {{ .hook }} "$@"
+		_bd_exit=$?
+	else
+		echo >&2 "beads: hook '{{ .hook }}' running without timeout; install coreutils or perl to enable BEADS_HOOK_TIMEOUT"
+		bd hooks run {{ .hook }} "$@"
+		_bd_exit=$?
+	fi
+	if [ "$_bd_exit" -eq 124 ] || { [ "$_bd_used_perl" -eq 1 ] && [ "$_bd_exit" -eq 142 ]; }; then
+		echo >&2 "beads: hook '{{ .hook }}' timed out after ${_bd_timeout}s — continuing without beads"
+		_bd_exit=0
+	fi
+	if [ "$_bd_exit" -eq 3 ]; then
+		# No database in this repo. Not an error -- most repos have none.
+		_bd_exit=0
+	fi
+	if [ "$_bd_exit" -ne 0 ]; then exit "$_bd_exit"; fi
+fi
+# --- END BEADS INTEGRATION v1.2.2 ---

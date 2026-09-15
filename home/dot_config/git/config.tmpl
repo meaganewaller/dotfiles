@@ -7,6 +7,18 @@
 [init]
 	defaultBranch = main
 
+	# Seed .git/hooks/ on clone and init from a chezmoi-managed template, so a
+	# new repo gets working beads + hk hooks with no per-repo install step.
+	#
+	# Deliberately NOT core.hooksPath: setting that makes git ignore
+	# .git/hooks entirely. `bd hooks install --beads` writes into
+	# .beads/hooks/ and expects hooksPath to point there -- it never did in
+	# either repo, so those shims sat unread. See docs/beads.md.
+	#
+	# Retrofit an existing clone by re-running `git init .` -- it copies
+	# template hooks that are absent and never overwrites one that exists.
+	templateDir = ~/.config/git/template
+
 # SSH commit signing, backed by 1Password. The private key never leaves the
 # vault: op-ssh-sign asks the 1Password agent to sign, and the agent's vault is
 # configured in dot_config/1Password/ssh/agent.toml.
