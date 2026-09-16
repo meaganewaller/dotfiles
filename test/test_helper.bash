@@ -14,6 +14,11 @@ setup() {
 	mkdir -p "$TEST_SOURCE_DIR"
 	mkdir -p "$TEST_HOME_DIR"
 
+	# Stage the shared templates so `chezmoi --source "$TEST_SOURCE_DIR"` can
+	# resolve includeTemplate/template calls. `--source home` would too, but it
+	# also merges the real home/.chezmoidata into the test's data.
+	cp -R "$BATS_TEST_DIRNAME/../home/.chezmoitemplates" "$TEST_SOURCE_DIR/"
+
 	# Set up test environment variables
 	export CHEZMOI_SOURCE_DIR="$TEST_SOURCE_DIR"
 	export CHEZMOI_HOME_DIR="$TEST_HOME_DIR"

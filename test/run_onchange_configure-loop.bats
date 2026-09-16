@@ -112,3 +112,19 @@ EOF
 
 	assert_valid_shell "$output"
 }
+
+@test "does not render when the machine profile excludes loop" {
+	local script_file="home/.chezmoiscripts/run_onchange_configure-loop.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/profile-config.toml" <<EOF
+[data]
+    machine_profile = "work"
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    loop = { trigger = [61], side_dependent_trigger_key = true, double_click_to_trigger = true }
+    packages = { profiles = { work = { exclude = ["loop"] } } }
+EOF
+
+	run env -u CI -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/profile-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[ "$output" = "" ] || fail "output was: $output"
+}

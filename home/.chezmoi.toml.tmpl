@@ -9,6 +9,7 @@
 {{- $credClaudeApi := "" -}}
 {{- $credBuildkite := "" -}}
 {{- $workProfile := false -}}
+{{- $machineProfile := "" -}}
 {{- $useBedrock := false -}}
 {{- /* Machine-local half of each identity under `git.identities` in
        .chezmoidata/git.yaml. A blank email means "this identity is not used on
@@ -32,6 +33,7 @@
 {{- $gitEmail = promptStringOnce . "git.email" "Personal git user.email" -}}
 {{- $gitUsername = promptStringOnce . "git.username" "Git username" -}}
 {{- $workProfile = promptBoolOnce . "work_profile" "Is this your work machine? y/N" -}}
+{{- $machineProfile = promptStringOnce . "machine_profile" "Package profile from packages.yaml, e.g. gifthealth (blank = all packages)" "" -}}
 {{- $tdEmail = promptStringOnce . "git.identity_local.testdouble.email" "TestDouble git user.email (blank if unused on this machine)" "" -}}
 {{- if $tdEmail -}}
 {{- $tdKey = promptStringOnce . "git.identity_local.testdouble.signing_key" "TestDouble signing key, `ssh-add -L` output (blank = personal key)" "" -}}
@@ -53,6 +55,7 @@
 {{- $gitEmail = env "GIT_USER_EMAIL" -}}
 {{- $gitUsername = env "GIT_USERNAME" -}}
 {{- $workProfile = eq (env "WORK_PROFILE") "true" -}}
+{{- $machineProfile = env "MACHINE_PROFILE" -}}
 {{- $tdEmail = env "GIT_TESTDOUBLE_EMAIL" -}}
 {{- $tdKey = env "GIT_TESTDOUBLE_SIGNING_KEY" -}}
 {{- $ghEmail = env "GIT_GIFTHEALTH_EMAIL" -}}
@@ -71,6 +74,10 @@ command = "{{ .chezmoi.workingTree }}/bin/install-password-manager"
 
 [data]
 work_profile = {{ $workProfile }}
+# Names a profile under packages.profiles in .chezmoidata/packages.yaml; the
+# packages it excludes are not installed and their configs are not deployed.
+# Blank installs everything.
+machine_profile = {{ $machineProfile | quote }}
 
 [data.git]
 name = {{ $gitName | quote }}

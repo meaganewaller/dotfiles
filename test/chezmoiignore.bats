@@ -14,7 +14,7 @@ load test_helper
     chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
 EOF
 
-	run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[[ "$output" == *"Library/**"* ]] || fail "output was: $output"
 }
@@ -30,7 +30,7 @@ EOF
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
 EOF
 
-	run chezmoi execute-template --config "$TEST_TMPDIR/darwin-config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/darwin-config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[[ "$output" != *"Library/**"* ]] || fail "output was: $output"
 }
@@ -46,7 +46,7 @@ EOF
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
 EOF
 
-	run chezmoi execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[[ "$output" == *".config/git/config-work"* ]] || fail "output was: $output"
 }
@@ -62,7 +62,7 @@ EOF
     chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
 EOF
 
-	run chezmoi execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[[ "$output" != *".config/git/config-work"* ]] || fail "output was: $output"
 }
@@ -81,7 +81,7 @@ EOF
     git = { username = "" }
 EOF
 
-	run chezmoi execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Match the entry line exactly. A substring match would also hit the
@@ -102,10 +102,53 @@ EOF
     git = { username = "meaganewaller" }
 EOF
 
-	run chezmoi execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	if printf '%s\n' "$output" | grep -qE '^\.ssh/github_keys[[:space:]]*$'; then
 		fail "github_keys excluded despite a username being set; output was: $output"
+	fi
+}
+
+@test "config owned by a package the machine profile excludes is ignored" {
+	local ignore_file="home/.chezmoiignore"
+
+	cp "$ignore_file" "$TEST_SOURCE_DIR/.chezmoiignore"
+
+	cat >"$TEST_TMPDIR/config.toml" <<EOF
+[data]
+    work_profile = false
+    machine_profile = "work"
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { configs = { "nikitabobko/tap/aerospace" = [".config/aerospace", ".config/aerospace/**"] }, profiles = { work = { exclude = ["nikitabobko/tap/aerospace"] } } }
+EOF
+
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# Exact entry lines, so a comment mentioning the path cannot satisfy this.
+	local entries
+	entries="$(printf '%s\n' "$output" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+	printf '%s\n' "$entries" | grep -qxF '.config/aerospace' || fail "output was: $output"
+	printf '%s\n' "$entries" | grep -qxF '.config/aerospace/**' || fail "output was: $output"
+}
+
+@test "config owned by a package is kept when no machine profile excludes it" {
+	local ignore_file="home/.chezmoiignore"
+
+	cp "$ignore_file" "$TEST_SOURCE_DIR/.chezmoiignore"
+
+	cat >"$TEST_TMPDIR/config.toml" <<EOF
+[data]
+    work_profile = false
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { configs = { "nikitabobko/tap/aerospace" = [".config/aerospace", ".config/aerospace/**"] }, profiles = { work = { exclude = ["nikitabobko/tap/aerospace"] } } }
+EOF
+
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/config.toml" --file "$TEST_SOURCE_DIR/.chezmoiignore"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	if printf '%s\n' "$output" | grep -q 'aerospace'; then
+		fail "aerospace config ignored without a profile excluding it; output was: $output"
 	fi
 }

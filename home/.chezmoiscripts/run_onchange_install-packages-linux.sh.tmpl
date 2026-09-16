@@ -1,4 +1,6 @@
 {{ if eq .chezmoi.os "linux" -}}
+{{/* Packages the machine profile excludes (see .chezmoitemplates/package-excludes). */ -}}
+{{ $excluded := includeTemplate "package-excludes" . | splitList "\n" | compact -}}
 #!/bin/bash
 
 [ -n "${DEBUG:-}" ] && set -o xtrace
@@ -16,7 +18,8 @@ if command -v dnf >/dev/null 2>&1; then
 
     sudo dnf install -y \
 {{ range (default list (index .packages.linux "dnf")) -}}
-        {{ . }} \
+{{ if not (has . $excluded) }}        {{ . }} \
+{{ end -}}
 {{ end }}
 
 elif command -v apt-get >/dev/null 2>&1; then
@@ -25,7 +28,8 @@ elif command -v apt-get >/dev/null 2>&1; then
     sudo apt-get update -qq
     sudo apt-get install -y \
 {{ range (default list (index .packages.linux "apt")) -}}
-        {{ . }} \
+{{ if not (has . $excluded) }}        {{ . }} \
+{{ end -}}
 {{ end }}
 
 else

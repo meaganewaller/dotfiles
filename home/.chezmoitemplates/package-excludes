@@ -1,0 +1,20 @@
+{{- /* Package names the active machine profile excludes, one per line.
+
+       machine_profile (machine-local, ~/.config/chezmoi/chezmoi.toml) names an
+       entry under packages.profiles in .chezmoidata/packages.yaml. Consumers
+       turn the output back into a list:
+         {{ $excluded := includeTemplate "package-excludes" . | splitList "\n" | compact }}
+
+       A blank or unset machine_profile excludes nothing. An unknown one fails
+       the render: falling back to "install everything" would hide a typo until
+       the unwanted apps showed up. */ -}}
+{{- $name := dig "machine_profile" "" . -}}
+{{- if $name -}}
+{{-   $profiles := dig "packages" "profiles" dict . -}}
+{{-   if not (hasKey $profiles $name) -}}
+{{-     fail (printf "machine_profile %q is not defined under packages.profiles (known: %s)" $name (keys $profiles | sortAlpha | join ", ")) -}}
+{{-   end -}}
+{{-   range (dig "exclude" list (index $profiles $name)) }}
+{{ . }}
+{{-   end -}}
+{{- end -}}
