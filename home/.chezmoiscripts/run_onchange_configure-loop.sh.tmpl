@@ -1,4 +1,6 @@
-{{ if eq .chezmoi.os "darwin" -}}
+{{/* Skipped entirely when the machine profile excludes the `loop` cask. */ -}}
+{{ $excluded := includeTemplate "package-excludes" . | splitList "\n" | compact -}}
+{{ if and (eq .chezmoi.os "darwin") (not (has "loop" $excluded)) -}}
 #!/bin/bash
 
 [ -n "${DEBUG:-}" ] && set -o xtrace

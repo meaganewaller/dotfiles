@@ -91,6 +91,25 @@ packages:
       # Window Management
       - nikitabobko/tap/aerospace
       - loop # manual window snapping for floating windows; coexists with aerospace (see ADR 0007)
+
+  # Destination paths (relative to ~) that belong to a package. When the
+  # machine profile excludes the package, .chezmoiignore skips these too.
+  # Keys must match a list entry above exactly, tap prefix included.
+  configs:
+    nikitabobko/tap/aerospace:
+      - .config/aerospace
+      - .config/aerospace/**
+
+  # Per-machine package subsets. A machine opts in with machine_profile in
+  # ~/.config/chezmoi/chezmoi.toml (blank = every package); an unknown name
+  # fails the apply. Excluded packages are not installed, their configs are not
+  # deployed, and nothing already installed is removed.
+  profiles:
+    gifthealth:
+      exclude:
+        - nikitabobko/tap/aerospace
+        - loop
+
   linux:
     dnf:
       # Core Tools

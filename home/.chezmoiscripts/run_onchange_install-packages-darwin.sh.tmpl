@@ -17,6 +17,18 @@ echo "Installing packages via brew bundle (CI: brews only, casks skipped)..."
 echo "Installing packages via brew bundle..."
 {{- end }}
 
+{{/* Drop whatever the machine profile excludes before anything else reads the
+     lists, so an excluded third-party package takes its tap and trust grant
+     with it. */ -}}
+{{ $excluded := includeTemplate "package-excludes" . | splitList "\n" | compact -}}
+{{ $brews := list -}}
+{{ range .packages.darwin.brews -}}
+{{ if not (has . $excluded) }}{{ $brews = append $brews . }}{{ end -}}
+{{ end -}}
+{{ $casks := list -}}
+{{ range .packages.darwin.casks -}}
+{{ if not (has . $excluded) }}{{ $casks = append $casks . }}{{ end -}}
+{{ end -}}
 {{/* Collect the tap of every tap-qualified formula ("owner/tap/formula").
      Derived from the formula list rather than declared separately, so a new
      third-party brew can never be added without its tap. Without these lines a
@@ -26,7 +38,7 @@ echo "Installing packages via brew bundle..."
 {{ $taps := list -}}
 {{ $tapFormulae := list -}}
 {{ $tapCasks := list -}}
-{{ range .packages.darwin.brews -}}
+{{ range $brews -}}
 {{ $parts := splitList "/" . -}}
 {{ if ge (len $parts) 3 -}}
 {{ $taps = append $taps (printf "%s/%s" (index $parts 0) (index $parts 1)) -}}
@@ -38,7 +50,7 @@ echo "Installing packages via brew bundle..."
      things it never installs. This split is also why a cask-only gap sails
      through CI and fails on a real machine. */ -}}
 {{ if not (or (env "CI") (env "GITHUB_ACTIONS")) -}}
-{{ range .packages.darwin.casks -}}
+{{ range $casks -}}
 {{ $parts := splitList "/" . -}}
 {{ if ge (len $parts) 3 -}}
 {{ $taps = append $taps (printf "%s/%s" (index $parts 0) (index $parts 1)) -}}
@@ -66,7 +78,7 @@ brew bundle --file=/dev/stdin <<EOF
 {{ range ($taps | uniq) -}}
 tap {{ . | quote }}
 {{ end -}}
-{{ range .packages.darwin.brews -}}
+{{ range $brews -}}
 brew {{ . | quote }}
 {{ end -}}
 {{- /* Casks are skipped on CI: most are GUI apps (Cursor, 1Password, Slack,
@@ -74,7 +86,7 @@ brew {{ . | quote }}
        download/install and some require licenses or GUI auth. Brew drift
        (the formula list) is still validated. */ -}}
 {{ if not (or (env "CI") (env "GITHUB_ACTIONS")) -}}
-{{ range .packages.darwin.casks -}}
+{{ range $casks -}}
 cask {{ . | quote }}
 {{ end -}}
 {{- end }}

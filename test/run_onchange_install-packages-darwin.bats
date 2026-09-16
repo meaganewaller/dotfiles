@@ -48,7 +48,7 @@ EOF
 	# Render our actual script. The template branches on $CI / $GITHUB_ACTIONS
 	# at render time; clear them so this test exercises the dev-machine path
 	# (brews + casks). The CI-only path is covered by a separate test below.
-	run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
+	run env -u CI -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/real-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Test our script's behavior:
@@ -78,7 +78,7 @@ EOF
     packages = { darwin = { brews = ["jq"], casks = ["font-maple-mono-nf-cn"] } }
 EOF
 
-	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
+	CI=true run env -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/ci-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Brews still installed (catches bundle drift in CI)
@@ -98,7 +98,7 @@ EOF
     packages = { darwin = { brews = ["jq", "FelixKratz/formulae/sketchybar", "steipete/tap/remindctl", "steipete/tap/second"], casks = [] } }
 EOF
 
-	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/taps-config.toml" --file "$script_file"
+	CI=true run env -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/taps-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Without these, a cold `brew bundle` fails with "This command requires the
@@ -129,7 +129,7 @@ EOF
     packages = { darwin = { brews = ["jq", "FelixKratz/formulae/sketchybar", "steipete/tap/remindctl"], casks = [] } }
 EOF
 
-	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/trust-config.toml" --file "$script_file"
+	CI=true run env -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/trust-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Homebrew 6 refuses to load formulae from untrusted third-party taps:
@@ -162,7 +162,7 @@ EOF
 
 	# Casks only render off-CI, so this path is invisible to the CI job that
 	# skips them — a cask trust gap passes CI and fails on a real machine.
-	run env -u CI -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/cask-trust-config.toml" --file "$script_file"
+	run env -u CI -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/cask-trust-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# "Refusing to load cask nikitabobko/tap/aerospace from untrusted tap ..."
@@ -191,7 +191,7 @@ EOF
     packages = { darwin = { brews = ["jq"], casks = ["nikitabobko/tap/aerospace"] } }
 EOF
 
-	CI=true run env -u GITHUB_ACTIONS chezmoi execute-template --config "$TEST_TMPDIR/cask-ci-config.toml" --file "$script_file"
+	CI=true run env -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/cask-ci-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# The cask is not installed on CI, so neither its tap nor its trust grant
@@ -211,7 +211,7 @@ EOF
 EOF
 
 	# Render our actual script on linux
-	run chezmoi execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$script_file"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/linux-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Should be empty on non-darwin
@@ -234,9 +234,50 @@ EOF
 EOF
 
 	# Render our actual script
-	run chezmoi execute-template --config "$TEST_TMPDIR/syntax-config.toml" --file "$script_file"
+	run chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/syntax-config.toml" --file "$script_file"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	# Test that the rendered script has valid shell syntax
 	assert_valid_shell "$output"
+}
+
+@test "a machine profile drops excluded brews and casks along with their taps and trust" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/profile-config.toml" <<EOF
+[data]
+    machine_profile = "work"
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq", "steipete/tap/remindctl"], casks = ["ghostty", "loop", "nikitabobko/tap/aerospace"] }, profiles = { work = { exclude = ["steipete/tap/remindctl", "loop", "nikitabobko/tap/aerospace"] } } }
+EOF
+
+	run env -u CI -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/profile-config.toml" --file "$script_file"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+
+	# Everything the profile does not name still installs.
+	[[ "$output" == *'brew "jq"'* ]] || fail "output was: $output"
+	[[ "$output" == *'cask "ghostty"'* ]] || fail "output was: $output"
+
+	# Excluded packages are gone, and so are the tap and trust grant that only
+	# existed for them.
+	[[ "$output" != *'cask "loop"'* ]] || fail "output was: $output"
+	[[ "$output" != *'nikitabobko'* ]] || fail "output was: $output"
+	[[ "$output" != *'steipete'* ]] || fail "output was: $output"
+
+	assert_valid_shell "$output"
+}
+
+@test "an unknown machine profile fails the render instead of installing everything" {
+	local script_file="home/.chezmoiscripts/run_onchange_install-packages-darwin.sh.tmpl"
+
+	cat >"$TEST_TMPDIR/typo-config.toml" <<EOF
+[data]
+    machine_profile = "wrok"
+    chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR", sourceDir = "$TEST_SOURCE_DIR" }
+    packages = { darwin = { brews = ["jq"], casks = ["loop"] }, profiles = { work = { exclude = ["loop"] } } }
+EOF
+
+	run env -u CI -u GITHUB_ACTIONS chezmoi --source "$TEST_SOURCE_DIR" execute-template --config "$TEST_TMPDIR/typo-config.toml" --file "$script_file"
+	[ "$status" -ne 0 ] || fail "render succeeded with an unknown profile: $output"
+	[[ "$output" == *'"wrok"'* ]] || fail "output was: $output"
 }

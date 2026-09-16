@@ -126,6 +126,34 @@ packages:
 
 **Note**: These don't have Renovate automation yet. Consider adding version comments for manual tracking.
 
+#### Machine profiles: skipping packages on one machine
+
+Every machine gets every package unless it opts into a **profile**. Profiles live in the same file, so the subset is committed and reviewed like any other package change:
+
+```yaml
+packages:
+  configs:                          # paths (relative to ~) a package owns
+    nikitabobko/tap/aerospace:
+      - .config/aerospace
+      - .config/aerospace/**
+  profiles:
+    gifthealth:
+      exclude:
+        - nikitabobko/tap/aerospace  # exact list entry, tap prefix included
+        - loop
+```
+
+A machine picks its profile with `machine_profile` in `~/.config/chezmoi/chezmoi.toml`. `chezmoi init` prompts for it once, or reads `MACHINE_PROFILE` when there is no TTY. Blank means every package. On a machine initialized before profiles existed, add `machine_profile = "<name>"` under `[data]` by hand or re-run `chezmoi init`.
+
+For an excluded package:
+
+- The Homebrew and Linux install scripts leave it out, along with any tap and `brew trust` grant it alone needed.
+- Its `configs` paths are added to `.chezmoiignore`, so chezmoi stops deploying and managing them. Files already in `~` are left in place.
+- Scripts that only configure that package (e.g. `run_onchange_configure-loop.sh.tmpl`) render empty.
+- **Nothing is uninstalled.** Remove it yourself, e.g. `brew uninstall --cask aerospace loop`.
+
+An unknown `machine_profile` fails the apply rather than silently installing everything. `test/package-profiles.bats` fails if an `exclude` entry or `configs` key doesn't match a declared package. The lookup lives in `home/.chezmoitemplates/package-excludes`; new consumers should go through it.
+
 ### 4. External Dependencies (Shell Plugins)
 
 Add to `home/.chezmoiexternals/zsh.toml.tmpl` (or the relevant `home/.chezmoiexternals/*.toml.tmpl` file) with SHA pinning:
@@ -189,7 +217,7 @@ Scripts in `home/` execute when their trigger conditions change:
 | Script | Triggers On | Installs |
 |--------|------------|----------|
 | `run_onchange_00-install-mise-tools.sh.tmpl` | mise config changes | All mise-managed tools (runtimes + backend tools) |
-| `run_onchange_install-packages-darwin.sh.tmpl` | packages.yaml changes | Homebrew packages |
+| `run_onchange_install-packages-darwin.sh.tmpl` | packages.yaml or `machine_profile` changes | Homebrew packages, minus the machine profile's exclusions |
 | `run_onchange_install-nvim-plugins.sh.tmpl` | `plugin/*.lua` specs or `nvim-pack-lock.json` changes | `vim.pack`-managed plugins |
 
 The `00-` prefix ensures mise tools install first. All Python/Node tools are now installed via mise backends (`pipx:`, `npm:`) in a single script.

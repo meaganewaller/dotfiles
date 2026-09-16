@@ -29,3 +29,13 @@ Library/**
 {{ if not (dig "git" "username" "" .) }}
 .ssh/github_keys
 {{ end }}
+
+# Config owned by a package the machine profile excludes (packages.configs in
+# .chezmoidata/packages.yaml). Without the package there is nothing to read it.
+{{ $excluded := includeTemplate "package-excludes" . | splitList "\n" | compact -}}
+{{ $configs := dig "packages" "configs" dict . -}}
+{{ range $excluded -}}
+{{ range (dig . list $configs) -}}
+{{ . }}
+{{ end -}}
+{{ end -}}
