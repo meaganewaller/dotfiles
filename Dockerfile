@@ -34,8 +34,12 @@ ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 # ssh-keygen, so this is test-only today; it is installed rather than skipped
 # because a suite that quietly drops assertions inside the container is worth
 # less than the package it saves.
+# python3 is the fourth: home/dot_local/bin/executable_claude-fork requires it,
+# and test/claude-fork.bats seeds its fixture with it, so without it both fork
+# tests exit 127 before asserting anything. Unlike ubuntu:24.04, GitHub's
+# runners and macOS already provide /usr/bin/python3.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl git jq locales openssh-client sudo unzip zsh \
+      ca-certificates curl git jq locales openssh-client python3 sudo unzip zsh \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 

@@ -57,6 +57,10 @@ exit 0
 EOF
 
 	chmod +x "$TEST_TMPDIR/bin/tmux" "$TEST_TMPDIR/bin/pgrep" "$TEST_TMPDIR/bin/claude"
+
+	# The script needs a real jq, and run_fork's PATH only reaches /usr/bin.
+	# macOS ships /usr/bin/jq only from 15 on, so link this machine's jq in.
+	ln -s "$(command -v jq)" "$TEST_TMPDIR/bin/jq"
 }
 
 seed_fixture() {
