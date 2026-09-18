@@ -96,8 +96,17 @@ runs:
     # --no-network skips the "is a newer chezmoi out" check, which only ever
     # produces a warning (doesn't fail the run) but adds a flaky GitHub API
     # call we don't need here.
+    # TMPDIR: doctor's hardlink check links a file from the source dir into the
+    # temp dir, and a hardlink cannot cross filesystems. On ubuntu-26.04 /tmp is
+    # a separate mount from the workspace, so the check failed the whole step
+    # with "invalid cross-device link". runner.temp sits on the workspace
+    # filesystem, which is also what a real machine looks like (one filesystem
+    # for both), so the check still proves `chezmoi edit --hardlink` works
+    # rather than being skipped.
     - name: chezmoi doctor
       shell: bash
+      env:
+        TMPDIR: ${{ runner.temp }}
       run: chezmoi doctor --no-network
 
     - name: Dump install logs on failure
