@@ -51,7 +51,7 @@ bd dolt remote list             # expect origin at the same URL
 bd config set export.auto true
 chmod 700 .beads                # bd 1.2.2 already creates it 0700; older inits made it 0755
 git rev-parse --git-path hooks  # expect .git/hooks, or .husky/_ in a husky repo with dependencies installed
-bd hooks list                   # expect five "installed (shim 1.2.2)"; in a husky repo with dependencies installed, run the Husky repos check instead
+bd hooks list                   # expect five "installed (shim 1.3.0)"; in a husky repo with dependencies installed, run the Husky repos check instead
 ```
 
 Commit `.beads/config.yaml`, which now carries `export.auto`, and `.beads/issues.jsonl` once the first issue exists. Then push the Dolt data, which is the step that makes the tracker durable:
@@ -160,7 +160,7 @@ In a throwaway clone, bootstrap leaves a database wired to the real remote, the 
 ```bash
 git init .
 git rev-parse --git-path hooks   # expect .git/hooks, or .husky/_ in a husky repo with dependencies installed
-bd hooks list                    # expect five "installed (shim 1.2.2)"; in a husky repo with dependencies installed, run the Husky repos check instead
+bd hooks list                    # expect five "installed (shim 1.3.0)"; in a husky repo with dependencies installed, run the Husky repos check instead
 ```
 
 `bd hooks list` works in a repository without beads, too.
@@ -203,7 +203,7 @@ if [ -x "$shim" ]; then "$shim" "$@"; fi
 - **Appending to an existing script.** Make sure it ends with a newline first, or the first appended line joins its last line; `marketplace`'s `pre-commit` did not end with one.
 - **Only the bd slots.** Leave husky's other hooks alone, such as a `commit-msg` that runs commitlint.
 - **The shim stays the one copy.** `.husky/` holds no beads logic of its own, so a [shim resync](#shim-resync) reaches the repository with no edit there.
-- **`bd hooks list` and `bd hooks install` look only at `.husky/_`.** `bd hooks list` reports all five hooks `installed (version )`, which describes husky's generated stubs; it says the same with a `.husky/<hook>` script emptied or missing. `bd hooks install` appends its block to those stubs, below the line that hands off to husky's runner, which exits first, so the block never runs. Everything else runs as before, but `bd hooks list` then reports `installed (shim 1.2.2)` for a block that never runs, and re-running husky, which every dependency install does, erases the block. Do not run `bd hooks install` in a husky repository.
+- **`bd hooks list` and `bd hooks install` look only at `.husky/_`.** `bd hooks list` reports all five hooks `installed (version )`, which describes husky's generated stubs; it says the same with a `.husky/<hook>` script emptied or missing. `bd hooks install` appends its block to those stubs, below the line that hands off to husky's runner, which exits first, so the block never runs. Everything else runs as before, but `bd hooks list` then reports `installed (shim 1.3.0)` for a block that never runs, and re-running husky, which every dependency install does, erases the block. Do not run `bd hooks install` in a husky repository.
 
 To confirm the chain, check the scripts instead. This prints nothing when each of the five ends with exactly the two delegation lines shown above, carrying its own hook name, and names any that do not:
 
@@ -228,9 +228,9 @@ Neither block was part of the 2026-09-11 runs. Both were verified on 2026-09-14:
 
 ## Shim resync
 
-The five hooks render from one template, `home/.chezmoitemplates/git-hooks/beads-shim`. Its beads block mirrors what `bd hooks install` writes, between markers pinned at **`v1.2.2`**.
+The five hooks render from one template, `home/.chezmoitemplates/git-hooks/beads-shim`. Its beads block mirrors what `bd hooks install` writes, between markers pinned at **`v1.3.0`**.
 
-bd stamps its own CLI version into those markers, so the label moves with every bd release even when the block's logic does not; from 1.1.0 to 1.2.2 only the indentation changed. bd is installed with Homebrew here, not mise, so upgrades, and the label churn that comes with them, arrive unpinned. `bd hooks list` prints each hook's label, as `(shim 1.2.2)`, but does not flag one that lags bd.
+bd stamps its own CLI version into those markers, so the label moves with every bd release even when the block's logic does not; from 1.1.0 to 1.2.2 only the indentation changed, while 1.3.0 rewrote the timeout handling. bd is installed with Homebrew here, not mise, so upgrades, and the label churn that comes with them, arrive unpinned. `bd hooks list` prints each hook's label, as `(shim 1.3.0)`, but does not flag one that lags bd.
 
 After a bd upgrade, compare the logic, not the label. From the dotfiles repository root:
 
