@@ -241,6 +241,31 @@ The validator will:
 
 **Important**: Always apply suggested migrations from the validator output to keep the config modern and prevent future breaking changes.
 
+## Pinned Sigstore Trusted Root (Not Renovate-Managed)
+
+`share/sigstore/trusted_root.json` is the one pin nothing automates. `./install`
+verifies chezmoi's release with cosign, which needs Sigstore's trusted root to
+check the bundle's transparency-log material. cosign normally fetches it from
+`tuf-repo-cdn.sigstore.dev`, and that CDN has answered **403 to GitHub Actions
+runners for days at a time**, taking the whole bootstrap down with it
+(`dotfiles-adz`). The installer tries the live fetch first and falls back to this
+file only when it fails, so machines with working network keep using current
+Sigstore material.
+
+It carries no expiry — the active CA, TSA and Rekor entries are open-ended — so
+it does not rot on a clock. It goes stale only when Sigstore adds infrastructure,
+such as a new Rekor shard (`log2025-1` appeared in 2025), which is roughly a
+yearly event. A stale copy fails loudly; it never widens what is trusted.
+
+Refresh it when a fallback verification starts failing on an unknown log:
+
+```bash
+TUF_ROOT=$(mktemp -d) cosign initialize
+cp "$TUF_ROOT/tuf-repo-cdn.sigstore.dev/targets/trusted_root.json" \
+  share/sigstore/trusted_root.json
+./bin/test   # test/sigstore-trusted-root.bats verifies it offline
+```
+
 ## Maintenance Tips
 
 - Prefer explicit versions over `latest`; let Renovate do the bumping.

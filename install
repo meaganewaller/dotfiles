@@ -55,6 +55,11 @@ readonly GITHUB_RELEASES_URL="https://github.com"
 script_dir_temp="$(cd "$(dirname "$0")" && pwd)"
 readonly script_dir="$script_dir_temp"
 
+# Fallback copy of Sigstore's trusted root, used only when cosign cannot fetch
+# the live one. Refresh it with `cosign initialize` and copy the file out of
+# $TUF_ROOT/tuf-repo-cdn.sigstore.dev/targets/. See docs/renovate.md.
+readonly SIGSTORE_TRUSTED_ROOT="$script_dir/share/sigstore/trusted_root.json"
+
 # =============================================================================
 # ENVIRONMENT SETUP AND VALIDATION
 # =============================================================================
@@ -881,9 +886,28 @@ download_chezmoi() {
 	# Only download and verify signature if verification is enabled
 	if [ "$VERIFY_SIGNATURES" = "true" ]; then
 		log_info "Verifying signature..."
+		# The signature itself is checked against chezmoi's own key, but the
+		# bundle's transparency-log material needs Sigstore's trusted root, and
+		# cosign fetches that from tuf-repo-cdn.sigstore.dev. That CDN has
+		# answered 403 to GitHub Actions runners for days at a time, which took
+		# the entire bootstrap down with it (dotfiles-adz).
+		#
+		# Live first, so a machine with working network uses current Sigstore
+		# material -- new Rekor shards appear there long before they reach our
+		# pinned copy. The pinned root carries only the environments that
+		# cannot reach the CDN, and it verifies exactly as strictly: a tampered
+		# blob still fails.
 		if ! cosign verify-blob --bundle "$signature_path" --key "$pubkey_path" "$checksums_path"; then
-			log_error "Signature verification failed"
-			exit 1
+			if [ ! -f "$SIGSTORE_TRUSTED_ROOT" ]; then
+				log_error "Signature verification failed"
+				exit 1
+			fi
+			log_info "Live Sigstore trusted root unreachable; retrying with the pinned copy"
+			if ! cosign verify-blob --bundle "$signature_path" --key "$pubkey_path" \
+				--trusted-root "$SIGSTORE_TRUSTED_ROOT" "$checksums_path"; then
+				log_error "Signature verification failed"
+				exit 1
+			fi
 		fi
 	else
 		log_info "Signature verification disabled"
