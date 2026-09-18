@@ -132,12 +132,22 @@
     },
     {
       customType: 'regex',
+      // The version appears TWICE in each import: the release tag (v1.45.0)
+      // and the pkl package asset (hk@1.45.0.zip), and a release only ships an
+      // asset matching its own tag. Capturing just the tag rewrote half the URL
+      // and every hk.pkl bump 404'd on "Import not found:
+      // .../download/v2.0.1/hk@1.45.0.zip". So capture the version WITHOUT the
+      // `v` and rebuild the whole string, putting it in both places;
+      // extractVersionTemplate drops the `v` the release tags carry so newValue
+      // matches the bare form `hk@` needs.
       managerFilePatterns: [
         '/^hk\\.pkl$/',
       ],
       matchStrings: [
-        'github\\.com/jdx/hk/releases/download/(?<currentValue>v[^/]+)/hk@[^#"]+',
+        'github\\.com/jdx/hk/releases/download/v(?<currentValue>[^/]+)/hk@[^#"]+',
       ],
+      autoReplaceStringTemplate: 'github.com/jdx/hk/releases/download/v{{{newValue}}}/hk@{{{newValue}}}',
+      extractVersionTemplate: '^v(?<version>.+)$',
       depNameTemplate: 'jdx/hk',
       datasourceTemplate: 'github-releases',
     },
