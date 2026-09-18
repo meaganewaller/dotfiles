@@ -81,7 +81,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-14]
+        os: [ubuntu-26.04, macos-14]
     # macOS notes:
     #   - The chezmoi run_onchange scripts gate on $CI / $GITHUB_ACTIONS to
     #     skip GUI-bound work (macOS preferences, nvim Lazy! sync, Claude Code
