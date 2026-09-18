@@ -88,6 +88,7 @@ claudeData:
       - plugin-dev@claude-code-plugins
       - superpowers@superpowers-dev
       - git-workflow@meaganewaller-marketplace
+      - pr-review-copilot@meaganewaller-marketplace
       - dotfiles@meaganewaller-marketplace
       - avoid-ai-writing@conorbronsdon-skills
 
@@ -179,7 +180,7 @@ claudeData:
   # an orphaned ~/.claude-gifthealth keeps getting reconciled by
   # bin/sync-claude-extras and bin/sync-claude-settings forever.
   gifthealth:
-    settings: 
+    settings:
       model: "sonnet"
       effortLevel: "medium"
       alwaysThinkingEnabled: true
