@@ -43,12 +43,16 @@ local linters = new Mapping<String, Step|Group> {
   }
   ["mise"] = Builtins.mise
 
-  // Shell — exclude chezmoi templates
+  // Shell — exclude chezmoi templates. Two patterns, because chezmoi has two
+  // kinds: target templates carry a .tmpl suffix, while named templates under
+  // .chezmoitemplates/ carry none (chezmoi keys those by bare filename). Both
+  // are Go text/template and neither parses as shell -- a {{ range }} inside a
+  // for loop is a syntax error to shellcheck, not a lint finding.
   ["shellcheck"] = (Builtins.shellcheck) {
-    exclude = "**/*.tmpl"
+    exclude = List("**/*.tmpl", "**/.chezmoitemplates/**")
   }
   ["shfmt"] = (Builtins.shfmt) {
-    exclude = "**/*.tmpl"
+    exclude = List("**/*.tmpl", "**/.chezmoitemplates/**")
   }
 
   // GitHub Actions
