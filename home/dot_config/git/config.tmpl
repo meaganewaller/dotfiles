@@ -162,13 +162,27 @@
 
 [include]
 	path = ~/.config/git/config.local
-{{ if lookPath "gh" -}}
+{{/* git runs the helper by absolute path, and whatever is baked in here has to
+     outlive gh upgrades. `lookPath "gh"` picked whatever came first on PATH at
+     render time, which on a mise machine is its versioned install dir
+     (…/installs/aqua-cli-cli/latest/gh_2.97.0_macOS_arm64/bin/gh) -- the next
+     gh bump moved the binary and git auth broke until the next apply
+     (dotfiles-3ik). Prefer paths that stay put across upgrades: brew relinks
+     its symlink, distro packages own theirs, and mise's shim re-resolves the
+     current version. Bare `gh` is the last resort: it needs gh on PATH, which
+     a GUI client launched outside a shell does not have. */ -}}
+{{- $gh := "" -}}
+{{- range list "/opt/homebrew/bin/gh" "/usr/local/bin/gh" "/usr/bin/gh" (joinPath .chezmoi.homeDir ".local/share/mise/shims/gh") -}}
+{{- if and (not $gh) (stat .) }}{{ $gh = . }}{{ end -}}
+{{- end -}}
+{{- if not $gh }}{{ $gh = lookPath "gh" }}{{ end -}}
+{{ if $gh -}}
 [credential "https://github.com"]
 	helper =
-	helper = !{{ lookPath "gh" }} auth git-credential
+	helper = !{{ $gh }} auth git-credential
 [credential "https://gist.github.com"]
 	helper =
-	helper = !{{ lookPath "gh" }} auth git-credential
+	helper = !{{ $gh }} auth git-credential
 {{ end -}}
 
 {{- /* Per-identity overlays. Every identity in .chezmoidata/git.yaml's
