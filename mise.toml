@@ -6,7 +6,7 @@
 "aqua:koalaman/shellcheck" = "v0.11.0"
 "aqua:mikefarah/yq" = "v4.53.6"
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
-hk = "1.58.1"
+hk = "2.0.1"
 jq = "1.8.2"
 # Install dependency of the npm: tools below. bin/setup installs only this
 # file's tools, so without node here a global node pin that isn't installed yet
