@@ -109,6 +109,10 @@ packages:
       exclude:
         - nikitabobko/tap/aerospace
         - loop
+        # VS Code updates itself here, which left Homebrew pinned to an older
+        # version it could not upgrade past without sudo, failing every apply.
+        # Its settings.json stays managed; only the cask is unmanaged.
+        - visual-studio-code
 
   linux:
     dnf:
