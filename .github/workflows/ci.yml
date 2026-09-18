@@ -3,15 +3,15 @@ name: CI
 # Fast path: lint + cached bootstrap + test suite. Runs on every PR and every
 # push to main. Ubuntu only — macOS lives in cold-start.yml because it's slow
 # and PRs rarely need it.
+# No paths-ignore: `lint` and `test-cached` are required checks on main, and a
+# required check that never runs leaves the PR waiting for a status that will
+# never arrive. Running them everywhere also closes a gap — `lint` is `hk check`,
+# which markdown-lints docs, so docs-only PRs used to skip their own linter.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
 
 # Cancel superseded PR runs to stop burning minutes on stale pushes. Don't
 # cancel main runs — a half-finished run can leave caches in a weird state.
