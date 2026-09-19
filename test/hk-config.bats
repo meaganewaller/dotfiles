@@ -94,3 +94,22 @@ output: $output"
 	[ "$status" -eq 0 ] || fail "the pre-push scan failed with nothing to push; command was: $cmd
 output: $output"
 }
+
+@test "the pre-commit scan rejects a staged secret" {
+	command -v pkl >/dev/null 2>&1 || skip "pkl not installed"
+	command -v gitleaks >/dev/null 2>&1 || skip "gitleaks not installed"
+
+	local work="$TEST_TMPDIR/work" cmd
+	make_pushed_repo "$work"
+	cmd="$(scan_command pre-commit)"
+	[ -n "$cmd" ] || fail "could not read the pre-commit command from $CONFIG_FILE"
+
+	# Staged but not committed -- what pre-commit sees.
+	printf 'awsToken = AKIA%s\n' 'LALEMEL33243OLIA' >"$work/leak.txt"
+	git -C "$work" add leak.txt
+
+	cd "$work" || fail "cd failed"
+	run eval "$cmd"
+	[ "$status" -ne 0 ] || fail "the pre-commit scan passed on a staged secret; command was: $cmd
+output: $output"
+}

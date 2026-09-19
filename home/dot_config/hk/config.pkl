@@ -4,7 +4,7 @@ hooks {
   ["pre-commit"] {
     steps {
       ["gitleaks"] {
-        check = "gitleaks protect --staged"
+        check = "gitleaks git --pre-commit --redact --staged --verbose --no-banner"
       }
     }
   }
