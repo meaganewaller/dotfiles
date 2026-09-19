@@ -16,3 +16,9 @@ home/dot_claude/skills/skill-optimization-workspace/
 .beads/interactions.jsonl
 # Generated per-project; hooks come from init.templateDir instead.
 .beads/hooks/
+
+# mise writes npm provenance-verification scratch files here on every
+# `mise lock` run for npm-backend tools (e.g. markdownlint-cli). They are
+# not part of mise.lock and were observed inflating hk's file-count plan
+# when left untracked in the working tree.
+.mise/locks/
