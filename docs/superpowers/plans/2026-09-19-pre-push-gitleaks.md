@@ -299,25 +299,64 @@ Expected: `gitleaks present` three times. A `MISSING` means the config stopped b
 
 This is the acceptance criterion from `dotfiles-6c6`, run end to end rather than through the extracted command.
 
+**A plain `mktemp -d` repo does not work — do not use one.** It was tried first and returned `push exit: 0` with no gitleaks output at all, on a correctly deployed config. The seeded pre-push hook (`home/.chezmoitemplates/git-hooks/beads-shim`) only chains into `hk` when the repo's toplevel is under a `beads.personal_dirs` prefix — `$HOME/src/github.com/meaganewaller` or `$HOME/src/github.com/onlooker-community` (`docs/beads.md`). `mktemp -d` lands under `/var/folders/.../T` (or `/tmp`), which matches neither prefix, so the shim's `_hk_mine` guard stays empty and `mise x -- hk run pre-push --from-hook` is never invoked — confirmed with `sh -x` on the hook itself. The push then succeeds trivially, regardless of whether the config is correct.
+
+Putting the repo under a `personal_dirs` prefix clears that gate but exposes three more requirements this script needs that the BATS tests (which deliberately stay outside those prefixes to keep hk out) never had to satisfy:
+
+1. **A valid `hk.pkl`, not just an empty touched file.** The shim's `[ -f hk.pkl ]` check only cares that the file exists, but once `_hk_mine` is set, `hk` loads and merges that file as real Pkl — it must actually parse. The minimal working content is the one-line `amends` this repo's own `hk.pkl` uses.
+2. **`pkl` declared in the throwaway repo's own `mise.toml`.** `hk` shells out to the `pkl` CLI to read its config, and `mise x --` only resolves tools some `mise.toml` in the directory hierarchy declares. With none present, `hk` panics with `Failed to load configuration: failed to analyze pkl ... install pkl cli to use pkl config files` before it ever reaches gitleaks — this is a second, unrelated failure mode, not a scan result.
+3. **`gitleaks` declared too**, for the same reason. Omit it and the push still fails, but with `mise ERROR No version is set for shim: gitleaks`, not a gitleaks finding — this failure mode is real, fails closed rather than open, and is pre-existing (not a regression from this fix); it is tracked separately in beads rather than fixed here.
+
 ```bash
-T=$(mktemp -d)
+export PATH="$HOME/.local/share/mise/shims:$PATH"   # a non-interactive shell lacks this; without it gitleaks resolves as "command not found" inside the hook, which can look like a pass
+
+T="$HOME/src/github.com/meaganewaller/tmp-prepush-verify"   # must sit under a personal_dirs prefix -- see above
+rm -rf "$T"
+mkdir -p "$T"
 git init -q --bare --template= "$T/remote.git"
-git init -q "$T/work"          # NOTE: no --template=, so the real hooks are seeded
+git init -q "$T/work"                 # NOTE: no --template=, so the real hooks are seeded
 cd "$T/work"
 git config user.email test@example.com && git config user.name Test
-: >hk.pkl                       # the shim only runs hk where hk.pkl exists
+
+cat >hk.pkl <<'EOF'
+amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
+EOF
+
+cat >mise.toml <<'EOF'
+[tools]
+pkl = "0.32.1"
+"aqua:gitleaks/gitleaks" = "v8.30.1"
+EOF
+
 git remote add origin "$T/remote.git"
-printf 'clean\n' >a.txt && git add a.txt && git commit -qm clean
-git push -q origin HEAD:refs/heads/main && git fetch -q origin
+printf 'clean\n' >a.txt && git add a.txt hk.pkl mise.toml && git commit -qm clean
+
+# Scaffolding push. --no-verify here is not simulating anything -- it works
+# around a chicken-and-egg problem: hk's pre-push run needs the remote's
+# tracking refs to know what "HEAD --not --remotes" is relative to, and
+# nothing exists on the remote yet for it to resolve against.
+git push -q --no-verify origin HEAD:refs/heads/main
+git fetch -q origin
+git remote set-head origin -a
+
+# Real push #1: clean commit, hooks enabled. Confirms hk/gitleaks actually
+# ran -- not just that the scaffolding above worked.
+printf 'more clean\n' >b.txt && git add b.txt && git commit -qm "more clean"
+git push origin HEAD:refs/heads/main; echo "clean push exit: $?"
+
+# Real push #2: the acceptance case. --no-verify on this commit is
+# deliberate -- it simulates the exact scenario pre-push exists to catch,
+# a commit that never passed pre-commit.
 printf 'awsToken = AKIA%s\n' 'LALEMEL33243OLIA' >leak.txt
 git add leak.txt && git commit -qm "planted secret" --no-verify
-git push origin HEAD:refs/heads/main; echo "push exit: $?"
+git push origin HEAD:refs/heads/main; echo "secret push exit: $?"
+
 cd - >/dev/null && rm -rf "$T"
 ```
 
-Expected: a **non-zero** push exit, with gitleaks reporting a finding. `--no-verify` on the commit is deliberate — it simulates the exact scenario pre-push exists to catch, a commit that never passed pre-commit.
+Expected: `clean push exit: 0` (gitleaks ran and reported "no leaks found"), then `secret push exit: 1` with a gitleaks finding (`RuleID: aws-access-token`, `File: leak.txt`, `Line: 1`; `Finding`/`Secret` shown as `REDACTED`).
 
-If the push succeeds, the live hook is not running the new command. Check that `chezmoi apply` landed, and that the throwaway repo got the seeded hooks (it must be created **without** `--template=`, unlike the ones in the BATS tests).
+If the push succeeds when it shouldn't, or fails with an `mise`/`pkl` error instead of a gitleaks finding, work back through the three requirements above before concluding the config itself is broken. Verified end to end on 2026-09-19: both push results matched exactly, and the throwaway repo was deleted afterward.
 
 - [ ] **Step 5: Run the final gates**
 
