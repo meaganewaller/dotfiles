@@ -80,7 +80,11 @@ hooks {
     // minimal config that omits `fix`, the implicit pre-commit runs as
     // `check`. hk's Config.pkl documents this correctly; the migration guide's
     // claim that pre-commit "fixes and stages by default" is wrong. Drop
-    // either line and pre-commit silently stops fixing and staging.
+    // `fix = true` and pre-commit silently stops fixing, running as `check`
+    // instead -- staging is unaffected, since `stage` defaults to `true` for
+    // pre-commit independently of `stash`. Drop `stash = "git"` and pre-commit
+    // stops stashing unstaged changes before fix steps run -- `stash` defaults
+    // to "none" -- while fixing and staging still happen.
     fix = true
     stash = "git"
     steps {
