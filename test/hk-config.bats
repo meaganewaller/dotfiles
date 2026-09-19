@@ -113,3 +113,18 @@ output: $output"
 	[ "$status" -ne 0 ] || fail "the pre-commit scan passed on a staged secret; command was: $cmd
 output: $output"
 }
+
+@test "the pre-commit scan passes when nothing is staged" {
+	command -v pkl >/dev/null 2>&1 || skip "pkl not installed"
+	command -v gitleaks >/dev/null 2>&1 || skip "gitleaks not installed"
+
+	local work="$TEST_TMPDIR/work" cmd
+	make_pushed_repo "$work"
+	cmd="$(scan_command pre-commit)"
+	[ -n "$cmd" ] || fail "could not read the pre-commit command from $CONFIG_FILE"
+
+	cd "$work" || fail "cd failed"
+	run eval "$cmd"
+	[ "$status" -eq 0 ] || fail "the pre-commit scan failed with nothing staged; command was: $cmd
+output: $output"
+}
