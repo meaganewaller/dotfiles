@@ -171,9 +171,35 @@ mise exec -- ./bin/test 2>&1 | grep -cE '^ok '
 
 Expected: `267`.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 8: Prove a FRESH checkout still installs**
 
-Use the `/git-workflow:commit` skill. Stage only `mise.lock`. Suggested subject:
+This step exists because its absence cost a red CI run. A local `mise install --locked` passes for the wrong reason: tools already present on this machine are skipped, so mise never touches artifacts a fresh runner needs. CI has no such luxury.
+
+Build the clean room from the **commit**, not the working tree, and isolate it from this machine's mise state:
+
+```bash
+CR=$(mktemp -d)
+git archive HEAD mise.toml mise.lock .mise | tar -x -C "$CR"
+: > "$CR/empty-global.toml"
+( cd "$CR" \
+  && export MISE_DATA_DIR="$CR/data" MISE_GLOBAL_CONFIG_FILE="$CR/empty-global.toml" MISE_YES=1 \
+  && mise trust --yes . >/dev/null 2>&1 \
+  && GITHUB_TOKEN="$(gh auth token)" mise install --locked 2>&1 | tail -5 )
+```
+
+Expected: every tool installs. A `dependency sidecar ... No such file or directory` means the lockfile references a path that is not committed — `git add` it, never ignore it.
+
+Then confirm the check is not vacuous by making it fail on purpose. Flip the last hex digit of a `digest` value in the clean room's `mise.lock`, keeping it 64 characters (a shorter string gives a whole-file parse error, which is not the check you meant to test), and re-run the install:
+
+```bash
+# expected: "dependency sidecar ...: digest mismatch"
+```
+
+If a wrong digest still installs, verification is not happening and the passing run above proved nothing. Clean up with `rm -rf "$CR"`.
+
+- [ ] **Step 9: Commit**
+
+Use the `/git-workflow:commit` skill. Stage `mise.lock` **and any sidecar directory the lockfile references** — a digest and the bytes it pins are meaningless apart, so they belong in one commit. Suggested subject:
 
 ```text
 chore(mise): upgrade the lockfile to format 2 :lock:
@@ -269,6 +295,10 @@ mise x -- hk --version
 ```
 
 Expected: `hk 2.0.1`.
+
+- [ ] **Step 5a: Re-run Task 2's clean-room install**
+
+The backend moves from `aqua:jdx/hk` to `packslip:github.com/jdx/hk` here — a different fetch path with its own artifacts. hk is already installed on this machine, so a local check skips it and tells you nothing. Repeat Task 2's Step 8 procedure and confirm hk 2.0.1 installs from the committed lockfile on a machine that has never seen it.
 
 - [ ] **Step 6: Confirm the existing config still evaluates under 2.0.1**
 
