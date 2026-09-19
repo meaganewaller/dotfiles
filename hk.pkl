@@ -1,7 +1,11 @@
 amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
 import "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Builtins.pkl"
 
-local linters = new Mapping<String, Step|Group> {
+// Shared by the implicit `check`, `fix`, and `pre-commit` hooks that v2 creates
+// from this map. The bd steps are deliberately NOT here: `check` and `fix` run
+// in CI (hk check) on machines that don't have the `bd` CLI installed -- it is
+// not a project mise tool. They are contributed per-hook below instead.
+steps {
   // Essential
   ["check-merge-conflict"] = Builtins.check_merge_conflict
   ["check-executables-have-shebangs"] = Builtins.check_executables_have_shebangs
@@ -69,20 +73,27 @@ local linters = new Mapping<String, Step|Group> {
   ["stylua"] = Builtins.stylua
 }
 
-
-hooks = new {
+hooks {
   ["pre-commit"] {
+    // Both of these must stay explicit. v2 defaults `stash` to "none" on every
+    // hook, and its pre-commit does NOT fix by default -- measured with a
+    // minimal config that omits `fix`, the implicit pre-commit runs as
+    // `check`. hk's Config.pkl documents this correctly; the migration guide's
+    // claim that pre-commit "fixes and stages by default" is wrong. Drop
+    // `fix = true` and pre-commit silently stops fixing, running as `check`
+    // instead -- staging is unaffected, since `stage` defaults to `true` for
+    // pre-commit independently of `stash`. Drop `stash = "git"` and pre-commit
+    // stops stashing unstaged changes before fix steps run -- `stash` defaults
+    // to "none" -- while fixing and staging still happen.
     fix = true
     stash = "git"
-    // bd-pre-commit lives here, not in `linters`: `linters` is shared with
-    // the `check`/`fix` hooks, which CI runs (hk check) on machines that
-    // don't have the `bd` CLI installed (it's not a project mise tool).
-    steps = (linters) {
+    steps {
       ["bd-pre-commit"] {
         check = "bd hooks run pre-commit"
       }
     }
   }
+  // v2 creates no implicit pre-push hook, so this stays explicit.
   ["pre-push"] {
     steps {
       ["bd-pre-push"] {
@@ -94,13 +105,6 @@ hooks = new {
     steps {
       ["check-conventional-commit"] = Builtins.check_conventional_commit
     }
-  }
-  ["check"] {
-    steps = linters
-  }
-  ["fix"] {
-    fix = true
-    steps = linters
   }
   ["post-merge"] {
     steps {

@@ -142,6 +142,7 @@
       // matches the bare form `hk@` needs.
       managerFilePatterns: [
         '/^hk\\.pkl$/',
+        '/^home/dot_config/hk/config\\.pkl$/',
       ],
       matchStrings: [
         'github\\.com/jdx/hk/releases/download/v(?<currentValue>[^/]+)/hk@[^#"]+',

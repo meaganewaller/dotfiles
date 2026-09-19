@@ -171,9 +171,35 @@ mise exec -- ./bin/test 2>&1 | grep -cE '^ok '
 
 Expected: `267`.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 8: Prove a FRESH checkout still installs**
 
-Use the `/git-workflow:commit` skill. Stage only `mise.lock`. Suggested subject:
+This step exists because its absence cost a red CI run. A local `mise install --locked` passes for the wrong reason: tools already present on this machine are skipped, so mise never touches artifacts a fresh runner needs. CI has no such luxury.
+
+Build the clean room from the **commit**, not the working tree, and isolate it from this machine's mise state:
+
+```bash
+CR=$(mktemp -d)
+git archive HEAD mise.toml mise.lock .mise | tar -x -C "$CR"
+: > "$CR/empty-global.toml"
+( cd "$CR" \
+  && export MISE_DATA_DIR="$CR/data" MISE_GLOBAL_CONFIG_FILE="$CR/empty-global.toml" MISE_YES=1 \
+  && mise trust --yes . >/dev/null 2>&1 \
+  && GITHUB_TOKEN="$(gh auth token)" mise install --locked 2>&1 | tail -5 )
+```
+
+Expected: every tool installs. A `dependency sidecar ... No such file or directory` means the lockfile references a path that is not committed — `git add` it, never ignore it.
+
+Then confirm the check is not vacuous by making it fail on purpose. Flip the last hex digit of a `digest` value in the clean room's `mise.lock`, keeping it 64 characters (a shorter string gives a whole-file parse error, which is not the check you meant to test), and re-run the install:
+
+```bash
+# expected: "dependency sidecar ...: digest mismatch"
+```
+
+If a wrong digest still installs, verification is not happening and the passing run above proved nothing. Clean up with `rm -rf "$CR"`.
+
+- [ ] **Step 9: Commit**
+
+Use the `/git-workflow:commit` skill. Stage `mise.lock` **and any sidecar directory the lockfile references** — a digest and the bytes it pins are meaningless apart, so they belong in one commit. Suggested subject:
 
 ```text
 chore(mise): upgrade the lockfile to format 2 :lock:
@@ -250,8 +276,12 @@ Change line 9 of `mise.toml`:
 - [ ] **Step 3: Re-resolve the lockfile entry**
 
 ```bash
-GITHUB_TOKEN="$(gh auth token)" mise lock --bump hk
+GITHUB_TOKEN="$(gh auth token)" mise install hk
 ```
+
+**Not `mise lock --bump hk`.** That is a no-op here, verified on mise 2026.9.11: it resolves the new version and backend correctly in its trace output but never writes to `mise.lock`, because the tool is moving from the `aqua` backend to `packslip` and `--bump` re-resolves selectors for entries it already owns. `mise install hk` writes all six platform entries.
+
+Expect one field to disappear: hk's platform entries lose `url_api` under `packslip` (every other tool keeps theirs). `checksum` and `signer` remain, so integrity is still verified, and a fetch with no `GITHUB_TOKEN` at all was confirmed to succeed — `url_api` is the authenticated-download path, not a requirement.
 
 - [ ] **Step 4: Verify the backend switched**
 
@@ -269,6 +299,10 @@ mise x -- hk --version
 ```
 
 Expected: `hk 2.0.1`.
+
+- [ ] **Step 5a: Re-run Task 2's clean-room install**
+
+The backend moves from `aqua:jdx/hk` to `packslip:github.com/jdx/hk` here — a different fetch path with its own artifacts. hk is already installed on this machine, so a local check skips it and tells you nothing. Repeat Task 2's Step 8 procedure and confirm hk 2.0.1 installs from the committed lockfile on a machine that has never seen it.
 
 - [ ] **Step 6: Confirm the existing config still evaluates under 2.0.1**
 
@@ -385,14 +419,18 @@ steps {
   // those files are upstream artifacts and have to stay byte-identical. The
   // end-of-file fixer appended a newline to a Sigstore bundle that upstream
   // publishes without one.
+  // .mise/locks/** is excluded for the same reason: mise.lock pins these
+  // npm-provenance sidecar files (a pnpm lockfile plus package.json) by
+  // content digest, and a fixer rewriting their bytes breaks that digest --
+  // `mise install --locked` then fails with a "dependency sidecar" error.
   ["mixed-line-ending"] = (Builtins.mixed_line_ending) {
-    exclude = "test/fixtures/**"
+    exclude = List("test/fixtures/**", ".mise/locks/**")
   }
   ["trailing-whitespace"] = (Builtins.trailing_whitespace) {
-    exclude = "test/fixtures/**"
+    exclude = List("test/fixtures/**", ".mise/locks/**")
   }
   ["newlines"] = (Builtins.newlines) {
-    exclude = "test/fixtures/**"
+    exclude = List("test/fixtures/**", ".mise/locks/**")
   }
   // VS Code and Cursor read their User config as JSONC -- comments and trailing
   // commas are valid there and jq cannot parse them, so it would either fail or
@@ -403,11 +441,14 @@ steps {
   // step reformatted a Sigstore bundle here; cosign still accepted it, but a
   // fixture whose bytes are what's under test would break with no obvious
   // cause.
+  // .mise/locks/** is pinned by digest in mise.lock (see above) -- jq's fix
+  // step would reformat the sidecar's package.json and break that digest.
   ["jq"] = (Builtins.jq) {
     exclude = List(
       "**/private_Code/User/*.json",
       "**/private_Cursor/User/*.json",
-      "test/fixtures/**"
+      "test/fixtures/**",
+      ".mise/locks/**"
     )
   }
   ["markdown-lint"] = (Builtins.markdown_lint) {
@@ -436,8 +477,12 @@ steps {
 
 hooks {
   ["pre-commit"] {
-    // v2 defaults `stash` to "none" on every hook, so this must stay explicit
-    // or unstaged changes stop being stashed before fix steps run.
+    // Both of these must stay explicit. v2 defaults `stash` to "none" on every
+    // hook, and its pre-commit does NOT fix by default -- measured with a
+    // minimal config that omits `fix`, the implicit pre-commit runs as
+    // `check`. hk's Config.pkl documents this correctly; the migration guide's
+    // claim that pre-commit "fixes and stages by default" is wrong. Drop
+    // either line and pre-commit silently stops fixing and staging.
     fix = true
     stash = "git"
     steps {
