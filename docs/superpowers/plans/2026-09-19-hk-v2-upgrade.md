@@ -65,13 +65,17 @@ Expected: `check 14 steps` and `pre-commit 16 steps` or similar non-zero counts.
 {
   echo "lines: $(wc -l < mise.lock)"
   echo "signers: $(grep -c 'signer = ' mise.lock)"
-  echo "hk_version: $(grep -A2 '^\[tools\.hk\]' mise.lock | head -5)"
-  grep -c '^\[tools\.' mise.lock | sed 's/^/tool_entries: /'
+  echo "hk_pinned_in_mise_toml: $(grep '^hk' mise.toml)"
+  echo "hk_lockfile_urls:"
+  grep -E 'hk-(aarch64|x86_64)' mise.lock | grep -oE 'download/v[^/]+' | sort -u | sed 's/^/  /'
+  echo "hk_platform_sections: $(grep -c '^\[tools\.hk\.' mise.lock)"
 } > /tmp/hk-baseline/lockfacts.txt
 cat /tmp/hk-baseline/lockfacts.txt
 ```
 
-Expected: `signers: 6`, `lines: 453`.
+Expected: `signers: 6`, `lines: 453`, `hk = "1.58.1"`, one `download/v1.58.1`, and `hk_platform_sections: 6`.
+
+Every field must be non-empty. Do not record a blank and call it captured — a baseline field that is silently empty reads as verified and is worse than a missing one. (An earlier draft of this step grepped `^\[tools\.hk\]`, which matches nothing in a format 0 lockfile, where the sections are spelled `[tools.hk."platforms.linux-arm64"]`. It recorded an empty `hk_version` and the run reported it as clean.)
 
 - [ ] **Step 5: Record the test baseline**
 
