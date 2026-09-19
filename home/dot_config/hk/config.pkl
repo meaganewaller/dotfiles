@@ -11,7 +11,7 @@ hooks {
   ["pre-push"] {
     steps {
       ["gitleaks"] {
-        check = "gitleaks protect --staged"
+        check = "gitleaks git --no-banner --redact --verbose --log-opts=\"HEAD --not --remotes\""
       }
     }
   }
