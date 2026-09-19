@@ -16,3 +16,7 @@ home/dot_claude/skills/skill-optimization-workspace/
 .beads/interactions.jsonl
 # Generated per-project; hooks come from init.templateDir instead.
 .beads/hooks/
+
+# Subagent-driven-development scratch: ledgers, briefs, review packages.
+# Per-plan working state, regenerated on demand; the git history is the record.
+.superpowers/

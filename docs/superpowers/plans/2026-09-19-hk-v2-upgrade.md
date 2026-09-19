@@ -266,9 +266,25 @@ mise x -- hk --version
 
 Expected: `hk 2.0.1`.
 
-- [ ] **Step 6: Do NOT commit yet**
+- [ ] **Step 6: Confirm the existing config still evaluates under 2.0.1**
 
-The configs still target the v1-era shape. Committing here would leave the repo in a state where `hk check` may fail. Continue to Task 5.
+`hk.pkl` already amends the v2.0.1 `Config.pkl` (since #282), so 2.0.1 should read it as-is even before the reshape. Verify rather than assume, because the next step commits.
+
+```bash
+mise x -- hk check --pr && echo "SAFE TO COMMIT"
+```
+
+If this fails with a Pkl schema error, **do not commit**. The binary and the config must then move together: skip to Task 6, make both changes, and commit them as one. Record that deviation in the report file.
+
+- [ ] **Step 7: Commit**
+
+Commit via the `/git-workflow:commit` skill (or, as a subagent without it, mirror its contract: `<type>(<scope>): <subject> :emoji:`, American English, why-focused body). Stage only `mise.toml` and `mise.lock`. Suggested subject:
+
+```text
+chore(hk): move the binary to 2.0.1 :arrow_up:
+```
+
+The pre-commit hook runs under the new binary, so a green commit is itself evidence that 2.0.1 reads the current config.
 
 ---
 
@@ -527,6 +543,16 @@ mise exec -- ./bin/test 2>&1 | grep -cE '^ok '
 
 Expected: `267`. `test/beads-policy.bats` asserts shims never `exec` hk and that hk is guarded on `hk.pkl`; those must still hold.
 
+- [ ] **Step 8: Commit**
+
+Commit via the `/git-workflow:commit` skill (or mirror its contract). Stage only `hk.pkl`. Suggested subject:
+
+```text
+refactor(hk): move the linters map to top-level steps :recycle:
+```
+
+The body should say why the `local linters` workaround is gone: v2 lets an explicit hook contribute a step while still inheriting the shared map, which is exactly what the workaround was emulating.
+
 ---
 
 ### Task 7: Migrate the home config
@@ -603,6 +629,16 @@ done
 
 Expected: `gitleaks present` three times.
 
+- [ ] **Step 7: Commit**
+
+Commit via the `/git-workflow:commit` skill (or mirror its contract). Stage only `home/dot_config/hk/config.pkl`. Suggested subject:
+
+```text
+chore(hk): bring the home config onto the v2 schema :arrow_up:
+```
+
+The body should note that this config reaches every repository on the machine, and that the pre-push gitleaks no-op is knowingly left alone under `dotfiles-6c6`.
+
 ---
 
 ### Task 8: Put the home config under Renovate
@@ -648,6 +684,16 @@ PY
 
 Expected: `MATCH 2.0.1`.
 
+- [ ] **Step 4: Commit**
+
+Commit via the `/git-workflow:commit` skill (or mirror its contract). Stage only `renovate.json5`. Suggested subject:
+
+```text
+chore(renovate): manage the home hk config too :satellite:
+```
+
+The body should say why: the home config sat at v1.36.0 for three months precisely because no manager matched it.
+
 ---
 
 ### Task 9: Verify the whole change and land PR 2
@@ -679,19 +725,16 @@ grep -c 'signer = ' mise.lock
 
 Expected: `6`. If this is 0, an older mise rewrote the file somewhere along the way — restore with `git checkout -- mise.lock` and redo Task 4.
 
-- [ ] **Step 4: Prove the hooks work end to end**
+- [ ] **Step 4: Confirm nothing is left uncommitted**
 
-The real test is a commit, since this repository's hooks are live.
+Tasks 4, 6, 7, and 8 each committed their own change, and every one of those commits ran the live pre-commit hook under hk 2.0.1 — that is the integration evidence.
 
 ```bash
 git status --porcelain
+git log --oneline origin/main..HEAD
 ```
 
-Then commit via the `/git-workflow:commit` skill, staging `mise.toml`, `mise.lock`, `hk.pkl`, `home/dot_config/hk/config.pkl`, and `renovate.json5`. The pre-commit hook running green under hk 2.0.1 *is* the integration test. Suggested subject:
-
-```text
-feat(hk): move to v2 and reshape both configs :arrows_counterclockwise:
-```
+Expected: a clean tree, and four commits covering `mise.toml` + `mise.lock`, `hk.pkl`, `home/dot_config/hk/config.pkl`, and `renovate.json5`. If anything is still unstaged, an earlier task's commit step was skipped — commit it now with the subject that task specified.
 
 - [ ] **Step 5: Commit the beads export separately**
 
