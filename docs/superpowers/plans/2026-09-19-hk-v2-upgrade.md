@@ -419,14 +419,18 @@ steps {
   // those files are upstream artifacts and have to stay byte-identical. The
   // end-of-file fixer appended a newline to a Sigstore bundle that upstream
   // publishes without one.
+  // .mise/locks/** is excluded for the same reason: mise.lock pins these
+  // npm-provenance sidecar files (a pnpm lockfile plus package.json) by
+  // content digest, and a fixer rewriting their bytes breaks that digest --
+  // `mise install --locked` then fails with a "dependency sidecar" error.
   ["mixed-line-ending"] = (Builtins.mixed_line_ending) {
-    exclude = "test/fixtures/**"
+    exclude = List("test/fixtures/**", ".mise/locks/**")
   }
   ["trailing-whitespace"] = (Builtins.trailing_whitespace) {
-    exclude = "test/fixtures/**"
+    exclude = List("test/fixtures/**", ".mise/locks/**")
   }
   ["newlines"] = (Builtins.newlines) {
-    exclude = "test/fixtures/**"
+    exclude = List("test/fixtures/**", ".mise/locks/**")
   }
   // VS Code and Cursor read their User config as JSONC -- comments and trailing
   // commas are valid there and jq cannot parse them, so it would either fail or
@@ -437,11 +441,14 @@ steps {
   // step reformatted a Sigstore bundle here; cosign still accepted it, but a
   // fixture whose bytes are what's under test would break with no obvious
   // cause.
+  // .mise/locks/** is pinned by digest in mise.lock (see above) -- jq's fix
+  // step would reformat the sidecar's package.json and break that digest.
   ["jq"] = (Builtins.jq) {
     exclude = List(
       "**/private_Code/User/*.json",
       "**/private_Cursor/User/*.json",
-      "test/fixtures/**"
+      "test/fixtures/**",
+      ".mise/locks/**"
     )
   }
   ["markdown-lint"] = (Builtins.markdown_lint) {
@@ -470,8 +477,12 @@ steps {
 
 hooks {
   ["pre-commit"] {
-    // v2 defaults `stash` to "none" on every hook, so this must stay explicit
-    // or unstaged changes stop being stashed before fix steps run.
+    // Both of these must stay explicit. v2 defaults `stash` to "none" on every
+    // hook, and its pre-commit does NOT fix by default -- measured with a
+    // minimal config that omits `fix`, the implicit pre-commit runs as
+    // `check`. hk's Config.pkl documents this correctly; the migration guide's
+    // claim that pre-commit "fixes and stages by default" is wrong. Drop
+    // either line and pre-commit silently stops fixing and staging.
     fix = true
     stash = "git"
     steps {
