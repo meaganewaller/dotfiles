@@ -276,8 +276,12 @@ Change line 9 of `mise.toml`:
 - [ ] **Step 3: Re-resolve the lockfile entry**
 
 ```bash
-GITHUB_TOKEN="$(gh auth token)" mise lock --bump hk
+GITHUB_TOKEN="$(gh auth token)" mise install hk
 ```
+
+**Not `mise lock --bump hk`.** That is a no-op here, verified on mise 2026.9.11: it resolves the new version and backend correctly in its trace output but never writes to `mise.lock`, because the tool is moving from the `aqua` backend to `packslip` and `--bump` re-resolves selectors for entries it already owns. `mise install hk` writes all six platform entries.
+
+Expect one field to disappear: hk's platform entries lose `url_api` under `packslip` (every other tool keeps theirs). `checksum` and `signer` remain, so integrity is still verified, and a fetch with no `GITHUB_TOKEN` at all was confirmed to succeed — `url_api` is the authenticated-download path, not a requirement.
 
 - [ ] **Step 4: Verify the backend switched**
 
