@@ -17,10 +17,12 @@ steps {
   // those files are upstream artifacts and have to stay byte-identical. The
   // end-of-file fixer appended a newline to a Sigstore bundle that upstream
   // publishes without one.
-  // .mise/locks/** is excluded for the same reason: mise.lock pins these
-  // npm-provenance sidecar files (a pnpm lockfile plus package.json) by
-  // content digest, and a fixer rewriting their bytes breaks that digest --
-  // `mise install --locked` then fails with a "dependency sidecar" error.
+  // .mise/locks/** stays excluded defensively: mise lockfile format 2 can
+  // pin npm-backend tools to a digest-checked sidecar (a lockfile plus
+  // package.json) when npm.package_manager is "auto". mise.toml pins the
+  // package manager explicitly instead, so no sidecar exists today -- but
+  // if one ever returns, a fixer rewriting its bytes would break the
+  // digest check and fail `mise install --locked`.
   ["mixed-line-ending"] = (Builtins.mixed_line_ending) {
     exclude = List("test/fixtures/**", ".mise/locks/**")
   }
@@ -39,8 +41,9 @@ steps {
   // step reformatted a Sigstore bundle here; cosign still accepted it, but a
   // fixture whose bytes are what's under test would break with no obvious
   // cause.
-  // .mise/locks/** is pinned by digest in mise.lock (see above) -- jq's fix
-  // step would reformat the sidecar's package.json and break that digest.
+  // .mise/locks/** stays excluded defensively for the same reason as above --
+  // jq's fix step would reformat a sidecar's package.json and break its
+  // digest check if the sidecar ever returns.
   ["jq"] = (Builtins.jq) {
     exclude = List(
       "**/private_Code/User/*.json",
