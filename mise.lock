@@ -337,7 +337,7 @@ url = "https://nodejs.org/dist/v24.21.0/node-v24.21.0-win-x64.zip"
 
 [[tools."npm:markdownlint-cli"]]
 version = "0.49.1"
-aube = { path = ".mise/locks/npm-markdownlint-cli/0.49.1", digest = "sha256:6e22544bc08da30bec8a41f2bf2356df904b467f320a82382cb8bc90149a6761" }
+aube = { path = ".mise/locks/npm-markdownlint-cli/0.49.1", digest = "sha256:fe5316574a2dbd0cbda258dcdbcfb323969b58550ab5ff0ee354f6628dda5d68" }
 backend = "npm:markdownlint-cli"
 specifiers = ["0.49.1"]
 
