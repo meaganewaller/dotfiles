@@ -1,7 +1,7 @@
 # API keys in `~/.secrets` via fnox
 
 **Date:** 2026-09-20
-**Status:** designed; not yet implemented
+**Status:** implemented (2026-09-20)
 **Beads:** [`dotfiles-4zt`](#changes) (implementation), [`dotfiles-vv3`](#out-of-scope) (follow-up decision)
 
 Giving coding agents and dotenv-only tools a materialized `~/.secrets` file, by
@@ -156,7 +156,7 @@ run = '''
 umask 077
 tmp="$(mktemp "$HOME/.secrets.XXXXXX")"
 trap 'rm -f "$tmp"' EXIT
-fnox export --config "$HOME/.config/fnox/config.toml" --format env --output "$tmp"
+fnox export --config "$HOME/.config/fnox/config.toml" --if-missing error --profile {{ if .work_profile }}work{{ else }}personal{{ end }} --format env --output "$tmp"
 bash -n "$tmp"
 mv -f "$tmp" "$HOME/.secrets"
 '''
@@ -171,14 +171,23 @@ The temp file is created **in `$HOME`, not `$TMPDIR`**, deliberately. On macOS
 reintroduces the window this construction exists to close. Same directory means
 a true `rename(2)`.
 
-The `trap` matters because `fnox export` can fail partway — a locked 1Password,
-a deleted vault item — and without it a partial or empty `.secrets.XXXXXX` full
-of live keys would be left behind in `$HOME` on every failure.
+The `trap` matters because `fnox export` can fail partway — a value that breaks
+`bash -n`, or (with `--if-missing error`) an unresolvable secret — and without
+it a partial or empty `.secrets.XXXXXX` full of live keys would be left behind
+in `$HOME` on every failure. The trap does **not**, by itself, protect against a
+locked 1Password or a deleted vault item: fnox's default `--if-missing warn`
+reports success (exit 0) for an unresolvable secret, so the task never fails,
+the trap never fires as a save, and a comments-only, zero-secret export gets
+`mv`'d over a known-good `~/.secrets`. That silent-success case needed the
+separate `--if-missing error` guard, not the trap.
 
-`bash -n` parses without executing, which is what catches the single-quote
-corruption described in [Measured facts](#measured-facts) before it can replace
-a known-good file. Running it on the temp file rather than after the `mv` is the
-whole point: a corrupt export aborts the task and leaves the previous
+`bash -n` parses without executing, which catches the single-quote corruption
+described in [Measured facts](#measured-facts) for the common case: an odd
+number of stray quotes breaks quoting and fails to parse. It is not a complete
+guard — an even number of quotes still parses as valid shell, just with a
+silently wrong value (`a'b'c` parses fine and yields `abc`). Running it on the
+temp file rather than after the `mv` is still the whole point for what it does
+catch: a syntax-breaking export aborts the task and leaves the previous
 `~/.secrets` intact.
 
 **`--config` is the load-bearing flag here, not a tidiness nicety.** fnox merges
@@ -192,7 +201,7 @@ complete, including against ancestors further up.
 
 ## Guards
 
-Three failure modes are designed against explicitly, because each one is silent:
+Five failure modes are designed against explicitly, because each one is silent:
 
 | Failure | Guard |
 | --- | --- |
@@ -200,6 +209,7 @@ Three failure modes are designed against explicitly, because each one is silent:
 | Export fails partway, stranding live keys in `$HOME` | `trap … EXIT` removes the temp file |
 | The file is world-readable, even briefly | `umask 077` + same-filesystem `mktemp`, atomic `mv` |
 | A project's `fnox.toml` leaks into the machine-wide file | `--config "$HOME/.config/fnox/config.toml"` pins the manifest |
+| An unresolvable secret (locked 1Password, deleted vault item) silently succeeds and exports zero secrets | `--if-missing error` makes that exit non-zero instead |
 
 The quote hazard is latent rather than immediate — the keys in play today are
 alphanumeric — but it surfaces as a broken shell profile at some unrelated
@@ -209,9 +219,12 @@ future moment, which is a bad way to find out.
 
 The current `sensitive_path_regex` matches `secrets.toml` and `secrets.yaml`
 through its `(^|/)(credentials|secrets?)\.(json|ya?ml|toml|env)$` branch, but
-**not** a bare `~/.secrets` — there is no extension to match. Add it, so an agent
-cannot hand-edit a generated file and have the edit silently disappear on the
-next `mise run secrets`.
+**not** a bare `~/.secrets` — there is no extension to match. Add it, so the
+`Write`/`Edit`/`MultiEdit` tools are blocked from hand-editing a generated file
+and having the edit silently disappear on the next `mise run secrets`. This is
+a PreToolUse hook gating those three tool calls specifically, not an absolute
+guarantee — a shell redirection like `cat > ~/.secrets` run through the `Bash`
+tool is unaffected.
 
 The fnox manifest is deliberately *not* added: it holds pointers rather than
 values, and it has to stay editable.

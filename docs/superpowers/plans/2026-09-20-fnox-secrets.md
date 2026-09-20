@@ -217,7 +217,7 @@ EOF
 	local rendered body
 	rendered="$(render_mise_config)"
 	body="$(yq -p toml -o y '.tasks.secrets.run' "$rendered")"
-	[ -n "$body" ] || fail "secrets task has an empty run body"
+	[ -n "$body" ] && [ "$body" != "null" ] || fail "secrets task has an empty run body"
 
 	assert_valid_shell "$(printf '#!/usr/bin/env bash\n%s\n' "$body")"
 }

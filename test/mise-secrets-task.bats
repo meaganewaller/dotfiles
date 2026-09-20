@@ -67,4 +67,16 @@ EOF
 	# atomic rename to copy-then-unlink.
 	[[ "$body" == *'mktemp "$HOME/.secrets.'* ]] || fail "temp file is not a sibling of the target: $body"
 	[[ "$body" != *'mktemp "${TMPDIR'* ]] || fail "temp file is in TMPDIR, breaking atomic replace: $body"
+
+	# fnox defaults to --if-missing warn, which exits 0 on an unresolvable
+	# secret (locked 1Password, deleted vault item) and produces a syntactically
+	# valid, comments-only file with zero secrets -- every other guard here keys
+	# off a non-zero exit or a syntax error, so none of them would fire.
+	[[ "$body" == *"--if-missing error"* ]] || fail "export does not fail on an unresolvable secret: $body"
+
+	# render_mise_config renders with work_profile = false, so the rendered
+	# body must resolve to the personal profile -- this also proves the
+	# template conditional actually rendered rather than being emitted as a
+	# literal Go-template expression.
+	[[ "$body" == *"--profile personal"* ]] || fail "export does not pin the personal profile: $body"
 }

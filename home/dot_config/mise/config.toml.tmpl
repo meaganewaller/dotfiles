@@ -219,24 +219,27 @@ pnpm    = "latest"
 # 1Password fails an unrelated apply.
 #
 # Every line below is load-bearing:
-#   --config  fnox merges every ancestor fnox.toml, and mise tasks are
-#             invocable from anywhere -- without this, running from inside a
-#             project folds that project's secrets into the machine-wide file.
-#   umask     fnox's --output respects it; 0600 from creation, not after.
-#   mktemp    a sibling of the target, so `mv` is a real rename(2). $TMPDIR is
-#             a different APFS volume from /Users and would degrade it to
-#             copy-then-unlink, reopening the world-readable window.
-#   trap      a partial export otherwise strands live keys in $HOME.
-#   bash -n   fnox does not escape single quotes, and one `'` in any value
-#             makes the whole file unsourceable. Validating the temp file
-#             means a corrupt export leaves the previous ~/.secrets intact.
+#   --config      fnox merges every ancestor fnox.toml, and mise tasks are
+#                 invocable from anywhere -- without this, running from inside a
+#                 project folds that project's secrets into the machine-wide file.
+#   umask         belt-and-suspenders; mktemp already creates at 0600.
+#   mktemp        a sibling of the target, so `mv` is a real rename(2). $TMPDIR is
+#                 a different APFS volume from /Users and would degrade it to
+#                 copy-then-unlink, reopening the world-readable window.
+#   trap          a partial export otherwise strands live keys in $HOME.
+#   bash -n       fnox does not escape single quotes, and one `'` in any value
+#                 makes the whole file unsourceable. Validating the temp file
+#                 means a corrupt export leaves the previous ~/.secrets intact.
+#   --if-missing  fnox otherwise exits 0 on an unresolvable secret (locked
+#                 1Password, deleted vault item) and would replace a known-good
+#                 ~/.secrets with an empty one.
 [tasks.secrets]
 description = "Regenerate ~/.secrets from the fnox manifest"
 run = '''
 umask 077
 tmp="$(mktemp "$HOME/.secrets.XXXXXX")"
 trap 'rm -f "$tmp"' EXIT
-fnox export --config "$HOME/.config/fnox/config.toml" --format env --output "$tmp"
+fnox export --config "$HOME/.config/fnox/config.toml" --if-missing error --profile {{ if .work_profile }}work{{ else }}personal{{ end }} --format env --output "$tmp"
 bash -n "$tmp"
 mv -f "$tmp" "$HOME/.secrets"
 '''
