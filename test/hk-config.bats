@@ -54,6 +54,10 @@ make_pushed_repo() {
 	git init -q --template= "$work" || fail "git init failed"
 	git -C "$work" config user.email "test@example.com"
 	git -C "$work" config user.name "Test"
+	# This machine signs commits via 1Password's op-ssh-sign; a CI runner has
+	# no such binary. Override locally so the throwaway repo can commit
+	# without it, rather than inheriting a global config it cannot satisfy.
+	git -C "$work" config commit.gpgsign false
 	git -C "$work" remote add origin "$remote"
 	printf 'clean\n' >"$work/a.txt"
 	git -C "$work" add a.txt
