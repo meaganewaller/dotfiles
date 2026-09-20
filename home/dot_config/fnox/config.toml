@@ -22,3 +22,29 @@ onepassword = { type = "1password" }
 
 [secrets]
 LINEAR_API_KEY = { provider = "onepassword", value = "op://Automation/Linear Onlooker API Key/credential" }
+
+# Credentials fetched per invocation, NOT exported into shells.
+#
+# These live in their own profiles precisely because mise selects `personal` or
+# `work` (see `_.fnox-env` in dot_config/mise/config.toml.tmpl). A profile mise
+# does not select is never exported to a shell environment and never written to
+# ~/.secrets -- so these secrets exist only inside the one process that asks for
+# them, via `fnox exec --profile <name> -- <tool>`.
+#
+# That is a real property, not tidiness: an environment variable is readable by
+# every child process and trivially dumped by accident (`env`, `mise env`), and
+# a key here survives mistakes that a key in [secrets] does not.
+#
+# One profile per tool, rather than one shared profile, so each command receives
+# only its own credential. fnox also merges top-level [secrets] into whichever
+# profile is selected, so LINEAR_API_KEY rides along -- harmless, since it is
+# already in the ambient shell environment these commands inherit anyway.
+#
+# Renaming either profile to `personal` or `work` silently turns these into
+# exported, on-disk secrets. test/credential-aliases.bats fails if that happens.
+
+[profiles.claude.secrets]
+ANTHROPIC_API_KEY = { provider = "onepassword", value = "op://Private/Claude Dotfiles API Key/key" }
+
+[profiles.buildkite.secrets]
+BUILDKITE_API_TOKEN = { provider = "onepassword", value = "op://Development/Buildkite API/key" }

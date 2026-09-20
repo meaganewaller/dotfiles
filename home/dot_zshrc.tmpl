@@ -228,11 +228,13 @@ fpath=(
 )
 autoload -Uz c
 
-# Credential-injecting aliases: fetch secret from 1Password on each invocation
+# Credential-injecting aliases: fnox resolves the secret from 1Password on each
+# invocation and injects it into that process only. The profiles named here are
+# not selected by mise, so these never reach the shell environment or ~/.secrets.
 {{- with index .aliases "credentials" }}
 {{- range . }}
-{{- if and (lookPath "op") (lookPath .tool) }}
-alias {{ if hasKey . "alias" }}{{ .alias }}{{ else }}{{ .tool }}{{ end }}='{{ .env }}=$(op read "{{ index ($.credentials | default dict) .op_ref_key }}") command {{ .tool }}'
+{{- if and (lookPath "fnox") (lookPath .tool) }}
+alias {{ if hasKey . "alias" }}{{ .alias }}{{ else }}{{ .tool }}{{ end }}='fnox exec --config "$HOME/.config/fnox/config.toml" --profile {{ .profile }} -- {{ .tool }}'
 {{- end }}
 {{- end }}
 {{- end }}

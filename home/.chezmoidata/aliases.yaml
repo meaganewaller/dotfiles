@@ -30,6 +30,9 @@ aliases:
       chain:
         - { tool: nvim, command: nvim }
 
+  # Each entry names a fnox profile that mise does NOT select, so the secret is
+  # injected into just this command and never into the shell. Profiles and their
+  # op:// refs live in dot_config/fnox/config.toml.
   credentials:
-    - { tool: claude, alias: claude-api, env: ANTHROPIC_API_KEY, op_ref_key: claude_api }
-    - { tool: bktide, env: BUILDKITE_API_TOKEN, op_ref_key: buildkite }
+    - { tool: claude, alias: claude-api, profile: claude }
+    - { tool: bktide, profile: buildkite }
