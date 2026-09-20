@@ -166,12 +166,6 @@ sourceDir = "$repo"
 
 [data]
 chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR" }
-
-# Supplied by chezmoi.toml in real use, not .chezmoidata; the credential-alias
-# block in dot_zshrc.tmpl dereferences it. Values are never read here.
-[data.credentials]
-claude_api = "op://Test/Claude/credential"
-buildkite = "op://Test/Buildkite/credential"
 EOF
 
 	local rc

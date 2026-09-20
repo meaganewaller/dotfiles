@@ -11,12 +11,6 @@ sourceDir = "$REPO_ROOT"
 
 [data]
 chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR" }
-
-# Supplied by chezmoi.toml in real use, not .chezmoidata; the credential-alias
-# block dereferences it. Values are never read here -- only interpolated.
-[data.credentials]
-claude_api = "op://Test/Claude/credential"
-buildkite = "op://Test/Buildkite/credential"
 EOF
 
 	run chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_zshrc.tmpl"
@@ -33,12 +27,6 @@ sourceDir = "$REPO_ROOT"
 
 [data]
 chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR" }
-
-# Supplied by chezmoi.toml in real use, not .chezmoidata; the credential-alias
-# block dereferences it. Values are never read here -- only interpolated.
-[data.credentials]
-claude_api = "op://Test/Claude/credential"
-buildkite = "op://Test/Buildkite/credential"
 EOF
 
 	chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_zshrc.tmpl" >"$TEST_TMPDIR/rendered.zshrc"
@@ -69,10 +57,6 @@ sourceDir = "$REPO_ROOT"
 
 [data]
 chezmoi = { os = "darwin", homeDir = "$TEST_HOME_DIR" }
-
-[data.credentials]
-claude_api = "op://Test/Claude/credential"
-buildkite = "op://Test/Buildkite/credential"
 EOF
 
 	chezmoi execute-template --config "$TEST_TMPDIR/chezmoi.toml" --file "$REPO_ROOT/home/dot_zshrc.tmpl" >"$TEST_TMPDIR/rendered.zshrc"
