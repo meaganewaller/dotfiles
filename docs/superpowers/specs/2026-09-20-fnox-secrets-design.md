@@ -1,7 +1,7 @@
 # API keys in `~/.secrets` via fnox
 
 **Date:** 2026-09-20
-**Status:** implemented (2026-09-20)
+**Status:** implemented (2026-09-20), amended (2026-09-20) — see [Amendment](#amendment-2026-09-20-shells-get-nothing)
 **Beads:** [`dotfiles-4zt`](#changes) (implementation), [`dotfiles-vv3`](#out-of-scope) (follow-up decision)
 
 Giving coding agents and dotenv-only tools a materialized `~/.secrets` file, by
@@ -274,7 +274,7 @@ one of them is worth stating plainly because it is easy to assume otherwise.
 | --- | --- |
 | Coding agents, subprocesses | read or source `~/.secrets` |
 | Dotenv-only tools | read `~/.secrets` — but see the `export` prefix note below |
-| Interactive shells | **native, via the mise `_.fnox-env` plugin** — they do not source `~/.secrets` |
+| Interactive shells | **nothing** — see the [Amendment](#amendment-2026-09-20-shells-get-nothing); the `_.fnox-env` route was withdrawn |
 
 Because `--format env` emits `export KEY='value'` rather than bare `KEY=value`,
 the file sources directly in `sh`/`bash`/`zsh` with no `set -a` wrapper. The
@@ -324,3 +324,45 @@ was asked for.
 **No age provider, no encrypted-in-git secrets.** Every value resolves from
 1Password at export time. Nothing encrypted is committed, so there is no key
 distribution or rotation story to build.
+
+## Amendment (2026-09-20): shells get nothing
+
+The interactive-shell row above was withdrawn the same day it shipped. Native
+injection through `_.fnox-env` is not free, and the price is paid by hand.
+
+mise rebuilds its environment on every activation *and* on every shim
+invocation, and the fnox plugin answers each rebuild by shelling out to
+`op read`. Measured on this machine with a logging shim on `op` and
+`MISE_LOG_LEVEL=debug`:
+
+| Event | `mise activate` | `fnox export` → `op read` |
+| --- | --- | --- |
+| interactive fish startup | 2 | **2** |
+| one `~/.local/share/mise/shims/<tool>` call | — | **1**, even with the variable already set |
+
+Two per terminal because mise is activated twice: Homebrew ships
+`/opt/homebrew/share/fish/vendor_conf.d/mise-activate.fish`, which fish sources
+before `~/.config/fish/conf.d`, and `config.fish` then runs
+`mise activate fish | source` again. Each activation re-resolves.
+
+So every new terminal cost two 1Password unlocks, and a cold `op` auth cache
+made a Claude Code session cost another — to hand every shell a key that one
+command wants (`bd linear sync --pull`; onlooker's own docs say to pass it per
+invocation).
+
+`_.fnox-env` and the `[plugins] fnox-env` entry are therefore removed from
+`home/dot_config/mise/config.toml.tmpl`. Nothing else changes: `[secrets]` still
+holds `LINEAR_API_KEY`, `mise run secrets` still materializes `~/.secrets` for
+agents, and the per-invocation credential profiles are untouched. A shell that
+wants a key asks for it: `fnox exec --config "$HOME/.config/fnox/config.toml" --
+<tool>`.
+
+`test/shell-startup-secrets.bats` (renamed from `test/fish-fnox-activation.bats`)
+guards the invariant in both directions: no shell config may invoke
+`fnox activate`, mise may not resolve fnox during env setup, and the `secrets`
+task must survive so the withdrawal does not leave agents with no route at all.
+
+The double mise activation itself is left alone. It is now only a small startup
+cost, and collapsing it is not free: the Homebrew vendor snippet runs before
+`conf.d/00-homebrew.fish` moves Homebrew to the front of `PATH`, so the
+activation in `config.fish` is what currently restores mise's `PATH` priority.

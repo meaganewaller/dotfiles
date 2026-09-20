@@ -4,10 +4,10 @@ load test_helper
 
 MANIFEST="home/dot_config/fnox/config.toml"
 
-# The profiles mise selects, per `_.fnox-env` in home/dot_config/mise/config.toml.tmpl.
-# A credential placed in one of these would be exported into every shell's
-# environment and written to ~/.secrets -- exactly what this design avoids.
-MISE_SELECTED_PROFILES="personal work"
+# The profiles the `secrets` task exports, per home/dot_config/mise/config.toml.tmpl.
+# A credential placed in one of these would be written to ~/.secrets in the
+# clear -- exactly what this design avoids.
+EXPORTED_PROFILES="personal work"
 
 @test "credential profiles are declared with op:// references" {
 	run yq -p toml -o y '.profiles | keys | .[]' "$MANIFEST"
@@ -16,18 +16,18 @@ MISE_SELECTED_PROFILES="personal work"
 	[[ "$output" == *"buildkite"* ]] || fail "no buildkite profile in $MANIFEST: $output"
 }
 
-@test "credential profiles are NOT the profiles mise selects" {
+@test "credential profiles are NOT the profiles the secrets task exports" {
 	# Load-bearing for security, not style. If a credential profile were renamed
-	# to one mise selects, its secret would silently land in every shell env and
-	# in ~/.secrets, losing the per-invocation property this design exists for.
+	# to one the secrets task exports, its secret would silently land on disk in
+	# ~/.secrets, losing the per-invocation property this design exists for.
 	run yq -p toml -o y '.profiles | keys | .[]' "$MANIFEST"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
 	while IFS= read -r profile; do
 		[ -n "$profile" ] || continue
-		for selected in $MISE_SELECTED_PROFILES; do
-			[ "$profile" != "$selected" ] ||
-				fail "credential profile '$profile' is selected by mise; its secrets would leak into every shell env"
+		for exported in $EXPORTED_PROFILES; do
+			[ "$profile" != "$exported" ] ||
+				fail "credential profile '$profile' is exported by the secrets task; its secrets would land in ~/.secrets"
 		done
 	done <<<"$output"
 }
