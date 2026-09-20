@@ -76,8 +76,17 @@ Run on 2026-09-20 against fnox 1.24.0 and `op` 2.38.1. Nothing was modified.
   at CI.
 - **Full `op://` URIs are a supported secret value**, alongside the bare
   item-name and `Item/field` forms.
-- **`fnox export` writes a file directly.** `--format env` emits `KEY=value`,
-  `--output <path>` writes to a file rather than stdout.
+- **`fnox export` writes a file directly**, and `--output <path>` respects the
+  caller's umask (verified: `umask 022` produced `-rw-r--r--`, `umask 077`
+  produced `-rw-------`).
+- **`--format env` emits `export KEY='value'`**, not the bare `KEY=value` this
+  spec originally assumed. Single-quoted, with an `export` prefix, under a
+  four-line header that includes an `# Exported at:` timestamp.
+- **Single quotes in a value corrupt the entire file.** fnox does not escape
+  them: a value of `it's` exports as `export K='it's'`, and sourcing the result
+  fails with ``unexpected EOF while looking for matching `'``. The failure is
+  file-wide, not confined to the offending line — one bad value takes every
+  other key down with it. See [Guards](#guards).
 - **`fnox mcp` exists** — "Start an MCP server for secret-gated AI agent access."
   Considered and set aside; see [Out of scope](#out-of-scope).
 
@@ -123,11 +132,13 @@ selection happens at runtime via mise.
 onepassword = { type = "1password" }
 
 [secrets]
-LINEAR_API_KEY = { provider = "onepassword", value = "op://Private/Linear/credential" }
-
-[profiles.work.secrets]
-BUILDKITE_API_TOKEN = { provider = "onepassword", value = "op://Work/Buildkite/credential" }
+LINEAR_API_KEY = { provider = "onepassword", value = "op://Automation/Linear Onlooker API Key/credential" }
 ```
+
+The `LINEAR_API_KEY` reference is the real one, confirmed in
+[Migration](#migration). No `[profiles.work.secrets]` block ships in the initial
+manifest — there is no work-only key to put in it yet. The block is added when
+one exists; the profile plumbing is already proven to work.
 
 Top-level `[secrets]` merges into whichever profile mise selects, so shared keys
 belong there and only work-only keys need a `[profiles.work.secrets]` entry. The
@@ -145,7 +156,8 @@ run = '''
 umask 077
 tmp="$(mktemp "$HOME/.secrets.XXXXXX")"
 trap 'rm -f "$tmp"' EXIT
-fnox export --format env --output "$tmp"
+fnox export --config "$HOME/.config/fnox/config.toml" --format env --output "$tmp"
+bash -n "$tmp"
 mv -f "$tmp" "$HOME/.secrets"
 '''
 ```
@@ -162,6 +174,36 @@ a true `rename(2)`.
 The `trap` matters because `fnox export` can fail partway — a locked 1Password,
 a deleted vault item — and without it a partial or empty `.secrets.XXXXXX` full
 of live keys would be left behind in `$HOME` on every failure.
+
+`bash -n` parses without executing, which is what catches the single-quote
+corruption described in [Measured facts](#measured-facts) before it can replace
+a known-good file. Running it on the temp file rather than after the `mv` is the
+whole point: a corrupt export aborts the task and leaves the previous
+`~/.secrets` intact.
+
+**`--config` is the load-bearing flag here, not a tidiness nicety.** fnox merges
+every `fnox.toml` from the cwd up through its ancestors. `mise run secrets` is
+invocable from any directory, so without an explicit config path, running it
+from inside a project that has its own `fnox.toml` would silently fold that
+project's secrets into the machine-wide `~/.secrets`. Verified on 2026-09-20:
+from a nested directory, a bare export emitted both the parent's and the child's
+keys, while `--config <parent>` emitted only the parent's — isolation is
+complete, including against ancestors further up.
+
+## Guards
+
+Three failure modes are designed against explicitly, because each one is silent:
+
+| Failure | Guard |
+| --- | --- |
+| A value contains `'`, corrupting every key in the file | `bash -n` on the temp file, before `mv` |
+| Export fails partway, stranding live keys in `$HOME` | `trap … EXIT` removes the temp file |
+| The file is world-readable, even briefly | `umask 077` + same-filesystem `mktemp`, atomic `mv` |
+| A project's `fnox.toml` leaks into the machine-wide file | `--config "$HOME/.config/fnox/config.toml"` pins the manifest |
+
+The quote hazard is latent rather than immediate — the keys in play today are
+alphanumeric — but it surfaces as a broken shell profile at some unrelated
+future moment, which is a bad way to find out.
 
 ### `home/dot_local/libexec/executable_block-sensitive-or-generated-writes`
 
@@ -180,18 +222,22 @@ values, and it has to stay editable.
 regenerated. The `0644` permissions problem is resolved by the regeneration
 rather than by a separate `chmod`.
 
-The `op://` refs shown throughout this spec are **illustrative placeholders**.
-The real ones are not knowable from the repository: the current `~/.secrets`
-holds a bare value with no record of where it came from, and `[data.credentials]`
-lives in machine-local chezmoi config outside the source tree. Implementation
-starts by resolving each key to an actual reference — via `op item list` or the
-1Password UI — and confirming each one resolves with `op read` before it goes in
-the manifest. A wrong ref fails at export time, not at commit time, so this is
-worth doing up front rather than discovering per key.
+The reference was **not** knowable from the repository — the current `~/.secrets`
+holds a bare value with no record of its origin, and the vault contains several
+plausible candidates (`Linear Onlooker API Key` in `Automation`, `Linear` in
+`Development`). It was resolved on 2026-09-20 by hashing the live value and
+comparing it against each candidate's fields, rather than guessed:
 
-Which keys beyond `LINEAR_API_KEY` belong in the initial manifest is a question
-for implementation; the current file has exactly one entry, and the two keys
-carried by the alias mechanism are explicitly out of scope.
+```
+op://Automation/Linear Onlooker API Key/credential
+```
+
+Confirmed end to end: `fnox get LINEAR_API_KEY` through a bare `1password`
+provider returns a 48-character value matching the one currently in the file.
+
+`LINEAR_API_KEY` is the only key in the initial manifest. It is the only entry
+in the current `~/.secrets`, and the two keys carried by the alias mechanism are
+explicitly out of scope.
 
 ### `test/fnox-config.bats` (new)
 
@@ -213,24 +259,36 @@ one of them is worth stating plainly because it is easy to assume otherwise.
 
 | Consumer | Mechanism |
 | --- | --- |
-| Coding agents, subprocesses | read `~/.secrets` |
-| Dotenv-only tools | read `~/.secrets` (`KEY=value`, no `export` prefix) |
+| Coding agents, subprocesses | read or source `~/.secrets` |
+| Dotenv-only tools | read `~/.secrets` — but see the `export` prefix note below |
 | Interactive shells | **native, via the mise `_.fnox-env` plugin** — they do not source `~/.secrets` |
+
+Because `--format env` emits `export KEY='value'` rather than bare `KEY=value`,
+the file sources directly in `sh`/`bash`/`zsh` with no `set -a` wrapper. The
+cost lands on the dotenv side instead: parsers that do not strip a leading
+`export` will read the key name as `export KEY`. Most common implementations
+(`python-dotenv`, `dotenv-rb`, `godotenv`) do strip it, so this is a
+per-tool question to check when one is added, not a blocker.
 
 Shells were named as a consumer in the original ask. They are covered, but
 sourcing the file would be redundant with the plumbing already active in mise
 and fish, so nothing in this design does it.
 
-## Open implementation questions
+## Resolved before planning
 
-Both are cheap to settle while implementing and neither changes the design:
+Both questions this spec originally left open were settled empirically on
+2026-09-20 against a throwaway manifest, before the implementation plan was
+written. Neither changed the design; one corrected a factual claim.
 
-- **Quoting.** How `fnox export --format env` renders values containing spaces or
-  newlines. It determines whether a sourced-style consumer needs `set -a` care,
-  and whether any key in the manifest is a bad fit for the file at all.
-- **Provider keys.** Whether the `[providers.onepassword]` block wants an
-  `account` or `vault` key for this setup, or works bare given that every secret
-  carries a fully-qualified `op://` URI.
+- **Quoting** is `export KEY='value'`, not bare `KEY=value`. Corrected in
+  [Measured facts](#measured-facts) and [Consumers](#consumers). The single-quote
+  escaping bug surfaced during this check and produced the `bash -n` guard.
+- **Provider keys:** a bare `{ type = "1password" }` block works. No `account`
+  or `vault` key is needed when every secret carries a fully-qualified `op://`
+  URI, including URIs whose item name contains spaces.
+- **Profile merge** behaves as designed: with a top-level `[secrets]` and a
+  `[profiles.work.secrets]`, exporting `-P personal` yields only the shared keys
+  and `-P work` yields shared plus work-only.
 
 ## Out of scope
 
