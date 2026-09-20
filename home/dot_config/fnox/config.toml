@@ -1,0 +1,24 @@
+# Machine-wide fnox manifest -> ~/.config/fnox/config.toml
+#
+# Holds 1Password *references*, never values: this repository is public. A
+# reference names a vault and an item, which is a pointer, not a credential.
+#
+# Two consumers, by two different routes:
+#   - Interactive shells get these as env vars natively, via the `_.fnox-env`
+#     plugin in ~/.config/mise/config.toml. Nothing sources ~/.secrets.
+#   - Agents and dotenv-only tools read ~/.secrets, materialized on demand by
+#     `mise run secrets`.
+#
+# A bare `1password` provider is sufficient because every value below is a
+# fully-qualified op:// URI; no vault or account key is needed. Authentication
+# rides on the 1Password desktop app's session (`op account list` to check).
+#
+# Keys shared by every machine go in [secrets]. fnox merges [secrets] into
+# whichever profile mise selects, so a work-only key would go in a
+# [profiles.work.secrets] block -- there is no such key yet.
+
+[providers]
+onepassword = { type = "1password" }
+
+[secrets]
+LINEAR_API_KEY = { provider = "onepassword", value = "op://Automation/Linear Onlooker API Key/credential" }
