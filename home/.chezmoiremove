@@ -3,3 +3,11 @@
 # Listed here so machines that applied the old layout drop the orphan, which
 # nothing includes any more.
 .config/git/work.gitconfig
+
+# fnox is integrated through mise (`_.fnox-env`), which every shell picks up via
+# `mise activate`. This file additionally ran `fnox activate fish`, whose hook
+# resolves secrets on shell start, on every prompt, and on every directory
+# change -- so fish paid a second 1Password unlock for the same variables.
+# Harmless while no fnox manifest existed; two Touch ID prompts per terminal
+# once one did. Listed here so machines that already deployed it drop the orphan.
+.config/fish/conf.d/fnox.fish
