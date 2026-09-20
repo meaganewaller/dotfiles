@@ -211,3 +211,32 @@ pnpm    = "latest"
 "pipx:mcp-server-time"  = "latest" # MCP server for time and timezone conversion capabilities
 "pipx:mcp-server-git"   = "latest" # MCP server for Git interaction and automation
 "pipx:mcp-server-fetch" = "latest" # MCP server for Web contents fetching
+
+# Regenerate ~/.secrets from the machine-wide fnox manifest, on demand.
+#
+# Deliberately NOT a chezmoi run_onchange_ script: `chezmoi apply` runs
+# constantly in the dotfiles repo, and tying it to apply would mean a locked
+# 1Password fails an unrelated apply.
+#
+# Every line below is load-bearing:
+#   --config  fnox merges every ancestor fnox.toml, and mise tasks are
+#             invocable from anywhere -- without this, running from inside a
+#             project folds that project's secrets into the machine-wide file.
+#   umask     fnox's --output respects it; 0600 from creation, not after.
+#   mktemp    a sibling of the target, so `mv` is a real rename(2). $TMPDIR is
+#             a different APFS volume from /Users and would degrade it to
+#             copy-then-unlink, reopening the world-readable window.
+#   trap      a partial export otherwise strands live keys in $HOME.
+#   bash -n   fnox does not escape single quotes, and one `'` in any value
+#             makes the whole file unsourceable. Validating the temp file
+#             means a corrupt export leaves the previous ~/.secrets intact.
+[tasks.secrets]
+description = "Regenerate ~/.secrets from the fnox manifest"
+run = '''
+umask 077
+tmp="$(mktemp "$HOME/.secrets.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+fnox export --config "$HOME/.config/fnox/config.toml" --format env --output "$tmp"
+bash -n "$tmp"
+mv -f "$tmp" "$HOME/.secrets"
+'''
