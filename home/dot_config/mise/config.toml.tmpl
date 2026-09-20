@@ -10,7 +10,18 @@
 # mix of its dev and prod builds, leaving ReactSharedInternals null and failing
 # the prerender with "null is not an object (evaluating 'k.H.useContext')".
 # Tools set NODE_ENV themselves; per-project mise.toml can override when needed.
-_.fnox-env = { tools = true, profile = "{{ if .work_profile }}work{{ else }}personal{{ end }}" }
+#
+# Deliberately no `_.fnox-env` here, and no fnox plugin below. mise resolves
+# this section on every activation and on every shim invocation, and that plugin
+# answers by shelling out to `op read` -- which attaches a 1Password unlock to
+# opening a terminal. It cost two unlocks per interactive fish (Homebrew's
+# vendor_conf.d/mise-activate.fish activates mise before ~/.config/fish/conf.d,
+# and config.fish activates it again, and each activation re-resolves) plus one
+# per mise shim call, to inject a key that exactly one command wants.
+#
+# Secrets reach their consumers on demand instead: ~/.secrets for agents and
+# dotenv-only tools, via the `secrets` task below, and `fnox exec` for a single
+# invocation. See dot_config/fnox/config.toml.
 
 [settings]
 verbose = false
@@ -38,9 +49,6 @@ uvx = true
 
 [settings.ruby]
 compile = false
-
-[plugins]
-fnox-env = "https://github.com/jdx/mise-env-fnox"
 
 [tools]
 # Backends
