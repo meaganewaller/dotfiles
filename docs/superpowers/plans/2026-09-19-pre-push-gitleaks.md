@@ -168,7 +168,7 @@ Stage `test/hk-config.bats` and `home/dot_config/hk/config.pkl`. Suggested subje
 fix(hk): make the pre-push secret scan scan something :lock:
 ```
 
-The body should say that `protect --staged` finds nothing staged at push time so the scan exited 0 while reading an empty set, and that the tests run the command extracted from the config rather than a copy, so they cannot pass while the config is broken.
+The body should say that `protect --staged` finds nothing staged at push time so the scan exited 0 while reading an empty set, and that the tests run the command extracted from the config rather than a copy, so a copy of the command can't drift from what the config actually says. Don't claim the tests prove the range is correct — they'd also pass against a command with no `--log-opts` at all, since a full-history scan detects the same planted secret. What they pin is that the configured scan runs and correctly tells "a secret is here" from "nothing to report," which `gitleaks protect --staged` failed to do at push time.
 
 ---
 
@@ -372,7 +372,7 @@ Expected: `hk check --pr` green; **272** tests passing.
 - [ ] **Step 6: Close the issue and commit the export**
 
 ```bash
-bd close dotfiles-6c6 --reason="pre-push now runs gitleaks git with --log-opts='HEAD --not --remotes', scanning the commits no remote has. Verified end to end: a push carrying a planted secret in a commit made with --no-verify is rejected by the live hook. Tests extract the command from the config rather than copying it, so they cannot pass while the config is broken."
+bd close dotfiles-6c6 --reason="pre-push now runs gitleaks git with --log-opts='HEAD --not --remotes', scanning the commits no remote has. Verified end to end: a push carrying a planted secret in a commit made with --no-verify is rejected by the live hook. Tests extract the command from the config rather than copying it, so they can't pass against a stale copy of it -- they pin that the configured scan runs and detects, not that the range itself is correct."
 bd export -o .beads/issues.jsonl
 git add .beads/issues.jsonl
 ```
@@ -391,7 +391,7 @@ Use the `/git-workflow:pr` skill and fill `.github/PULL_REQUEST_TEMPLATE.md` hon
 
 ## Rollback
 
-The HOME config reaches every repository on this machine, so if the live hooks misbehave:
+The HOME config reaches every repository on this machine for manual `hk` runs, but the live hooks only fire automatically in repositories under a `beads.personal_dirs` prefix that also have their own `hk.pkl`. So if the live hooks misbehave:
 
 ```bash
 git checkout -- home/dot_config/hk/config.pkl
