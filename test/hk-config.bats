@@ -5,7 +5,10 @@ load test_helper
 # The HOME hk config.
 #
 # home/dot_config/hk/config.pkl deploys via chezmoi to ~/.config/hk/config.pkl,
-# and hk reads it in EVERY repository on this machine, client work included.
+# and hk reads it whenever it runs manually in ANY repository on this machine,
+# client work included. It only runs automatically, via the seeded git hooks,
+# in repositories under a beads.personal_dirs prefix that also have their own
+# hk.pkl (home/.chezmoitemplates/git-hooks/beads-shim).
 # Nothing else exercises it: hk.pkl (the project's own config) gets evaluated
 # for free whenever `hk check` runs in CI, but this file was hand-edited until
 # Renovate started managing it too (renovate.json5), and `chezmoi apply` never

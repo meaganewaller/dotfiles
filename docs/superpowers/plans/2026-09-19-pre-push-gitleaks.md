@@ -4,7 +4,7 @@
 
 **Goal:** Make the pre-push secret scan scan the commits being pushed, and add tests that would catch it doing nothing again.
 
-**Architecture:** Two of the three gitleaks steps in the chezmoi-managed HOME hk config change command. The tests do not hardcode those commands — they extract them from the config with `pkl eval -x` and run what is actually declared, so a test cannot pass while the config is broken. That property is the whole point: this bug survived because the command exited 0 while scanning nothing.
+**Architecture:** Two of the three gitleaks steps in the chezmoi-managed HOME hk config change command. The tests do not hardcode those commands — they extract them from the config with `pkl eval -x` and run what is actually declared, so a copy of the command can't drift from what the config actually says. That closes the specific gap that let the original bug survive undetected. It is narrower than "a test cannot pass while the config is broken," though: the pre-push tests would also pass against a command with no `--log-opts` at all, because a full-history scan still finds the planted secret and still exits 0 when nothing is unpushed. What the tests actually pin is that the configured scan runs against real content and can tell "a secret is here" from "nothing to report" — the exact distinction `gitleaks protect --staged` failed to make at push time — not that the chosen range (`HEAD --not --remotes`) is itself correct.
 
 **Tech Stack:** hk 2.0.1 (Pkl config), gitleaks 8.30.1, chezmoi, BATS.
 
@@ -15,7 +15,7 @@
 - Work from the repository root: `/Users/meaganwaller/src/github.com/meaganewaller/dotfiles`, on branch `fix/pre-push-gitleaks` (already created; its first commit is the spec).
 - Prefix `hk`, `bats`, `pkl`, `yq` and `gitleaks` invocations with `mise x --`. Run the suite with `mise exec -- ./bin/test`; a bare `./bin/test` fails 36 tests on `yq: command not found` because mise is not activated in a non-interactive shell.
 - **Never edit `~/.config/hk/config.pkl` directly.** The chezmoi source is `home/dot_config/hk/config.pkl`; changes reach `~` only via `chezmoi apply`.
-- This config deploys machine-wide and hk reads it in **every repository on this machine, client work included**. Treat mistakes here as affecting other people's repos.
+- This config deploys machine-wide and hk reads it **whenever it runs manually in any repository on this machine, client work included**. It only runs automatically, via the seeded git hooks, in repositories under a `beads.personal_dirs` prefix that also have their own `hk.pkl` (`home/.chezmoitemplates/git-hooks/beads-shim`). Treat mistakes here as affecting other people's repos.
 - Test baseline is **268 passing / 0 failing**. Each task states its own expected count.
 - Conventional commits: `<type>(<scope>): <subject> :emoji:`, American English, why-focused body, subject **≤72 characters including the emoji** — count it with `printf '%s' "<subject>" | wc -m`, because `hk util check-conventional-commit` exits 0 at 74 and will not catch it.
 - Do NOT stage `.beads/issues.jsonl`; it is handled separately.
@@ -158,7 +158,7 @@ Expected: 3 passing, 0 failing (the pre-existing schema test plus these two).
 mise exec -- ./bin/test 2>&1 | grep -cE '^ok '
 ```
 
-Expected: **270** (268 baseline plus the two new tests).
+Expected: **272** (268 baseline plus every test this branch's commits add to `test/hk-config.bats`, including one added after this task for pre-commit symmetry — see Task 2). If you are replaying only Task 1's steps in isolation against a tree that doesn't yet have the later commits, expect **270** instead (268 baseline plus this task's two new tests).
 
 - [ ] **Step 7: Commit**
 
@@ -210,6 +210,8 @@ output: $output"
 
 Only the "fires" case is needed here, unlike pre-push. The inverse — that it stays quiet on clean content — is exercised constantly: this hook runs on every commit in this repository, so a scan that failed on everything would block all work immediately. Pre-push had no such natural coverage, which is why it needed both.
 
+Unlike the pre-push pair, this test does not distinguish the new pre-commit command from the old one: reverting Task 2's change back to `gitleaks protect --staged` leaves this test (and the rest of the suite) green, because `protect --staged` and `git --pre-commit --staged` behave identically on staged content. Commit `5cd1b7e` therefore has no test guarding it against being reverted. This test still earns its place, just for a narrower reason — it guards against a *future* wrong pre-commit command, not against the equivalent one it replaced here.
+
 - [ ] **Step 2: Run it against the current command**
 
 ```bash
@@ -245,7 +247,7 @@ Expected: 4 passing, 0 failing. The test passing both before and after is the po
 mise exec -- ./bin/test 2>&1 | grep -cE '^ok '
 ```
 
-Expected: **271**.
+Expected: **272** on the current branch (this task's command change plus the "fires" test above, plus a "the pre-commit scan passes when nothing is staged" test added afterward, mirroring pre-push's quiet case for symmetry). Replaying just this task's own steps against a tree without that later addition gives **271** instead.
 
 - [ ] **Step 6: Commit**
 
@@ -365,7 +367,7 @@ mise x -- hk check --pr
 mise exec -- ./bin/test 2>&1 | grep -cE '^ok '
 ```
 
-Expected: `hk check --pr` green; **271** tests passing.
+Expected: `hk check --pr` green; **272** tests passing.
 
 - [ ] **Step 6: Close the issue and commit the export**
 
