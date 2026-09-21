@@ -16,4 +16,5 @@ wk.add({
   { "<leader>s", group = "Session" },
   { "<leader>t", group = "Toggle" },
   { "<leader>w", group = "Window" },
+  { "<leader>x", group = "Diagnostics" },
 })

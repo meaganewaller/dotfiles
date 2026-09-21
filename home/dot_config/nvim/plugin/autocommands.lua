@@ -2,6 +2,8 @@ require("config.hover-mouse").setup()
 require("config.buffer-limit").setup()
 require("config.cmp-mouse").setup()
 require("config.separators").setup()
+require("config.diagnostics-copy").setup()
+require("config.open-link").setup()
 
 -- same popup via keyboard: cursor stops on a symbol in normal mode.
 -- goes through the same handler as the mouse, otherwise Escape can't close it.
