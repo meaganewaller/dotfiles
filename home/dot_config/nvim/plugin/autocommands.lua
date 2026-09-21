@@ -1,0 +1,61 @@
+require("config.hover-mouse").setup()
+require("config.buffer-limit").setup()
+require("config.cmp-mouse").setup()
+require("config.separators").setup()
+require("config.diagnostics-copy").setup()
+require("config.open-link").setup()
+
+-- same popup via keyboard: cursor stops on a symbol in normal mode.
+-- goes through the same handler as the mouse, otherwise Escape can't close it.
+vim.api.nvim_create_autocmd("CursorHold", {
+  callback = function()
+    require("config.hover-mouse").on_rest()
+  end,
+})
+
+-- C#/F#/VB follow Microsoft's convention, Rust follows rustfmt, Go and Java
+-- their own. Python and the two-space languages already agree with the default.
+-- C and C++ keep their own rule above; that one is about tabs, not width.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {
+    "cs",
+    "razor",
+    "fsharp",
+    "vb",
+    "rust",
+    "java",
+    "kotlin",
+    "scala",
+    "swift",
+    "php",
+    "dart",
+    "zig",
+  },
+  callback = function()
+    vim.bo.expandtab = true
+    vim.bo.tabstop = 4
+    vim.bo.shiftwidth = 4
+    vim.bo.softtabstop = 4
+  end,
+})
+
+-- gofmt writes tabs and leaves their width to the reader; two makes nested
+-- blocks unreadable, so a tab is four columns wide here.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "go", "gomod", "gowork", "gotmpl" },
+  callback = function()
+    vim.bo.expandtab = false
+    vim.bo.tabstop = 4
+    vim.bo.shiftwidth = 4
+    vim.bo.softtabstop = 0
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
+  pattern = "*",
+  callback = function()
+    if vim.bo.modified and vim.bo.buftype == "" and vim.fn.expand("%") ~= "" then
+      vim.cmd("silent! write")
+    end
+  end,
+})

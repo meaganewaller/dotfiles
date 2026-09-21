@@ -97,6 +97,30 @@ clipboard-paste-bracketed-safe = true
 # --- Shell Integration -------------------------------------------------------
 shell-integration = detect
 
+# --- Keybinds ----------------------------------------------------------------
+# ctrl+h/j/k/l is shared with Neovim (smart-splits), tmux (vim-tmux-navigator)
+# and the shell (ctrl+l clears, ctrl+k kills the line). `performable:` makes
+# Ghostty take the key only when a Ghostty split exists in that direction;
+# otherwise it reaches whatever is running.
+keybind = performable:ctrl+h=goto_split:left
+keybind = performable:ctrl+j=goto_split:bottom
+keybind = performable:ctrl+k=goto_split:top
+keybind = performable:ctrl+l=goto_split:right
+
+# cmd+enter is toggle_fullscreen by default; Neovim uses it to open the URL
+# under the cursor or go to definition. Fullscreen stays on cmd+ctrl+f.
+keybind = super+enter=unbind
+
+# cmd+j is scroll_to_selection by default; Neovim uses it to toggle its
+# bottom terminal.
+keybind = super+j=unbind
+
+# cmd+left/right default to ctrl+a/ctrl+e, which vi-mode zsh inserts
+# literally and Neovim reads as increment/scroll. Home/End, in the
+# application-mode form zsh binds, mean line start/end in both.
+keybind = super+arrow_left=text:\x1bOH
+keybind = super+arrow_right=text:\x1bOF
+
 # --- Universal theme switcher overlay ---------------------------------------
 # Must be the LAST directive: Ghostty's `theme = …` resets palette, background,
 # foreground, cursor, selection, and the 16 ANSI colors to that theme's values.
