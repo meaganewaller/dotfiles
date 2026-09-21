@@ -21,7 +21,6 @@ home/dot_config/fish/
     ├── 00-homebrew.fish          # Homebrew env (numeric prefix so it loads first)
     ├── 10-claude.fish.tmpl       # Claude Code account dispatch (chezmoi-templated)
     ├── editor.fish               # $EDITOR resolution per terminal context
-    ├── fnox.fish                 # fnox secret-manager activation
     └── starship-init.fish        # Prompt
 ```
 
@@ -60,7 +59,6 @@ Fish loads `conf.d/*.fish` alphabetically before `config.fish`. The repo ships f
 | --- | --- |
 | `__homebrew.fish` | Resolves `brew` and exports `HOMEBREW_PREFIX` / `HOMEBREW_CELLAR` / `HOMEBREW_REPOSITORY`. Double-underscore prefix forces this to load first so later modules can rely on Homebrew env vars. |
 | `editor.fish` | Picks `$EDITOR` based on `$TERM_PROGRAM`: `code -w` inside VS Code, `cursor -w` inside Cursor, `nvim` otherwise. This **overrides** the `EDITOR=nvim` set inside `config.fish` for terminals that launch from an editor. |
-| `fnox.fish` | Activates [fnox](https://github.com/jdx/fnox) (encrypted secret manager) if installed. |
 | `starship-init.fish` | Initializes the [Starship](https://starship.rs/) prompt if the binary is on `PATH` and the shell is interactive. |
 
 ## `functions/` — autoloaded functions

@@ -31,6 +31,8 @@ assert_allowed() {
 	assert_blocked "MultiEdit" "$HOME/.env"
 	assert_blocked "Write" "$HOME/.config/private_Library/token.json"
 	assert_blocked "Write" "$HOME/project/credentials.yaml"
+	assert_blocked "Write" "$HOME/.secrets"
+	assert_blocked "Edit" "$HOME/.secrets"
 }
 
 @test "blocks generated/build artifact paths" {
@@ -55,4 +57,9 @@ assert_allowed() {
 	run run_guard "Write" "$HOME/.ssh/config"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[ -z "$output" ] || fail "output was: $output"
+}
+
+@test "allows the fnox manifest, which holds op:// pointers not values" {
+	assert_allowed "Edit" "$HOME/.config/fnox/config.toml"
+	assert_allowed "Write" "$HOME/src/github.com/meaganewaller/dotfiles/home/dot_config/fnox/config.toml"
 }

@@ -1,5 +1,14 @@
 # Development tools for shell scripting and testing
 
+# Lockfile format 2 pins npm-backend tools to a digest-checked "dependency
+# sidecar" only when npm.package_manager is "auto". That digest resolves
+# differently machine to machine, so Renovate's lockFileMaintenance run
+# rewrote it on every pass without regenerating the sidecar files, and CI
+# failed on a digest mismatch. Pinning the package manager explicitly skips
+# the sidecar entirely. npm over pnpm because npm already ships with node.
+[settings]
+npm.package_manager = "npm"
+
 [tools]
 "aqua:bats-core/bats-core" = "v1.13.0"
 "aqua:gitleaks/gitleaks" = "v8.30.1"

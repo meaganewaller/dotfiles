@@ -1,0 +1,58 @@
+# Machine-wide fnox manifest -> ~/.config/fnox/config.toml
+#
+# Holds 1Password *references*, never values: this repository is public. A
+# reference names a vault and an item, which is a pointer, not a credential.
+#
+# Two consumers, both on demand. Nothing here is resolved at shell startup:
+#   - Agents and dotenv-only tools read ~/.secrets, materialized by
+#     `mise run secrets`.
+#   - A single command gets a key inside its own process:
+#     `fnox exec --config "$HOME/.config/fnox/config.toml" -- <tool>`, which is
+#     how `bd linear sync --pull` gets LINEAR_API_KEY.
+#
+# Interactive shells deliberately get nothing. mise's `_.fnox-env` plugin used
+# to inject [secrets] natively, which reads as free until you notice mise
+# re-resolves its env on every activation and every shim invocation: each new
+# terminal cost two 1Password unlocks and each shim call could cost another, to
+# hand every shell a key one command wants. See the [env] comment in
+# dot_config/mise/config.toml.tmpl.
+#
+# A bare `1password` provider is sufficient because every value below is a
+# fully-qualified op:// URI; no vault or account key is needed. Authentication
+# rides on the 1Password desktop app's session (`op account list` to check).
+#
+# Keys shared by every machine go in [secrets]. fnox merges [secrets] into
+# whichever profile is selected, so a work-only key would go in a
+# [profiles.work.secrets] block -- there is no such key yet.
+
+[providers]
+onepassword = { type = "1password" }
+
+[secrets]
+LINEAR_API_KEY = { provider = "onepassword", value = "op://Automation/Linear Onlooker API Key/credential" }
+
+# Credentials fetched per invocation, NOT exported into shells.
+#
+# These live in their own profiles precisely because the `secrets` task in
+# dot_config/mise/config.toml.tmpl exports `personal` or `work`. A profile that
+# task does not select is never written to ~/.secrets -- so these secrets exist
+# only inside the one process that asks for them, via
+# `fnox exec --profile <name> -- <tool>`.
+#
+# That is a real property, not tidiness: a key on disk is readable by anything
+# running as you and trivially copied by accident, and a key here survives
+# mistakes that a key in [secrets] does not.
+#
+# One profile per tool, rather than one shared profile, so each command receives
+# only its own credential. fnox also merges top-level [secrets] into whichever
+# profile is selected, so LINEAR_API_KEY rides along into these processes --
+# accepted, because it is already on disk in ~/.secrets for the same user.
+#
+# Renaming either profile to `personal` or `work` silently turns these into
+# on-disk secrets. test/credential-aliases.bats fails if that happens.
+
+[profiles.claude.secrets]
+ANTHROPIC_API_KEY = { provider = "onepassword", value = "op://Private/Claude Dotfiles API Key/key" }
+
+[profiles.buildkite.secrets]
+BUILDKITE_API_TOKEN = { provider = "onepassword", value = "op://Development/Buildkite API/key" }
