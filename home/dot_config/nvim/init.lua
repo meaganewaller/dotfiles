@@ -8,25 +8,49 @@ vim.g.maplocalleader = " "
 local opt = vim.opt
 opt.number = true
 opt.relativenumber = true
-opt.expandtab = true
-opt.shiftwidth = 2
+
 opt.tabstop = 2
+opt.softtabstop = 2
+opt.shiftwidth = 2
+opt.autoindent = true
+opt.expandtab = true
 opt.smartindent = true
-opt.termguicolors = true
-opt.signcolumn = "yes"
-opt.updatetime = 250
+
+opt.wrap = true
+opt.linebreak = true
+
 opt.ignorecase = true
 opt.smartcase = true
-opt.undofile = true
+opt.incsearch = true
+
+opt.scrolloff = 8
+opt.signcolumn = "yes"
+
+opt.updatetime = 50
+opt.colorcolumn = "80"
+
+opt.cursorline = true
+
+opt.termguicolors = true
+opt.signcolumn = "yes"
+
+opt.backspace = "indent,eol,start"
+
 opt.clipboard = "unnamedplus"
-opt.scrolloff = 6
+
 opt.splitright = true
 opt.splitbelow = true
 opt.path:append("**") -- makes :find search recursively from the cwd
 
+opt.iskeyword:append("-")
 opt.shortmess:append("I")
 opt.title = true
 opt.titlestring = "%<%F - nvim"
+
+opt.swapfile = false
+opt.backup = false
+opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+opt.undofile = true
 
 -- Puts this directory's lua/ on the module path even when Neovim is
 -- pointed straight at the repo source (e.g. `nvim -u home/dot_config/nvim/init.lua`)
