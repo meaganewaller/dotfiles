@@ -30,6 +30,13 @@ if [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh" ]; then
 	. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh"
 fi
 
+# `bd linear` gets LINEAR_API_KEY per invocation; every other bd subcommand runs
+# untouched. Same file ~/.zshrc sources, rendered from
+# home/dot_config/shell/bd.sh.tmpl.
+if [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bd.sh" ]; then
+	. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bd.sh"
+fi
+
 # Source machine-local overrides last, as ~/.zshenv does for zsh.
 if [ -r "$HOME/.bashrc.local" ]; then
 	. "$HOME/.bashrc.local"

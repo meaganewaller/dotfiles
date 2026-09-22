@@ -1,7 +1,7 @@
 # `bd linear` gets its key per invocation
 
 **Date:** 2026-09-22
-**Status:** designed
+**Status:** implemented (2026-09-22)
 **Beads:** [`dotfiles-6y1`](#changes)
 
 A shell function that supplies `LINEAR_API_KEY` to `bd linear`, and to nothing
@@ -81,13 +81,13 @@ Only `bd linear` needs the key.
 
 A shell function named `bd` that dispatches on its first argument.
 
-```zsh
+```sh
 bd() {
-  if [[ "$1" == linear ]]; then
-    fnox exec --config "$HOME/.config/fnox/config.toml" -- bd "$@"
-  else
-    command bd "$@"
-  fi
+	if [ "$1" = linear ]; then
+		fnox exec --config "$HOME/.config/fnox/config.toml" -- bd "$@"
+	else
+		command bd "$@"
+	fi
 }
 ```
 
@@ -111,7 +111,7 @@ do not exist there, so plain `bd` resolves to the real binary. There is no
 recursion to guard against. The `else` branch does need `command bd`, since it
 runs inside the function's own shell.
 
-**Written in the two shell templates, not added to `aliases.yaml`.** The
+**Written as its own shell files, not added to `aliases.yaml`.** The
 `credentials:` list emits flat `alias X='fnox exec … -- tool'` lines and cannot
 express subcommand dispatch. Generalizing that data shape — adding a `command:`
 or `subcommand:` key and the template logic to consume it — would be a framework
@@ -139,30 +139,36 @@ the asymmetry is not mistaken for an oversight.
 
 ## Changes
 
-### `home/dot_zshrc.tmpl`
+### `home/dot_config/shell/bd.sh.tmpl` (new)
 
-Beside the credential-alias block, inside the "always available, for humans &
-agents" section — outside the agent-minimal branch, which is what gives an agent
-shell the function.
+A POSIX file shared by zsh and bash, gated on `lookPath` for both `fnox` and
+`bd`, following the shape `dot_config/shell/claude.sh.tmpl` already established.
 
-```zsh
-{{- if and (lookPath "fnox") (lookPath "bd") }}
+```sh
 bd() {
-  if [[ "$1" == linear ]]; then
-    fnox exec --config "$HOME/.config/fnox/config.toml" -- bd "$@"
-  else
-    command bd "$@"
-  fi
+	if [ "$1" = linear ]; then
+		fnox exec --config "$HOME/.config/fnox/config.toml" -- bd "$@"
+	else
+		command bd "$@"
+	fi
 }
-{{- end }}
 ```
 
-### `home/dot_config/fish/conf.d/20-credentials.fish.tmpl`
+**This placement changed during implementation.** The design first put the
+function directly in `dot_zshrc.tmpl`. That file sources Oh My Zsh and a great
+deal besides, so it cannot be sourced in isolation — which would have reduced
+the tests to greps over template text instead of assertions about what the
+function does. The repository had already solved exactly this for the Claude
+account guard: a POSIX file shared by zsh and bash, with a fish twin. Reusing
+that shape also brought bash in for free, which the design had listed as out of
+scope.
 
-The twin, matching how the alias block is already twinned across the two shells.
+### `home/dot_config/fish/conf.d/21-bd.fish.tmpl` (new)
+
+The twin. Fish cannot source POSIX shell, so the logic is duplicated rather than
+shared, exactly as `10-claude.fish.tmpl` duplicates `claude.sh.tmpl`.
 
 ```fish
-{{- if and (lookPath "fnox") (lookPath "bd") }}
 function bd
     if test "$argv[1]" = linear
         fnox exec --config "$HOME/.config/fnox/config.toml" -- bd $argv
@@ -170,42 +176,62 @@ function bd
         command bd $argv
     end
 end
-{{- end }}
 ```
 
-Fish returns an empty string for an out-of-range index, so `bd` with no
-arguments takes the `else` branch and prints its own usage, as today.
+A quoted out-of-range index expands to the empty string in fish, so a bare `bd`
+takes the `else` branch and prints its own usage, as before.
 
 No `--wraps`. The idiom for a wrapper function is `--wraps` the underlying
-command, but here the function and the command share the name `bd`, and a
-self-referential wrap is a completion loop rather than a no-op. Fish resolves
-completions registered with `complete -c bd` by name regardless of whether `bd`
-is a function or a binary, so the flag buys nothing here. To be confirmed during
-implementation: that `bd <TAB>` still completes with the function in place.
+command, but here the function and the command share the name `bd`, so it would
+be a completion loop rather than a no-op. Fish resolves completions registered
+with `complete -c bd` by name whether `bd` is a function or a binary, so the
+flag buys nothing.
+
+### `home/dot_zshrc.tmpl` and `home/dot_bashrc.tmpl`
+
+Each sources the POSIX file, beside the existing `shell/claude.sh` block. In
+zshrc that is outside the agent-minimal branch — deliberately, since the
+consumer is an agent.
 
 ### `test/bd-linear-credential-wrapper.bats` (new)
 
-Three assertions:
+Four assertions, exercising behavior rather than template text. Both files are
+rendered with stub `bd` and `fnox` binaries on `PATH`, then sourced in each
+installed shell. The stub `fnox` logs its arguments and then `exec`s whatever
+follows `--`, so a wrapper that calls fnox but garbles the command after it
+still fails.
 
-1. **The wrapper exists in both templates.** Catches one shell drifting from the
-   other, which is the failure mode the zsh/fish twinning has.
-2. **A non-`linear` fallback branch exists.** This is the load-bearing one. It
-   fails if the function is ever flattened into `alias bd='fnox exec … -- bd'`,
-   which would look like a simplification and would put an `op read` in front of
-   every hook's `bd` call.
-3. **Both rendered templates parse**, via the existing `assert_valid_shell`
-   helper.
+1. **`bd linear` is routed through `fnox exec`** in every shell, with the
+   machine-wide `--config`, reaching `bd` with its arguments intact.
+2. **Every other `bd` subcommand skips fnox entirely** — checked across `ready`,
+   `prime`, `show`, and `close`. This is the load-bearing one: it fails if the
+   function is ever flattened into `alias bd='fnox exec … -- bd'`, which would
+   look like a simplification and would put an `op read` in front of every
+   hook's `bd` call.
+3. **zsh and bash both source the wrapper.** A wrapper nothing sources is
+   precisely the state this change exists to fix.
+4. **Defining the wrapper does not itself invoke fnox** — sourcing the file and
+   running `true` leaves the fnox log empty, so startup stays free of 1Password.
 
-`test/shell-startup-secrets.bats` is unchanged and must keep passing: it matches
+The stubs are on `PATH` during rendering as well as execution, because the
+templates gate on `lookPath`; without them the templates would emit nothing and
+every assertion would pass vacuously. The tests degrade to the shells present,
+with bash as a floor, so a runner missing zsh or fish loses coverage for that
+shell rather than passing silently.
+
+`test/shell-startup-secrets.bats` is unchanged and still passes: it matches
 `fnox activate`, and this adds `fnox exec` inside a function body.
 
 ## Verification
+
+Full suite: 291 tests, no failures.
 
 After `chezmoi apply`:
 
 - `type bd` resolves to the function, in an interactive shell and in an agent
   shell (`CLAUDECODE=1`).
 - `bd ready` runs with no Touch ID prompt — the hot path is untouched.
+- `bd <TAB>` still completes with the function shadowing the binary.
 - `fnox exec --config "$HOME/.config/fnox/config.toml" -- sh -c 'test -n "$LINEAR_API_KEY"'`
   confirms the key resolves with no `--profile`, since top-level `[secrets]`
   merges into whichever profile is selected. This prompts for Touch ID once and
@@ -220,6 +246,6 @@ the honest follow-up is deleting the route, not leaving a file nothing reads.
 does not rewrite the command. Silently appending `--pull` to a bare
 `bd linear sync` would be a surprising edit to something the caller typed.
 
-**`bash`.** `dot_bashrc.tmpl` is described in the repository as minimal and has
-no credential-alias block to twin. Adding one is not required by any consumer
-found here.
+**Other `bd` credentials.** `bd linear` is the only subcommand group here that
+needs a secret. If another appears, it joins the same condition rather than
+earning a second wrapper.

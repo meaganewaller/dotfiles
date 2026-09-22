@@ -254,6 +254,14 @@ if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh" ]]; then
   source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh"
 fi
 
+# `bd linear` gets LINEAR_API_KEY per invocation; every other bd subcommand runs
+# untouched. Same file ~/.bashrc sources, rendered from
+# home/dot_config/shell/bd.sh.tmpl; fish twin in conf.d/21-bd.fish. Sourced
+# outside the agent-shell branch on purpose -- the consumer is an agent.
+if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bd.sh" ]]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bd.sh"
+fi
+
 # Reload shell function - re-execs the exact same zsh binary
 function reload! {
     # Find the actual zsh binary path using multiple fallback methods
