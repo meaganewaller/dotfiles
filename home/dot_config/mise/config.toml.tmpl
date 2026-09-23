@@ -19,9 +19,11 @@
 # and config.fish activates it again, and each activation re-resolves) plus one
 # per mise shim call, to inject a key that exactly one command wants.
 #
-# Secrets reach their consumers on demand instead: ~/.secrets for agents and
-# dotenv-only tools, via the `secrets` task below, and `fnox exec` for a single
-# invocation. See dot_config/fnox/config.toml.
+# A secret reaches its consumer on demand instead, through `fnox exec`, which
+# injects it into one process and leaves nothing behind. There is no file
+# export: ~/.secrets was retired once it turned out to have one writer and no
+# readers. See the note where the `secrets` task used to be, below, and
+# dot_config/fnox/config.toml.
 
 [settings]
 verbose = false
@@ -220,34 +222,28 @@ pnpm    = "latest"
 "pipx:mcp-server-git"   = "latest" # MCP server for Git interaction and automation
 "pipx:mcp-server-fetch" = "latest" # MCP server for Web contents fetching
 
-# Regenerate ~/.secrets from the machine-wide fnox manifest, on demand.
+# Deliberately no [tasks] block, and in particular no `secrets` task.
 #
-# Deliberately NOT a chezmoi run_onchange_ script: `chezmoi apply` runs
-# constantly in the dotfiles repo, and tying it to apply would mean a locked
-# 1Password fails an unrelated apply.
+# There used to be one: `mise run secrets` exported the fnox manifest through
+# the 1Password CLI into ~/.secrets, guarded against four silent failure modes
+# (atomic replace, a same-volume mktemp, a trap, `bash -n`, `--if-missing
+# error`). All of that was careful work protecting a file that nothing read.
 #
-# Every line below is load-bearing:
-#   --config      fnox merges every ancestor fnox.toml, and mise tasks are
-#                 invocable from anywhere -- without this, running from inside a
-#                 project folds that project's secrets into the machine-wide file.
-#   umask         belt-and-suspenders; mktemp already creates at 0600.
-#   mktemp        a sibling of the target, so `mv` is a real rename(2). $TMPDIR is
-#                 a different APFS volume from /Users and would degrade it to
-#                 copy-then-unlink, reopening the world-readable window.
-#   trap          a partial export otherwise strands live keys in $HOME.
-#   bash -n       fnox does not escape single quotes, and one `'` in any value
-#                 makes the whole file unsourceable. Validating the temp file
-#                 means a corrupt export leaves the previous ~/.secrets intact.
-#   --if-missing  fnox otherwise exits 0 on an unresolvable secret (locked
-#                 1Password, deleted vault item) and would replace a known-good
-#                 ~/.secrets with an empty one.
-[tasks.secrets]
-description = "Regenerate ~/.secrets from the fnox manifest"
-run = '''
-umask 077
-tmp="$(mktemp "$HOME/.secrets.XXXXXX")"
-trap 'rm -f "$tmp"' EXIT
-fnox export --config "$HOME/.config/fnox/config.toml" --if-missing error --profile {{ if .work_profile }}work{{ else }}personal{{ end }} --format env --output "$tmp"
-bash -n "$tmp"
-mv -f "$tmp" "$HOME/.secrets"
-'''
+# Measured before removal: ~/.secrets had exactly one writer -- this task -- and
+# zero readers. The design named "agents and dotenv-only tools" as its
+# consumers, but neither was ever wired. Claude Code has no mechanism that
+# sources a dotenv file, and an agent's shell sources ~/.zshrc, which did not
+# source ~/.secrets. The only general way to wire it up is to source it at shell
+# startup, which makes the key environment-resident -- the thing dotfiles-vv3
+# closed against after an environment-resident key leaked twice in one session
+# through accidental env dumps.
+#
+# So it was a plaintext credential sitting on disk, readable by anything running
+# as this user, in exchange for nothing. Its one key, LINEAR_API_KEY, reaches
+# its one consumer through ~/.config/shell/bd.sh instead: `fnox exec` hands the
+# key to a single process and leaves nothing behind.
+#
+# If a dotenv-only tool ever genuinely needs a file, `fnox export` is one
+# command -- write it where that tool reads, not to a machine-wide ~/.secrets.
+# See dot_config/fnox/config.toml and
+# docs/superpowers/specs/2026-09-20-fnox-secrets-design.md.

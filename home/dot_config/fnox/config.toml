@@ -3,12 +3,17 @@
 # Holds 1Password *references*, never values: this repository is public. A
 # reference names a vault and an item, which is a pointer, not a credential.
 #
-# Two consumers, both on demand. Nothing here is resolved at shell startup:
-#   - Agents and dotenv-only tools read ~/.secrets, materialized by
-#     `mise run secrets`.
-#   - A single command gets a key inside its own process:
-#     `fnox exec --config "$HOME/.config/fnox/config.toml" -- <tool>`, which is
-#     how `bd linear sync --pull` gets LINEAR_API_KEY.
+# One consumer, on demand. Nothing here is resolved at shell startup: a command
+# gets its key inside its own process, via
+# `fnox exec --config "$HOME/.config/fnox/config.toml" -- <tool>`. That is how
+# `bd linear sync --pull` gets LINEAR_API_KEY -- see dot_config/shell/bd.sh.
+#
+# There used to be a second route. `mise run secrets` exported this manifest to
+# ~/.secrets for "agents and dotenv-only tools". It was retired once measurement
+# showed the file had exactly one writer and no readers: neither consumer was
+# ever wired, because nothing sources a dotenv file, and wiring it the only
+# general way -- sourcing at shell startup -- is what makes a key
+# environment-resident.
 #
 # Interactive shells deliberately get nothing. mise's `_.fnox-env` plugin used
 # to inject [secrets] natively, which reads as free until you notice mise
@@ -33,23 +38,25 @@ LINEAR_API_KEY = { provider = "onepassword", value = "op://Automation/Linear Onl
 
 # Credentials fetched per invocation, NOT exported into shells.
 #
-# These live in their own profiles precisely because the `secrets` task in
-# dot_config/mise/config.toml.tmpl exports `personal` or `work`. A profile that
-# task does not select is never written to ~/.secrets -- so these secrets exist
-# only inside the one process that asks for them, via
-# `fnox exec --profile <name> -- <tool>`.
+# These live in their own profiles so that each command receives only its own
+# credential, via `fnox exec --profile <name> -- <tool>`. The secret exists only
+# inside the one process that asked for it.
 #
-# That is a real property, not tidiness: a key on disk is readable by anything
-# running as you and trivially copied by accident, and a key here survives
-# mistakes that a key in [secrets] does not.
+# That is a real property, not tidiness. An environment-resident key is readable
+# by anything running as you and trivially copied by accident -- dotfiles-vv3
+# recorded one leaking twice in a single session through accidental env dumps,
+# while these alias-resident keys leaked zero times.
 #
 # One profile per tool, rather than one shared profile, so each command receives
-# only its own credential. fnox also merges top-level [secrets] into whichever
-# profile is selected, so LINEAR_API_KEY rides along into these processes --
-# accepted, because it is already on disk in ~/.secrets for the same user.
+# only its own credential. fnox merges top-level [secrets] into whichever profile
+# is selected, so LINEAR_API_KEY does ride along into these processes. That is a
+# small over-grant, accepted: they are this user's own tools, run deliberately,
+# and the alternative -- no shared block, one profile per key -- buys nothing
+# while making every future key a two-place edit.
 #
-# Renaming either profile to `personal` or `work` silently turns these into
-# on-disk secrets. test/credential-aliases.bats fails if that happens.
+# Keep these profile names distinct from any profile a future export task might
+# select. test/credential-aliases.bats and the plaintext guard in
+# test/shell-startup-secrets.bats both fail if that stops being true.
 
 [profiles.claude.secrets]
 ANTHROPIC_API_KEY = { provider = "onepassword", value = "op://Private/Claude Dotfiles API Key/key" }

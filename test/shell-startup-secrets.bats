@@ -45,15 +45,36 @@ load test_helper
 }
 
 @test "secrets still reach their consumers on demand" {
-	local REPO_ROOT MISE_CONFIG
+	local REPO_ROOT WRAPPER
+	REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)"
+	WRAPPER="$REPO_ROOT/home/dot_config/shell/bd.sh.tmpl"
+
+	# Guards the opposite mistake: taking 1Password out of shell startup must
+	# not leave zero routes to a secret.
+	#
+	# This used to name `mise run secrets`, which wrote ~/.secrets. That file
+	# turned out to have one writer and no readers -- see dotfiles-ogz -- so the
+	# assertion now names the route that actually carries a key to a consumer.
+	# What matters is that *a* route exists, not which one.
+	grep -q "fnox exec" "$WRAPPER" ||
+		fail "no per-invocation route to a secret is left; nothing can reach LINEAR_API_KEY"
+}
+
+@test "no route materializes a plaintext secret on disk" {
+	local REPO_ROOT MISE_CONFIG hits
 	REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)"
 	MISE_CONFIG="$REPO_ROOT/home/dot_config/mise/config.toml.tmpl"
 
-	# Guards the opposite mistake: taking 1Password out of shell startup must
-	# not leave zero routes to a secret. `mise run secrets` is the one that
-	# serves agents, which have no shell to inherit from.
-	grep -q "^\[tasks\.secrets\]" "$MISE_CONFIG" ||
-		fail "the secrets task is gone; nothing materializes ~/.secrets"
-	grep -q "fnox export" "$MISE_CONFIG" ||
-		fail "the secrets task no longer exports through fnox"
+	# ~/.secrets was a generated plaintext credential that nothing read: exactly
+	# one writer, zero readers, and the key sitting in the clear for anything
+	# running as this user to pick up. `fnox exec` hands a key to one process
+	# and leaves nothing behind, which is the property worth keeping.
+	#
+	# Match the assignment, not the prose: the [env] comment explains at length
+	# why the export is gone and necessarily names it.
+	hits="$(grep -n "^\[tasks\.secrets\]" "$MISE_CONFIG" || true)"
+	[ -z "$hits" ] || fail "the secrets export task is back; it writes a plaintext key nothing reads: $hits"
+
+	hits="$(grep -n "fnox export" "$MISE_CONFIG" | grep -vE ":[[:space:]]*#" || true)"
+	[ -z "$hits" ] || fail "something exports fnox secrets to a file again: $hits"
 }

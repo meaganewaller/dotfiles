@@ -84,14 +84,14 @@ A shell function named `bd` that dispatches on its first argument.
 ```sh
 bd() {
 	if [ "$1" = linear ]; then
-		fnox exec --config "$HOME/.config/fnox/config.toml" -- bd "$@"
+		fnox exec --config "$HOME/.config/fnox/config.toml" --if-missing error -- bd "$@"
 	else
 		command bd "$@"
 	fi
 }
 ```
 
-Four decisions, each with a real alternative:
+Five decisions, each with a real alternative:
 
 **Dispatch on `linear`, not on `linear sync`.** Every `bd linear` subcommand
 talks to the same API and needs the same key, so the narrower match would need
@@ -110,6 +110,17 @@ would fail to exec. Because `fnox exec` spawns a fresh process, shell functions
 do not exist there, so plain `bd` resolves to the real binary. There is no
 recursion to guard against. The `else` branch does need `command bd`, since it
 runs inside the function's own shell.
+
+**`--if-missing error`, not fnox's default.** fnox defaults to `warn`: an
+unresolvable secret is reported, and then fnox exits 0 and runs the command
+anyway. Caught during verification, after the wrapper had already shipped
+without it — a real 1Password authorization timeout produced
+`WARN … authentication failed`, followed by `bd` running with `LINEAR_API_KEY`
+unset and exiting 0. For `bd linear sync` that means talking to Linear
+unauthenticated rather than stopping. With the flag, the same condition gives
+`ERROR` and exit 1, and `bd` never runs. The retired `secrets` task carried this
+flag for the same reason, and the original spec named it as the guard the `trap`
+could not provide; the wrapper initially failed to inherit it.
 
 **Written as its own shell files, not added to `aliases.yaml`.** The
 `credentials:` list emits flat `alias X='fnox exec … -- tool'` lines and cannot
@@ -136,6 +147,12 @@ So this wrapper buys **shell-environment absence, not on-disk absence**. The key
 still sits in plaintext in `~/.secrets` after any `mise run secrets`. That is
 weaker than what `claude-api` and `bktide` get, and it is stated here plainly so
 the asymmetry is not mistaken for an oversight.
+
+**Resolved the same day (`dotfiles-ogz`).** Stating the asymmetry prompted the
+obvious question — who actually reads that file? — and the answer was nobody:
+one writer, zero readers. The export was retired rather than the key narrowed,
+which closes the gap from the other end and leaves `[secrets]` exactly as it is.
+See the [second amendment](2026-09-20-fnox-secrets-design.md#amendment-2026-09-22-the-file-route-is-retired).
 
 ## Changes
 
@@ -202,7 +219,8 @@ follows `--`, so a wrapper that calls fnox but garbles the command after it
 still fails.
 
 1. **`bd linear` is routed through `fnox exec`** in every shell, with the
-   machine-wide `--config`, reaching `bd` with its arguments intact.
+   machine-wide `--config` and `--if-missing error`, reaching `bd` with its
+   arguments intact.
 2. **Every other `bd` subcommand skips fnox entirely** — checked across `ready`,
    `prime`, `show`, and `close`. This is the load-bearing one: it fails if the
    function is ever flattened into `alias bd='fnox exec … -- bd'`, which would
@@ -232,6 +250,9 @@ After `chezmoi apply`:
   shell (`CLAUDECODE=1`).
 - `bd ready` runs with no Touch ID prompt — the hot path is untouched.
 - `bd <TAB>` still completes with the function shadowing the binary.
+- With 1Password unable to authorize, `bd linear` exits 1 and `bd` never runs,
+  rather than running unauthenticated. Verified against a real authorization
+  timeout on 2026-09-22.
 - `fnox exec --config "$HOME/.config/fnox/config.toml" -- sh -c 'test -n "$LINEAR_API_KEY"'`
   confirms the key resolves with no `--profile`, since top-level `[secrets]`
   merges into whichever profile is selected. This prompts for Touch ID once and
@@ -239,8 +260,10 @@ After `chezmoi apply`:
 
 ## Out of scope
 
-**Retiring `~/.secrets`.** Covered above. If no consumer is ever wired to it,
-the honest follow-up is deleting the route, not leaving a file nothing reads.
+**Retiring `~/.secrets`.** ~~Covered above.~~ Done, same day, as
+`dotfiles-ogz`: the file had one writer and no readers, so the route was deleted
+rather than left in place. See the
+[second amendment](2026-09-20-fnox-secrets-design.md#amendment-2026-09-22-the-file-route-is-retired).
 
 **Enforcing onlooker's `--pull` rule.** The wrapper supplies a credential; it
 does not rewrite the command. Silently appending `--pull` to a bare

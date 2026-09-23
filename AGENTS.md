@@ -46,7 +46,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | Fish shell (alternative) | [docs/fish.md](docs/fish.md) |
 | Install / env vars | [README.md](README.md) |
 | Add a CLI with correct pins | `/install` skill; then Chezmoi workflow above |
-| Regenerate `~/.secrets` from 1Password | [fnox secrets design](docs/superpowers/specs/2026-09-20-fnox-secrets-design.md) (`mise run secrets`) |
+| Get a secret into one command | [fnox secrets design](docs/superpowers/specs/2026-09-20-fnox-secrets-design.md) (`fnox exec`; there is no `~/.secrets`) |
 | Beads: what to commit, which repos | [docs/beads.md](docs/beads.md) |
 
 ---

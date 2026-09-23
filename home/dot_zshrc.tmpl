@@ -229,8 +229,8 @@ fpath=(
 autoload -Uz c
 
 # Credential-injecting aliases: fnox resolves the secret from 1Password on each
-# invocation and injects it into that process only. The profiles named here are
-# not selected by mise, so these never reach the shell environment or ~/.secrets.
+# invocation and injects it into that process only, so it never reaches the
+# shell environment and is never written to disk.
 {{- with index .aliases "credentials" }}
 {{- range . }}
 {{- if and (lookPath "fnox") (lookPath .tool) }}

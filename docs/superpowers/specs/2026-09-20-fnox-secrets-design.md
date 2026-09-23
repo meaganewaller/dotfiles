@@ -366,3 +366,65 @@ The double mise activation itself is left alone. It is now only a small startup
 cost, and collapsing it is not free: the Homebrew vendor snippet runs before
 `conf.d/00-homebrew.fish` moves Homebrew to the front of `PATH`, so the
 activation in `config.fish` is what currently restores mise's `PATH` priority.
+
+## Amendment (2026-09-22): the file route is retired
+
+The remaining half of this design is withdrawn. `~/.secrets` is gone, and with
+it `[tasks.secrets]`.
+
+The [first amendment](#amendment-2026-09-20-shells-get-nothing) removed ambient
+injection and left `mise run secrets` as the route that "serves agents, which
+have no shell to inherit from." Measured on 2026-09-22, across the whole
+machine:
+
+| Reference | Role |
+| --- | --- |
+| `~/.config/mise/config.toml` | **writer** — `[tasks.secrets]` |
+| `~/.config/fnox/config.toml` | comment only |
+| `~/.config/fish/conf.d/20-credentials.fish` | comment only |
+
+One writer, zero readers. `check-secrets.sh` is not a reader either — it is a
+PreToolUse hook that *blocks* writes containing secrets.
+
+The consumers named in [Decision](#decision) were described, never wired.
+"Agents read `~/.secrets`" assumed a mechanism that does not exist: Claude Code
+has nothing that sources a dotenv file, and an agent's Bash tool sources
+`~/.zshrc`, which never sourced `~/.secrets`. The only general way to wire it is
+to source it at shell startup, which makes the key environment-resident —
+precisely what `dotfiles-vv3` closed against, citing an environment-resident key
+leaking twice in one session through accidental env dumps while alias-resident
+keys leaked zero times. So the file could not be connected the easy way without
+reversing the decision that shaped everything around it.
+
+This was visible from the start and read as a fact about the old file rather
+than a problem with the new one. [Context](#the-existing-secrets-is-hand-made-and-world-readable)
+records that the hand-made `~/.secrets` had "nothing in zsh, bash, or fish
+sources it"; the replacement fixed the `0644` permissions and inherited the
+missing consumer.
+
+What settled it is that `LINEAR_API_KEY` — the only key in `[secrets]` — got a
+real route on 2026-09-22: `~/.config/shell/bd.sh` runs `bd linear` under
+`fnox exec`, so the key reaches the one command that wants it and nothing else.
+See [the wrapper design](2026-09-22-bd-linear-credential-wrapper-design.md).
+That left the file as a plaintext credential on disk, readable by anything
+running as this user, in exchange for nothing.
+
+The careful machinery around the export — atomic replace, a same-volume
+`mktemp`, the `trap`, `bash -n`, `--if-missing error` — was all correct, and all
+of it protected a file nothing read. It is removed rather than kept "in case,"
+because an unused route still has to be maintained, still has to be explained,
+and still leaks a key if anyone runs it.
+
+`[secrets]` stays in the manifest: `fnox exec` resolves from it, with no
+`--profile`, verified the same day. The manifest remains the source of truth;
+only the export is gone.
+
+`test/mise-secrets-task.bats` is deleted. In `test/shell-startup-secrets.bats`,
+"secrets still reach their consumers on demand" no longer names the task — the
+point of that assertion was that *some* route exists, and it now checks the one
+that does. A new assertion, "no route materializes a plaintext secret on disk,"
+guards the reverse: nothing may reintroduce a file export.
+
+If a dotenv-only tool ever genuinely needs a file, `fnox export` is one command.
+Write it where that tool reads, scoped to that tool, rather than to a
+machine-wide `~/.secrets` that everything can read and nothing does.
