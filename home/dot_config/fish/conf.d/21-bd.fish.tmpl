@@ -14,6 +14,9 @@
 # path -- `bd ready`, `bd prime`, `bd show`, `bd close`, and every session hook
 # -- from paying for a credential only `bd linear` needs.
 #
+# `--if-missing error` is not optional: fnox defaults to `warn`, so a locked
+# 1Password would otherwise let `bd linear sync` run unauthenticated at exit 0.
+#
 # No `--wraps`. The usual wrapper idiom names the underlying command, but this
 # function and that command share the name `bd`, so it would be a completion
 # loop rather than a no-op. Fish resolves `complete -c bd` by name whether bd is
@@ -23,7 +26,7 @@
 # `bd` takes the else branch and prints its own usage, as before.
 function bd
     if test "$argv[1]" = linear
-        fnox exec --config "$HOME/.config/fnox/config.toml" -- bd $argv
+        fnox exec --config "$HOME/.config/fnox/config.toml" --if-missing error -- bd $argv
     else
         command bd $argv
     end

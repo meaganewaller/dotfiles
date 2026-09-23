@@ -30,6 +30,15 @@
 # so without it, running from inside a project with its own manifest would let
 # that project shadow the machine-wide one.
 #
+# `--if-missing error` is load-bearing too, and less obvious. fnox defaults to
+# `warn`: an unresolvable secret -- a locked 1Password, an authorization
+# timeout, a deleted vault item -- is reported and then fnox exits 0 and runs
+# the command anyway. Observed on 2026-09-22: "authentication failed ...
+# authorization timeout", followed by bd running with LINEAR_API_KEY unset. For
+# `bd linear sync` that means talking to Linear unauthenticated instead of
+# stopping. The retired `secrets` task carried the same flag for the same
+# reason.
+#
 # The fnox branch ends in `bd`, not `command bd`: `command` is a shell builtin
 # and `fnox exec` does a PATH lookup, so it would fail to exec. fnox spawns a
 # fresh process where shell functions do not exist, so plain `bd` resolves to
@@ -37,7 +46,7 @@
 # does need `command`.
 bd() {
 	if [ "$1" = linear ]; then
-		fnox exec --config "$HOME/.config/fnox/config.toml" -- bd "$@"
+		fnox exec --config "$HOME/.config/fnox/config.toml" --if-missing error -- bd "$@"
 	else
 		command bd "$@"
 	fi

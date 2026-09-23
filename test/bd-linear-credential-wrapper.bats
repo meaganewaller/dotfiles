@@ -128,6 +128,8 @@ run_in() {
 			fail "$shell: bd linear did not go through fnox, so LINEAR_API_KEY never reaches it"
 		grep -q 'fnox/config.toml' "$FNOX_LOG" ||
 			fail "$shell: fnox was invoked without the machine-wide config, so an ancestor fnox.toml could shadow it: $(cat "$FNOX_LOG")"
+		grep -q -- '--if-missing error' "$FNOX_LOG" ||
+			fail "$shell: fnox may resolve nothing and still exit 0, running bd linear unauthenticated: $(cat "$FNOX_LOG")"
 	done
 }
 
