@@ -296,6 +296,11 @@ function reload! {
     exec "$zsh_path" "$@"
 }
 
+# macOS path_helper (/etc/zprofile) runs after .zshenv and moves /usr/bin
+# ahead of the mise shims, so system ruby/gem/bundle/python3 win. Re-front
+# the shims (deduplicated) now that login-shell setup is done.
+path=("$HOME/.local/share/mise/shims" ${path:#$HOME/.local/share/mise/shims})
+
 # Git-safe PATH modification - MUST RUN LAST
 # Prepends .git/safe/../../bin to PATH for per-repository trusted binaries
 # This allows each git repository to provide its own trusted executables
