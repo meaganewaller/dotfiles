@@ -11,6 +11,7 @@ local parsers = {
   "css",
   "diff",
   "dockerfile",
+  "embedded_template",
   "fish",
   "git_config",
   "gitcommit",

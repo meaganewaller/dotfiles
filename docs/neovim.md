@@ -18,6 +18,7 @@ ordinary Lua modules.
 - **Statusline**: [`lualine`](https://github.com/nvim-lualine/lualine.nvim) + `nvim-web-devicons`
 - **Keymap hints**: [`which-key.nvim`](https://github.com/folke/which-key.nvim)
 - **Syntax**: [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) (default branch, no version pin)
+- **Ruby/Rails**: [`nvim-treesitter-endwise`](https://github.com/RRethy/nvim-treesitter-endwise) (auto `end`) + [`vim-test`](https://github.com/vim-test/vim-test) (RSpec/Minitest); `ruby-lsp` and Herb (ERB) language servers — see [Ruby and Rails](#ruby-and-rails)
 - **Colorschemes**: a curated set with a runtime fzf-lua picker (default: `catppuccin-mocha`)
 - **Windows**: hand-rolled split/zoom keymaps + [`smart-splits.nvim`](https://github.com/mrjones2014/smart-splits.nvim) for tmux-aware move/resize (see the Keymaps and Tmux integration sections below)
 - **Sessions**: [`persistence.nvim`](https://github.com/folke/persistence.nvim), auto-restored on a bare `nvim` with no file args
@@ -49,6 +50,7 @@ home/dot_config/nvim/
     ├── finder.lua                 # fzf-lua setup + <leader>f… keymaps
     ├── git.lua                    # gitsigns setup + <leader>h… keymaps
     ├── lsp.lua                    # vim.lsp.config servers + LspAttach keymaps
+    ├── ruby.lua                   # endwise + vim-test and <leader>r… keymaps
     ├── onlooker.lua                # require("onlooker").setup()
     ├── session.lua                 # persistence.nvim + auto-restore on bare `nvim`
     ├── statusline.lua             # lualine + nvim-web-devicons
@@ -128,7 +130,8 @@ end
 
 Currently wired: `lua_ls`, `ts_ls`, `gopls`, `clangd`, `jsonls`, `yamlls`,
 `bashls`, `fish_lsp`, `tailwindcss`, `marksman`, `tombi`, `terraformls`,
-`texlab`, `dockerls`, `sqls`, `harper_ls`, `biome`, `ruff`, `ty`. Add new
+`texlab`, `dockerls`, `sqls`, `harper_ls`, `ruby_lsp`, `herb_ls`, `biome`,
+`ruff`, `ty`. Add new
 servers by extending the `servers` table in `plugin/lsp.lua` and installing
 the binary (typically via `mise use -g <tool>@<version>`).
 
@@ -146,6 +149,22 @@ via `LspAttach`:
 
 `jsonls` and `yamlls` also pull schemas from
 [`schemastore.nvim`](https://github.com/b0o/schemastore.nvim).
+
+### Ruby and Rails
+
+- **`ruby_lsp`** (`gem:ruby-lsp` in mise, pinned to `0.26` because `latest`
+  resolves to 0.27 betas) attaches to `ruby` and `eruby`. On first open it
+  builds a composed bundle in `<project>/.ruby-lsp/` from the project's
+  Gemfile, so RuboCop diagnostics/formatting and the Rails add-on
+  (`ruby-lsp-rails`) use the project's own versions and config. `<leader>lf`
+  formats through it (`formatter = "auto"`).
+- **`herb_ls`** (`npm:@herb-tools/language-server`) adds HTML+ERB
+  diagnostics and formatting for `.html.erb` views; the `embedded_template`
+  treesitter parser handles highlighting.
+- `ruby-lsp`'s binstub runs whatever `ruby` is first on `PATH`, so Neovim
+  must be launched from a shell where the mise shims precede `/usr/bin`.
+  `~/.zshrc` re-fronts the shims after macOS `path_helper` reorders `PATH`;
+  if `ruby_lsp` exits immediately, check `which ruby` in that shell first.
 
 ## Keymaps
 
@@ -220,6 +239,18 @@ actually works.
 
 A session is also restored automatically on launch when `nvim` is started
 with no file arguments — see the Sessions section below for how that works.
+
+### Tests — `<leader>r…` (vim-test)
+
+Runs in a bottom terminal split; RSpec and Minitest are auto-detected.
+
+| Map | Action |
+| --- | --- |
+| `<leader>rn` | Test nearest |
+| `<leader>rf` | Test file |
+| `<leader>rs` | Test suite |
+| `<leader>rl` | Re-run last test |
+| `<leader>rv` | Jump to the last-run test file |
 
 ### Files / other
 

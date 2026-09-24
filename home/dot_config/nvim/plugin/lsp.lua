@@ -140,6 +140,19 @@ local servers = {
     filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "json", "jsonc", "css" },
     root_markers = { "biome.json", "biome.jsonc", "package.json", ".git" },
   },
+  -- ruby-lsp builds a composed bundle in <root>/.ruby-lsp from the project's
+  -- Gemfile, so RuboCop and the Rails add-on come from the project itself.
+  ruby_lsp = {
+    cmd = { "ruby-lsp" },
+    filetypes = { "ruby", "eruby" },
+    root_markers = { "Gemfile", ".ruby-version", ".git" },
+    init_options = { formatter = "auto" },
+  },
+  herb_ls = {
+    cmd = { "herb-language-server", "--stdio" },
+    filetypes = { "eruby" },
+    root_markers = { "Gemfile", ".git" },
+  },
   ruff = {
     cmd = { "ruff", "server" },
     filetypes = { "python" },
