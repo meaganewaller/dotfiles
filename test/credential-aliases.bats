@@ -4,9 +4,11 @@ load test_helper
 
 MANIFEST="home/dot_config/fnox/config.toml"
 
-# The profiles the `secrets` task exports, per home/dot_config/mise/config.toml.tmpl.
-# A credential placed in one of these would be written to ~/.secrets in the
-# clear -- exactly what this design avoids.
+# Profile names a file export would plausibly select. Nothing exports today --
+# the `secrets` task was retired in dotfiles-ogz, and the plaintext guard in
+# test/shell-startup-secrets.bats fails if one comes back -- but a credential
+# sharing a name with a reintroduced export would land on disk in the clear, so
+# the two guards are kept independent.
 EXPORTED_PROFILES="personal work"
 
 @test "credential profiles are declared with op:// references" {
@@ -16,10 +18,10 @@ EXPORTED_PROFILES="personal work"
 	[[ "$output" == *"buildkite"* ]] || fail "no buildkite profile in $MANIFEST: $output"
 }
 
-@test "credential profiles are NOT the profiles the secrets task exports" {
+@test "credential profiles are NOT names a file export would select" {
 	# Load-bearing for security, not style. If a credential profile were renamed
-	# to one the secrets task exports, its secret would silently land on disk in
-	# ~/.secrets, losing the per-invocation property this design exists for.
+	# to one a future export selects, its secret would silently land on disk,
+	# losing the per-invocation property this design exists for.
 	run yq -p toml -o y '.profiles | keys | .[]' "$MANIFEST"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 
@@ -27,7 +29,7 @@ EXPORTED_PROFILES="personal work"
 		[ -n "$profile" ] || continue
 		for exported in $EXPORTED_PROFILES; do
 			[ "$profile" != "$exported" ] ||
-				fail "credential profile '$profile' is exported by the secrets task; its secrets would land in ~/.secrets"
+				fail "credential profile '$profile' shares a name with an exportable profile; its secrets could land on disk"
 		done
 	done <<<"$output"
 }

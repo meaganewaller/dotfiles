@@ -229,8 +229,8 @@ fpath=(
 autoload -Uz c
 
 # Credential-injecting aliases: fnox resolves the secret from 1Password on each
-# invocation and injects it into that process only. The profiles named here are
-# not selected by mise, so these never reach the shell environment or ~/.secrets.
+# invocation and injects it into that process only, so it never reaches the
+# shell environment and is never written to disk.
 {{- with index .aliases "credentials" }}
 {{- range . }}
 {{- if and (lookPath "fnox") (lookPath .tool) }}
@@ -252,6 +252,14 @@ alias mise='GITHUB_TOKEN="$(gh auth token)" command mise'
 # above on purpose: an agent shell needs the account guard as much as a human one.
 if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh" ]]; then
   source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/claude.sh"
+fi
+
+# `bd linear` gets LINEAR_API_KEY per invocation; every other bd subcommand runs
+# untouched. Same file ~/.bashrc sources, rendered from
+# home/dot_config/shell/bd.sh.tmpl; fish twin in conf.d/21-bd.fish. Sourced
+# outside the agent-shell branch on purpose -- the consumer is an agent.
+if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bd.sh" ]]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bd.sh"
 fi
 
 # Reload shell function - re-execs the exact same zsh binary
