@@ -2,7 +2,8 @@
 --
 -- Observation (dashboard/feed/digest) is lossless and non-invasive -- it
 -- only tails the .jsonl transcripts Claude Code already writes under
--- ~/.claude/projects, for every session it finds, whether or not
+-- <claude dir>/projects for every account (~/.claude, ~/.claude-*; see
+-- accounts.lua), for every session it finds, whether or not
 -- onlooker started it. Steering (dispatch/takeover/queue/cleanup) only
 -- ever touches sessions onlooker itself dispatched as terminal jobs: it
 -- writes to its own child's pty, never reaches into another process.
@@ -27,9 +28,25 @@ function M.setup(opts)
     require("onlooker.digest").open()
   end, { desc = "Onlooker: open the Q&A digest for a session" })
 
+  -- :OnlookerDispatch [@account] [prompt...]
   command("OnlookerDispatch", function(o)
-    require("onlooker.dispatch").dispatch({ prompt = o.args ~= "" and o.args or nil })
-  end, { desc = "Onlooker: dispatch a new agent in the current directory", nargs = "*" })
+    local account, prompt = o.args:match("^@(%S+)%s*(.*)$")
+    if not account then
+      prompt = o.args
+    end
+    require("onlooker.dispatch").dispatch({ account = account, prompt = prompt ~= "" and prompt or nil })
+  end, {
+    desc = "Onlooker: dispatch a new agent in the current directory",
+    nargs = "*",
+    complete = function(arg_lead, cmd_line)
+      if not arg_lead:match("^@") or cmd_line:match("^%S+%s+%S+%s") then
+        return {}
+      end
+      return vim.tbl_map(function(a)
+        return "@" .. a.name
+      end, require("onlooker.accounts").list())
+    end,
+  })
 
   command("OnlookerTakeover", function()
     require("onlooker.takeover").take()

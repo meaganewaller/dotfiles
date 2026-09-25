@@ -47,8 +47,16 @@ local function render_lines()
   local scope_label = state.scope_cwd and vim.fn.fnamemodify(state.scope_cwd, ":~") or "all projects"
   lines[#lines + 1] = string.format("onlooker  ·  %s  ·  %s", scope_label, os.date("%H:%M:%S"))
   lines[#lines + 1] = ""
-  lines[#lines + 1] =
-    string.format("  %s %-9s %-18s %-14s %6s  %s", pad("", 3), "session", "project", "branch", "active", "last turn")
+  lines[#lines + 1] = string.format(
+    "  %s %-9s %-10s %-18s %-14s %6s  %s",
+    pad("", 3),
+    "session",
+    "account",
+    "project",
+    "branch",
+    "active",
+    "last turn"
+  )
 
   if #sessions == 0 then
     lines[#lines + 1] = "  (no sessions found)"
@@ -67,9 +75,10 @@ local function render_lines()
     end
 
     lines[#lines + 1] = string.format(
-      "  %s %-9s %-18s %-14s %6s  %s",
+      "  %s %-9s %-10s %-18s %-14s %6s  %s",
       pad(marker, 3),
       s.session_id:sub(1, 8),
+      (s.account or "?"):sub(1, 10),
       proj,
       branch,
       fmt_age(now - s.mtime),
@@ -85,7 +94,8 @@ local function render_lines()
     lines[#lines + 1] = ""
     lines[#lines + 1] = "  dispatched, transcript not yet seen:"
     for _, e in ipairs(pending) do
-      lines[#lines + 1] = string.format("  %s %-9s %s", pad("◆", 3), "-", e.label)
+      lines[#lines + 1] =
+        string.format("  %s %-9s %-10s %s", pad("◆", 3), "-", (e.account or "?"):sub(1, 10), e.label)
       line_map[#lines] = e
     end
   end

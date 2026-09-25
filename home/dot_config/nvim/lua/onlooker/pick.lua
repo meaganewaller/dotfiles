@@ -14,9 +14,10 @@ local function label(session, now)
     preview = preview:sub(1, 57) .. "..."
   end
   return string.format(
-    "%s %-8s %s%-20s %3dm ago  %s",
+    "%s %-8s %-12s %s%-20s %3dm ago  %s",
     marker,
     session.session_id:sub(1, 8),
+    "[" .. (session.account or "?") .. "]",
     where,
     branch,
     age_min,

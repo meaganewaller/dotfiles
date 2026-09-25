@@ -283,7 +283,8 @@ own header comment:
 
 > Observation (dashboard/feed/digest) is lossless and non-invasive — it only
 > tails the `.jsonl` transcripts Claude Code already writes under
-> `~/.claude/projects`, for every session it finds, whether or not onlooker
+> `<claude dir>/projects` for every account (`~/.claude`, `~/.claude-*`; see
+> `accounts.lua`), for every session it finds, whether or not onlooker
 > started it. Steering (dispatch/takeover/queue/cleanup) only ever touches
 > sessions onlooker itself dispatched as terminal jobs: it writes to its own
 > child's pty, never reaches into another process.
@@ -293,8 +294,9 @@ own header comment:
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `claude_bin` | `"claude"` | Binary used for dispatched sessions |
-| `projects_root` | `~/.claude/projects` | Where transcripts are tailed from |
+| `claude_dirs` | `nil` (auto) | Claude config dirs to observe. `nil` discovers `~/.claude`, `~/.claude-*`, and `$CLAUDE_CONFIG_DIR`, keeping those with a `projects/`. The old `projects_root` option still works as a single dir |
+| `shell_dispatch` | `~/.config/shell/claude.sh` | Shell file whose `claude-<account>` function dispatch runs, so agents get the same `--add-dir` / claude-chill behavior as a terminal. `""` disables it |
+| `claude_bin` | `"claude"` | Fallback binary when `shell_dispatch` has no function for the account; always run with `CLAUDE_CONFIG_DIR` set |
 | `poll_ms` | `750` | Live feed/digest re-check interval |
 | `scan_ms` | `4000` | Dashboard re-scan interval |
 | `active_window_seconds` | `120` | Transcript-write recency to count a session "active" |
@@ -302,8 +304,21 @@ own header comment:
 | `max_tail_bytes` | `65536` | How much transcript tail to read for dashboard previews |
 
 It exposes both user commands (`:OnlookerDashboard`, `:OnlookerFeed`,
-`:OnlookerDigest`, `:OnlookerDispatch [prompt]`, `:OnlookerTakeover`,
+`:OnlookerDigest`, `:OnlookerDispatch [@account] [prompt]`, `:OnlookerTakeover`,
 `:OnlookerQueue`, `:OnlookerCleanup`) and the `<leader>o…` keymaps above.
+
+### Accounts
+
+This setup is multi-account (one `~/.claude-<account>` per account, no bare
+`claude`), so onlooker is too. The dashboard and session picker show every
+account's sessions, with an account column (`~/.claude` shows as `default`).
+
+`:OnlookerDispatch` needs exactly one account. Without `@account`, it
+resolves in the same order as `tmux-claude-compose`: `$CLAUDE_CONFIG_DIR`,
+then tmux `@claude_account`, then `$CLAUDE_ACCOUNT`, then the only account;
+if still ambiguous it asks with `vim.ui.select`. The prompt is passed on the
+command line after `--` (the wrapper's variadic `--add-dir` would otherwise
+swallow it).
 Internals (`dashboard.lua`, `feed.lua`, `digest.lua`, `dispatch.lua`,
 `takeover.lua`, `queue.lua`, `cleanup.lua`, plus supporting
 `discover`/`registry`/`render`/`transcript`/`live_view` modules) live under

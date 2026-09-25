@@ -1,5 +1,6 @@
 -- Finds Claude Code session transcripts on disk and summarizes them
 -- cheaply (head/tail peeks) without loading whole files into memory.
+local accounts = require("onlooker.accounts")
 local config = require("onlooker.config")
 
 local M = {}
@@ -76,34 +77,14 @@ local function peek_tail(path, max_bytes)
   return info
 end
 
---- List known sessions, most-recently-active first.
+--- List known sessions across every account, most-recently-active first.
 --- opts.cwd: only sessions whose transcript cwd matches exactly.
+--- opts.account: only that account ({ name, dir } from accounts.lua).
 function M.list(opts)
   opts = opts or {}
-  local root = config.options.projects_root
   local sessions = {}
-
-  for _, dir in ipairs(vim.fn.glob(root .. "/*", false, true)) do
-    if vim.fn.isdirectory(dir) == 1 then
-      for _, path in ipairs(vim.fn.glob(dir .. "/*.jsonl", false, true)) do
-        local stat = vim.uv.fs_stat(path)
-        if stat and stat.size > 0 then
-          local head = peek_head(path, 12) or {}
-          local tail = peek_tail(path, config.options.max_tail_bytes) or {}
-          sessions[#sessions + 1] = {
-            session_id = head.session_id or vim.fn.fnamemodify(path, ":t:r"),
-            path = path,
-            cwd = head.cwd,
-            git_branch = head.git_branch,
-            mtime = stat.mtime.sec,
-            size = stat.size,
-            preview = tail.preview,
-            preview_role = tail.preview_role,
-            last_timestamp = tail.timestamp,
-          }
-        end
-      end
-    end
+  for _, account in ipairs(opts.account and { opts.account } or accounts.list()) do
+    M.scan(account, sessions)
   end
 
   table.sort(sessions, function(a, b)
@@ -119,6 +100,33 @@ function M.list(opts)
   return sessions
 end
 
+--- Append one account's sessions to `sessions`.
+function M.scan(account, sessions)
+  for _, dir in ipairs(vim.fn.glob(account.dir .. "/projects/*", false, true)) do
+    if vim.fn.isdirectory(dir) == 1 then
+      for _, path in ipairs(vim.fn.glob(dir .. "/*.jsonl", false, true)) do
+        local stat = vim.uv.fs_stat(path)
+        if stat and stat.size > 0 then
+          local head = peek_head(path, 12) or {}
+          local tail = peek_tail(path, config.options.max_tail_bytes) or {}
+          sessions[#sessions + 1] = {
+            session_id = head.session_id or vim.fn.fnamemodify(path, ":t:r"),
+            account = account.name,
+            path = path,
+            cwd = head.cwd,
+            git_branch = head.git_branch,
+            mtime = stat.mtime.sec,
+            size = stat.size,
+            preview = tail.preview,
+            preview_role = tail.preview_role,
+            last_timestamp = tail.timestamp,
+          }
+        end
+      end
+    end
+  end
+end
+
 --- "active" (still being written to) vs "idle" (quiet for a while).
 function M.status(session, now)
   now = now or os.time()
@@ -130,9 +138,10 @@ end
 
 --- Find the newest session for `cwd` created at or after `since` (epoch
 --- seconds). Used to bind a freshly dispatched terminal to the transcript
---- Claude Code creates for it.
-function M.find_new_session(cwd, since)
-  for _, session in ipairs(M.list({ cwd = cwd })) do
+--- Claude Code creates for it. `account` narrows the scan to the account
+--- the agent was dispatched into.
+function M.find_new_session(cwd, since, account)
+  for _, session in ipairs(M.list({ cwd = cwd, account = account })) do
     if session.mtime >= since then
       return session
     end
