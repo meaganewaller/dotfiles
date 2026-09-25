@@ -60,7 +60,15 @@ function M.send(entry, message)
     vim.notify("onlooker: that session is no longer running", vim.log.levels.WARN)
     return false
   end
-  vim.fn.chansend(entry.job_id, message .. "\r")
+  -- Claude Code's TUI treats one burst of input as a paste, so a "\r" in
+  -- the same write becomes a newline in the prompt instead of submitting.
+  -- Send it on its own once the paste has landed.
+  vim.fn.chansend(entry.job_id, message)
+  vim.defer_fn(function()
+    if M.is_running(entry) then
+      vim.fn.chansend(entry.job_id, "\r")
+    end
+  end, 150)
   return true
 end
 
