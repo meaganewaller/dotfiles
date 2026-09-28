@@ -3,22 +3,22 @@ amends "package://github.com/jdx/hk/releases/download/v2.3.1/hk@2.3.1#/Config.pk
 hooks {
   ["pre-commit"] {
     steps {
-      ["gitleaks"] {
-        check = "gitleaks git --pre-commit --redact --staged --verbose --no-banner"
+      ["betterleaks"] {
+        check = "betterleaks git --pre-commit --redact --staged --verbose --no-banner"
       }
     }
   }
   ["pre-push"] {
     steps {
-      ["gitleaks"] {
-        check = "gitleaks git --no-banner --redact --verbose --log-opts=\"HEAD --not --remotes\""
+      ["betterleaks"] {
+        check = "betterleaks git --no-banner --redact --verbose --log-opts=\"HEAD --not --remotes\""
       }
     }
   }
   ["check"] {
     steps {
-      ["gitleaks"] {
-        check = "gitleaks git --no-banner --verbose"
+      ["betterleaks"] {
+        check = "betterleaks git --no-banner --verbose"
       }
     }
   }
