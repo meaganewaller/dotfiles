@@ -1,0 +1,55 @@
+#!/bin/sh
+# Managed by chezmoi: home/dot_config/hk/executable_pre-push-scan
+#
+# The pre-push secret scan in ~/.config/hk/config.pkl. Scans exactly what this
+# push sends, read from git's own pre-push input, rather than a range guessed
+# from HEAD (dotfiles-pe8). A HEAD range missed every branch but the checked-out
+# one, and its --not --remotes subtracted every remote, so a commit already on
+# upstream reached origin unscanned.
+#
+# stdin, from the step's `stdin` template:
+#   <remote name> <remote url>                                ({{ hook_args }})
+#   <local ref> <local sha> <remote ref> <remote sha>, per ref ({{ hook_stdin }})
+set -eu
+
+zero=0000000000000000000000000000000000000000
+
+# hk renders both values empty outside git's hook, as in a manual
+# `hk run pre-push`. Scan something, and say what, rather than nothing: a scan
+# that silently checked nothing is the bug this step already had once
+# (dotfiles-6c6).
+hook_args=''
+IFS= read -r hook_args || true
+if [ -z "$hook_args" ]; then
+	echo >&2 "pre-push-scan: no push details on stdin (not run by git push); scanning HEAD --not --remotes instead"
+	exec betterleaks git --no-banner --redact --verbose --log-opts="HEAD --not --remotes"
+fi
+remote=${hook_args%% *}
+
+# One push can update several refs. Scan each new tip, minus what the remote
+# already had for that ref when this repository knows that commit.
+tips=''
+known=''
+while IFS=' ' read -r _local_ref local_sha _remote_ref remote_sha || [ -n "$local_sha" ]; do
+	# A deletion (all-zero local sha) sends no commits.
+	if [ -z "$local_sha" ] || [ "$local_sha" = "$zero" ]; then continue; fi
+	tips="$tips $local_sha"
+	if [ "$remote_sha" != "$zero" ] && git cat-file -e "$remote_sha^{commit}" 2>/dev/null; then
+		known="$known ^$remote_sha"
+	fi
+done
+
+if [ -z "$tips" ]; then
+	echo >&2 "pre-push-scan: this push sends no commits"
+	exit 0
+fi
+
+# Subtract only the push target's refs, not every remote's. Pushing to a bare
+# URL leaves no tracking refs to subtract, so a new branch there scans its whole
+# history: slower, never looser.
+range="$tips$known"
+if git remote | grep -qxF "$remote"; then
+	range="$range --not --remotes=$remote"
+fi
+
+exec betterleaks git --no-banner --redact --verbose --log-opts="${range# }"

@@ -131,6 +131,15 @@ Two gaps follow from that, both reproduced rather than hypothetical:
 Both are tracked as follow-up work rather than fixed here (see the beads
 issue filed alongside this fix).
 
+**Resolved by dotfiles-pe8 (2026-09-29).** The pre-push step now runs
+`~/.config/hk/pre-push-scan` (`home/dot_config/hk/executable_pre-push-scan`),
+which reads the refs actually being pushed from git's pre-push input, passed in
+through the step's `stdin = "{{ hook_args }}\n{{ hook_stdin }}"`. It scans each
+pushed tip minus what the target remote already has (`--not
+--remotes=<target>`), skips deletions, and falls back to `HEAD --not
+--remotes`, saying so, when run outside a push. The scanner has since moved
+from gitleaks to betterleaks (dotfiles-00b).
+
 ## Changes
 
 ### `home/dot_config/hk/config.pkl`

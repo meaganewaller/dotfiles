@@ -11,7 +11,11 @@ hooks {
   ["pre-push"] {
     steps {
       ["betterleaks"] {
-        check = "betterleaks git --no-banner --redact --verbose --log-opts=\"HEAD --not --remotes\""
+        // The script reads what the push actually sends from git's pre-push
+        // input. hook_args goes through stdin too: rendered into the command,
+        // it would be an unquoted remote URL.
+        stdin = "{{ hook_args }}\n{{ hook_stdin }}"
+        check = "\"$HOME/.config/hk/pre-push-scan\""
       }
     }
   }
