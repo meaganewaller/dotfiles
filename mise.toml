@@ -11,7 +11,7 @@ npm.package_manager = "npm"
 
 [tools]
 "aqua:bats-core/bats-core" = "v1.13.0"
-"aqua:betterleaks/betterleaks" = "v1.8.1"
+"aqua:betterleaks/betterleaks" = "v1.9.0"
 "aqua:koalaman/shellcheck" = "v0.11.0"
 "aqua:mikefarah/yq" = "v4.54.1"
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
