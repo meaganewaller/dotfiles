@@ -52,6 +52,14 @@ uvx = true
 [settings.ruby]
 compile = false
 
+# Must match the dotfiles repo's own mise.toml, which pins npm to keep its
+# lockfile free of machine-specific sidecars. A setting in a project config
+# applies to the global tools too, so with the default ("auto") here, global
+# npm tools got locked with aube outside that repo, and inside it every hook's
+# `mise x` refused them -- blocking commits, rebases and pushes (dotfiles-4vj).
+[settings.npm]
+package_manager = "npm"
+
 [tools]
 # Backends
 aqua = "latest"
