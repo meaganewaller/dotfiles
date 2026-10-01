@@ -68,6 +68,36 @@ repo_root() {
 	done <<<"$commands"
 }
 
+# The hooks run the global hk wherever a repository pins none of its own, and
+# that binary evaluates this config, which amends one exact schema. So the
+# global pin, both schemas and this repository's own pin have to be one
+# version: "latest" in the global config froze at whatever was first locked
+# (1.45.0 here, against a v2 schema) while Renovate kept moving the schemas
+# (dotfiles-iyo).
+@test "the global hk pin, both hk schemas and this repo's hk pin agree" {
+	local root global user project repo
+	root="$(repo_root)"
+	global="$(sed -nE 's/^"aqua:jdx\/hk"[[:space:]]*=[[:space:]]*"v?([^"]+)".*/\1/p' "$root/home/dot_config/mise/config.toml.tmpl")"
+	user="$(grep -oE 'releases/download/v[^/]+/hk@' "$root/$CONFIG_FILE" | sed -E 's|.*/v([^/]+)/hk@|\1|' | sort -u)"
+	project="$(grep -oE 'releases/download/v[^/]+/hk@' "$root/hk.pkl" | sed -E 's|.*/v([^/]+)/hk@|\1|' | sort -u)"
+	repo="$(sed -nE 's/^hk[[:space:]]*=[[:space:]]*"v?([^"]+)".*/\1/p' "$root/mise.toml")"
+
+	[ -n "$global" ] && [ -n "$user" ] && [ -n "$project" ] && [ -n "$repo" ] ||
+		fail "could not read every hk version: global='$global' user='$user' project='$project' repo='$repo'"
+	[ "$global" = "$user" ] && [ "$user" = "$project" ] && [ "$project" = "$repo" ] ||
+		fail "hk versions disagree: global mise config $global, $CONFIG_FILE $user, hk.pkl $project, mise.toml $repo"
+}
+
+# Agreement only lasts if Renovate moves all four at once. Without a group it
+# opened one PR per manager (#377 and #378 for 2.3.1), so merging one left the
+# others behind.
+@test "Renovate bumps every hk version in one PR" {
+	local rules
+	rules="$(tr -d '[:space:]' <"$(repo_root)/renovate.json5")"
+	[[ "$rules" == *"matchDepNames:['jdx/hk','hk',],groupName:'hk'"* ]] ||
+		fail "renovate.json5 has no packageRule grouping jdx/hk and hk under groupName 'hk'"
+}
+
 # The exact command the config declares for <hook>'s betterleaks step, so these
 # tests exercise what is configured rather than a copy of it. A copy could
 # pass while the config stayed broken -- which is how the pre-push scan ran

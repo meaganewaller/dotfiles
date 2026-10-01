@@ -51,6 +51,19 @@
       ],
       extractVersion: '^v?(?<version>.+)$',
     },
+    {
+      // hk lives in four places that must stay on one version: the global mise
+      // pin (aqua regex manager, depName jdx/hk), the schema both hk.pkl and
+      // home/dot_config/hk/config.pkl amend (pkl regex manager, jdx/hk), and
+      // this repository's mise.toml (mise manager, hk). Ungrouped, each manager
+      // opened its own PR, and merging one left the others behind
+      // (dotfiles-iyo). test/hk-config.bats checks they agree.
+      matchDepNames: [
+        'jdx/hk',
+        'hk',
+      ],
+      groupName: 'hk',
+    },
   ],
   customManagers: [
     {

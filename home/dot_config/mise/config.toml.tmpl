@@ -114,7 +114,11 @@ pnpm    = "latest"
 ## Git
 "aqua:o2sh/onefetch"            = "latest" # Repository information
 "aqua:simonwhitaker/gibo"       = "latest" # .gitignore boilerplates
-"aqua:jdx/hk"                   = "latest" # git hooks and project lints
+# Exact, not "latest" (an ADR 0003 exception): the git hooks run this hk in any
+# repository that pins none of its own, against ~/.config/hk/config.pkl, which
+# amends one exact hk schema. Renovate moves this, both schemas and the dotfiles
+# repo's own pin together (groupName 'hk'); test/hk-config.bats checks they agree.
+"aqua:jdx/hk"                   = "2.4.0" # git hooks and project lints
 "github:modem-dev/hunk"         = { version = "latest", bin = "hunk" } # Review-first terminal diff viewer for agentic coders
 "github:gitui-org/gitui"        = "latest" # Blazing 💥 fast terminal-ui for git written in rust 🦀
 "github:max-sixty/worktrunk"      = "latest" # Git worktree management, designed for parallel AI agent workflows
