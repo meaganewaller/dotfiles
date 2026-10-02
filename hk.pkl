@@ -104,6 +104,18 @@ hooks {
       }
     }
   }
+  // CI's only secret scan. A runner has no ~/.config/hk/config.pkl, so the
+  // scan that config adds never reaches `hk check` there (dotfiles-84i). Named
+  // like that config's step so a machine with both runs one scan, not two.
+  // Only `check`: pre-commit and pre-push already scan through that config,
+  // and this full-history scan would slow every commit.
+  ["check"] {
+    steps {
+      ["betterleaks"] {
+        check = "betterleaks git --no-banner --redact --verbose"
+      }
+    }
+  }
   ["commit-msg"] {
     steps {
       ["check-conventional-commit"] = Builtins.check_conventional_commit

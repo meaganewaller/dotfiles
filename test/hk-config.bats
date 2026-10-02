@@ -346,3 +346,43 @@ output: $output"
 	[ "$status" -eq 0 ] || fail "the pre-commit scan failed with nothing staged; command was: $cmd
 output: $output"
 }
+
+# A scan that prints what it found prints the secret: every step that runs a
+# scanner, in either hk config, must pass --redact. The pre-push step runs a
+# script, so that script is checked instead of the step's own command.
+@test "every secret-scanning step redacts what it finds" {
+	command -v pkl >/dev/null 2>&1 || skip "pkl not installed"
+
+	local cfg cmd unredacted="" scanners=0
+	for cfg in "$(repo_root)/$CONFIG_FILE" "$(repo_root)/hk.pkl"; do
+		# pkl prints no trailing newline; without the `|| [ -n ]` the last
+		# command -- the check hook's -- would never be read.
+		while IFS= read -r cmd || [ -n "$cmd" ]; do
+			[[ "$cmd" == *betterleaks* ]] || continue
+			scanners=$((scanners + 1))
+			[[ "$cmd" == *--redact* ]] || unredacted+="$cfg: $cmd"$'\n'
+		done < <(pkl eval -x 'hooks.toMap().values.flatMap((h) -> h.steps.toMap().values.map((s) -> s.check ?? "")).join("\n")' "$cfg")
+	done
+	[ "$scanners" -ge 2 ] || fail "found $scanners scanner steps; the config read is broken"
+	grep -q -- '--redact' "$(repo_root)/$SCAN_SCRIPT" || unredacted+="$SCAN_SCRIPT"$'\n'
+	[ -z "$unredacted" ] || fail "scanner steps without --redact:"$'\n'"$unredacted"
+}
+
+# CI runs `hk check` against this repository's hk.pkl alone: a runner has no
+# ~/.config/hk/config.pkl, so the HOME config's scan never reaches it. The
+# project config has to carry its own (dotfiles-84i).
+@test "this repo's own hk check rejects a committed secret" {
+	command -v pkl >/dev/null 2>&1 || skip "pkl not installed"
+	command -v betterleaks >/dev/null 2>&1 || skip "betterleaks not installed"
+
+	local work="$TEST_TMPDIR/work" cmd
+	cmd="$(pkl eval -x 'hooks["check"].steps["betterleaks"].check' "$(repo_root)/hk.pkl" 2>/dev/null)"
+	[ -n "$cmd" ] || fail "hk.pkl declares no betterleaks step in its check hook"
+
+	make_pushed_repo "$work"
+	commit_secret "$work"
+	cd "$work" || fail "cd failed"
+	run eval "$cmd"
+	[ "$status" -ne 0 ] || fail "the repo's check scan passed a committed secret; output: $output"
+	assert_leak_found
+}

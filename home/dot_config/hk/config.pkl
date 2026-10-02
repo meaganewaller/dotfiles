@@ -22,7 +22,7 @@ hooks {
   ["check"] {
     steps {
       ["betterleaks"] {
-        check = "betterleaks git --no-banner --verbose"
+        check = "betterleaks git --no-banner --redact --verbose"
       }
     }
   }
