@@ -228,6 +228,11 @@ fpath=(
 )
 autoload -Uz c
 
+# Rails' parallel test runner truncates tables across many workers at once;
+# Postgres's default 15s statement_timeout (config/database.yml) isn't enough
+# headroom on this machine's local Postgres instance under that load.
+export STATEMENT_TIMEOUT=60s
+
 # Credential-injecting aliases: fnox resolves the secret from 1Password on each
 # invocation and injects it into that process only, so it never reaches the
 # shell environment and is never written to disk.
