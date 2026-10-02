@@ -153,6 +153,55 @@ In a throwaway clone, bootstrap leaves a database wired to the real remote, the 
 
 ---
 
+## Diverged history
+
+The local database and the remote's `refs/dolt/data` can end up with no common ancestor: a database initialized twice, or one restored from an old copy. `bd dolt pull` can report that, but it cannot resolve it. Recovery replaces the local history with the remote's, so first prove that throws nothing away.
+
+Work on a copy first. From the clone's root, with no bd command running against this database:
+
+```bash
+db=.beads/embeddeddolt/$(ls .beads/embeddeddolt)
+scratch=$(mktemp -d)/db
+cp -R "$db" "$scratch" && rm -rf "$scratch/.dolt/git-remote-cache"
+cd "$scratch"
+dolt fetch origin
+dolt merge-base main origin/main     # fails when the histories share no ancestor
+dolt diff --stat main origin/main    # expect no cells or rows deleted
+dolt sql -r csv -q "select count(*) from issues"                       # local
+dolt sql -r csv -q "select count(*) from issues as of 'origin/main'"   # remote, expect >= local
+```
+
+Only reset when the remote is a strict superset: the diff deletes nothing and the remote count is at least the local one. If the diff deletes cells, those are issues or updates that exist only here. Resetting discards them, so stop and get them onto the remote first.
+
+bd refuses to open a database whose schema is newer than the binary. If the remote was written by a newer bd, upgrade bd before the reset, not after, or the reset leaves a database this machine cannot read. Compare `bd version` with the version that wrote the remote.
+
+Then reset the real database, back in the clone's root:
+
+```bash
+cd "$db"
+dolt fetch origin
+dolt reset --hard origin/main
+cd -
+bd count                       # expect the remote count from above
+bd export -o .beads/issues.jsonl
+```
+
+When `merge-base` does find an ancestor but `bd dolt push` is rejected as behind, both sides moved: merge instead of resetting. Trial it in the scratch copy first; a merge there needs `dolt config --local --add user.name …` and `user.email …`. Then, in `$db`:
+
+```bash
+dolt merge origin/main
+dolt sql -r csv -q "select our_id, our_updated_at, their_updated_at from dolt_conflicts_issues"
+dolt conflicts resolve --ours issues   # only if every our_updated_at >= their_updated_at
+dolt commit -m "Merge origin/main"
+cd - && bd dolt push
+```
+
+Rows conflict when the same issue arrived on both sides by different routes, such as a JSONL import here and a `bd` write on another machine. Keep the local side only when it is the same or newer on every row; otherwise resolve those rows by hand.
+
+All of this was run on 2026-10-02 with dolt 2.3.4 and bd 1.3.0. The database was not diverged, but both sides had moved: 89 issues and 29 unpushed commits locally, 78 issues on the remote. The diff deleted 616 cells, all local work, so a reset would have lost 11 issues; the superset check exists to stop exactly that. The merge conflicted on 12 rows. On every one, the local side was the same or newer: the remote still had four issues open that had since been closed here. Keeping the local side and pushing left the remote at 89 issues, in step with this clone. The reset steps above were run only on a scratch copy. The divergence this section was first written for happened on 2026-09-18: local `main` was an orphan frozen at 2026-08-28 with 49 issues at schema v65, and the remote had 67 issues at v66, so bd had to be upgraded before the reset.
+
+---
+
 ## Retrofit
 
 `init.templateDir` only seeds repositories created after it was set. For an older clone, re-running `git init` in place is the retrofit: git copies the template hooks that are missing and never overwrites a hook that exists.
