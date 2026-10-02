@@ -112,7 +112,7 @@ Concretely:
 - **Positive**: Theme switches leave the chezmoi source tree clean. `git status` after a session of palette experimentation shows no changes. The "did I leave my repo dirty" anxiety from option (3) is absent by construction.
 - **Positive**: The catalog is a reviewable YAML diff when palettes change. Future automation (Renovate, Package Manager subagent) can target it the same way it would target `claude-permissions.yaml`.
 - **Positive**: `claude-powerline-theme` stops re-merging JSON on every prompt render — once a state file exists, lookup is a `cat` + a `jq` against the catalog, not a heredoc per invocation. (Optional optimization, not load-bearing.)
-- **Negative**: New runtime state location to remember (`~/.local/state/theme/`). Documented in `docs/zsh.md` or a new `docs/theme.md` so it does not become tribal knowledge.
+- **Negative**: New runtime state location to remember (`~/.local/state/theme/`). Documented in [`docs/theme.md`](../theme.md) so it does not become tribal knowledge.
 - **Negative**: Two-place registration for tools that need both a catalog mapping AND an applier — though the rendering-time cross-check catches drift.
 - **Negative**: Tools that read config only at launch (Ghostty pre-1.x without live config reload, some terminal emulators) need a *manual* restart to fully pick up the new theme even after the applier runs. Mitigated by writing the overlay file so the next launch is correct without further action.
 - **Negative**: A future "set theme automatically on macOS dark/light flip" feature has to be layered on top — likely a `launchd` agent that calls `theme dark-default` / `theme light-default` aliases. The design accommodates it but does not ship it. Out of scope for this ADR.

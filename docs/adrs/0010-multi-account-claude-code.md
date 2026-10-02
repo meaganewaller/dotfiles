@@ -5,6 +5,7 @@ decision-makers: [Meagan Waller]
 consulted: []
 informed: []
 supersedes: []
+amends: ["0008-claude-config-two-managers.md"]
 ---
 
 # Multi-account Claude Code support: personal, work, and beyond

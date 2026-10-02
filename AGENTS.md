@@ -44,6 +44,7 @@ Coding agents (and humans) use this file as the **entry map** for this repositor
 | Shell, agent-minimal zsh | [docs/zsh.md](docs/zsh.md) |
 | Why `claude` is not a command | [docs/agents/claude-code.md](docs/agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell) |
 | Fish shell (alternative) | [docs/fish.md](docs/fish.md) |
+| Switch, add, or theme a tool | [docs/theme.md](docs/theme.md) |
 | Install / env vars | [README.md](README.md) |
 | Add a CLI with correct pins | `/install` skill; then Chezmoi workflow above |
 | Get a secret into one command | [fnox secrets design](docs/superpowers/specs/2026-09-20-fnox-secrets-design.md) (`fnox exec`; there is no `~/.secrets`) |

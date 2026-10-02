@@ -5,6 +5,7 @@ decision-makers: [Meagan Waller]
 consulted: []
 informed: []
 supersedes: []
+amends: ["0008-claude-config-two-managers.md"]
 ---
 
 # The flat Claude Code settings surface becomes data, rendered by a modify_ template

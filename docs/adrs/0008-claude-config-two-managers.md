@@ -9,6 +9,16 @@ supersedes: [0004]
 
 # Two managers for Claude Code config: settings (imperative) vs. extras (CLI-reconciled)
 
+> **Amended by [ADR 0010](0010-multi-account-claude-code.md) and
+> [ADR 0011](0011-claude-settings-as-data.md) (2026-08-05).** There is no single
+> `~/.claude/` any more: 0010 gives each account its own `~/.claude-<account>/`, and
+> both managers run once per account. 0011 moves the flat surface out of the `jq`
+> heredocs in `bin/sync-claude-settings` into `home/.chezmoidata/claude.yaml` and
+> `claude-permissions.yaml`, rendered by each account's
+> `modify_private_settings.json.tmpl`; the script keeps only the apply-time Bedrock
+> overlay. The split by writer below still stands, as does extras reconciliation
+> through the `claude` CLI.
+
 ## Context and Problem Statement
 
 This repo generates `~/.claude/settings.json` rather than committing it: `home/.chezmoiscripts/run_onchange_sync-claude-settings.sh.tmpl` re-fires on hashed-input change and invokes [`bin/sync-claude-settings`](../../bin/sync-claude-settings), which mutates the file with a sequence of `jq` calls. ADR [0004](0004-claude-settings-management.md) (proposed, never implemented) planned to move the *static* parts of that file — permissions, hook metadata, **plugin marketplaces and enabled plugins**, feature flags — into `home/.chezmoidata/claude-*.yaml` rendered by a single `home/dot_claude/settings.json.tmpl`, shrinking the sync script to a Bedrock-only overlay.
