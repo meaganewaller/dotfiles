@@ -225,3 +225,17 @@ run_modify() {
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[ "$output" = "this is not json" ] || fail "assertion did not hold"
 }
+
+# The legacy `:*` suffix is a plain prefix match: any other `*` in the same rule
+# is taken literally, so the rule never matches. Claude Code warns about each
+# one on every session exit, in every account, since these lists are shared.
+@test "no allow rule mixes a wildcard with the trailing :* prefix syntax" {
+	command -v yq >/dev/null 2>&1 || skip "yq not installed"
+
+	local data="$BATS_TEST_DIRNAME/../home/.chezmoidata" bad
+	bad="$(yq -r '.claudeData | to_entries[] | (.value.permissions.allow // [])[]' \
+		"$data/claude-permissions.yaml" "$data/claude.yaml" |
+		awk '/:\*\)$/ { s = $0; sub(/:\*\)$/, "", s); if (s ~ /\*/) print }')" ||
+		fail "could not read the allow rules"
+	[ -z "$bad" ] || fail "rules that can never match: $bad"
+}

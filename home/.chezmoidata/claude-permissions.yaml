@@ -136,7 +136,6 @@ claudeData:
       - "Bash(make:*)"
       - "Bash(man:*)"
       - "Bash(md5:*)"
-      - "Bash(mise --cd*lock:*)"
       - "Bash(mise doctor:*)"
       - "Bash(mise fmt:*)"
       - "Bash(mise install:*)"
