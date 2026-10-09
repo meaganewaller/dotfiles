@@ -10,6 +10,7 @@ Library/**
 
 .claude/skills/skill-optimization-workspace/**
 .config/nvim/nvim-pack-lock.json
+# Machine-local: mise rewrites it on every install (ADR 0003, amended 2026-10-02).
 .config/mise/mise.lock
 
 {{ if not .work_profile }}

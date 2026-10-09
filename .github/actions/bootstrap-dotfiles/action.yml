@@ -34,14 +34,15 @@ runs:
     # Each cache is gated on inputs.use-cache. Cold runs skip them entirely so
     # we genuinely exercise the from-scratch bootstrap.
 
-    # mise data dir, keyed on BOTH lockfiles (project + user-global). See the
-    # comment that was in the old ci.yml — this is the same rationale.
+    # mise data dir, keyed on the project lockfile and the user-global config.
+    # The user-global lockfile is machine-local and not committed (ADR 0003,
+    # amended 2026-10-02), so the config stands in for it.
     - name: Restore mise data dir
       if: inputs.use-cache == 'true'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.local/share/mise
-        key: mise-${{ runner.os }}-${{ hashFiles('mise.lock', 'home/dot_config/mise/mise.lock') }}
+        key: mise-${{ runner.os }}-${{ hashFiles('mise.lock', 'home/dot_config/mise/config.toml.tmpl') }}
 
     # Homebrew dominates macOS bootstrap time. Cache the download cache and
     # the installed Cellar. Brewfile path may need adjusting to whatever your

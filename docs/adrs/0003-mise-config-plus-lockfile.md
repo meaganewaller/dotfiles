@@ -74,6 +74,14 @@ This ADR proposes a **split responsibility**:
 - Merging a Renovate PR that **only** changes `mise.lock` causes the **run_onchange** script to fire on next apply and `mise install` converges.
 - Policy doc states when **`latest`** is allowed vs. when config must use tighter specifiers.
 
+## Amendment (2026-10-02): the user-global lockfile is machine-local
+
+Item 2 above committed `home/dot_config/mise/mise.lock` as machine truth for the user-global tools. In practice it never was. Since 2026-07-16 `home/.chezmoiignore` has kept it from being deployed, because mise rewrites `~/.config/mise/mise.lock` on every install and chezmoi reported it as drift. Renovate cannot update it either, since its config is a `.tmpl` that Renovate cannot parse. So the committed copy only drifted: it still listed hk 1.45.0 when machines ran 2.4.0 (dotfiles-ya4).
+
+The user-global lockfile is now **machine-local**. Each machine's `~/.config/mise/mise.lock` records what that machine resolved; the committed copy is deleted, and its hash line is gone from `run_onchange_00-install-mise-tools`. Deploying it instead would have chezmoi reporting the file as changed after every install, rolling machines back to stale resolutions on apply, and depending on a refresh step, `mise lock --global`, that cannot run on a managed workstation (the negative consequence above).
+
+Everything else stands. The repository's own `./mise.lock` is still committed truth for the repo dev tools, updated by Renovate and used by CI. In the user-global config, `latest` is still the default, and where an exact version matters it is pinned in the config itself: hk is pinned because the git hooks run it against a schema that has to match (dotfiles-iyo).
+
 ## Rejected Options (default)
 
 - **(1) indefinitely** as the *only* mechanism — Rejected as the long-term ceiling for this repo once lockfile workflow is proven; may remain true for specific tools with weak backend lock support until backends catch up.

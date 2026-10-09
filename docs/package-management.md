@@ -16,7 +16,7 @@ This guide explains how to add, update, and manage packages in this dotfiles rep
 | **Neovim Plugins** | `home/dot_config/nvim/plugin/*.lua` | `vim.pack.add()` specs, pinned in `nvim-pack-lock.json` | ✅ Yes |
 | **Shell Plugins** | `home/.chezmoiexternals/*.toml.tmpl` | Pinned to SHA | ✅ Yes |
 
-"If pinned" means Renovate opens PRs for entries carrying an explicit version. Most tools in that file currently sit at `latest` by design — see [ADR 0003](adrs/0003-mise-config-plus-lockfile.md) — and are resolved by the committed `home/dot_config/mise/mise.lock` instead, refreshed with `mise lock`. Details in [docs/renovate.md](renovate.md).
+"If pinned" means Renovate opens PRs for entries carrying an explicit version. Most tools in that file currently sit at `latest` by design — see [ADR 0003](adrs/0003-mise-config-plus-lockfile.md) — and each machine resolves them into its own `~/.config/mise/mise.lock`, which is not committed. Where an exact version matters, pin it in the config. Details in [docs/renovate.md](renovate.md).
 
 ## Core Philosophy
 

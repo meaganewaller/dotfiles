@@ -159,5 +159,5 @@ This likely means one jsonata manager *per backend* (filtered by the `tool` pref
 ## More information
 
 - Builds on: ADR [0002](0002-tmux-plugins-via-chezmoi-externals.md) (data in `.chezmoidata`, behavior in templates; externals emit TOML from YAML), ADR [0003](0003-mise-config-plus-lockfile.md) (mise intent vs. lockfile, Renovate, `run_onchange` hashing), ADR [0008](0008-claude-config-two-managers.md) (declarative data realized carefully; caution on Go-templated structured config; hash-all-inputs idiom).
-- Code: `home/dot_config/mise/config.toml.tmpl`, `home/dot_config/mise/mise.lock`, `home/.chezmoiscripts/run_onchange_00-install-mise-tools.sh.tmpl`, `home/.chezmoiexternals/tmux.toml.tmpl` (rendering precedent), `renovate.json5` (`mise` manager + `custom.jsonata` for `tmux-plugins.yaml`).
+- Code: `home/dot_config/mise/config.toml.tmpl`, `home/.chezmoiscripts/run_onchange_00-install-mise-tools.sh.tmpl`, `home/.chezmoiexternals/tmux.toml.tmpl` (rendering precedent), `renovate.json5` (`mise` manager + `custom.jsonata` for `tmux-plugins.yaml`).
 - Related docs: [docs/renovate.md](../renovate.md), [docs/package-management.md](../package-management.md), and the Package Manager subagent for the Renovate manager work.

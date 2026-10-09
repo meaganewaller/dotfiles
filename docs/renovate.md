@@ -23,7 +23,7 @@ File: `renovate.json5`
 Enabled managers and file discovery:
 
 - `mise` (native manager): `mise.toml` at the repo root, together with its committed `mise.lock`
-- `home/dot_config/mise/config.toml.tmpl`: custom regex managers only — this file is a Chezmoi template, so its Go directives make it invalid TOML and the native `mise` manager cannot parse it. Its sibling `home/dot_config/mise/mise.lock` cannot substitute, because Renovate reads a `mise.lock` only as a companion to a config file it already parsed.
+- `home/dot_config/mise/config.toml.tmpl`: custom regex managers only — this file is a Chezmoi template, so its Go directives make it invalid TOML and the native `mise` manager cannot parse it. There is no committed lockfile beside it to fall back on: the user-global `mise.lock` is machine-local, and Renovate reads a `mise.lock` only as a companion to a config file it already parsed anyway.
 - `docker-compose`: `home/dot_config/docker-compose/*.yml`
 - `github-actions`: `.github/workflows/*.yml` (with digest pinning)
 
@@ -53,11 +53,11 @@ These files purposely centralize versions so Renovate can update them automatica
     - ubi‑sourced tools (`"ubi:owner/repo" = "X.Y.Z"`)
     - npm packages (`"npm:@scope/package" = "X.Y.Z"`)
     - Python/pipx tools (`"pipx:package" = "X.Y.Z"`)
-  - Per [ADR 0003](adrs/0003-mise-config-plus-lockfile.md), these configs hold *intent* and may use `latest` or a coarse major; the exact resolved version lives in the committed `mise.lock` beside each config. Renovate therefore only bumps entries that already carry an explicit version — `latest` entries are refreshed by running `mise install` / `mise lock`, not by a Renovate PR.
+  - Per [ADR 0003](adrs/0003-mise-config-plus-lockfile.md), these configs hold *intent* and may use `latest` or a coarse major; the exact resolved version lives in a `mise.lock` beside each config: committed for the repo's `mise.toml`, machine-local for the user-global config. Renovate therefore only bumps entries that already carry an explicit version — `latest` entries are refreshed by running `mise install` / `mise lock`, not by a Renovate PR.
 
-- `mise.lock` and `home/dot_config/mise/mise.lock`
-  - Machine truth: resolved version, checksum, and download URL per platform.
-  - Renovate reads a lockfile only as a companion to a mise config it could parse, so the root `mise.lock` participates but `home/dot_config/mise/mise.lock` does not (its config is a `.tmpl`). Refresh that one with `mise lock` — see the ADR for the `mise lock --global` caveat on managed workstations.
+- `mise.lock`
+  - Machine truth for the repo dev tools: resolved version, checksum, and download URL per platform.
+  - Renovate updates it as the companion of the root `mise.toml`. The user-global lockfile, `~/.config/mise/mise.lock`, is machine-local and not committed: Renovate could not read it anyway, since its config is a `.tmpl` (ADR 0003, amended 2026-10-02).
 
 - `home/dot_config/docker-compose/*.yml`
   - Service images pinned with tag+digest (e.g., `image: repo:tag@sha256:...`). Digest updates are auto‑merged.

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # mise config hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
-# mise lock hash: {{ include "dot_config/mise/mise.lock" | sha256sum }}
+# No lockfile hash: the user-global mise.lock is machine-local (ADR 0003,
+# amended 2026-10-02), so there is no committed copy to track.
 
 [ -n "${DEBUG:-}" ] && set -o xtrace
 set -o errexit
