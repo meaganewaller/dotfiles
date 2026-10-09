@@ -148,3 +148,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+.beads.gate.lock
