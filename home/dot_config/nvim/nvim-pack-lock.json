@@ -94,7 +94,7 @@
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
-      "rev": "ef21f373203dcf553fd4bc05cd74f3e14505400a",
+      "rev": "07dbad410256f755e69ffd31cb8d122bcd6b91f7",
       "src": "https://github.com/mrjones2014/smart-splits.nvim"
     },
     "tokyonight.nvim": {
