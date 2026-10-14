@@ -26,7 +26,7 @@
       "src": "https://github.com/everviolet/nvim"
     },
     "fzf-lua": {
-      "rev": "71b6d3667c4846ab2f0bab06e68d196d2eea016c",
+      "rev": "3868dcc78d2c2766c9510ab18b6d3815071b389e",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
