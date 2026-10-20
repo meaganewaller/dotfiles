@@ -75,6 +75,39 @@ vim.api.nvim_create_autocmd("WinNew", {
   end,
 })
 
+-- colorful-winsep draws the active window's border in color, like tmux's
+-- active-pane border. Same deferred load as bufresize: with one window
+-- there's no border to draw.
+--
+-- Its fallback color is a hardcoded purple, and none of
+-- lua/theme/init.lua's managed themes define ColorfulWinSep, so the
+-- highlight is derived from the theme's `Function` fg (set by every
+-- managed theme, and distinct from its WinSeparator). The plugin clears
+-- the group on ColorSchemePre and calls this on every ColorScheme, so a
+-- theme that does ship ColorfulWinSep keeps its own.
+vim.pack.add({
+  { src = "https://github.com/nvim-zh/colorful-winsep.nvim" },
+}, { load = function() end })
+
+vim.api.nvim_create_autocmd("WinNew", {
+  group = vim.api.nvim_create_augroup("colorful_winsep_lazy", { clear = true }),
+  once = true,
+  callback = function()
+    vim.cmd.packadd("colorful-winsep.nvim")
+    require("colorful-winsep").setup({
+      highlight = function()
+        if not vim.tbl_isempty(vim.api.nvim_get_hl(0, { name = "ColorfulWinSep" })) then
+          return
+        end
+        vim.api.nvim_set_hl(0, "ColorfulWinSep", {
+          fg = vim.api.nvim_get_hl(0, { name = "Function", link = false }).fg,
+          bg = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg,
+        })
+      end,
+    })
+  end,
+})
+
 local map = vim.keymap.set
 
 -- Move across splits, crossing into tmux at the edge.
