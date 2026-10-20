@@ -108,6 +108,18 @@ vim.api.nvim_create_autocmd("WinNew", {
   end,
 })
 
+-- stickybuf pins special windows (help, quickfix, prompt buffers, and its
+-- list of plugin filetypes) to their buffer: opening a file from one
+-- reroutes it to a normal window instead of replacing the help/qf view.
+-- Native 'winfixbuf' (0.10+) only errors on the switch rather than
+-- rerouting. Default auto-pin rules; oil isn't on the list, so `-` still
+-- replaces the current buffer as intended.
+vim.pack.add({
+  { src = "https://github.com/stevearc/stickybuf.nvim" },
+})
+
+require("stickybuf").setup()
+
 local map = vim.keymap.set
 
 -- Move across splits, crossing into tmux at the edge.

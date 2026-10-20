@@ -121,6 +121,10 @@
       "rev": "ea553356370ea76dce189fb36947a424f124c04b",
       "src": "https://github.com/mrjones2014/smart-splits.nvim"
     },
+    "stickybuf.nvim": {
+      "rev": "9e00edfd94baef4a78b4248ae8309a2d4943f118",
+      "src": "https://github.com/stevearc/stickybuf.nvim"
+    },
     "tokyonight.nvim": {
       "rev": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
       "src": "https://github.com/folke/tokyonight.nvim"
