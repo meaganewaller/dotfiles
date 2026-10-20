@@ -58,6 +58,23 @@ smart_splits.setup({
   ignored_buftypes = { "nofile" },
 })
 
+-- bufresize keeps split proportions when the terminal (or tmux pane) is
+-- resized. A single window has no proportions to keep, so it isn't loaded
+-- until the first split: the no-op `load` installs it without packadd,
+-- and the first WinNew does the packadd + setup.
+vim.pack.add({
+  { src = "https://github.com/kwkarlwang/bufresize.nvim" },
+}, { load = function() end })
+
+vim.api.nvim_create_autocmd("WinNew", {
+  group = vim.api.nvim_create_augroup("bufresize_lazy", { clear = true }),
+  once = true,
+  callback = function()
+    vim.cmd.packadd("bufresize.nvim")
+    require("bufresize").setup()
+  end,
+})
+
 local map = vim.keymap.set
 
 -- Move across splits, crossing into tmux at the edge.
