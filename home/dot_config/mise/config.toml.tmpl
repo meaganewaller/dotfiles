@@ -223,6 +223,10 @@ pnpm    = "latest"
 "aqua:rtk-ai/rtk"                    = "latest" # High-performance CLI proxy that reduces LLM token consumption by 60-90%
 "github:dyoshikawa/rulesync"         = "latest" # A Utility CLI for AI Coding Agents
 "github:googleworkspace/cli"         = "latest" # Google Workspace CLI
+# Native server for copilot.lua (dot_config/nvim/plugin/completion.lua), which
+# otherwise downloads its own copy into Neovim's data dir. Same release
+# artifact, but mise owns when it updates.
+"github:github/copilot-language-server-release" = { version = "latest", minimum_release_age = "2d" } # `copilot-language-server`
 # Fork, pinned by SHA. Upstream hardcodes ~/.claude/projects and ignores
 # CLAUDE_CONFIG_DIR, which this machine sets — so it reports zero sessions on a
 # machine holding ~1500. Pinned rather than tracking @main because mise caches
