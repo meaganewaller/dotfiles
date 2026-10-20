@@ -49,6 +49,10 @@
       "rev": "348df165f1773dd08c5d710add3fd0db6d421e6a",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
+    "git-conflict.nvim": {
+      "rev": "a1badcd070d176172940eb55d9d59029dad1c5a6",
+      "src": "https://github.com/akinsho/git-conflict.nvim"
+    },
     "gitsigns.nvim": {
       "rev": "fd780920613e541cbdfac41bf711583ed49f9249",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
