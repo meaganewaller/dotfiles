@@ -90,7 +90,7 @@
       "src": "https://github.com/rose-pine/neovim"
     },
     "schemastore.nvim": {
-      "rev": "7fca30f2890a6acf9d21d194876c6ac960d92070",
+      "rev": "d038a750bc7799590f19efa0d8df80cdf05faf80",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
