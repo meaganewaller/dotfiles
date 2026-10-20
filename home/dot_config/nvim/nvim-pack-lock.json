@@ -46,7 +46,7 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "fzf-lua": {
-      "rev": "348df165f1773dd08c5d710add3fd0db6d421e6a",
+      "rev": "a306c293b37bd7c8c1e8e1e6c0d7d3d9c3de3f21",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "git-conflict.nvim": {
@@ -114,7 +114,7 @@
       "src": "https://github.com/rose-pine/neovim"
     },
     "schemastore.nvim": {
-      "rev": "7fca30f2890a6acf9d21d194876c6ac960d92070",
+      "rev": "d038a750bc7799590f19efa0d8df80cdf05faf80",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
