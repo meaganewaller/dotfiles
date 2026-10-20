@@ -25,6 +25,10 @@
       "rev": "6134b5cd4a38990c7b720adc90973ed32f726179",
       "src": "https://github.com/nvim-zh/colorful-winsep.nvim"
     },
+    "copilot.lua": {
+      "rev": "9d23575513f1d934c28b9f933b9dd680c0dcd9e3",
+      "src": "https://github.com/zbirenbaum/copilot.lua"
+    },
     "evangelion.nvim": {
       "rev": "08cf52a0931a81bf5b64c93b744e136b5edb6d85",
       "src": "https://github.com/xero/evangelion.nvim"
