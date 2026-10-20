@@ -64,6 +64,26 @@
       ],
       groupName: 'hk',
     },
+    {
+      // blink.cmp is held to 1.x (`version = vim.version.range("1.*")` in
+      // home/dot_config/nvim/plugin/completion.lua; v2 needs saghen/blink.lib).
+      // The nvim-pack-lock.json manager tracks each repo's default-branch digest
+      // via git-refs, and blink's `main` is v2, so it ignores the lockfile's
+      // "version" range (that is how #506 broke fresh installs). Tracking v1 tags
+      // instead doesn't fit: the lockfile only has `rev`, so there's no tag field
+      // for Renovate to read or rewrite, and capping at <2.0.0 would lean on
+      // range support git-refs' versioning may not have. So skip it here and
+      // bump it in Neovim with
+      // `:lua vim.pack.update({ "blink.cmp" })`, which resolves the newest tag
+      // in the 1.* range and rewrites the lockfile rev.
+      matchFileNames: [
+        'home/dot_config/nvim/nvim-pack-lock.json',
+      ],
+      matchDepNames: [
+        'blink.cmp',
+      ],
+      enabled: false,
+    },
   ],
   customManagers: [
     {
