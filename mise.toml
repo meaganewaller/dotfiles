@@ -21,7 +21,7 @@ jq = "1.8.2"
 # file's tools, so without node here a global node pin that isn't installed yet
 # (a fresh container) makes mise refuse to install them.
 node = "24.22.1"
-"npm:markdownlint-cli" = "0.49.1"
+"npm:markdownlint-cli" = "0.50.0"
 pkl = "0.32.2"
 shfmt = "3.14.1"
 stylua = "2.6.0"
