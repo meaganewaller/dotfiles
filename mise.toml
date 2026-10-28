@@ -20,7 +20,7 @@ jq = "1.8.2"
 # Install dependency of the npm: tools below. bin/setup installs only this
 # file's tools, so without node here a global node pin that isn't installed yet
 # (a fresh container) makes mise refuse to install them.
-node = "24.22.2"
+node = "26.13.0"
 "npm:markdownlint-cli" = "0.50.0"
 pkl = "0.32.2"
 shfmt = "3.14.1"
