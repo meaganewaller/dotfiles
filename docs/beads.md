@@ -275,6 +275,27 @@ Neither block was part of the 2026-09-11 runs. Both were verified on 2026-09-14:
 
 ---
 
+## Actor
+
+bd claims, closes, and records audit entries as its *actor*: `--actor`, else
+`$BEADS_ACTOR`, else `git user.name`. `bd linear pull` assigns a bead to the
+Linear user's **email**, so with the `git user.name` fallback every bead pulled
+from Linear belonged to an identity bd did not recognize as its own:
+`bd update --claim` reported it already claimed, and `bd close` refused
+without `--force`.
+
+`home/dot_config/mise/config.toml.tmpl` sets `BEADS_ACTOR` from the prompted
+`git.email`, so local claims and Linear assignments use the same identity. It
+lives in mise's global `[env]` because that reaches zsh, fish, mise shims, and
+the hooks Claude Code starts. It is not a `bd config` key: bd has none for the
+actor, and a value in `.beads/config.yaml` would be committed in a durable repo.
+
+A bead claimed under the old `git user.name` actor still carries that
+assignee. Close it with `--force` once, or `bd update <id> --assignee
+"$BEADS_ACTOR"` first.
+
+---
+
 ## Shim resync
 
 The five hooks render from one template, `home/.chezmoitemplates/git-hooks/beads-shim`. Its beads block mirrors what `bd hooks install` writes, between markers pinned at **`v1.3.0`**.
