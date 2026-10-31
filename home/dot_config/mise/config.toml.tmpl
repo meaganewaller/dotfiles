@@ -24,6 +24,16 @@
 # export: ~/.secrets was retired once it turned out to have one writer and no
 # readers. See the note where the `secrets` task used to be, below, and
 # dot_config/fnox/config.toml.
+{{- if .git.email }}
+
+# bd's actor, the identity it claims and closes beads as. Unset, bd falls back
+# to git user.name, but `bd linear pull` assigns a bead to the Linear user's
+# email, so every bead pulled from Linear was owned by someone bd did not think
+# it was: `--claim` and `close` both refused without --force. The email is the
+# one identity both sides agree on. Rendered from the prompted value rather than
+# written here, since this repo is public.
+BEADS_ACTOR = {{ .git.email | quote }}
+{{- end }}
 
 [settings]
 verbose = false
