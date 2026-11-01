@@ -47,6 +47,17 @@ assert_allowed() {
 	assert_allowed "Edit" "$HOME/project/README.md"
 }
 
+@test "allows temporary and scratch locations, which have no source to regenerate from" {
+	assert_allowed "Write" "/private/tmp/claude-501/session/scratchpad/a.sh"
+	assert_allowed "Edit" "/tmp/a.sh"
+	assert_allowed "Write" "$HOME/project/tmp/a.sh"
+}
+
+@test "still blocks sensitive files under temporary locations" {
+	assert_blocked "Write" "/tmp/.env"
+	assert_blocked "Write" "/private/tmp/claude-501/session/scratchpad/id_rsa"
+}
+
 @test "ignores unrelated tools" {
 	assert_allowed "Read" "$HOME/.ssh/config"
 	assert_allowed "Bash" "$HOME/project/dist/app.js"
