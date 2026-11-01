@@ -38,8 +38,12 @@ ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 # and test/claude-fork.bats seeds its fixture with it, so without it both fork
 # tests exit 127 before asserting anything. Unlike ubuntu:24.04, GitHub's
 # runners and macOS already provide /usr/bin/python3.
+# libatomic1 is the fifth: the official Node 26 linux builds link libatomic.so.1
+# (Node 24 did not), so without it mise's post-install check of node exits 127
+# and bin/setup fails before any test runs. The minimal base image doesn't ship
+# it, and nothing else in this list pulls it in.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl git jq locales openssh-client python3 sudo unzip zsh \
+      ca-certificates curl git jq libatomic1 locales openssh-client python3 sudo unzip zsh \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
