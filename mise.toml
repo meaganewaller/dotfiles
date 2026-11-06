@@ -22,7 +22,7 @@ jq = "1.8.2"
 # (a fresh container) makes mise refuse to install them.
 node = "26.13.0"
 "npm:markdownlint-cli" = "0.50.0"
-pkl = "0.32.2"
+pkl = "0.33.0"
 shfmt = "3.14.1"
 stylua = "2.6.0"
 
