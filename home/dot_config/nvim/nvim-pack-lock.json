@@ -18,7 +18,7 @@
       "src": "https://github.com/catppuccin/nvim"
     },
     "citruszest.nvim": {
-      "rev": "e6fed9ec3d0ac190b1387379c138ba5e23a1f4f9",
+      "rev": "c8c0017d1b2efa4b891af28995bae8d58c87528a",
       "src": "https://github.com/zootedb0t/citruszest.nvim"
     },
     "colorful-winsep.nvim": {
