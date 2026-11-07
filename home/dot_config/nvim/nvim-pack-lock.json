@@ -22,7 +22,7 @@
       "src": "https://github.com/zootedb0t/citruszest.nvim"
     },
     "colorful-winsep.nvim": {
-      "rev": "6134b5cd4a38990c7b720adc90973ed32f726179",
+      "rev": "7a8664fb8e91bd3435b3128c18dc814b3ddb11f5",
       "src": "https://github.com/nvim-zh/colorful-winsep.nvim"
     },
     "copilot.lua": {
