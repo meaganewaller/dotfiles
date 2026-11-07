@@ -118,7 +118,7 @@
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
-      "rev": "6a03b298635205802ee1d390826f02414a13290d",
+      "rev": "fdd0142633ae78b175ff29043953e701215a34dd",
       "src": "https://github.com/mrjones2014/smart-splits.nvim"
     },
     "sort.nvim": {
