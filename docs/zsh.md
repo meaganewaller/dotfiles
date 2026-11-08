@@ -109,12 +109,16 @@ A project navigation and Claude Code launcher script. The `e` command intelligen
 e                    # Use fzf to select from available projects
 e REPO              # Search for REPO across configured organizations
 e ORG/REPO          # Open specific ORG/REPO
+e -a work REPO      # Open REPO with the work account (also --account work)
 ```
+
+**Account:** there is no bare `claude` ([why](agents/claude-code.md#no-bare-claude--pick-an-account-at-the-shell)), so `e` launches Claude Code against one account's `~/.claude-<account>` directory, with `~/src` added, as `claude-<account>` does. Without `--account` it uses, in order, the tmux option `@claude_account` (inside tmux), `CLAUDE_ACCOUNT`, or the only `~/.claude-*` directory. With several accounts and none of those set, it stops and asks you to pick one, before finding or cloning anything.
 
 **Environment Variables:**
 - `PROJECTS_DIR` - Base directory for projects (default: `$HOME/src/github.com`)
 - `GITHUB_USER` - Primary GitHub username
 - `GITHUB_ORGS` - Comma-delimited list of GitHub organizations to search (e.g., `"myorg,company,another-org"`)
+- `CLAUDE_ACCOUNT` - Default Claude account when `--account` is omitted
 
 **Smart Repository Discovery:**
 When you specify just a repository name (e.g., `e dotfiles`), the function:

@@ -7,12 +7,18 @@
 #   e                    # Use fzf to select from available projects
 #   e REPO              # Open REPO using fallback ORG logic
 #   e ORG/REPO          # Open specific ORG/REPO
+#   e -a ACCOUNT ...    # Use ~/.claude-ACCOUNT (also --account ACCOUNT)
+#
+# There is no bare `claude` (ADR 0010), so `e` always launches against one
+# account's config dir. Without --account it uses, in order: the tmux option
+# @claude_account (inside tmux), CLAUDE_ACCOUNT, or the only ~/.claude-* dir.
 #
 # Environment variables:
 #   PROJECTS_DIR        # Base directory for projects (default: $HOME/src/github.com)
 #   GITHUB_USER         # Primary GitHub username for fallback
 #   GITHUB_ORGS         # Comma-delimited list of GitHub orgs/users to search
 #   USER                # System username as final fallback
+#   CLAUDE_ACCOUNT      # Default Claude account when --account is omitted
 
 set -o errexit -o nounset
 
@@ -54,25 +60,16 @@ get_potential_orgs() {
 	fi
 
 	# Add entries from GITHUB_ORGS (comma-delimited)
+	# (An environment variable is always a string, so splitting covers it.)
 	if [[ -n "${GITHUB_ORGS:-}" ]]; then
-		if [[ "${GITHUB_ORGS[*]:-}" != "$GITHUB_ORGS" ]] 2>/dev/null; then
-			# It's an array
-			for org in "${GITHUB_ORGS[@]}"; do
-				if [[ " ${orgs[*]} " != *" $org "* ]]; then
-					orgs+=("$org")
-				fi
-			done
-		else
-			# It's a string, split on commas
-			IFS=',' read -ra github_orgs <<<"$GITHUB_ORGS"
-			for org in "${github_orgs[@]}"; do
-				# Trim whitespace
-				org=$(echo "$org" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-				if [[ -n "$org" && " ${orgs[*]} " != *" $org "* ]]; then
-					orgs+=("$org")
-				fi
-			done
-		fi
+		local org
+		for org in "${(@s:,:)GITHUB_ORGS}"; do
+			# Trim whitespace
+			org=$(echo "$org" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+			if [[ -n "$org" && " ${orgs[*]} " != *" $org "* ]]; then
+				orgs+=("$org")
+			fi
+		done
 	fi
 
 	# Add system user as final fallback
@@ -90,7 +87,7 @@ find_existing_repo() {
 	local potential_orgs
 
 	# Get list of potential organizations
-	readarray -t potential_orgs < <(get_potential_orgs)
+	potential_orgs=(${(f)"$(get_potential_orgs)"})
 
 	# Check each organization for existing repository
 	for org in "${potential_orgs[@]}"; do
@@ -113,15 +110,16 @@ clone_repo_from_orgs() {
 	# Get list of potential organizations
 	potential_orgs=(${(f)"$(get_potential_orgs)"})
 
-	# Try cloning from each organization
+	# The caller captures stdout as the project, so only "ORG/REPO" goes there;
+	# progress and git's own output go to stderr.
 	for org in "${potential_orgs[@]}"; do
 		local repo_path="$PROJECTS_DIR/$org/$repo"
 		local repo_url="https://github.com/$org/$repo.git"
 
-		echo "Trying to clone from: $repo_url"
+		echo "Trying to clone from: $repo_url" >&2
 
-		if git clone "$repo_url" "$repo_path"; then
-			echo "Successfully cloned repository to: $repo_path"
+		if git clone "$repo_url" "$repo_path" >&2; then
+			echo "Successfully cloned repository to: $repo_path" >&2
 			echo "$org/$repo"
 			return 0
 		fi
@@ -143,8 +141,8 @@ clone_repo_from_orgs() {
 		if [[ "$REPLY" =~ ^[Yy]$ ]]; then
 			mkdir -p "$repo_path"
 			cd "$repo_path"
-			git init
-			echo "Created new repository at: $repo_path"
+			git init >&2
+			echo "Created new repository at: $repo_path" >&2
 			echo "$fallback_org/$repo"
 			return 0
 		fi
@@ -175,9 +173,47 @@ select_project_with_fzf() {
 	fi
 }
 
+# Function to pick the Claude account: --account, then tmux's @claude_account,
+# then CLAUDE_ACCOUNT, then the only ~/.claude-* dir. Prints the account name.
+resolve_account() {
+	local account="$1"
+	local -a accounts=()
+	local dir
+	for dir in "$HOME"/.claude-*(N/); do
+		accounts+=("${dir##*/.claude-}")
+	done
+
+	if ((${#accounts[@]} == 0)); then
+		echo "Error: no ~/.claude-* accounts found" >&2
+		return 1
+	fi
+
+	if [[ -z "$account" && -n "${TMUX:-}" ]]; then
+		account=$(tmux show-option -gqv @claude_account 2>/dev/null || true)
+	fi
+	if [[ -z "$account" ]]; then
+		account="${CLAUDE_ACCOUNT:-}"
+	fi
+	if [[ -z "$account" && ${#accounts[@]} -eq 1 ]]; then
+		account="${accounts[1]}"
+	fi
+
+	if [[ -z "$account" ]]; then
+		echo "Error: several Claude accounts (${accounts[*]}); pick one with --account or CLAUDE_ACCOUNT" >&2
+		return 1
+	fi
+	if ((${accounts[(Ie)$account]} == 0)); then
+		echo "Error: unknown Claude account '$account'. Available: ${accounts[*]}" >&2
+		return 1
+	fi
+
+	echo "$account"
+}
+
 # Function to open project in Claude Code
 open_project() {
 	local project_path="$1"
+	local account="$2"
 
 	if [[ ! -d "$project_path" ]]; then
 		echo "Error: Project directory does not exist: $project_path" >&2
@@ -187,9 +223,15 @@ open_project() {
 	echo "Opening project: $project_path"
 	cd "$project_path"
 
-	# Check if claude command exists
+	# Launch the way claude-<account> does: against that account's config dir,
+	# with ~/src added. A fresh process has no shell functions, so this runs
+	# the real binary directly.
+	export CLAUDE_CONFIG_DIR="$HOME/.claude-$account"
 	if command -v claude >/dev/null 2>&1; then
-		exec claude
+		if command -v claude-chill >/dev/null 2>&1; then
+			exec claude-chill -- claude --add-dir "$HOME/src"
+		fi
+		exec claude --add-dir "$HOME/src"
 	else
 		echo "Warning: 'claude' command not found in PATH" >&2
 		echo "Current directory: $(pwd)"
@@ -200,7 +242,30 @@ open_project() {
 
 # Main logic
 main() {
-	local selected_project project_path
+	local selected_project project_path account=""
+
+	while (($# > 0)); do
+		case "$1" in
+		-a | --account)
+			if (($# < 2)); then
+				echo "Error: $1 needs an account name" >&2
+				return 1
+			fi
+			account="$2"
+			shift 2
+			;;
+		--account=*)
+			account="${1#--account=}"
+			shift
+			;;
+		*)
+			break
+			;;
+		esac
+	done
+
+	# Resolve before finding or cloning, so a bad account fails fast.
+	account=$(resolve_account "$account") || return 1
 
 	case "${1:-}" in
 	"")
@@ -265,7 +330,7 @@ main() {
 	fi
 
 	# Open the project
-	open_project "$project_path"
+	open_project "$project_path" "$account"
 }
 
 # Run main function with all arguments
