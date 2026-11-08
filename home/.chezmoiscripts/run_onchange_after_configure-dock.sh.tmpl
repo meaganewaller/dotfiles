@@ -1,0 +1,48 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Sets the Dock's app list for this profile. run_onchange_, so it reruns only
+# when the rendered list below changes, not on every apply; the Dock's stacks
+# (persistent-others, e.g. Downloads) are left alone.
+
+# Skip on CI: there is no Dock to configure without a GUI session.
+{{ template "ci-skip-guard" "Running in CI, skipping Dock configuration" }}
+
+{{ $personalApps := list
+    "/Applications/Google Chrome.app"
+    "/Applications/Fantastical.app"
+    "/Applications/Ghostty.app"
+    "/Applications/Cursor.app"
+    "/Applications/Obsidian.app"
+    "/System/Applications/Music.app"
+}}
+
+{{ $workApps := list
+    "/Applications/Google Chrome.app"
+    "/System/Applications/Calendar.app"
+    "/Applications/Ghostty.app"
+    "/Applications/Obsidian.app"
+    "/Applications/Slack.app"
+    "/Applications/Notion.app"
+}}
+
+{{ $apps := $personalApps }}
+{{ if .work_profile }}{{ $apps = $workApps }}{{ end }}
+
+defaults write com.apple.dock persistent-apps -array
+
+# Skip apps that aren't installed, so a fresh machine doesn't get "?" tiles.
+for app in{{ range ($apps | uniq) }} {{ . | quote }}{{ end }}; do
+	if [ -d "$app" ]; then
+		defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+	else
+		echo "~ skipping $app (not installed)"
+	fi
+done
+
+killall Dock >/dev/null 2>&1 || true
+echo "~ macos dock has been configured"
+
+{{ end -}}
