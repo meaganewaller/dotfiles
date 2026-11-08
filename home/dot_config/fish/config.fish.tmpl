@@ -38,3 +38,9 @@ if status is-interactive
 end
 
 set -gx GIT_MERGE_AUTOEDIT no
+{{- if eq .chezmoi.os "darwin" }}
+
+# OrbStack's command-line tools and integration. Kept here because its
+# installer appends this only once, and chezmoi apply would otherwise revert it.
+source ~/.orbstack/shell/init2.fish 2>/dev/null || :
+{{- end }}

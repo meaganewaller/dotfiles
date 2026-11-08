@@ -1,3 +1,8 @@
+{{- if eq .chezmoi.os "darwin" -}}
+# OrbStack's 'orb' SSH host for its Linux machines. It only works above every
+# Host block. Harmless without OrbStack: ssh skips an Include that matches no file.
+Include ~/.orbstack/ssh/config
+{{ end }}
 {{- if .work_profile -}}
 Include ~/.ssh/work.config
 {{ end }}

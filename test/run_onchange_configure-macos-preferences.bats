@@ -53,8 +53,18 @@ EOF
 	[[ "$output" == *"KeyRepeat"* ]] || fail "output was: $output"
 	[[ "$output" == *"AppleKeyboardUIMode"* ]] || fail "output was: $output"
 	[[ "$output" == *"closeViewScrollWheelToggle"* ]] || fail "output was: $output"
-	[[ "$output" == *"com.apple.dock"* ]] || fail "output was: $output"
 	[[ "$output" == *"VisibleCC Bluetooth"* ]] || fail "output was: $output"
+}
+
+# The Dock's app list belongs to run_onchange_after_configure-dock; clearing it
+# here too made the two scripts empty and rebuild the Dock in turn.
+@test "rendered script leaves the Dock's app list alone" {
+	local config
+	config=$(darwin_config false)
+
+	run chezmoi --source home execute-template --config "$config" --file "$SCRIPT_FILE"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" != *"persistent-apps"* ]] || fail "output was: $output"
 }
 
 @test "rendered script has CI skip guard" {
