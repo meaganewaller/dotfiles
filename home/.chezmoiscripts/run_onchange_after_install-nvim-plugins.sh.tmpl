@@ -4,6 +4,8 @@ set -o errexit -o nounset -o pipefail
 
 # This script syncs Neovim plugins (managed by the built-in vim.pack, see
 # nvim-pack-lock.json) whenever a plugin spec or the pinned lockfile changes.
+# It is an after_ script so ~/.config/nvim/nvim-pack-lock.json, a symlink to
+# the committed .nvim-pack-lock.json, is in place before nvim reads it.
 # The hash covers dot_config/nvim/plugin/*.lua (where vim.pack.add() calls
 # live) by content -- not just by filename, so editing an existing file's
 # vim.pack.add() call re-fires this same as adding a new file -- plus
@@ -12,7 +14,7 @@ set -o errexit -o nounset -o pipefail
 {{- range (glob (joinPath .chezmoi.sourceDir "dot_config/nvim/plugin/*.lua")) -}}
 {{-   $nvimPluginsHash = printf "%s%s" $nvimPluginsHash (include .) -}}
 {{- end -}}
-{{- $nvimPluginsHash = printf "%s%s" $nvimPluginsHash (include "dot_config/nvim/nvim-pack-lock.json") -}}
+{{- $nvimPluginsHash = printf "%s%s" $nvimPluginsHash (include "dot_config/nvim/.nvim-pack-lock.json") -}}
 {{ $nvimPluginsHash | sha256sum }}
 
 if [[ "${DEBUG:-}" == "1" ]]; then
@@ -26,6 +28,24 @@ fi
 if ! command -v nvim >/dev/null 2>&1; then
     echo "Warning: Neovim not found, skipping plugin installation"
     exit 0
+fi
+
+# vim.pack adds every directory in its plugin dir back into the lockfile on
+# startup, so a plugin removed from the lockfile (and its spec) would return
+# on the next launch. Delete the directories of plugins the lockfile doesn't
+# list. Skip when there is no lockfile, which would otherwise mean "remove all".
+lockfile="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/nvim-pack-lock.json"
+plugin_dir="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/core/opt"
+if [[ -f "$lockfile" && -d "$plugin_dir" ]]; then
+    for dir in "$plugin_dir"/*/; do
+        [[ -d "$dir" ]] || continue
+        name=$(basename "$dir")
+        # vim.pack writes each plugin as a 4-space-indented top-level key.
+        if ! grep -qxF "    \"$name\": {" "$lockfile"; then
+            echo "🧹 Removing $name (not in nvim-pack-lock.json)"
+            rm -rf "${dir%/}"
+        fi
+    done
 fi
 
 # Sourcing the config installs any plugin not yet on disk (vim.pack.add(),

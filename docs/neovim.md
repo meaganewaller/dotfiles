@@ -36,7 +36,8 @@ management is covered below — it isn't a gap anymore.
 ```
 home/dot_config/nvim/
 ├── init.lua                       # bootstrap: options, leader keys, runtimepath/package.path shims
-├── nvim-pack-lock.json            # vim.pack revision pins (committed)
+├── .nvim-pack-lock.json           # vim.pack revision pins (committed)
+├── symlink_nvim-pack-lock.json.tmpl  # deploys it as nvim-pack-lock.json
 ├── lua/
 │   ├── theme/
 │   │   ├── init.lua               # managed colorscheme list + apply helpers
@@ -87,8 +88,13 @@ vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open Oil" })
 ```
 
 `vim.pack` writes pinned revisions to `nvim-pack-lock.json` alongside
-`init.lua` — that file is committed so other machines (and `chezmoi apply`)
-reproduce the same plugin versions. Plugin sources themselves live under
+`init.lua`. The deployed `~/.config/nvim/nvim-pack-lock.json` is a symlink to
+the committed `home/dot_config/nvim/.nvim-pack-lock.json` (dot-prefixed so
+chezmoi doesn't also copy it to the same path). Whatever `vim.pack` writes,
+from adding or updating a plugin, shows up as a diff in the repo to commit, and
+`chezmoi apply` brings every machine to the committed revisions: it reruns
+`run_onchange_after_install-nvim-plugins` whenever the lockfile changes,
+including Renovate's digest bumps. Plugin sources themselves live under
 `stdpath("data")`.
 
 `plugin/colorschemes.lua` is the one exception with multiple specs in a single
@@ -103,16 +109,19 @@ runtimepath" setup — there's nothing per-theme to configure.
 
 ### Removing a plugin
 
-Delete its `plugin/<name>.lua` file (and any `require()` of it elsewhere).
-Unlike some `vim.pack` setups, **there is no automatic stale-plugin pruning**
-here — the plugin stays installed on disk until you explicitly run
-`:lua vim.pack.del({"plugin-repo-name"})`, or check `:lua =vim.pack.get()` for
-anything no longer referenced by a `plugin/*.lua` file.
+Delete its `plugin/<name>.lua` file (and any `require()` of it elsewhere),
+then run `:lua vim.pack.del({"plugin-repo-name"})`. That removes it from disk
+and from the lockfile; commit the lockfile diff. Deleting the entry from the
+lockfile by hand works too.
+
+On other machines, `chezmoi apply` removes any installed plugin the lockfile
+doesn't list. That's needed: `vim.pack` adds every plugin directory it finds
+on disk back into the lockfile at startup, so a plugin dropped only from the
+lockfile would come back on the next launch.
 
 ### Updating
 
-`:lua vim.pack.update()` — or restart Neovim and let it pull updates as part
-of `vim.pack.add()`.
+`:lua vim.pack.update()`, then commit the lockfile diff it leaves in the repo.
 
 ## LSP
 
@@ -367,9 +376,9 @@ to shrink or grow.
 
 | Task | Command |
 | --- | --- |
-| Update plugins | `:lua vim.pack.update()` |
+| Update plugins | `:lua vim.pack.update()`, then commit the lockfile |
 | Inspect installed plugins | `:lua =vim.pack.get()` |
-| Remove a plugin's files from disk | `:lua vim.pack.del({"name"})` after deleting its `plugin/*.lua` (no auto-prune — see [Removing a plugin](#removing-a-plugin)) |
+| Remove a plugin | Delete its `plugin/*.lua`, then `:lua vim.pack.del({"name"})` and commit the lockfile (see [Removing a plugin](#removing-a-plugin)) |
 | Reinstall treesitter parsers | `:TSUpdate` |
 | LSP info | `:lua =vim.lsp.get_clients()` |
 | LSP log | `:LspLog` |

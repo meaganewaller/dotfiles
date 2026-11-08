@@ -43,7 +43,7 @@ $ARGUMENTS
 | Plugin specs | `home/dot_config/nvim/plugin/00-packs.lua` | `~/.config/nvim/plugin/00-packs.lua` |
 | Per-plugin config | `home/dot_config/nvim/plugin/<name>.lua` | `~/.config/nvim/plugin/<name>.lua` |
 | Core modules | `home/dot_config/nvim/lua/{options,ui,window,keymaps,autocmds}.lua` | `~/.config/nvim/lua/...` |
-| Lockfile (committed) | `home/dot_config/nvim/nvim-pack-lock.json` | `~/.config/nvim/nvim-pack-lock.json` |
+| Lockfile (committed) | `home/dot_config/nvim/.nvim-pack-lock.json` | `~/.config/nvim/nvim-pack-lock.json` (symlink to the source) |
 | Installed plugins | — | `~/.local/share/nvim/site/pack/core/opt/<plugin>/` |
 
 **Always edit source (`home/dot_config/nvim/`), never destination. Deploy with `chezmoi apply`.**
@@ -64,25 +64,25 @@ $ARGUMENTS
 3. **Edit source** in `home/dot_config/nvim/plugin/00-packs.lua` (pin a `version`) or the sibling `plugin/<plugin>.lua` (adjust setup call). Run `chezmoi diff` then `chezmoi apply`.
 4. **Clear compiled cache** if theme-related: `rm -rf ~/.cache/catppuccin`. Catppuccin is the only theme that compiles.
 5. **Re-run debug mode** to verify.
-6. **Sync lockfile back to source** after a successful run: `cp ~/.config/nvim/nvim-pack-lock.json home/dot_config/nvim/nvim-pack-lock.json`. `vim.pack` writes the destination copy; the source copy is what's committed.
+6. **Commit the lockfile** after a successful run. The deployed lockfile is a symlink, so `vim.pack`'s writes are already in `home/dot_config/nvim/.nvim-pack-lock.json`; review `git diff` on it.
 
 ## Mode: `update`
 
 1. Run `:lua vim.pack.update()` in a real Neovim session. It opens a confirm buffer; review the diff and `:write` to apply.
 2. Run debug mode to catch breakage.
-3. Sync lockfile back to source (see step 6 above).
+3. Commit the lockfile diff (see step 6 above).
 
 ## Anti-patterns
 
 - **Never** treat this like a LazyVim config. There is no `:Lazy`, no `lua/plugins/`, no `lazy-lock.json`, no `snacks.notifier`. Don't look for upstream LazyVim fixes — there is no upstream distribution.
 - **Never** use inline `-c "lua ..."` — shell escaping mangles quotes. Write temp Lua files.
 - **Never** edit `~/.config/nvim/` directly — chezmoi owns the destination.
-- **Never** ignore lockfile drift — sync the installed lockfile back to source or breakage recurs on the next `chezmoi apply` to a fresh machine.
+- **Never** leave lockfile changes uncommitted — other machines only get the revisions that are in the committed `.nvim-pack-lock.json`.
 
 ## Examples
 
 ```
 /nvim                    → Run debug, report errors
 /nvim fix catppuccin     → Fix catppuccin after breaking update
-/nvim update             → Update all plugins, debug, sync lockfile
+/nvim update             → Update all plugins, debug, commit lockfile
 ```
