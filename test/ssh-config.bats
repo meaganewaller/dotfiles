@@ -49,3 +49,19 @@ EOF
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[[ "$output" != *"work.config"* ]] || fail "output was: $output"
 }
+
+# OrbStack's 'orb' host only works when its Include comes before any Host block.
+@test "includes OrbStack's ssh config on darwin, before any Host block" {
+	run render darwin
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	include_line=$(grep -n '^Include ~/.orbstack/ssh/config$' <<<"$output" | cut -d: -f1)
+	host_line=$(grep -n '^Host ' <<<"$output" | head -1 | cut -d: -f1)
+	[[ -n "$include_line" ]] || fail "no OrbStack Include, output was: $output"
+	((include_line < host_line)) || fail "Include at $include_line after first Host at $host_line"
+}
+
+@test "does not include OrbStack's ssh config on linux" {
+	run render linux
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[[ "$output" != *"orbstack"* ]] || fail "output was: $output"
+}
