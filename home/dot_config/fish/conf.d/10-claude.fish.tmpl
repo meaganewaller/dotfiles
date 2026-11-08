@@ -30,9 +30,11 @@
 # $argv[1] is the config dir; the rest is passed through. Two behaviors are
 # folded in:
 #
-#   --add-dir ~/src is injected only for session launches. It is variadic, so on
-#   a management subcommand (`claude mcp add ...`) it would swallow `mcp add` as
-#   more directories and the subcommand would never run.
+#   --add-dir ~/src is always injected, in its attached --add-dir=~/src form.
+#   The option is variadic: spaced, as `--add-dir ~/src`, it swallows every
+#   argument after it as another directory, so a prompt or a subcommand such as
+#   `mcp add` never reaches claude. The attached form takes exactly one value,
+#   so no list of subcommands to skip is needed (and none can go stale).
 #
 #   claude-chill, when installed, wraps the real binary. It is resolved at call
 #   time rather than at chezmoi render time so installing it later takes effect
@@ -43,14 +45,7 @@
 # Intel Mac, a Linux box, or a mise-managed install resolves correctly.
 function _claude_account
     set -l claude_dir $argv[1]
-    set -l args $argv[2..-1]
-
-    switch "$args[1]"
-        case agents auth auto-mode doctor install mcp plugin plugins project setup-token ultrareview update upgrade
-            # management subcommand: pass through untouched
-        case '*'
-            set args --add-dir "$HOME/src" $args
-    end
+    set -l args "--add-dir=$HOME/src" $argv[2..-1]
 
     if command -q claude-chill
         CLAUDE_CONFIG_DIR=$claude_dir claude-chill -- command claude $args

@@ -10,7 +10,8 @@ load test_helper
 REPO_ROOT() { cd "${BATS_TEST_DIRNAME}/.." && pwd; }
 
 # Render both dispatch files and drop a fake `claude` on PATH that echoes back
-# the config dir and args it was invoked with.
+# the config dir and args it was invoked with: once joined, then one ARG= line
+# per argument, so a test can tell `--add-dir=X` from `--add-dir X`.
 render_dispatch() {
 	local repo
 	repo="$(REPO_ROOT)"
@@ -33,6 +34,7 @@ EOF
 	cat >"$TEST_TMPDIR/bin/claude" <<'EOF'
 #!/bin/sh
 printf 'DIR=%s ARGS=%s\n' "${CLAUDE_CONFIG_DIR:-<unset>}" "$*"
+for arg in "$@"; do printf 'ARG=%s\n' "$arg"; done
 EOF
 	chmod +x "$TEST_TMPDIR/bin/claude"
 }
@@ -108,7 +110,7 @@ run_in() {
 	! grep -q "claude-shared" "$TEST_TMPDIR/claude.fish" || fail "'shared' leaked into the fish wrappers"
 }
 
-@test "account wrappers set CLAUDE_CONFIG_DIR and add ~/src for session launches" {
+@test "account wrappers set CLAUDE_CONFIG_DIR and add ~/src" {
 	render_dispatch
 
 	local shell
@@ -118,7 +120,7 @@ run_in() {
 		[ "$status" -eq 0 ] || fail "$shell: status=$status output=$output"
 		[[ "$output" == *"DIR=$TEST_HOME_DIR/.claude-personal"* ]] ||
 			fail "$shell did not set CLAUDE_CONFIG_DIR: $output"
-		[[ "$output" == *"--add-dir $TEST_HOME_DIR/src"* ]] ||
+		[[ "$output" == *"ARG=--add-dir=$TEST_HOME_DIR/src"* ]] ||
 			fail "$shell did not inject --add-dir: $output"
 
 		run_in "$shell" "claude-work resume"
@@ -127,19 +129,30 @@ run_in() {
 	done
 }
 
-@test "management subcommands are passed through without --add-dir" {
+# --add-dir is variadic. In its spaced form, `--add-dir ~/src` swallows every
+# argument after it as another directory, so a prompt or a subcommand such as
+# `mcp add` or `attach` never reaches claude. The attached `--add-dir=~/src`
+# form takes exactly one value, which is why it can go first unconditionally.
+@test "a prompt and any subcommand reach claude intact after --add-dir=~/src" {
 	render_dispatch
 
-	# --add-dir is variadic: injected here it would swallow `add x y` as more
-	# directories and `mcp add` would never run.
-	local shell
+	local shell expected
 	set_dispatch_shells
 	for shell in "${DISPATCH_SHELLS[@]}"; do
-		run_in "$shell" "claude-personal mcp add name cmd"
+		run_in "$shell" "claude-personal 'fix the tests'"
 		[ "$status" -eq 0 ] || fail "$shell: status=$status output=$output"
-		[[ "$output" == *"ARGS=mcp add name cmd"* ]] ||
+		expected="ARG=--add-dir=$TEST_HOME_DIR/src"$'\n'"ARG=fix the tests"
+		[[ "$output" == *"$expected" ]] || fail "$shell split or swallowed the prompt: $output"
+
+		# attach is one of the subcommands the old pass-through list missed.
+		run_in "$shell" "claude-work attach abc123"
+		[[ "$output" == *"ARGS=--add-dir=$TEST_HOME_DIR/src attach abc123"* ]] ||
+			fail "$shell mangled attach: $output"
+
+		run_in "$shell" "claude-personal mcp add name cmd"
+		[[ "$output" == *"ARGS=--add-dir=$TEST_HOME_DIR/src mcp add name cmd"* ]] ||
 			fail "$shell mangled the subcommand: $output"
-		[[ "$output" != *"--add-dir"* ]] || fail "$shell injected --add-dir into a subcommand: $output"
+		[[ "$output" != *"ARG=--add-dir"$'\n'* ]] || fail "$shell used the spaced --add-dir form: $output"
 	done
 }
 

@@ -326,8 +326,8 @@ account's sessions, with an account column (`~/.claude` shows as `default`).
 resolves in the same order as `tmux-claude-compose`: `$CLAUDE_CONFIG_DIR`,
 then tmux `@claude_account`, then `$CLAUDE_ACCOUNT`, then the only account;
 if still ambiguous it asks with `vim.ui.select`. The prompt is passed on the
-command line after `--` (the wrapper's variadic `--add-dir` would otherwise
-swallow it).
+command line after `--`, so a prompt that starts with `-` isn't read as an
+option.
 Internals (`dashboard.lua`, `feed.lua`, `digest.lua`, `dispatch.lua`,
 `takeover.lua`, `queue.lua`, `cleanup.lua`, plus supporting
 `discover`/`registry`/`render`/`transcript`/`live_view` modules) live under
