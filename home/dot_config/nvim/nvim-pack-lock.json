@@ -46,7 +46,7 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "fzf-lua": {
-      "rev": "bea6a134d2228a7766debd61dedb301c69b57e16",
+      "rev": "d648fe1c6fb62a27fda0247313e94ae536843e9b",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "git-conflict.nvim": {
