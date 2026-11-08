@@ -2,7 +2,7 @@
 
 load test_helper
 
-SCRIPT_FILE="home/.chezmoiscripts/run_onchange_install-nvim-plugins.sh.tmpl"
+SCRIPT_FILE="home/.chezmoiscripts/run_onchange_after_install-nvim-plugins.sh.tmpl"
 
 # The hash comment's `glob`+`joinPath` calls read via .chezmoi.sourceDir (data,
 # settable via --config), while its `include` call always reads via the real
@@ -53,7 +53,7 @@ copy_nvim_plugins_fixture() {
 	cat >"$TEST_SOURCE_DIR/dot_config/nvim/plugin/one.lua" <<'EOF'
 vim.pack.add({ { src = "https://github.com/example/one" } })
 EOF
-	cat >"$TEST_SOURCE_DIR/dot_config/nvim/nvim-pack-lock.json" <<'EOF'
+	cat >"$TEST_SOURCE_DIR/dot_config/nvim/.nvim-pack-lock.json" <<'EOF'
 {"plugins":{"one":{"rev":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","src":"https://github.com/example/one"}}}
 EOF
 	# The script's CI-skip guard calls the shared ci-skip-guard partial, which
@@ -93,7 +93,7 @@ EOF
 	local before after
 	before=$(extract_hash "$(render_fixture)")
 
-	cat >"$TEST_SOURCE_DIR/dot_config/nvim/nvim-pack-lock.json" <<'EOF'
+	cat >"$TEST_SOURCE_DIR/dot_config/nvim/.nvim-pack-lock.json" <<'EOF'
 {"plugins":{"one":{"rev":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","src":"https://github.com/example/one"}}}
 EOF
 	after=$(extract_hash "$(render_fixture)")
@@ -185,4 +185,68 @@ EOF
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	[[ "$output" == *"Installing/updating Neovim plugins due to configuration changes"* ]] || fail "output was: $output"
 	[[ "$output" == *"Neovim plugins synchronized successfully"* ]] || fail "output was: $output"
+}
+
+# vim.pack adds every directory under its plugin dir back into the lockfile on
+# startup, so a plugin dropped from the lockfile only stays dropped once its
+# directory is gone. Lay out a fake plugin dir and lockfile under a fake $HOME.
+fake_installed_plugins() {
+	local opt="$TEST_HOME_DIR/.local/share/nvim/site/pack/core/opt"
+	mkdir -p "$opt/kept.nvim" "$opt/orphan.nvim" "$opt/also-orphan" "$TEST_HOME_DIR/.config/nvim"
+	cat >"$TEST_HOME_DIR/.config/nvim/nvim-pack-lock.json" <<'EOF'
+{
+  "plugins": {
+    "kept.nvim": {
+      "rev": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "src": "https://github.com/example/kept.nvim"
+    }
+  }
+}
+EOF
+	local stub="$TEST_TMPDIR/stub"
+	mkdir -p "$stub"
+	printf '#!/usr/bin/env bash\nls "%s" >"%s/seen-by-nvim"\n' "$opt" "$TEST_TMPDIR" >"$stub/nvim"
+	chmod +x "$stub/nvim"
+}
+
+@test "removes installed plugins the lockfile doesn't list, before syncing" {
+	render >"$TEST_TMPDIR/nvim-plugins.sh"
+	fake_installed_plugins
+
+	run env -u CI -u GITHUB_ACTIONS -u XDG_DATA_HOME -u XDG_CONFIG_HOME HOME="$TEST_HOME_DIR" PATH="$TEST_TMPDIR/stub:$PATH" bash "$TEST_TMPDIR/nvim-plugins.sh"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[ "$(cat "$TEST_TMPDIR/seen-by-nvim")" = "kept.nvim" ] || fail "nvim saw: $(cat "$TEST_TMPDIR/seen-by-nvim")"
+	[[ "$output" == *"orphan.nvim"* ]] || fail "removal not reported: $output"
+}
+
+@test "removes nothing when there is no lockfile to compare against" {
+	render >"$TEST_TMPDIR/nvim-plugins.sh"
+	fake_installed_plugins
+	rm "$TEST_HOME_DIR/.config/nvim/nvim-pack-lock.json"
+
+	run env -u CI -u GITHUB_ACTIONS -u XDG_DATA_HOME -u XDG_CONFIG_HOME HOME="$TEST_HOME_DIR" PATH="$TEST_TMPDIR/stub:$PATH" bash "$TEST_TMPDIR/nvim-plugins.sh"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[ "$(wc -l <"$TEST_TMPDIR/seen-by-nvim" | tr -d ' ')" = "3" ] || fail "nvim saw: $(cat "$TEST_TMPDIR/seen-by-nvim")"
+}
+
+# The deployed lockfile is a symlink to the committed one, so vim.pack's own
+# writes land in the repo and Renovate's bumps reach the machine on pull.
+@test "the deployed lockfile is a symlink to the committed lockfile" {
+	[ -f home/dot_config/nvim/.nvim-pack-lock.json ] || fail "committed lockfile missing"
+	[ ! -e home/dot_config/nvim/nvim-pack-lock.json ] || fail "a plain lockfile would collide with the symlink"
+	! grep -q 'nvim-pack-lock' home/.chezmoiignore || fail ".chezmoiignore still hides the lockfile"
+
+	cat >"$TEST_TMPDIR/config.toml" <<EOF
+[data]
+    chezmoi = { os = "linux", homeDir = "$TEST_HOME_DIR", sourceDir = "$PWD/home" }
+EOF
+	run chezmoi --source home execute-template --config "$TEST_TMPDIR/config.toml" --file home/dot_config/nvim/symlink_nvim-pack-lock.json.tmpl
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	[ "$output" = "$PWD/home/dot_config/nvim/.nvim-pack-lock.json" ] || fail "symlink target was: $output"
+}
+
+@test "Renovate tracks the committed lockfile's path" {
+	grep -qF "home/dot_config/nvim/.nvim-pack-lock.json" renovate.json5 || fail "blink.cmp rule not repointed"
+	grep -qF 'home/dot_config/nvim/\\.nvim-pack-lock\\.json' renovate.json5 || fail "custom manager not repointed"
+	! grep -qF 'dot_config/nvim/nvim-pack-lock' renovate.json5 || fail "old path still in renovate.json5"
 }

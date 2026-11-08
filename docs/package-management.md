@@ -218,7 +218,7 @@ Scripts in `home/` execute when their trigger conditions change:
 |--------|------------|----------|
 | `run_onchange_00-install-mise-tools.sh.tmpl` | mise config changes | All mise-managed tools (runtimes + backend tools) |
 | `run_onchange_install-packages-darwin.sh.tmpl` | packages.yaml or `machine_profile` changes | Homebrew packages, minus the machine profile's exclusions |
-| `run_onchange_install-nvim-plugins.sh.tmpl` | `plugin/*.lua` specs or `nvim-pack-lock.json` changes | `vim.pack`-managed plugins |
+| `run_onchange_after_install-nvim-plugins.sh.tmpl` | `plugin/*.lua` specs or `.nvim-pack-lock.json` changes | `vim.pack`-managed plugins; removes installed plugins the lockfile doesn't list |
 
 The `00-` prefix ensures mise tools install first. All Python/Node tools are now installed via mise backends (`pipx:`, `npm:`) in a single script.
 

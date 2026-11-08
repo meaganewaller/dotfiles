@@ -1,0 +1,5 @@
+{{- /* A symlink, not a copy: vim.pack writes its lockfile in place, so adding
+     or updating a plugin in Neovim lands as a diff in the repo to commit, and
+     a Renovate pin bump reaches this machine on git pull. The committed file
+     is dot-prefixed so chezmoi does not also deploy it to this same path. */ -}}
+{{ joinPath .chezmoi.sourceDir "dot_config/nvim/.nvim-pack-lock.json" }}
