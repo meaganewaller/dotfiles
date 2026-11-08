@@ -32,7 +32,7 @@ Fish cannot source POSIX shell, so the logic exists twice — but both files ren
 
 Each wrapper sets `CLAUDE_CONFIG_DIR` and folds in two things that used to live inline in `dot_zshrc.tmpl`:
 
-- **`--add-dir ~/src` on session launches only.** The flag is variadic, so injecting it unconditionally makes `claude mcp add name cmd` become `claude --add-dir ~/src mcp add name cmd`, where `--add-dir` eats `mcp add name cmd` as more directories and the subcommand never runs. Management subcommands are passed through untouched.
+- **`--add-dir=~/src` on every call, in the attached form.** The flag is variadic. Spaced, as `claude --add-dir ~/src mcp add name cmd` or `claude --add-dir ~/src "fix the tests"`, it eats every argument after it as more directories, so the subcommand or prompt never reaches claude. The attached `--add-dir=~/src` takes exactly one value, so it can go first on every call with no list of subcommands to skip.
 - **`claude-chill`, when installed**, wraps the real binary — resolved at call time rather than at chezmoi render time, so installing it later does not need a re-apply.
 
 Two deliberate holes, both unaffected by the guard because they run outside an interactive shell: non-interactive scripts (`bin/sync-claude-extras` sets `CLAUDE_CONFIG_DIR` itself for every call), and `command claude`, which bypasses the function by design.
