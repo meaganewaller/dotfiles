@@ -14,16 +14,19 @@
 #   GITHUB_ORGS         # Comma-delimited list of GitHub orgs/users to search
 #   USER                # System username as final fallback
 
-setopt LOCAL_OPTIONS ERR_EXIT NO_UNSET
+# This file is autoloaded, so it runs inside the user's interactive shell:
+# no ERR_EXIT (a failed clone or a declined prompt would close the terminal),
+# and the helpers below are removed again when c returns.
+setopt LOCAL_OPTIONS NO_UNSET
 
-# Configuration
-PROJECTS_DIR="${PROJECTS_DIR:-$HOME/src/github.com}"
+# Configuration (local, so the helpers see it without it leaking into the shell)
+local PROJECTS_DIR="${PROJECTS_DIR:-$HOME/src/github.com}"
 
 # Ensure projects directory exists
 [[ -d "$PROJECTS_DIR" ]] || mkdir -p "$PROJECTS_DIR"
 
 # Function to get GitHub user from gh CLI (without API request)
-get_github_user() {
+_c_get_github_user() {
 	if command -v gh >/dev/null 2>&1; then
 		# Try to get user from gh config (no API request)
 		local gh_user
@@ -36,7 +39,7 @@ get_github_user() {
 }
 
 # Function to get list of potential organizations to check
-get_potential_orgs() {
+_c_get_potential_orgs() {
 	local orgs=()
 
 	# Add GITHUB_USER if set
@@ -46,7 +49,7 @@ get_potential_orgs() {
 
 	# Add user from gh CLI config
 	local gh_user
-	if gh_user=$(get_github_user); then
+	if gh_user=$(_c_get_github_user); then
 		# Only add if not already in list
 		if [[ " ${orgs[*]} " != *" $gh_user "* ]]; then
 			orgs+=("$gh_user")
@@ -54,25 +57,16 @@ get_potential_orgs() {
 	fi
 
 	# Add entries from GITHUB_ORGS (comma-delimited)
+	# (An environment variable is always a string, so splitting covers it.)
 	if [[ -n "${GITHUB_ORGS:-}" ]]; then
-		if [[ "${GITHUB_ORGS[*]:-}" != "$GITHUB_ORGS" ]] 2>/dev/null; then
-			# It's an array
-			for org in "${GITHUB_ORGS[@]}"; do
-				if [[ " ${orgs[*]} " != *" $org "* ]]; then
-					orgs+=("$org")
-				fi
-			done
-		else
-			# It's a string, split on commas
-			IFS=',' read -ra github_orgs <<<"$GITHUB_ORGS"
-			for org in "${github_orgs[@]}"; do
-				# Trim whitespace
-				org=$(echo "$org" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-				if [[ -n "$org" && " ${orgs[*]} " != *" $org "* ]]; then
-					orgs+=("$org")
-				fi
-			done
-		fi
+		local org
+		for org in "${(@s:,:)GITHUB_ORGS}"; do
+			# Trim whitespace
+			org=$(echo "$org" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+			if [[ -n "$org" && " ${orgs[*]} " != *" $org "* ]]; then
+				orgs+=("$org")
+			fi
+		done
 	fi
 
 	# Add system user as final fallback
@@ -85,12 +79,12 @@ get_potential_orgs() {
 }
 
 # Function to find existing repository across organizations
-find_existing_repo() {
+_c_find_existing_repo() {
 	local repo="$1"
-	local potential_orgs
+	local potential_orgs org
 
 	# Get list of potential organizations
-	potential_orgs=(${(f)"$(get_potential_orgs)"})
+	potential_orgs=(${(f)"$(_c_get_potential_orgs)"})
 
 	# Check each organization for existing repository
 	for org in "${potential_orgs[@]}"; do
@@ -106,22 +100,23 @@ find_existing_repo() {
 }
 
 # Function to clone repository from potential organizations
-clone_repo_from_orgs() {
+_c_clone_repo_from_orgs() {
 	local repo="$1"
-	local potential_orgs
+	local potential_orgs org REPLY
 
 	# Get list of potential organizations
-	potential_orgs=(${(f)"$(get_potential_orgs)"})
+	potential_orgs=(${(f)"$(_c_get_potential_orgs)"})
 
-	# Try cloning from each organization
+	# The caller captures stdout as the project, so only "ORG/REPO" goes there;
+	# progress and git's own output go to stderr.
 	for org in "${potential_orgs[@]}"; do
 		local repo_path="$PROJECTS_DIR/$org/$repo"
 		local repo_url="https://github.com/$org/$repo.git"
 
-		echo "Trying to clone from: $repo_url"
+		echo "Trying to clone from: $repo_url" >&2
 
-		if git clone "$repo_url" "$repo_path"; then
-			echo "Successfully cloned repository to: $repo_path"
+		if git clone "$repo_url" "$repo_path" >&2; then
+			echo "Successfully cloned repository to: $repo_path" >&2
 			echo "$org/$repo"
 			return 0
 		fi
@@ -138,13 +133,12 @@ clone_repo_from_orgs() {
 		local repo_path="$PROJECTS_DIR/$fallback_org/$repo"
 
 		read -q "REPLY?Would you like to create a new repository at $repo_path? (y/N) "
-		echo
+		echo >&2
 
 		if [[ "$REPLY" =~ ^[Yy]$ ]]; then
 			mkdir -p "$repo_path"
-			cd "$repo_path"
-			git init
-			echo "Created new repository at: $repo_path"
+			git -C "$repo_path" init >&2
+			echo "Created new repository at: $repo_path" >&2
 			echo "$fallback_org/$repo"
 			return 0
 		fi
@@ -154,7 +148,7 @@ clone_repo_from_orgs() {
 }
 
 # Function to use fzf to select a project
-select_project_with_fzf() {
+_c_select_project_with_fzf() {
 	if ! command -v fzf >/dev/null 2>&1; then
 		echo "Error: fzf is required for project selection but not installed" >&2
 		return 1
@@ -176,13 +170,13 @@ select_project_with_fzf() {
 }
 
 # Main logic
-main() {
-	local selected_project project_path
+_c_main() {
+	local selected_project project_path REPLY
 
 	case "${1:-}" in
 	"")
 		# No arguments - use fzf to select project
-		if ! selected_project=$(select_project_with_fzf); then
+		if ! selected_project=$(_c_select_project_with_fzf); then
 			return 1
 		fi
 		project_path="$PROJECTS_DIR/$selected_project"
@@ -197,12 +191,12 @@ main() {
 		local repo="$1"
 
 		# First check if repo exists locally
-		if selected_project=$(find_existing_repo "$repo"); then
+		if selected_project=$(_c_find_existing_repo "$repo"); then
 			echo "Found existing repository: $selected_project"
 			project_path="$PROJECTS_DIR/$selected_project"
 		else
 			# Try to clone from configured organizations
-			if selected_project=$(clone_repo_from_orgs "$repo"); then
+			if selected_project=$(_c_clone_repo_from_orgs "$repo"); then
 				project_path="$PROJECTS_DIR/$selected_project"
 			else
 				echo "Error: Could not find, clone, or create repository '$repo'" >&2
@@ -251,5 +245,9 @@ main() {
 	fi
 }
 
-# Run main function with all arguments
-main "$@"
+# Run main, then drop the helpers so they don't linger in the user's shell.
+local c_status=0
+_c_main "$@" || c_status=$?
+unfunction _c_get_github_user _c_get_potential_orgs _c_find_existing_repo \
+	_c_clone_repo_from_orgs _c_select_project_with_fzf _c_main
+return $c_status
