@@ -81,7 +81,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-26.04, macos-14]
+        # GitHub retires macOS runner images on a schedule. A retired label
+        # isn't an error: the job is cancelled within a second ("The
+        # configuration 'macos-14-arm64-us-default' is not supported"), which
+        # is how macos-14 silently dropped macOS coverage in 2026-11. The
+        # `result` job below turns that into a failure.
+        os: [ubuntu-26.04, macos-26]
     # macOS notes:
     #   - The chezmoi run_onchange scripts gate on $CI / $GITHUB_ACTIONS to
     #     skip GUI-bound work (macOS preferences, nvim Lazy! sync, Claude Code
@@ -98,3 +103,28 @@ jobs:
           github-token: ${{ secrets.MISE_GITHUB_TOKEN }}
       - name: Run test suite
         run: ./bin/test
+
+  # One verdict for the whole matrix. A cancelled matrix job (a retired runner
+  # label, a runner that never picked the job up) leaves the run "cancelled",
+  # which GitHub shows gray rather than red, so it never blocked anything.
+  # Fail on it the same as on a failure. Skipped is fine: that's `decide`
+  # turning the job off for a PR that doesn't need it.
+  result:
+    needs: [decide, test-cold]
+    if: always()
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - env:
+          DECIDE: ${{ needs.decide.result }}
+          TEST_COLD: ${{ needs.test-cold.result }}
+        run: |
+          echo "decide=$DECIDE test-cold=$TEST_COLD"
+          case "$DECIDE/$TEST_COLD" in
+            success/success | success/skipped) ;;
+            *)
+              echo "::error::Cold-start did not pass: decide=$DECIDE, test-cold=$TEST_COLD"
+              exit 1
+              ;;
+          esac
