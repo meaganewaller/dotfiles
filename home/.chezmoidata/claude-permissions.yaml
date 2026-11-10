@@ -11,6 +11,13 @@
 #
 # Account-specific additions go in claude.yaml under claudeData.<account>.
 # permissions.allow; they are concatenated onto this list, not replacing it.
+#
+# Keep entries read-only or tightly scoped; anything else goes through auto
+# mode's classifier. Deliberately absent: `env:*` (`env <cmd>` runs any
+# command; bare `env` is allowed), `printenv` (dumps secrets in the
+# environment), `sed` (`-i` and the `w` command write files, bypassing the
+# Write/Edit guards; `sed -n` doesn't help, since `sed -n -i` still matches),
+# and `docker:*` / `podman:*` (`run -v /:/host` is root on the host).
 
 claudeData:
   shared:
@@ -40,11 +47,19 @@ claudeData:
       - "Bash(dmesg:*)"
       - "Bash(du:*)"
       - "Bash(dirname:*)"
-      - "Bash(docker compose:*)"
-      - "Bash(docker-compose:*)"
-      - "Bash(docker:*)"
+      - "Bash(docker compose logs:*)"
+      - "Bash(docker compose ls:*)"
+      - "Bash(docker compose ps:*)"
+      - "Bash(docker-compose logs:*)"
+      - "Bash(docker-compose ps:*)"
+      - "Bash(docker images:*)"
+      - "Bash(docker info:*)"
+      - "Bash(docker inspect:*)"
+      - "Bash(docker logs:*)"
+      - "Bash(docker ps:*)"
+      - "Bash(docker version:*)"
       - "Bash(echo:*)"
-      - "Bash(env:*)"
+      - "Bash(env)"
       - "Bash(expr:*)"
       - "Bash(fd:*)"
       - "Bash(file:*)"
@@ -169,8 +184,12 @@ claudeData:
       - "Bash(pipx list:*)"
       - "Bash(pkl:*)"
       - "Bash(plutil:*)"
-      - "Bash(podman:*)"
-      - "Bash(printenv:*)"
+      - "Bash(podman images:*)"
+      - "Bash(podman info:*)"
+      - "Bash(podman inspect:*)"
+      - "Bash(podman logs:*)"
+      - "Bash(podman ps:*)"
+      - "Bash(podman version:*)"
       - "Bash(printf:*)"
       - "Bash(ps:*)"
       - "Bash(pytest:*)"
@@ -185,7 +204,6 @@ claudeData:
       - "Bash(ruby -c:*)"
       - "Bash(rustc:*)"
       - "Bash(rustfmt:*)"
-      - "Bash(sed:*)"
       - "Bash(seq:*)"
       - "Bash(shasum:*)"
       - "Bash(sh -n:*)"
@@ -245,8 +263,7 @@ claudeData:
       - "Bash(zsh -n:*)"
       - "Read($HOME/go/pkg/mod/**)"
       - "Read(//tmp/bktide/**)"
-      - "Skill(commit:*)"
-      - "Skill(think:*)"
+      - "Skill(git-workflow:commit)"
       - "WebFetch(domain:developer.1password.com)"
       - "WebFetch(domain:docs.anthropic.com)"
       - "WebFetch(domain:docs.docker.com)"
