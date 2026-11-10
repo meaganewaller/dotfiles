@@ -49,7 +49,9 @@ trusted_config_paths = ["~/src/github.com/meaganewaller"]
 experimental = true
 lockfile = true
 pin = true
-env_file = ".env" # load env varsr from a dotenv file, see `MISE_ENV_FILE`
+# No global env_file: it loads every directory's .env (and its parents') with
+# no trust check, so any clone's secrets or PATH/LD_* overrides would land in
+# the shell. A project opts in from its own mise.toml: [env] _.file = ".env".
 disable_backends = ["asdf", "vfox", "dotnet"]
 disable_tools = ["java"]
 

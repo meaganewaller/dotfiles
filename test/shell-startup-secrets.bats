@@ -78,3 +78,17 @@ load test_helper
 	hits="$(grep -n "fnox export" "$MISE_CONFIG" | grep -vE ":[[:space:]]*#" || true)"
 	[ -z "$hits" ] || fail "something exports fnox secrets to a file again: $hits"
 }
+
+@test "mise does not load every directory's .env into the shell" {
+	local REPO_ROOT MISE_CONFIG hits
+	REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)"
+	MISE_CONFIG="$REPO_ROOT/home/dot_config/mise/config.toml.tmpl"
+
+	# A global env_file has no trust check: cd into any clone, including a
+	# client's or a third party's, and its .env (and every parent's) is
+	# exported into the activated shell -- secrets, PATH and LD_* included.
+	# A project that wants its .env opts in from its own, trusted, mise.toml
+	# with `[env] _.file = ".env"`.
+	hits="$(grep -nE "^[[:space:]]*env_file[[:space:]]*=" "$MISE_CONFIG" || true)"
+	[ -z "$hits" ] || fail "mise loads any directory's .env globally: $hits"
+}
