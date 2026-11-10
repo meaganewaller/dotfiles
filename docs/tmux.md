@@ -116,7 +116,7 @@ because tmux changed how backslash needs escaping in bound commands at 3.0:
 
 #### Claude Code Integration
 
-- `prefix + e` — opens a new "dotfiles" window and launches Claude Code in the chezmoi working tree (`chezmoi data | jq -r .chezmoi.workingTree`)
+- `prefix + e` — opens a new "dotfiles" window and launches Claude Code in the chezmoi working tree (`chezmoi data | jq -r .chezmoi.workingTree`) as `claude-<@claude_account>`. The window's shell is non-interactive, so the binding sources `~/.config/shell/claude.sh` for the account wrappers rather than running a bare `claude`
 
 #### Popups (`display-popup`)
 
