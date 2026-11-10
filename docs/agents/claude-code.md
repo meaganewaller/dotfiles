@@ -39,6 +39,8 @@ Two deliberate holes, both unaffected by the guard because they run outside an i
 
 Anything else that starts claude outside an interactive shell has to pick an account itself, and `test/bare-claude-launches.bats` checks each such path launches with `CLAUDE_CONFIG_DIR` set: tmux's `prefix + e` sources `~/.config/shell/claude.sh` and runs `claude-<@claude_account>`; the `claude-api` credential alias (`fnox exec`, which starts the real binary) sets `CLAUDE_CONFIG_DIR` from the `account` field of its `aliases.credentials` entry, and the alias templates refuse to render a claude entry without one; `e`, `tmux-claude-compose` and `claude-fork` resolve an account before launching.
 
+GUI apps get no shell at all: Claude Desktop and the VS Code/Cursor extensions are launched by launchd, so on macOS they read `CLAUDE_CONFIG_DIR` from the launchd session or fall back to `~/.claude`. The LaunchAgent `~/Library/LaunchAgents/com.meaganewaller.claude-config-dir.plist` sets it at every login, and `run_onchange_after_set-claude-gui-config-dir.sh` sets it at apply time; both render the dir from `home/.chezmoitemplates/claude-gui-config-dir`. It is one account for every GUI app — `work` on a `work_profile` machine, `personal` otherwise — and an app already running keeps its old environment until you quit and reopen it. Claude Desktop honoring it was verified on 2026-11-09 (Claude 4.23118.1): with it set, Desktop's Code sessions, including its `.claude-worktrees` worktrees, write to `~/.claude-personal/projects`.
+
 The sync scripts detect which account directories exist and apply config to each.
 
 ## Account lifecycle
