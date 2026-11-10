@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Sets CLAUDE_CONFIG_DIR in the launchd user session at login, so GUI apps
+  (Claude Desktop, the VS Code/Cursor extensions) use one account's config dir
+  instead of creating ~/.claude (ADR 0010). They never read a shell rc, so the
+  claude-<account> wrappers can't do it for them. Rendered from
+  home/private_Library/LaunchAgents/com.meaganewaller.claude-config-dir.plist.tmpl;
+  run_onchange_after_set-claude-gui-config-dir.sh sets it at apply time too.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.meaganewaller.claude-config-dir</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/launchctl</string>
+		<string>setenv</string>
+		<string>CLAUDE_CONFIG_DIR</string>
+		<string>{{ template "claude-gui-config-dir" . }}</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>

@@ -1,0 +1,8 @@
+{{- /* CLAUDE_CONFIG_DIR for GUI apps (Claude Desktop, the VS Code/Cursor
+     extensions). They are launched by launchd, never read a shell rc, and
+     otherwise fall back to an unmanaged ~/.claude (ADR 0010), so the
+     LaunchAgent and its apply script both set this one account. Call with
+     the template data:
+       {{ template "claude-gui-config-dir" . }} */ -}}
+{{ .chezmoi.homeDir }}/.claude-{{ if .work_profile }}work{{ else }}personal{{ end }}
+{{- /* no trailing newline */ -}}

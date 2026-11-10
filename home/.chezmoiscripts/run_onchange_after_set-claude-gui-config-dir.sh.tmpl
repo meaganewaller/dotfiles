@@ -1,0 +1,19 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Sets CLAUDE_CONFIG_DIR for GUI apps now, so the account takes effect without
+# logging out; the LaunchAgent com.meaganewaller.claude-config-dir does the
+# same at every login. Apps already running keep their old environment until
+# they are quit and reopened. run_onchange_, so it reruns only when the dir
+# below changes.
+
+# Skip on CI: there is no GUI login session to set it in.
+{{ template "ci-skip-guard" "Running in CI, skipping the GUI CLAUDE_CONFIG_DIR" }}
+
+dir={{ includeTemplate "claude-gui-config-dir" . | quote }}
+launchctl setenv CLAUDE_CONFIG_DIR "$dir"
+echo "~ GUI apps will use CLAUDE_CONFIG_DIR=$dir (quit and reopen running ones)"
+
+{{ end -}}
