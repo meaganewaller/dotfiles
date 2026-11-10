@@ -238,8 +238,11 @@ export STATEMENT_TIMEOUT=60s
 # shell environment and is never written to disk.
 {{- with index .aliases "credentials" }}
 {{- range . }}
+{{- if and (eq .tool "claude") (not (hasKey . "account")) }}
+{{-   fail "aliases.credentials: a claude entry needs an account (no bare claude, ADR 0010)" }}
+{{- end }}
 {{- if and (lookPath "fnox") (lookPath .tool) }}
-alias {{ if hasKey . "alias" }}{{ .alias }}{{ else }}{{ .tool }}{{ end }}='fnox exec --config "$HOME/.config/fnox/config.toml" --profile {{ .profile }} -- {{ .tool }}'
+alias {{ if hasKey . "alias" }}{{ .alias }}{{ else }}{{ .tool }}{{ end }}='{{ if hasKey . "account" }}CLAUDE_CONFIG_DIR="$HOME/.claude-{{ .account }}" {{ end }}fnox exec --config "$HOME/.config/fnox/config.toml" --profile {{ .profile }} -- {{ .tool }}'
 {{- end }}
 {{- end }}
 {{- end }}

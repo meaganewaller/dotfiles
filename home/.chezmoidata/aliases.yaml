@@ -33,6 +33,10 @@ aliases:
   # Each entry names a fnox profile that mise does NOT select, so the secret is
   # injected into just this command and never into the shell. Profiles and their
   # op:// refs live in dot_config/fnox/config.toml.
+  #
+  # fnox exec starts the real binary, bypassing the claude-<account> wrappers,
+  # so a claude entry must name the account whose ~/.claude-<account> it runs
+  # against (ADR 0010); the templates refuse to render one without it.
   credentials:
-    - { tool: claude, alias: claude-api, profile: claude }
+    - { tool: claude, alias: claude-api, profile: claude, account: personal }
     - { tool: bktide, profile: buildkite }

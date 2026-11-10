@@ -37,6 +37,8 @@ Each wrapper sets `CLAUDE_CONFIG_DIR` and folds in two things that used to live 
 
 Two deliberate holes, both unaffected by the guard because they run outside an interactive shell: non-interactive scripts (`bin/sync-claude-extras` sets `CLAUDE_CONFIG_DIR` itself for every call), and `command claude`, which bypasses the function by design.
 
+Anything else that starts claude outside an interactive shell has to pick an account itself, and `test/bare-claude-launches.bats` checks each such path launches with `CLAUDE_CONFIG_DIR` set: tmux's `prefix + e` sources `~/.config/shell/claude.sh` and runs `claude-<@claude_account>`; the `claude-api` credential alias (`fnox exec`, which starts the real binary) sets `CLAUDE_CONFIG_DIR` from the `account` field of its `aliases.credentials` entry, and the alias templates refuse to render a claude entry without one; `e`, `tmux-claude-compose` and `claude-fork` resolve an account before launching.
+
 The sync scripts detect which account directories exist and apply config to each.
 
 ## Account lifecycle
