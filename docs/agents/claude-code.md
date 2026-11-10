@@ -126,7 +126,7 @@ Account-specific settings (extras like plugins/marketplaces/MCP servers) are dec
 
 What is **not** in source control:
 
-- `~/.claude*/settings.json` — generated. Each account's [`modify_private_settings.json.tmpl`](../../home/private_dot_claude-personal/modify_private_settings.json.tmpl) renders the declared settings from `home/.chezmoidata/claude.yaml` + `claude-permissions.yaml` and merges them onto whatever is already on disk, so keys Claude Code owns and we do not declare survive. `extraKnownMarketplaces` / `enabledPlugins` are never written here; those are CLI-owned (see below).
+- `~/.claude*/settings.json` — generated. Each account's [`modify_private_settings.json.tmpl`](../../home/private_dot_claude-personal/modify_private_settings.json.tmpl) renders the declared settings from `home/.chezmoidata/claude.yaml` + `claude-permissions.yaml` and merges them onto whatever is already on disk, so keys Claude Code owns and we do not declare survive. `env`, `hooks` and `permissions` are the exception: the data owns them outright. `extraKnownMarketplaces` / `enabledPlugins` are never written here; those are CLI-owned (see below).
 - `~/.claude*/settings.local.json` — machine-local overlay. Not managed; deliberately left to the user / host.
 
 ### Three writers, split by who owns the bytes (ADRs [0008](../adrs/0008-claude-config-two-managers.md), [0011](../adrs/0011-claude-settings-as-data.md))
@@ -135,7 +135,7 @@ Claude Code's runtime config has surfaces with different *writers*, so this repo
 
 | Writer | Owns | Mechanism | Scope |
 | --- | --- | --- | --- |
-| `home/private_dot_claude-{account}/modify_private_settings.json.tmpl` | the flat `settings.json` surface: `statusLine`, `permissions`, `hooks`, feature flags, `env`, `model` | renders [`home/.chezmoitemplates/claude-settings`](../../home/.chezmoitemplates/claude-settings) to JSON, then `jq '. * $desired'` onto the current file | `shared` data everywhere; `{account}` data layered on top |
+| `home/private_dot_claude-{account}/modify_private_settings.json.tmpl` | the flat `settings.json` surface: `statusLine`, `permissions`, `hooks`, feature flags, `env`, `model` | renders [`home/.chezmoitemplates/claude-settings`](../../home/.chezmoitemplates/claude-settings) to JSON, then `jq '. * $desired'` onto the current file, replacing `env` / `hooks` / `permissions` outright | `shared` data everywhere; `{account}` data layered on top |
 | [`bin/sync-claude-settings`](../../bin/sync-claude-settings) | AWS Bedrock model IDs only: `.env.ANTHROPIC_*` and `.model` | imperative `jq`, run as `run_onchange_after_*` so it lands on top of the rendered file | All detected accounts |
 | [`bin/sync-claude-extras`](../../bin/sync-claude-extras) | the CLI-owned surface: `extraKnownMarketplaces`, `enabledPlugins`, `mcpServers` | drives the `claude` CLI from declarative data in `claude.yaml`; never edits `settings.json` directly | Shared extras to all accounts; account-specific extras only to that account |
 
@@ -162,14 +162,14 @@ ADR [0008](../adrs/0008-claude-config-two-managers.md) established the split by 
 
 The data files are `home/.chezmoidata/claude.yaml` (per-scope `settings` / `env` / `hooks`, plus the extras) and `home/.chezmoidata/claude-permissions.yaml` (`permissions.defaultMode` and the allow list — split out purely for diff hygiene; chezmoi deep-merges both into the same `claudeData.shared`).
 
-Layering: `claudeData.shared` applies to every account, `claudeData.{account}` layers on top. Maps and scalars override; the permissions allow list and hooks concatenate.
+Layering: `claudeData.shared` applies to every account, `claudeData.{account}` layers on top. Maps and scalars override; the permissions `allow` / `deny` / `ask` lists and hooks concatenate. `deny` and `ask` are written only when some scope declares them.
 
 Two placeholders expand at render time, because `.chezmoidata` files are plain YAML and cannot themselves be templates:
 
 - `$HOME` → the real home directory. Required in permission patterns: Claude Code does **not** shell-expand those, so a literal `$HOME` would never match.
 - `$CLAUDE_DIR` → `~/.claude-{account}`. Use it for hook commands so one declaration works for whichever account it is placed under.
 
-Merge semantics matter: `jq`'s `*` recurses into objects but **replaces arrays wholesale**. That is deliberate — undeclared keys survive, while removing a permission or hook from the data actually removes it from `settings.json`.
+Merge semantics matter. `env`, `hooks` and `permissions` are **replaced outright after the merge** (or deleted when the data declares none), so the data is their only source: removing an env var, a hook (or a whole hook event), or a permission rule from the data removes it from `settings.json`. Every other key goes through `jq`'s `*`, which recurses into objects, so keys we do not declare (`theme`, the CLI-owned plugin keys) survive. A plain `*` is not enough for the owned keys: it replaces arrays but keeps any map key the data stops mentioning.
 
 Preview a change without applying it:
 

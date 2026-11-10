@@ -2,14 +2,16 @@
 
      Emits pretty-printed JSON built from home/.chezmoidata/claude.yaml and
      claude-permissions.yaml. Callers merge it onto the current file rather than
-     replacing it, so keys Claude Code owns and we do not declare survive.
+     replacing it, so keys Claude Code owns and we do not declare survive --
+     except env, hooks, and permissions, which callers delete first: this
+     template owns those outright, so anything dropped from the data leaves.
 
      Call with the account name and the root template context:
        {{ template "claude-settings" dict "account" "personal" "data" . }}
 
      Layering, for every declared surface: claudeData.shared first, then
      claudeData.<account> on top. Maps and scalars override; the permissions
-     allow list and hooks concatenate.
+     allow / deny / ask lists and hooks concatenate.
 
      Two placeholders are expanded at render time, because .chezmoidata files
      are plain YAML and cannot themselves be templates:
@@ -56,16 +58,24 @@
 {{- $_ := set $out "env" $env -}}
 {{- end -}}
 
-{{/* Permissions: concatenate allow lists, expand $HOME, sort and dedupe so the
-     rendered file is stable regardless of declaration order. */ -}}
+{{/* Permissions: for each rule list, concatenate shared + account, expand
+     $HOME, sort and dedupe so the rendered file is stable regardless of
+     declaration order. allow is always written; deny and ask only when some
+     scope declares them. */ -}}
 {{- $sharedPerms := index $shared "permissions" | default dict -}}
 {{- $acctPerms := index $acct "permissions" | default dict -}}
-{{- $allow := list -}}
-{{- range concat (index $sharedPerms "allow" | default list) (index $acctPerms "allow" | default list) -}}
-{{- $allow = append $allow (replace "$HOME" $home .) -}}
-{{- end -}}
 {{- $mode := index $acctPerms "defaultMode" | default (index $sharedPerms "defaultMode") | default "auto" -}}
-{{- $_ := set $out "permissions" (dict "defaultMode" $mode "allow" ($allow | sortAlpha | uniq)) -}}
+{{- $perms := dict "defaultMode" $mode -}}
+{{- range $kind := list "allow" "deny" "ask" -}}
+{{- $rules := list -}}
+{{- range concat (index $sharedPerms $kind | default list) (index $acctPerms $kind | default list) -}}
+{{- $rules = append $rules (replace "$HOME" $home .) -}}
+{{- end -}}
+{{- if or $rules (eq $kind "allow") -}}
+{{- $_ := set $perms $kind ($rules | sortAlpha | uniq) -}}
+{{- end -}}
+{{- end -}}
+{{- $_ := set $out "permissions" $perms -}}
 
 {{/* Hooks, grouped by event into Claude Code's shape:
        "hooks": { "<Event>": [ { "matcher": ..., "hooks": [ {type, command} ] } ] }
