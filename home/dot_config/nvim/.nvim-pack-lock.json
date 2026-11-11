@@ -142,7 +142,7 @@
       "src": "https://github.com/danilo-augusto/vim-afterglow"
     },
     "vim-test": {
-      "rev": "5f99e84096ab9714ab0a48f52f8f77ef956e32eb",
+      "rev": "b2166d3934889747ef903ebc7b5079acf8e20c47",
       "src": "https://github.com/vim-test/vim-test"
     },
     "which-key.nvim": {
