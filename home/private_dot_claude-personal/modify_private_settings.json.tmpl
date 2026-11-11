@@ -7,8 +7,10 @@
 #
 # The merge is `current * desired`, so keys Claude Code owns and we do not
 # declare (theme, extraKnownMarketplaces, enabledPlugins, ...) survive untouched.
-# jq's `*` recurses into objects but replaces arrays wholesale, which is what we
-# want: dropping a permission or a hook from the data removes it from the file.
+# env, hooks, and permissions are then replaced outright (or deleted when not
+# declared): the data owns them, so dropping an env var, a hook event, or a deny
+# rule from the data removes it here too. A plain `*` would keep any map key it
+# no longer mentions. Replacing in place keeps each key where it sits in the file.
 
 set -euo pipefail
 
@@ -27,7 +29,9 @@ fi
 if [[ -z "$current" ]]; then
   merged=$(printf '%s\n' "$desired" | jq --indent 2 '.') || merged=""
 else
-  merged=$(printf '%s' "$current" | jq --indent 2 --argjson desired "$desired" '. * $desired') || merged=""
+  merged=$(printf '%s' "$current" | jq --indent 2 --argjson desired "$desired" '
+    reduce ("env", "hooks", "permissions") as $k (. * $desired;
+      if $desired | has($k) then .[$k] = $desired[$k] else del(.[$k]) end)') || merged=""
 fi
 
 # Never hand chezmoi a file that would not parse: fall back to leaving the

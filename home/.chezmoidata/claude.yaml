@@ -14,6 +14,8 @@
 #
 # Merge model: `shared` applies to every account; `{account}` is layered on top.
 # Scalars and maps override (account wins), lists concatenate. See ADR 0011.
+# env, hooks, and permissions are owned outright: anything in settings.json
+# under those keys that this data doesn't declare is removed on apply.
 #
 # ONLY PUBLIC ENTRIES HERE. Private/work/machine-specific entries live in
 # machine-local [data.claudeExternalExtra] in ~/.config/chezmoi/chezmoi.toml,
@@ -70,6 +72,7 @@ claudeData:
     # home/.chezmoidata/claude-permissions.yaml (chezmoi deep-merges both files
     # into this same key). Account-specific additions go under
     # claudeData.{account}.permissions.allow and are appended to that list.
+    # permissions.deny / permissions.ask layer the same way when declared.
 
     marketplaces:
       - name: anthropic-agent-skills

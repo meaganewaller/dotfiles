@@ -11,6 +11,15 @@
 #
 # Account-specific additions go in claude.yaml under claudeData.<account>.
 # permissions.allow; they are concatenated onto this list, not replacing it.
+# permissions.deny and permissions.ask layer the same way (shared and
+# per-account, concatenated). deny blocks a call even when you would approve it;
+# ask always prompts, even in auto mode. Both use the same rule syntax as allow,
+# and both only catch the forms they spell out -- `sed -E -i` slips past
+# `sed -i:*` -- so they back up the narrow allow list rather than replace it.
+#
+# Path rules: `~/` is the home directory and `//` an absolute path. A single
+# leading `/` is relative to the settings file, so a `$HOME` path needs a
+# slash of its own: `Read(/$HOME/x)` renders as `Read(//Users/you/x)`.
 #
 # Keep entries read-only or tightly scoped; anything else goes through auto
 # mode's classifier. Deliberately absent: `env:*` (`env <cmd>` runs any
@@ -261,7 +270,7 @@ claudeData:
       - "Bash(whoami:*)"
       - "Bash(xxd:*)"
       - "Bash(zsh -n:*)"
-      - "Read($HOME/go/pkg/mod/**)"
+      - "Read(/$HOME/go/pkg/mod/**)"
       - "Read(//tmp/bktide/**)"
       - "Skill(git-workflow:commit)"
       - "WebFetch(domain:developer.1password.com)"
@@ -279,3 +288,14 @@ claudeData:
       - "WebFetch(domain:stackoverflow.com)"
       - "WebFetch(domain:www.google.com)"
       - "WebFetch(domain:www.rubydoc.info)"
+      # In-place edits bypass the Write/Edit hooks; keys and agent config are
+      # never Claude's to read.
+      deny:
+      - "Bash(sed --in-place:*)"
+      - "Bash(sed -i:*)"
+      - "Read(~/.ssh/**)"
+      # Containers can mount the host (`-v /:/host`), but running one is
+      # sometimes the job, so prompt instead of blocking.
+      ask:
+      - "Bash(docker run:*)"
+      - "Bash(podman run:*)"

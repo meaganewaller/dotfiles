@@ -99,6 +99,12 @@ Concretely:
 - A second `chezmoi apply` produces an empty diff.
 - `~/.claude*/settings.local.json` is still never written by anything in this repo.
 
+## Amendment (2026-11-10): env, hooks, and permissions are owned outright
+
+Item 4 above was wrong about "no `del()` special-casing". `*` replaces arrays, but it keeps any map key the desired side doesn't mention. So an env var, a whole hook event (`hooks.SessionEnd`), or a `permissions.deny` / `ask` list dropped from the data survived in `settings.json` indefinitely. Only entries inside a still-declared array actually went away (dotfiles-1x9).
+
+The merge is still `. * $desired`, but `env`, `hooks` and `permissions` are then set to the desired value (or deleted when nothing declares them). Those three keys come only from the data, and every other key still merges as before. The template also renders `permissions.deny` and `permissions.ask` with the same layering as `allow` (shared then account, `$HOME`-expanded, sorted, deduped), writing each one only when some scope declares it. Before this landed, every account's `settings.json` was checked and had nothing in those keys beyond what the data declares, so no rules were lost.
+
 ## Rejected Options
 
 - **(1) Status quo** — Rejected. Two writers on one surface, with a dead branch pointing at a path that no longer exists.

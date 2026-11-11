@@ -10,11 +10,14 @@ FAKE_HOME="/home/tester"
 
 # A config that pins homeDir so rendered paths are assertable, and points
 # sourceDir at the repo (.chezmoiroot redirects it to home/, same as real use).
+# EXTRA_DATA, when set, is appended verbatim: chezmoi deep-merges config data
+# over .chezmoidata, so a test can declare rules the real data doesn't have.
 template_config() {
 	cat >"$TEST_TMPDIR/render.toml" <<EOF
 sourceDir = "$PWD"
 [data]
     chezmoi = { os = "linux", homeDir = "$FAKE_HOME" }
+${EXTRA_DATA-}
 EOF
 	printf '%s\n' "$TEST_TMPDIR/render.toml"
 }
@@ -81,6 +84,8 @@ run_modify() {
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
 		run jq -e '.permissions.allow | length > 200' "$TEST_TMPDIR/out.json"
 		[ "$status" -eq 0 ] || fail "status=$status output=$output"
+		run jq -e '(.permissions.deny | index("Bash(sed -i:*)")) and (.permissions.ask | index("Bash(docker run:*)"))' "$TEST_TMPDIR/out.json"
+		[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	done < <(all_accounts)
 }
 
@@ -104,8 +109,9 @@ run_modify() {
 	run_modify personal >"$TEST_TMPDIR/out.json"
 
 	# $HOME is expanded at render time -- Claude Code does not shell-expand
-	# permission patterns, so a literal "$HOME" here would never match.
-	run jq -e --arg home "$FAKE_HOME" '.permissions.allow | any(. == "Read(\($home)/go/pkg/mod/**)")' "$TEST_TMPDIR/out.json"
+	# permission patterns, so a literal "$HOME" here would never match. The
+	# rule's own leading slash makes it `//<home>/...`, Claude Code's absolute form.
+	run jq -e --arg home "$FAKE_HOME" '.permissions.allow | any(. == "Read(/\($home)/go/pkg/mod/**)")' "$TEST_TMPDIR/out.json"
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 	run jq -e '.permissions.allow | any(test("\\$HOME"))' "$TEST_TMPDIR/out.json"
 	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
@@ -191,19 +197,69 @@ run_modify() {
 	[ "$status" -eq 0 ] || fail "status=$status output=$output"
 }
 
-@test "undeclared permissions and hooks are dropped, not accumulated" {
-	# jq's `*` recurses into objects but replaces arrays wholesale, which is what
-	# makes removing an entry from the data actually remove it from the file.
+@test "undeclared env, hooks, and permissions are dropped, not accumulated" {
+	# The template owns these three keys outright. A plain `current * desired`
+	# would only replace arrays: an env var, a whole hook event, or a deny list
+	# dropped from the data would survive in the file forever.
 	local current='{
-    "permissions": {"defaultMode": "auto", "allow": ["Bash(rm -rf:*)"]},
-    "hooks": {"PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "/gone.sh"}]}]}
+    "env": {"GONE_VAR": "1"},
+    "permissions": {"defaultMode": "auto", "allow": ["Bash(rm -rf:*)"], "deny": ["Read(/gone)"], "ask": ["Bash(gone:*)"]},
+    "hooks": {
+      "PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "/gone.sh"}]}],
+      "SessionEnd": [{"hooks": [{"type": "command", "command": "/gone-event.sh"}]}]
+    }
   }'
 
 	run_modify personal "$current" >"$TEST_TMPDIR/out.json"
 
 	run jq -e '.permissions.allow | any(. == "Bash(rm -rf:*)")' "$TEST_TMPDIR/out.json"
 	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
+	run jq -e '(.permissions.deny // []) + (.permissions.ask // []) | any(. == "Read(/gone)" or . == "Bash(gone:*)")' "$TEST_TMPDIR/out.json"
+	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
 	run jq -e '[.hooks.PreToolUse[].hooks[0].command] | any(. == "/gone.sh")' "$TEST_TMPDIR/out.json"
+	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
+	run jq -e '.hooks | has("SessionEnd")' "$TEST_TMPDIR/out.json"
+	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
+	run jq -e '.env | has("GONE_VAR")' "$TEST_TMPDIR/out.json"
+	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
+
+	# What is declared is still there.
+	run jq -e '.env.MAX_THINKING_TOKENS == "128000" and (.hooks | has("PreToolUse"))' "$TEST_TMPDIR/out.json"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+}
+
+@test "deny and ask lists layer, sort, dedupe, and \$HOME-expand like allow" {
+	EXTRA_DATA='
+[data.claudeData.shared.permissions]
+    deny = ["Read(/$HOME/.ssh/**)", "Bash(sed -i:*)"]
+    ask = ["Bash(git push:*)"]
+[data.claudeData.work.permissions]
+    deny = ["Bash(docker run:*)", "Bash(sed -i:*)"]'
+
+	run_modify work >"$TEST_TMPDIR/out.json"
+
+	run jq -e --arg home "$FAKE_HOME" '.permissions.deny == [
+		"Bash(docker run:*)",
+		"Bash(sed -i:*)",
+		"Read(/\($home)/.ssh/**)"
+	]' "$TEST_TMPDIR/out.json"
+	[ "$status" -eq 0 ] || fail "status=$status output=$(jq -c .permissions.deny "$TEST_TMPDIR/out.json")"
+	run jq -e '.permissions.ask == ["Bash(git push:*)"]' "$TEST_TMPDIR/out.json"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+	# The allow list is untouched by declaring deny/ask.
+	run jq -e '.permissions.allow | length > 200' "$TEST_TMPDIR/out.json"
+	[ "$status" -eq 0 ] || fail "status=$status output=$output"
+}
+
+@test "deny and ask are omitted when nothing declares them" {
+	# Config data replaces lists rather than appending, which blanks the shared ones.
+	EXTRA_DATA='
+[data.claudeData.shared.permissions]
+    deny = []
+    ask = []'
+
+	run_modify personal >"$TEST_TMPDIR/out.json"
+	run jq -e '.permissions | has("deny") or has("ask")' "$TEST_TMPDIR/out.json"
 	[ "$status" -ne 0 ] || fail "expected non-zero status, got $status"
 }
 
@@ -229,11 +285,11 @@ run_modify() {
 # The legacy `:*` suffix is a plain prefix match: any other `*` in the same rule
 # is taken literally, so the rule never matches. Claude Code warns about each
 # one on every session exit, in every account, since these lists are shared.
-@test "no allow rule mixes a wildcard with the trailing :* prefix syntax" {
+@test "no permission rule mixes a wildcard with the trailing :* prefix syntax" {
 	command -v yq >/dev/null 2>&1 || skip "yq not installed"
 
 	local data="$BATS_TEST_DIRNAME/../home/.chezmoidata" bad
-	bad="$(yq -r '.claudeData | to_entries[] | (.value.permissions.allow // [])[]' \
+	bad="$(yq -r '.claudeData | to_entries[] | (.value.permissions // {}) | ((.allow // []) + (.deny // []) + (.ask // []))[]' \
 		"$data/claude-permissions.yaml" "$data/claude.yaml" |
 		awk '/:\*\)$/ { s = $0; sub(/:\*\)$/, "", s); if (s ~ /\*/) print }')" ||
 		fail "could not read the allow rules"
