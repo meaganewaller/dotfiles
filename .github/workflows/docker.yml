@@ -16,6 +16,8 @@ on:
       - '.dockerignore'
       - '.devcontainer/**'
       - 'install'
+      - 'bin/install-password-manager'
+      - 'share/**'
       - 'home/**/run_*'
       - '.github/workflows/docker.yml'
   workflow_dispatch:
