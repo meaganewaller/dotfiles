@@ -22,11 +22,11 @@ ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 # on a container without it (bin/sync-claude-extras requires it once `claude`
 # is installed). See dotfiles-au4 — .packages.linux has no apt list at all
 # today (only dnf), so this isn't only a container gap.
-# unzip is the second: bin/install-password-manager runs as chezmoi's
-# read-source-state.pre hook and unzips the 1Password CLI, so without it the
-# hook exits 1 and chezmoi refuses to run at all -- the whole image build fails
-# on "sudo: unzip: command not found". GitHub's runner image ships unzip, so
-# this gap only ever showed in the container.
+# unzip is the second. It was added because bin/install-password-manager (the
+# read-source-state.pre hook) used to unzip the 1Password CLI, and without it
+# chezmoi refused to run at all. The hook now installs from 1Password's apt
+# repo instead (dotfiles-3ub); unzip stays until something confirms nothing
+# else in ./install needs it. GitHub's runner image ships it either way.
 # openssh-client is the third: test/git-identity.bats validates every rendered
 # allowed_signers line with `ssh-keygen -lf`, and a missing ssh-keygen exits
 # 127, which the assertion reports as "not a valid ssh public key" — a real key

@@ -266,6 +266,30 @@ cp "$TUF_ROOT/tuf-repo-cdn.sigstore.dev/targets/trusted_root.json" \
 ./bin/test   # test/sigstore-trusted-root.bats verifies it offline
 ```
 
+## Pinned 1Password Signing Key (Not Renovate-Managed)
+
+`share/1password/1password.asc` is 1Password's package-signing key
+(fingerprint `3FEF 9748 469A DBE1 5DA7 CA80 AC2D 6274 2012 EA22`).
+`bin/install-password-manager` runs before every chezmoi command until `op`
+exists. On Linux it installs the CLI from 1Password's apt or dnf repository and
+gives the package manager this key as the only one it trusts, so the key is
+never downloaded at install time (`dotfiles-3ub`).
+
+The key expires **2032-05-16**. `test/install-password-manager.bats` checks the
+fingerprint and starts failing 180 days before expiry, so there is time to
+refresh it:
+
+```bash
+curl -fsS https://downloads.1password.com/linux/keys/1password.asc \
+  -o share/1password/1password.asc
+gpg --show-keys share/1password/1password.asc   # confirm the fingerprint above
+./bin/test
+```
+
+If 1Password rotates to a new key, update the fingerprint in the test, and
+compare it against the one in 1Password's own install docs, not the downloaded
+file.
+
 ## Maintenance Tips
 
 - Prefer explicit versions over `latest`; let Renovate do the bumping.
