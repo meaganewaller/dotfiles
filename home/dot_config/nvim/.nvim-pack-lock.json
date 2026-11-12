@@ -26,7 +26,7 @@
       "src": "https://github.com/nvim-zh/colorful-winsep.nvim"
     },
     "copilot.lua": {
-      "rev": "1d674b416df08e5c54e442503b7703a0df462acf",
+      "rev": "3547efbff9adeecbd9d431c0a2a8707b7f6a4131",
       "src": "https://github.com/zbirenbaum/copilot.lua"
     },
     "evangelion.nvim": {
