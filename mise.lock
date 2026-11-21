@@ -6,6 +6,7 @@ lockfile_version = 2
 version = "v1.13.0"
 backend = "aqua:bats-core/bats-core"
 specifiers = ["v1.13.0"]
+unsupported_platforms = ["windows-x64"]
 
 [tools."aqua:bats-core/bats-core"."platforms.linux-arm64"]
 checksum = "sha256:a85e12b8828271a152b338ca8109aa23493b57950987c8e6dff97ba492772ff3"
@@ -222,6 +223,7 @@ provenance = "cosign"
 version = "2.13.0"
 backend = "packslip:github.com/jdx/hk"
 specifiers = ["2.13.0"]
+unsupported_platforms = ["macos-x64"]
 
 [tools.hk."platforms.linux-arm64"]
 checksum = "sha256:490196a4e638991c671f42941d72ade4d00b14750145f34fc64377b49fc070bb"
