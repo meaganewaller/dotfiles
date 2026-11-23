@@ -20,3 +20,7 @@ home/dot_claude/skills/skill-optimization-workspace/
 # Subagent-driven-development scratch: ledgers, briefs, review packages.
 # Per-plan working state, regenerated on demand; the git history is the record.
 .superpowers/
+
+# Session handoff written by the handoff skill for the next session to
+# pick up; per-machine working state, not project history.
+/SESSION_HANDOFF.md
