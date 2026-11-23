@@ -27,6 +27,13 @@ statusLine
 tui
 "
 
+# Plugin namespaces. Claude Code ignores these keys, and the plugin reads its own
+# config from the same settings.json (onlooker-community/ecosystem ADR-004). They
+# are listed apart from KNOWN_KEYS, so a misspelled namespace still fails here.
+PLUGIN_KEYS="
+compass
+"
+
 @test "every account's settings keys are ones Claude Code reads" {
 	run yq '.claudeData | to_entries | .[] | .key as $account | (.value.settings // {}) | keys | .[] | $account + " " + .' \
 		home/.chezmoidata/claude.yaml
@@ -35,7 +42,7 @@ tui
 
 	local account key unknown=""
 	while read -r account key; do
-		grep -qxF "$key" <<<"$KNOWN_KEYS" || unknown+=" $account.$key"
+		grep -qxF "$key" <<<"$KNOWN_KEYS$PLUGIN_KEYS" || unknown+=" $account.$key"
 	done <<<"$output"
-	[ -z "$unknown" ] || fail "unknown settings keys (typo, or add to KNOWN_KEYS):$unknown"
+	[ -z "$unknown" ] || fail "unknown settings keys (typo, or add to KNOWN_KEYS or PLUGIN_KEYS):$unknown"
 }

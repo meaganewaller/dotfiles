@@ -109,6 +109,11 @@ claudeData:
       attribution:
         commit: ""
         pr: ""
+      # Compass's evaluator times out often enough that failing closed blocks
+      # read-only Bash calls. Let an evaluator error through until ONL-310
+      # lands; real low-confidence verdicts still block.
+      compass:
+        error_policy: "open"
 
     env:
       CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING: "1"
